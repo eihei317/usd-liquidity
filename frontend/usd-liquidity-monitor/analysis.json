@@ -1,0 +1,80 @@
+{
+  "meta": {
+    "generated_at_bjt": "2026-05-23 18:57:02 UTC+08:00",
+    "data_as_of": "2026-05-22",
+    "model": "Claude/WorkBuddy",
+    "input_freshness_note": "美元日频指标多数截至2026-05-21/22；日元Carry数据由独立脚本抓取，USD/JPY与JPY隔夜融资成本截至2026-05-20，CFTC截至2026-05-19，JGB/REER为低频背景。"
+  },
+  "stance": {
+    "label": "中性",
+    "confidence": "中等",
+    "score_text": "美元流动性规则分数1.0，日元Carry风险为中性偏高（3.0/6）。美元短端资金价格不紧，但RRP缓冲接近耗尽；日元端主要风险来自仓位拥挤、JGB上行和美日10Y利差偏窄。",
+    "one_liner": "美元流动性仍是中性，但日元Carry脆弱性升到中性偏高：短端美元融资不紧，真正要盯的是RRP低位和日元空头拥挤在JGB上行背景下的回补风险。"
+  },
+  "key_takeaways": [
+    {
+      "title": "美元短端资金面不紧，SOFR-IORB仍为负",
+      "text": "SOFR-IORB为-14.0bp，上期-15.0bp，边际+1.0bp。SOFR仍低于IORB政策锚，说明回购融资尚未形成短端美元压力。",
+      "related_indicators": ["SOFR", "IORB", "SOFR_ANCHOR"]
+    },
+    {
+      "title": "RRP缓冲垫只剩0.96bn，结构性安全垫很薄",
+      "text": "RRP余额0.96bn，上期3.28bn，边际-2.32bn。RRP继续下降的边际方向不能简单看成利好，因为绝对存量已接近耗尽，后续TGA或QT冲击更容易直接打到准备金。",
+      "related_indicators": ["RRPONTSYD", "RRP_LEVEL"]
+    },
+    {
+      "title": "日元Carry风险为中性偏高，不是已经unwind，但脆弱性上升",
+      "text": "JPY Carry脚本显示风险评分3.0/6：CFTC日元非商业净仓位/OI为-23.7%，JGB10Y为2.520%、约60日上行38.8bp，10Y UST-JGB利差约205bp。仓位拥挤叠加日本本土收益率上行，是当前主要脆弱性。",
+      "related_indicators": ["CFTC_JPY", "JGB10", "US_JP_10Y"]
+    },
+    {
+      "title": "USD/JPY和波动率暂未触发平仓",
+      "text": "USD/JPY为159.07，20日变化-0.67%，20日实现波动率8.84%。汇率没有快速下跌，波动率也不高，所以目前更像脆弱性上升，而不是carry unwind已经发生。",
+      "related_indicators": ["USDJPY", "USDJPY_VOL20"]
+    }
+  ],
+  "risk_flags": [
+    {
+      "priority": "P1",
+      "severity": "medium",
+      "type": "market",
+      "title": "RRP低位削弱美元流动性缓冲",
+      "text": "RRP余额0.96bn，绝对存量接近耗尽。未来TGA补库或QT继续推进时，冲击更容易穿透到银行准备金。",
+      "evidence": ["RRP 0.96bn", "较上期下降2.32bn"],
+      "related_indicators": ["RRPONTSYD", "RRP_LEVEL"]
+    },
+    {
+      "priority": "P1",
+      "severity": "medium",
+      "type": "market",
+      "title": "日元Carry仓位拥挤，遇到日元升值会放大回补",
+      "text": "CFTC日元非商业净仓位/OI为-23.7%，净头寸变化-18,803 contracts，说明投机端仍明显做空日元。它本身代表carry顺风和仓位拥挤，只有在USD/JPY下跌、波动率上升或JGB继续上行时才会变成踩踏风险。",
+      "evidence": ["CFTC JPY净仓位/OI -23.7%", "净头寸变化 -18,803 contracts"],
+      "related_indicators": ["CFTC_JPY", "USDJPY", "USDJPY_VOL20"]
+    },
+    {
+      "priority": "P1",
+      "severity": "medium",
+      "type": "market",
+      "title": "JGB10Y上行削弱carry收益端安全垫",
+      "text": "JGB10Y为2.520%，约60日上行38.8bp；10Y UST-JGB利差约205bp。日本本土收益率上行会提高资金回流吸引力，并压缩carry收益端安全垫。",
+      "evidence": ["JGB10Y 2.520%", "约60日 +38.8bp", "10Y UST-JGB利差 205bp"],
+      "related_indicators": ["JGB10", "US_JP_10Y"]
+    },
+    {
+      "priority": "P2",
+      "severity": "info",
+      "type": "data",
+      "title": "JPY REER与部分JGB数据是低频背景",
+      "text": "JPY REER为66.33，数据截至2026-03；JGB最新截至2026-04-30。它们适合判断估值和政策敏感度，不应当当作日内触发信号。",
+      "evidence": ["JPY REER as_of 2026-03", "JGB10 as_of 2026-04-30"],
+      "related_indicators": ["JPY_REER", "JGB10"]
+    }
+  ],
+  "narrative_blocks": {
+    "summary": "当前不是美元融资压力主导的市场，也不是日元carry已经unwind的状态。美元端短端价格仍稳定，但RRP缓冲低；日元端USD/JPY和波动率暂未触发平仓，但CFTC空头拥挤、JGB上行和美日长端利差偏窄使carry脆弱性上升。",
+    "rates": "美元短端看SOFR-IORB=-14bp，未显示回购融资压力。日元融资端JPY隔夜融资成本0.728%，约20日变化仅0.1bp，融资成本本身没有突然上行。",
+    "balance_sheet": "Fed负债端的主要风险是RRP低位。RRP下降本身是释放，但0.96bn的存量意味着后续再缓冲TGA/QT的能力很弱。",
+    "market_transmission": "传导链定位：美元链的短端融资暂稳，风险在Fed负债端缓冲；日元carry链的融资端暂稳，风险在美日利差/仓位层，尚未传导成USD/JPY快速下跌或波动率飙升。"
+  }
+}

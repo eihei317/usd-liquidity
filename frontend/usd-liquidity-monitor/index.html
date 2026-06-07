@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>美元流动性监测</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./styles.css?v=20260607-v2">
+  <script src="./chart.min.js?v=20260515"></script>
+</head>
+<body>
+  <div class="page-shell">
+    <header class="topbar" aria-label="页面头部">
+      <div>
+        <p class="eyebrow">USD LIQUIDITY MONITOR</p>
+        <h1>美元流动性监测</h1>
+        <p class="subtitle" id="page-subtitle">触发脚本 → 模型分析 → 稳定前端渲染</p>
+      </div>
+      <div class="topbar-meta">
+        <span id="generated-at">更新时间：--</span>
+        <span id="data-as-of">数据日期：--</span>
+      </div>
+    </header>
+
+    <main>
+      <!-- 区块1：今日总判断（唯一） -->
+      <section class="section" aria-labelledby="stance-title">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">OVERALL STANCE</p>
+            <h2 id="stance-title">今日总判断</h2>
+          </div>
+        </div>
+        <article class="stance-card card">
+          <div class="stance-row">
+            <span class="stance-pill" id="stance-label">--</span>
+            <span class="confidence" id="stance-confidence">置信度：--</span>
+            <span class="stance-jpy" id="stance-jpy">日元Carry：<span id="stance-jpy-label">--</span></span>
+          </div>
+          <p class="stance-text" id="stance-one-liner">等待 analysis.json...</p>
+          <div class="scale" id="status-scale"></div>
+        </article>
+      </section>
+
+      <!-- 区块2：关键变化与风险信号（合并） -->
+      <section class="section" aria-labelledby="takeaways-title">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">KEY SIGNALS</p>
+            <h2 id="takeaways-title">关键变化与风险信号</h2>
+          </div>
+        </div>
+        <div id="key-signals" class="key-signals">
+          <p class="empty">等待分析数据...</p>
+        </div>
+      </section>
+
+      <!-- 区块3：日常交易雷达（精简） -->
+      <section class="section" aria-labelledby="radar-title">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">TRADING RADAR</p>
+            <h2 id="radar-title">日常交易雷达</h2>
+          </div>
+          <p class="section-note">首页只放 P0/P1 核心指标，其他折叠。</p>
+        </div>
+        <article class="card radar-card" id="trading-radar"><p class="empty">等待交易雷达数据...</p></article>
+      </section>
+
+      <!-- 区块4：未来美债/T-bill 拍卖日程 -->
+      <section class="section" aria-labelledby="auction-title">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">TREASURY SUPPLY WATCH</p>
+            <h2 id="auction-title">未来美债 / T-bill 拍卖日程</h2>
+          </div>
+          <p class="section-note">提前看发行日和发行规模：大额 T-bill 供给 + 认购走弱，才是真正的吸收压力。</p>
+        </div>
+        <article class="card auction-card" id="upcoming-auctions"><p class="empty">等待未来拍卖日程...</p></article>
+      </section>
+
+      <!-- 区块5：图表（统一30天，核心6个+折叠） -->
+      <section class="section" aria-labelledby="chart-title">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">CHARTS</p>
+            <h2 id="chart-title">最近一月</h2>
+          </div>
+        </div>
+        <!-- 核心图表：展开显示 -->
+        <div id="charts-core" class="chart-grid"></div>
+        <!-- 背景图表：折叠显示 -->
+        <details class="chart-details">
+          <summary>更多图表（背景复盘）</summary>
+          <div id="charts-background" class="chart-grid"></div>
+        </details>
+      </section>
+
+      <!-- 区块6：核心指标表（折叠） -->
+      <section class="section" aria-labelledby="indicator-title">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">INDICATORS</p>
+            <h2 id="indicator-title">核心指标</h2>
+          </div>
+          <p class="section-note">频率、滞后与环比口径贴在表格中，避免不同频率混比。</p>
+        </div>
+        <details class="full-indicators">
+          <summary>展开全量指标表</summary>
+          <div id="indicator-groups" class="indicator-groups"></div>
+        </details>
+      </section>
+
+      <!-- 区块7：数据质量（折叠） -->
+      <section class="section" aria-labelledby="quality-title">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">DATA QUALITY</p>
+            <h2 id="quality-title">数据质量</h2>
+          </div>
+        </div>
+        <details class="quality card" open>
+          <summary>缺失、滞后和降级数据源</summary>
+          <div id="data-quality" class="quality-content"></div>
+        </details>
+      </section>
+    </main>
+  </div>
+
+  <script src="./data.js?v=20260604-analysis"></script>
+  <script src="./app.js?v=20260607-v2"></script>
+</body>
+</html>

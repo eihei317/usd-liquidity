@@ -1,0 +1,28 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Output (timestamped files; latest/ is tracked)
+output/usd_liquidity_*.md
+output/usd_liquidity_*.json
+output/usd_liquidity_*.svg
+output/jpy_carry_*.json
+output/*.db
+
+# Secrets
+.workbuddy/secrets/
+
+# Cache
+.workbuddy/cache/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo

@@ -1,0 +1,193 @@
+╔════════════════════════════════════════════════════════════════════════════╗
+║                     FRONTEND QUICK REFERENCE CARD                          ║
+║          USD Liquidity Monitor Dashboard - Path & Data Structure            ║
+╚════════════════════════════════════════════════════════════════════════════╝
+
+PROBLEM STATEMENT
+─────────────────────────────────────────────────────────────────────────────
+Frontend app.js now reads JSON from ../../output/latest/ when served from project root
+output/latest/ remains the single source of truth
+If fetch fails, app.js still falls back to embedded data.js
+
+DIRECTORY STRUCTURE
+─────────────────────────────────────────────────────────────────────────────
+/Users/eiheisun/WorkBuddy/2026-05-04-task-1/
+├── frontend/usd-liquidity-monitor/          ← Where app runs
+│   ├── index.html
+│   ├── app.js (lines 1-4: reads ../../output/latest/*.json)
+│   ├── data.js (216 KB fallback)
+│   ├── styles.css
+│   └── chart.min.js
+└── output/latest/                            ← Where data files are
+    ├── dashboard_data.json                   (211 KB, required)
+    ├── analysis.json                         (5 KB, required)
+    ├── model_input.json                      (280 KB+, NOT used by frontend; used for model analysis)
+    └── other files...
+
+CURRENT RELATIVE PATH
+─────────────────────────────────────────────────────────────────────────────
+From:     frontend/usd-liquidity-monitor/app.js
+To:       output/latest/dashboard_data.json
+
+Current path:        "../../output/latest/dashboard_data.json"
+Analysis path:       "../../output/latest/analysis.json"
+
+FILES REQUIRED IN output/latest/
+─────────────────────────────────────────────────────────────────────────────
+✓ dashboard_data.json
+  └─ 211 KB
+  └─ Contains: meta, status_scale, trading_dashboard, jpy_carry,
+               indicator_groups, charts, data_quality, derived_signals
+  └─ Used by: app.js renderMeta, renderStance, renderJpyCarry, renderCharts,
+              renderIndicators, renderDataQuality
+
+✓ analysis.json
+  └─ 5 KB
+  └─ Contains: meta, stance (label must be one of 5 values),
+               key_takeaways[], risk_flags[], narrative_blocks
+  └─ Used by: app.js renderStance, renderStack
+
+✓ data.js (optional for offline fallback)
+  └─ 216 KB
+  └─ Contains: window.DASHBOARD_DATA, window.ANALYSIS_DATA
+  └─ Used by: app.js fallback if fetch() fails
+
+KEY JSON FIELDS FOR FRONTEND
+─────────────────────────────────────────────────────────────────────────────
+dashboard_data.json MUST HAVE:
+  • meta.generated_at_bjt (datetime string)
+  • meta.data_as_of (date string YYYY-MM-DD)
+  • status_scale.values (array of exactly 5 strings)
+  • status_scale.current_from_rule (one of 5 values)
+  • trading_dashboard.core[] (array of metrics with id, label, value_text, severity)
+  • jpy_carry.risk (object with label, score)
+  • jpy_carry.cards[] (array of metric cards)
+  • indicator_groups[] (array of indicator tables)
+  • charts[] (array with series[{label, points[{date, value}]}])
+  • quantity metrics/signals when available: SOFR_VOLUME, TBILL_AUCTION_SIZE,
+    TBILL_AUCTION_BTC, SOFR_VOLUME_IMPACT, TBILL_AUCTION_ABSORPTION
+  • data_quality (object with missing/stale/degraded_sources arrays)
+
+analysis.json MUST HAVE:
+  • stance.label = one of ["宽松", "中性偏松", "中性", "中性偏紧", "紧张"]
+  • stance.confidence = "高"|"中等"|"低"
+  • stance.one_liner = string (1-2 sentences)
+  • key_takeaways[] = array of {title, text, related_indicators}
+  • risk_flags[] = array of {priority (P0/P1/P2), severity, type, title, text, evidence}
+
+DASHBOARD LAYOUT (index.html sections)
+─────────────────────────────────────────────────────────────────────────────
+1. Header              → meta.generated_at_bjt, data_as_of, trigger
+2. Hero Grid           → stance pill, key_takeaways, risk_flags
+3. JPY Carry Section   → jpy_carry.risk + cards
+4. Trading Radar       → trading_dashboard.core/confirm/background
+5. Charts Section      → charts[] with Chart.js rendering
+6. Indicators Section  → indicator_groups[] table
+7. Data Quality        → data_quality.missing/stale/degraded_sources
+
+DATA LOADING FLOW (app.js init())
+─────────────────────────────────────────────────────────────────────────────
+1. Try fetch("../../output/latest/dashboard_data.json")
+   ✓ Success → use loaded data
+   ✗ Fail → use window.DASHBOARD_DATA from data.js
+
+2. Try fetch("../../output/latest/analysis.json")
+   ✓ Success → use loaded data
+   ✗ Fail → use window.ANALYSIS_DATA from data.js
+
+3. Render all sections using loaded/fallback data
+
+4. If both fetch and fallback fail → show error: "数据加载失败"
+
+CURRENT PATH STRATEGY
+─────────────────────────────────────────────────────────────────────────────
+Option A is implemented: app.js reads ../../output/latest/*.json
+  • Serve project root with: /usr/bin/python3 -m http.server <port>
+  • Open: /frontend/usd-liquidity-monitor/
+  • Pros: Single source of truth, no duplication
+  • Cons: Couples frontend to output structure
+
+Option B: Copy files to frontend
+  • Add to pipeline: cp output/latest/{dashboard_data,analysis}.json 
+                       frontend/usd-liquidity-monitor/
+  • Pros: No app.js changes needed
+  • Cons: Data duplication, stale if copy fails
+
+Option C: HTTP server from project root
+  • Run: python3 -m http.server 8000
+  • Access: http://localhost:8000/frontend/usd-liquidity-monitor/
+  • Current path already points to "../../output/latest/dashboard_data.json"
+  • Pros: Clean separation, works offline/online
+  • Cons: Requires server setup
+
+Option D: Use data.js as primary
+  • Keep fallback logic, regenerate data.js on every pipeline run
+  • Pros: Works offline, no path issues
+  • Cons: Large JS file (216 KB), slower load
+
+RENDER FUNCTIONS AND THEIR DATA SOURCES
+─────────────────────────────────────────────────────────────────────────────
+renderMeta()           ← dashboard.meta.*
+renderStance()         ← analysis.stance.* + dashboard.status_scale.*
+renderStack()          ← analysis.key_takeaways[] + analysis.risk_flags[]
+renderJpyCarry()       ← dashboard.jpy_carry.*
+renderTradingRadar()   ← dashboard.trading_dashboard.core/confirm/background
+renderCharts()         ← dashboard.charts[], dashboard.trading_dashboard.chart_groups
+renderIndicators()     ← dashboard.indicator_groups[]
+renderDataQuality()    ← dashboard.data_quality.*
+
+CRITICAL VALIDATIONS
+─────────────────────────────────────────────────────────────────────────────
+✓ status_scale.values has EXACTLY 5 items (not more, not less)
+✓ analysis.stance.label matches one of those 5 values (case-sensitive)
+✓ All trading_dashboard items have "severity" field
+✓ All risk_flags sorted by priority (P0, then P1, then P2)
+✓ Chart series.points sorted by date (chronological order)
+✓ All indicator items have "as_of" timestamp
+✓ Quantity-aware metrics exist when sources are available: SOFR_VOLUME, TBILL_AUCTION_SIZE, TBILL_AUCTION_BTC
+✓ Quantity-aware derived signals exist: SOFR_VOLUME_IMPACT, TBILL_AUCTION_ABSORPTION
+✓ meta.generated_at_bjt and meta.data_as_of use consistent format
+
+COMMON ISSUES AND FIXES
+─────────────────────────────────────────────────────────────────────────────
+Issue: Status pill doesn't render
+Fix: Verify stance.label exactly matches one of 5 status_scale.values
+
+Issue: Charts don't show data
+Fix: Ensure series.points has {date, value} objects; dates must be unique
+
+Issue: Radar items don't color-code
+Fix: Ensure all trading_dashboard items have "severity" field
+
+Issue: Risk flags appear in wrong order
+Fix: Sort risk_flags array by priority before output (P0→P1→P2)
+
+Issue: "数据加载失败" error shown
+Fix: Check that both dashboard_data.json AND analysis.json exist and are valid JSON
+
+Issue: Frontend shows stale data
+Fix: Verify data.js is being regenerated with latest output from pipeline
+
+TESTING CHECKLIST
+─────────────────────────────────────────────────────────────────────────────
+□ Verify dashboard_data.json exists in output/latest/
+□ Verify analysis.json exists in output/latest/
+□ Validate both JSON files with: python -m json.tool <file>
+□ Check analysis.stance.label is one of 5 valid values
+□ Verify all risk_flags have priority field (P0/P1/P2)
+□ Verify SOFR/T-bill quantity metrics and signals are present when sources are available
+□ Ensure charts have series with points containing {date, value}
+□ Test frontend path: ../../output/latest/ resolves correctly
+□ Check data.js is regenerated after pipeline run
+□ Verify timestamp consistency: generated_at_bjt in both files
+
+REFERENCE DOCUMENTS
+─────────────────────────────────────────────────────────────────────────────
+• FRONTEND_ANALYSIS.md          - Full architecture analysis (8 sections)
+• JSON_SCHEMA_REFERENCE.md      - Detailed schema with examples
+• FRONTEND_QUICK_REFERENCE.txt  - This document
+
+═════════════════════════════════════════════════════════════════════════════
+Last Updated: 2026-05-27 10:45:00 UTC+08:00
+Analysis Date: 2026-05-27
+═════════════════════════════════════════════════════════════════════════════
