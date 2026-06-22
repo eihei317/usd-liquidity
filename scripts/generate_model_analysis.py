@@ -35,7 +35,7 @@ def generate_analysis(model_input_path, output_path):
     # 2. 判断立场
     # 根据衍生信号判断
     sofr_anchor = signal_map.get('SOFR_ANCHOR', {}).get('value', 0)
-    rrp_level = signal_map.get('RRP_LEVEL', {}).get('value', 0)
+    rrp_level = signal_map.get('RRP_BUFFER', {}).get('value', 0)
     tga_flow = signal_map.get('TGA_FLOW', {}).get('value', 0)
     real_10y = signal_map.get('REAL_10Y', {}).get('value', 0)
     nfci = signal_map.get('NFCI_LEVEL', {}).get('value', 0)
@@ -88,21 +88,21 @@ def generate_analysis(model_input_path, output_path):
         })
     
     # RRP缓冲垫
-    rrp_signal = signal_map.get('RRP_LEVEL', {})
+    rrp_signal = signal_map.get('RRP_BUFFER', {})
     if rrp_signal:
         key_takeaways.append({
             "title": "RRP缓冲垫是当前主要风险点",
             "text": f"RRP Balance 当前为 {rrp_signal.get('value', 0):.2f}bn，上一期为 {rrp_signal.get('previous', 0):.2f}bn，边际变化 {rrp_signal.get('change', 0):+.2f}bn。RRP缓冲垫接近低位，后续冲击更容易落到准备金。",
-            "related_indicators": ["RRP_LEVEL"]
+            "related_indicators": ["RRP_BUFFER"]
         })
     
     # T-bill拍卖吸收
-    tbill_signal = signal_map.get('TBILL_AUCTION_ABSORPTION', {})
+    tbill_signal = signal_map.get('TBILL_AUCTION_STRESS', {})
     if tbill_signal:
         key_takeaways.append({
             "title": "T-bill拍卖规模与需求强度",
-            "text": f"T-bill Auction Absorption 当前为 {tbill_signal.get('value', 0):.1f}bn，上一期为 {tbill_signal.get('previous', 0):.1f}bn，边际变化 {tbill_signal.get('change', 0):+.1f}bn。最新T-bill拍卖规模约{metric_map.get('TBILL_AUCTION_SIZE', {}).get('value', 0):.1f}bn，认购倍数{metric_map.get('TBILL_AUCTION_BTC', {}).get('value', 0):.2f}x，供给吸收处于中性区间。",
-            "related_indicators": ["TBILL_AUCTION_ABSORPTION", "TBILL_AUCTION_SIZE", "TBILL_AUCTION_BTC"]
+            "text": f"T-bill Auction Stress 当前为 {tbill_signal.get('value', 0):.1f}，上一期为 {tbill_signal.get('previous', 0):.1f}，边际变化 {tbill_signal.get('change', 0):+.1f}。最新T-bill拍卖规模约{metric_map.get('TBILL_AUCTION_SIZE', {}).get('value', 0):.1f}bn，认购倍数{metric_map.get('TBILL_AUCTION_BTC', {}).get('value', 0):.2f}x，压力评分综合供给规模与需求覆盖。",
+            "related_indicators": ["TBILL_AUCTION_STRESS", "TBILL_AUCTION_SIZE", "TBILL_AUCTION_BTC"]
         })
     
     # 10Y真实收益率
@@ -127,10 +127,10 @@ def generate_analysis(model_input_path, output_path):
             "text": f"RRP余额仅{rrp_level:.2f}bn，处于历史低位。未来面对TGA补库或QT冲击时，RRP下降缓冲空间有限，冲击可能直接落到银行准备金。",
             "evidence": [
                 f"RRP最新值：{rrp_level:.2f}bn",
-                f"RRP上一期：{signal_map.get('RRP_LEVEL', {}).get('previous', 0):.2f}bn",
-                f"RRP边际变化：+{signal_map.get('RRP_LEVEL', {}).get('change', 0):.2f}bn（边际上不是利好，但缓冲空间略恢复）"
+                f"RRP上一期：{signal_map.get('RRP_BUFFER', {}).get('previous', 0):.2f}bn",
+                f"RRP边际变化：+{signal_map.get('RRP_BUFFER', {}).get('change', 0):.2f}bn（边际上不是利好，但缓冲空间略恢复）"
             ],
-            "related_indicators": ["RRP_LEVEL"]
+            "related_indicators": ["RRP_BUFFER"]
         })
     
     # P0风险：10Y真实收益率偏高

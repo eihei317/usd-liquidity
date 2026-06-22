@@ -37,23 +37,62 @@ def _format_signal_value(v: Optional[float], unit: str) -> str:
         return f"{v:+.1f}bp"
     if unit == "%":
         return f"{v:.2f}%"
-    if unit == "bn":
-        return f"{v:.2f}bn"
-    return f"{v}"
+    if unit in {"bn", "USD bn"}:
+        return f"{v:+,.1f}bn" if v < 0 else f"{v:,.1f}bn"
+    if unit == "USD mn/day":
+        return f"{v:+,.1f}mn/day"
+    if unit in {"ratio", "x"}:
+        return f"{v:.2f}x"
+    if unit == "pt":
+        return f"{v:+.2f}pt"
+    if unit in {"index", ""}:
+        return f"{v:.2f}"
+    return f"{v:.2f}{unit}"
 
 
-def _format_signals_table_for_prompt(signals: List[DerivedSignal]) -> str:
+_SIGNAL_BASE_METRICS = {
+    "SOFR_ANCHOR": "SOFR",
+    "SOFR_VOLUME_IMPACT": "SOFR_VOLUME",
+    "BGCR_TGCR": "BGCR",
+    "CP_PROXY": "DCPN3M",
+    "TGA_FLOW": "TGA",
+    "RRP_FLOW": "RRPONTSYD",
+    "RRP_BUFFER": "RRPONTSYD",
+    "UST_1Y_YIELD": "DGS1",
+    "UST_3Y_YIELD": "DGS3",
+    "NOMINAL_10Y": "DGS10",
+    "REAL_10Y": "DGS10",
+    "REAL_10Y_MOMENTUM": "DGS10",
+    "HY_CHANGE": "BAMLH0A0HYM2",
+    "IG_CHANGE": "BAMLC0A0CM",
+    "VIX_RISK": "VIXCLS",
+    "VIX_MOMENTUM": "VIXCLS",
+    "USD_CHANGE": "DTWEXBGS",
+    "UST_10Y2Y": "T10Y2Y",
+    "UST_10Y3M": "T10Y3M",
+    "NFCI_LEVEL": "NFCI",
+    "TBILL_AUCTION_STRESS": "TBILL_AUCTION_SIZE",
+    "AUCTION_BTC": "UST_AUCTION_BTC",
+}
+
+
+def _format_signals_table_for_prompt(signals: List[DerivedSignal], metrics: List[Metric]) -> str:
+    mm = metric_map(metrics)
     lines = [
-        "| 信号ID | 信号名称 | 最新值 | 上一期值 | 边际变化 |",
-        "| --- | --- | --- | --- | --- |",
+        "| 信号ID | 信号名称 | 最新值 | 最新日期 | 上一期值 | 上期日期 | 边际变化 | 频率/口径 |",
+        "| --- | --- | --- | --- | --- | --- | --- | --- |",
     ]
     for s in signals:
         vid = s.id or ""
         name = s.name or vid
+        base_metric = mm.get(_SIGNAL_BASE_METRICS.get(vid, ""))
+        as_of = s.as_of or (base_metric.as_of if base_metric else None) or "NA"
+        previous_as_of = (base_metric.previous_as_of if base_metric else None) or "NA"
+        frequency = DATA_FREQUENCY_RULES.get(_SIGNAL_BASE_METRICS.get(vid, vid), (base_metric.frequency if base_metric else "派生信号", "", ""))[0]
         value_str = _format_signal_value(s.value, s.unit)
         prev_str = _format_signal_value(s.previous, s.unit) if s.previous is not None else "首期/无上一期"
         change_str = _format_signal_value(s.change, s.unit) if s.change is not None else "首期/无上一期"
-        lines.append(f"| {vid} | {name} | {value_str} | {prev_str} | {change_str} |")
+        lines.append(f"| {vid} | {name} | {value_str} | {as_of} | {prev_str} | {previous_as_of} | {change_str} | {frequency} |")
     return "\n".join(lines)
 
 
@@ -100,14 +139,14 @@ def _format_upcoming_auctions_table_for_prompt(upcoming_auctions: Optional[Dict[
 
 
 def build_model_input_package(trigger: str, generated: str, stance: str, score: float, metrics: List[Metric], signals: List[DerivedSignal], highlights: List[str], chart_paths: Optional[List[str]] = None, upcoming_auctions: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
-    signals_table = _format_signals_table_for_prompt(signals)
+    signals_table = _format_signals_table_for_prompt(signals, metrics)
     quantity_metrics_table = _format_quantity_metrics_table_for_prompt(metrics)
     upcoming_auctions_table = _format_upcoming_auctions_table_for_prompt(upcoming_auctions)
     prompt_text = load_prompt()
     injection = (
-        "【衍生信号强制取值表 —— 你必须直接引用下表数值，严禁自行计算或篡改】\n"
-        "以下衍生信号已由脚本精确计算完成，你在写分析时 MUST 直接使用下表中的「最新值」和「边际变化」，"
-        "不得自行用原始利率相减，不得引用任何与下表不一致的数字。\n\n"
+        "【衍生信号强制取值表 —— 你必须直接引用下表数值、日期和频率，严禁自行计算或篡改】\n"
+        "以下衍生信号已由脚本精确计算完成。写 key_takeaways / risk_flags / evidence 时 MUST 直接使用下表中的「最新值、最新日期、上一期值、上期日期、边际变化、频率/口径」，"
+        "不得自行用原始利率相减，不得引用任何与下表不一致的数字；该表只用于模型内部取值，最终输出仍必须是严格 JSON，不得原样输出 Markdown 表。\n\n"
         f"{signals_table}\n\n"
         "【量级指标强制检查表 —— SOFR/T-bill 分析必须引用】\n"
         "如果本次风险涉及SOFR、回购融资或T-bill供给吸收，必须引用下表中的量级指标；"
@@ -133,7 +172,7 @@ def build_model_input_package(trigger: str, generated: str, stance: str, score: 
             "metrics": [asdict(m) for m in metrics],
             "derived_signals": [asdict(s) for s in signals],
             "quantity_metrics_required": ["SOFR_VOLUME", "TBILL_AUCTION_SIZE", "TBILL_AUCTION_BTC"],
-            "quantity_signals_required": ["SOFR_VOLUME_IMPACT", "TBILL_AUCTION_ABSORPTION"],
+            "quantity_signals_required": ["SOFR_VOLUME_IMPACT", "TBILL_AUCTION_STRESS"],
             "jpy_carry_history": load_jpy_carry_history_payload(),
             "upcoming_auctions": upcoming_auctions or {},
             "data_frequency_rules": DATA_FREQUENCY_RULES,
@@ -148,16 +187,20 @@ def build_model_input_package(trigger: str, generated: str, stance: str, score: 
             "forbidden_outputs": ["html", "markdown", "code_fence", "free_text_before_or_after_json"],
             "required_top_level_fields": ["meta", "stance", "key_takeaways", "risk_flags", "narrative_blocks"],
             "marginal_change_rule": "边际变化不能只写数值，必须说明上升/下降对融资压力或流动性的含义。",
-            "scale_rule": "利率是价格信号，必须结合SOFR_VOLUME、TBILL_AUCTION_SIZE、TBILL_AUCTION_BTC、SOFR_VOLUME_IMPACT、TBILL_AUCTION_ABSORPTION判断价格×规模影响。",
-            "required_scale_mentions_rule": "若key_takeaways或risk_flags涉及SOFR/回购融资，文本证据必须包含SOFR_VOLUME或SOFR_VOLUME_IMPACT；若涉及短债供给/拍卖吸收，文本证据必须同时包含TBILL_AUCTION_SIZE和TBILL_AUCTION_BTC或直接引用TBILL_AUCTION_ABSORPTION，并结合upcoming_auctions中的未来发行日期和发行规模。",
-            "dynamic_sections_rule": "key_takeaways 和 risk_flags 必须根据本次数据动态生成，数量 0-5 条，不固定为 3 条。",
+            "freshness_evidence_rule": "所有key_takeaways.evidence和risk_flags.evidence必须包含日期、频率/口径、最新值、上一期值或边际变化中的至少三项；重要风险优先五项都写全。",
+            "scale_rule": "利率是价格信号，必须结合SOFR_VOLUME、TBILL_AUCTION_SIZE、TBILL_AUCTION_BTC、SOFR_VOLUME_IMPACT、TBILL_AUCTION_STRESS判断价格×规模影响。",
+            "required_scale_mentions_rule": "若key_takeaways或risk_flags涉及SOFR/回购融资，文本证据必须包含SOFR_VOLUME或SOFR_VOLUME_IMPACT；若涉及短债供给/拍卖吸收，文本证据必须同时包含TBILL_AUCTION_STRESS、TBILL_AUCTION_SIZE和TBILL_AUCTION_BTC，并结合upcoming_auctions中的未来发行日期和发行规模。",
+            "dynamic_sections_rule": "key_takeaways 和 risk_flags 必须根据本次数据动态生成，数量 0-5 条，不固定为 3 条，且两者不得重复表达同一风险。",
             "risk_type_rule": "risk_flags.type 必须区分 market 与 data；数据缺口不能写成真实市场压力。",
             "number_format_rule": "所有输出文本中的数值统一保留两位小数即可；不得输出浮点长尾，例如 -2.9999999999999805bp 应写为 -3.00bp。",
-            "rrp_rule": "RRP上升短期通常偏不利风险资产，RRP下降短期通常偏利好；但RRP低位继续下降代表缓冲垫耗尽。必须区分边际方向与存量缓冲垫。",
+            "rrp_rule": "必须用RRP_FLOW说明边际流量方向，用RRP_BUFFER说明存量缓冲垫厚度；RRP下降短期可释放流动性，但极低RRP_BUFFER代表未来冲击更容易落到准备金。",
+            "treasury_yields_rule": "必须在narrative_blocks.treasury_yields中专门分析1Y/3Y/10Y美国国债收益率：1Y=近端政策路径，3Y=中段再定价，10Y=长期折现率锚；10Y必须使用DGS10名义国债收益率，不得用DFII10/TIPS实际收益率替代。",
             "jpy_carry_rule": "JPY Carry 的主目标是判断借日元买美股/美元风险资产的流动性供给是否顺畅；分析顺序为 JPY融资成本 -> 美日利差 -> USD/JPY趋势与波动 -> 仓位拥挤度 -> 对美股/风险资产流动性供给的影响。不要把美元流动性收紧对日元的冲击写成主线。", 
             "json_schema_summary": {
                 "stance": ["label", "confidence", "score_text", "one_liner"],
-                "risk_flag_item": ["priority", "severity", "type", "title", "text", "evidence", "related_indicators"]
+                "key_takeaway_item": ["title", "text", "evidence", "related_indicators"],
+                "risk_flag_item": ["priority", "severity", "type", "title", "text", "evidence", "related_indicators"],
+                "narrative_blocks.treasury_yields": ["label", "one_liner", "analysis"]
             },
         },
     }
@@ -171,8 +214,9 @@ def signal_takeaway(signal: DerivedSignal, idx: int) -> Dict[str, Any]:
     titles = {
         "SOFR_ANCHOR": "回购融资相对政策锚的位置",
         "SOFR_VOLUME_IMPACT": "SOFR价格×交易量的资金成本量级",
-        "TBILL_AUCTION_ABSORPTION": "T-bill拍卖规模与需求强度",
-        "RRP_LEVEL": "RRP缓冲垫是当前主要风险点",
+        "TBILL_AUCTION_STRESS": "T-bill供给×需求吸收压力评分",
+        "RRP_FLOW": "RRP边际流量方向",
+        "RRP_BUFFER": "RRP存量缓冲垫风险",
         "TGA_FLOW": "财政现金流对准备金的边际影响",
         "CP_PROXY": "企业短融代理利差",
         "UST_10Y2Y": "10年-2年美债曲线",
@@ -187,7 +231,7 @@ def signal_takeaway(signal: DerivedSignal, idx: int) -> Dict[str, Any]:
 
 
 def build_fallback_risk_flags(signals: List[DerivedSignal], metrics: List[Metric]) -> List[Dict[str, Any]]:
-    priority_order = ["SOFR_ANCHOR", "SOFR_VOLUME_IMPACT", "TGA_FLOW", "RRP_LEVEL", "TBILL_AUCTION_ABSORPTION", "REAL_10Y", "NOMINAL_10Y", "HY_CHANGE", "IG_CHANGE", "VIX_RISK", "USD_CHANGE", "NFCI_LEVEL", "CP_PROXY", "UST_10Y2Y", "UST_10Y3M"]
+    priority_order = ["SOFR_ANCHOR", "SOFR_VOLUME_IMPACT", "TGA_FLOW", "RRP_FLOW", "RRP_BUFFER", "TBILL_AUCTION_STRESS", "UST_1Y_YIELD", "UST_3Y_YIELD", "REAL_10Y", "REAL_10Y_MOMENTUM", "HY_CHANGE", "IG_CHANGE", "VIX_RISK", "VIX_MOMENTUM", "USD_CHANGE", "NFCI_LEVEL", "CP_PROXY", "UST_10Y2Y", "UST_10Y3M"]
     priority_index = {signal_id: idx for idx, signal_id in enumerate(priority_order)}
     risky_signals = [s for s in signals if s.severity in {"偏紧", "紧张", "缺失"}]
     risky_signals = sorted(risky_signals, key=lambda s: priority_index.get(s.id, 99))
@@ -226,7 +270,7 @@ def build_fallback_risk_flags(signals: List[DerivedSignal], metrics: List[Metric
 def build_fallback_analysis(generated: str, context: Dict[str, Any], signals: List[DerivedSignal], highlights: List[str]) -> Dict[str, Any]:
     stance = context.get("stance", "中性")
     metrics = [Metric(**m) for m in context.get("metrics", [])]
-    priority = {"SOFR_ANCHOR": 0, "SOFR_VOLUME_IMPACT": 1, "TGA_FLOW": 2, "RRP_LEVEL": 3, "TBILL_AUCTION_ABSORPTION": 4, "UST_1Y_YIELD": 5, "REAL_10Y": 6, "NOMINAL_10Y": 7, "HY_CHANGE": 8, "IG_CHANGE": 9, "VIX_RISK": 10, "UST_10Y2Y": 11, "UST_10Y3M": 12, "NFCI_LEVEL": 13, "CP_PROXY": 14}
+    priority = {"SOFR_ANCHOR": 0, "SOFR_VOLUME_IMPACT": 1, "TGA_FLOW": 2, "RRP_FLOW": 3, "RRP_BUFFER": 4, "TBILL_AUCTION_STRESS": 5, "UST_1Y_YIELD": 6, "UST_3Y_YIELD": 7, "REAL_10Y": 8, "REAL_10Y_MOMENTUM": 9, "HY_CHANGE": 10, "IG_CHANGE": 11, "VIX_RISK": 12, "VIX_MOMENTUM": 13, "UST_10Y2Y": 14, "UST_10Y3M": 15, "NFCI_LEVEL": 16, "CP_PROXY": 17}
     selected = sorted(signals, key=lambda s: priority.get(s.id, 99))[:5]
     data_as_of = None
     dates = [m.as_of for m in metrics]
@@ -263,7 +307,12 @@ def build_fallback_analysis(generated: str, context: Dict[str, Any], signals: Li
             "summary": f"今日美元流动性整体{stance}。",
             "rates": "短端资金利率重点看相对政策锚的位置，尤其是SOFR-IORB；同时用SOFR交易量把价格偏离转化为量级冲击。",
             "balance_sheet": "TGA、RRP与准备金水位决定负债端缓冲空间，RRP需要区分边际方向和存量缓冲垫。",
-            "market_transmission": "信用、离岸美元、真实收益率和VIX用于确认压力是否外溢到证券市场。",
+            "market_transmission": "信用、离岸美元、10年期国债收益率和VIX用于确认压力是否外溢到证券市场。",
+            "treasury_yields": {
+                "label": "中性",
+                "one_liner": "1Y/3Y/10Y收益率组合用于拆分近端政策路径、中段再定价与长期折现率锚。",
+                "analysis": "1Y看近端政策路径，3Y看中段再定价，10Y看长期名义折现率锚；正式模型分析会结合三者最新值、边际变化和曲线斜率输出判断。",
+            },
         },
     }
 

@@ -325,10 +325,40 @@ def build_trading_dashboard(metrics: List[Metric], signals: List[DerivedSignal])
     mm = metric_map(metrics)
     sm = {s.id: s for s in signals}
 
+    signal_base_metrics = {
+        "SOFR_ANCHOR": "SOFR",
+        "SOFR_VOLUME_IMPACT": "SOFR_VOLUME",
+        "BGCR_TGCR": "BGCR",
+        "CP_PROXY": "DCPN3M",
+        "TGA_FLOW": "TGA",
+        "RRP_FLOW": "RRPONTSYD",
+        "RRP_BUFFER": "RRPONTSYD",
+        "UST_1Y_YIELD": "DGS1",
+        "UST_3Y_YIELD": "DGS3",
+        "NOMINAL_10Y": "DGS10",
+        "REAL_10Y": "DGS10",
+        "REAL_10Y_MOMENTUM": "DGS10",
+        "HY_CHANGE": "BAMLH0A0HYM2",
+        "IG_CHANGE": "BAMLC0A0CM",
+        "VIX_RISK": "VIXCLS",
+        "VIX_MOMENTUM": "VIXCLS",
+        "USD_CHANGE": "DTWEXBGS",
+        "UST_10Y2Y": "T10Y2Y",
+        "UST_10Y3M": "T10Y3M",
+        "NFCI_LEVEL": "NFCI",
+        "TBILL_AUCTION_STRESS": "TBILL_AUCTION_SIZE",
+        "AUCTION_BTC": "UST_AUCTION_BTC",
+    }
+
     def signal_item(signal_id: str, priority: str, why: str) -> Optional[Dict[str, Any]]:
         signal = sm.get(signal_id)
         if not signal:
             return None
+        # 从底层metric获取时间信息，或使用signal自带的时间
+        base_metric_id = signal_base_metrics.get(signal_id)
+        base_metric = mm.get(base_metric_id) if base_metric_id else None
+        as_of = signal.as_of if hasattr(signal, 'as_of') and signal.as_of else base_metric.as_of if base_metric else None
+        freq_info = DATA_FREQUENCY_RULES.get(base_metric_id or signal_id, (base_metric.frequency if base_metric else "", "", ""))
         return {
             "type": "signal",
             "id": signal.id,
@@ -340,6 +370,8 @@ def build_trading_dashboard(metrics: List[Metric], signals: List[DerivedSignal])
             "severity": signal.severity,
             "why": why,
             "interpretation": signal.interpretation,
+            "as_of": as_of,
+            "frequency": freq_info[0] if freq_info[0] else "派生信号",
         }
 
     def metric_item(metric_id: str, priority: str, why: str) -> Optional[Dict[str, Any]]:
@@ -369,10 +401,12 @@ def build_trading_dashboard(metrics: List[Metric], signals: List[DerivedSignal])
             signal_item("SOFR_ANCHOR", "P0", "回购融资是否高于政策锚"),
             signal_item("SOFR_VOLUME_IMPACT", "P0", "SOFR价格偏离作用在多大交易量上"),
             metric_item("TGA", "P0", "财政抽水/放水"),
-            metric_item("RRPONTSYD", "P0", "非银现金缓冲垫"),
+            signal_item("RRP_FLOW", "P0", "RRP边际流量方向"),
+            signal_item("RRP_BUFFER", "P0", "非银现金缓冲垫厚度"),
             metric_item("WRESBAL", "P1", "银行准备金水位"),
-            signal_item("UST_1Y_YIELD", "P1", "近端政策路径"),
-            signal_item("REAL_10Y", "P1", "真实折现率压力"),
+            signal_item("UST_1Y_YIELD", "P1", "短债近端政策路径"),
+            signal_item("UST_3Y_YIELD", "P1", "中段政策路径再定价"),
+            signal_item("REAL_10Y", "P1", "10年期国债收益率压力"),
             signal_item("HY_CHANGE", "P1", "信用压力是否扩散"),
         ]),
         "confirm": compact([
@@ -380,11 +414,12 @@ def build_trading_dashboard(metrics: List[Metric], signals: List[DerivedSignal])
             metric_item("TGCR", "P2", "三方回购融资确认"),
             metric_item("BGCR", "P2", "广义回购融资确认"),
             signal_item("BGCR_TGCR", "P2", "回购内部结构扰动"),
-            signal_item("NOMINAL_10Y", "P2", "长期名义折现率"),
+            signal_item("REAL_10Y_MOMENTUM", "P2", "10年期国债收益率边际变化"),
             signal_item("IG_CHANGE", "P2", "投资级信用融资"),
-            signal_item("VIX_RISK", "P2", "证券市场风险偏好"),
+            signal_item("VIX_RISK", "P2", "证券市场波动率水平"),
+            signal_item("VIX_MOMENTUM", "P2", "证券市场风险偏好边际变化"),
             metric_item("SOFR_VOLUME", "P2", "回购融资交易量级"),
-            signal_item("TBILL_AUCTION_ABSORPTION", "P2", "T-bill供给吸收压力"),
+            signal_item("TBILL_AUCTION_STRESS", "P2", "T-bill供给×需求吸收压力"),
             metric_item("TBILL_AUCTION_BTC", "P2", "短债拍卖需求强度"),
             metric_item("UST_AUCTION_BTC", "P2", "国债供给吸收能力"),
             metric_item("REPO_FAILS_UST", "P2", "抵押品交割链条"),
@@ -393,7 +428,6 @@ def build_trading_dashboard(metrics: List[Metric], signals: List[DerivedSignal])
         ]),
         "background": compact([
             metric_item("SOMA", "B", "QT结构背景"),
-            metric_item("DGS3", "B", "中段政策路径再定价"),
             metric_item("DGS1", "B", "近端政策路径"),
             metric_item("DGS30", "B", "长期期限溢价"),
             signal_item("UST_10Y2Y", "B", "收益率曲线斜率"),
@@ -588,21 +622,21 @@ def build_transmission_chain(context: Dict[str, Any], signals: List[DerivedSigna
     dgs1 = metrics_dict.get("DGS1")
     dgs3 = metrics_dict.get("DGS3")
     dgs10 = metrics_dict.get("DGS10")
-    real_10y = metrics_dict.get("DFII10")
+    real_10y = metrics_dict.get("DGS10")
     curve_10y2y = metrics_dict.get("T10Y2Y")
     curve_10y3m = metrics_dict.get("T10Y3M")
     vix = metrics_dict.get("VIXCLS")
     nfci = metrics_dict.get("NFCI")
 
     nodes = [
-        node("fed_liability", "Fed负债端水位", "TGA/RRP/WRESBAL 决定准备金缓冲空间", signal_status(["TGA_FLOW", "RRP_LEVEL"], ["TGA", "RRPONTSYD", "WRESBAL"]), [f"TGA {metric_value_text(tga)}", f"RRP {metric_value_text(rrp)}", f"WRESBAL {metric_value_text(wresbal)}（周频背景）"], "先看负债端是否抽走或释放准备金。"),
+        node("fed_liability", "Fed负债端水位", "TGA/RRP/WRESBAL 决定准备金缓冲空间", signal_status(["TGA_FLOW", "RRP_FLOW", "RRP_BUFFER"], ["TGA", "RRPONTSYD", "WRESBAL"]), [f"TGA {metric_value_text(tga)}", f"RRP Flow {signal_value_text(signal_map.get('RRP_FLOW'))}", f"RRP Buffer {signal_value_text(signal_map.get('RRP_BUFFER'))}", f"WRESBAL {metric_value_text(wresbal)}（周频背景）"], "先区分RRP边际流量和存量缓冲垫，再看负债端是否抽走或释放准备金。"),
         node("reserve_anchor", "政策锚/准备金边际", "IORB 是准备金报酬锚", signal_status(["SOFR_ANCHOR"], ["IORB"]), [f"IORB {metric_value_text(iorb)}", f"SOFR-Anchor {signal_value_text(signal_map.get('SOFR_ANCHOR'))}"], "SOFR接近或高于政策锚说明回购融资端准备金边际变紧。"),
         node("unsecured_funding", "银行间无抵押融资", "EFFR/OBFR", signal_status([], ["EFFR", "OBFR"]), [f"EFFR {metric_value_text(effr)}", f"OBFR {metric_value_text(obfr)}"], "银行间资金价格是否同步抬升。"),
-        node("repo_collateral", "回购融资/抵押品链条", "SOFR/TGCR/BGCR + SOFR交易量 + T-bill吸收", signal_status(["SOFR_ANCHOR", "SOFR_VOLUME_IMPACT", "BGCR_TGCR", "TBILL_AUCTION_ABSORPTION", "AUCTION_BTC"], ["SOFR", "SOFR_VOLUME", "TGCR", "BGCR", "TBILL_AUCTION_SIZE", "TBILL_AUCTION_BTC"]), [f"SOFR {metric_value_text(sofr)}", f"SOFR Volume {metric_value_text(sofr_volume)}", f"SOFR-Anchor {signal_value_text(signal_map.get('SOFR_ANCHOR'))}", f"T-bill Size {metric_value_text(tbill_size)}", f"T-bill BTC {metric_value_text(tbill_btc)}"], "回购/抵押品融资压力，必须同时看价格偏离和承载该价格的交易量。"),
-        node("bond_pricing", "债券定价锚/收益率曲线", "1Y/3Y/10Y/实际利率", signal_status(["UST_1Y_YIELD", "NOMINAL_10Y", "REAL_10Y", "UST_10Y2Y", "UST_10Y3M"], ["DGS1", "DGS10", "DFII10"]), [f"1Y {metric_value_text(dgs1)}", f"10Y {metric_value_text(dgs10)}", f"Real 10Y {metric_value_text(real_10y)}"], "收益率和实际利率压力。"),
+        node("repo_collateral", "回购融资/抵押品链条", "SOFR/TGCR/BGCR + SOFR交易量 + T-bill吸收", signal_status(["SOFR_ANCHOR", "SOFR_VOLUME_IMPACT", "BGCR_TGCR", "TBILL_AUCTION_STRESS", "AUCTION_BTC"], ["SOFR", "SOFR_VOLUME", "TGCR", "BGCR", "TBILL_AUCTION_SIZE", "TBILL_AUCTION_BTC"]), [f"SOFR {metric_value_text(sofr)}", f"SOFR Volume {metric_value_text(sofr_volume)}", f"SOFR-Anchor {signal_value_text(signal_map.get('SOFR_ANCHOR'))}", f"T-bill Stress {signal_value_text(signal_map.get('TBILL_AUCTION_STRESS'))}", f"T-bill BTC {metric_value_text(tbill_btc)}"], "回购/抵押品融资压力，必须同时看价格偏离和承载该价格的交易量，以及T-bill供给×需求压力评分。"),
+        node("bond_pricing", "债券定价锚/收益率曲线", "1Y/3Y/10Y", signal_status(["UST_1Y_YIELD", "REAL_10Y", "REAL_10Y_MOMENTUM", "UST_10Y2Y", "UST_10Y3M"], ["DGS1", "DGS3", "DGS10"]), [f"1Y {metric_value_text(dgs1)}", f"3Y {metric_value_text(dgs3)}", f"10Y {metric_value_text(dgs10)}", f"10Y Momentum {signal_value_text(signal_map.get('REAL_10Y_MOMENTUM'))}"], "用1Y看近端政策路径，3Y看中段再定价，10Y看长期折现率锚。"),
         node("offshore_usd", "离岸美元", "美元指数", signal_status(["USD_CHANGE"], ["DTWEXBGS"]), [f"DTWEXBGS {metric_value_text(usd)}"], "离岸美元融资压力。"),
         node("credit_market", "信用市场/金融条件", "CP/IG/HY/NFCI", signal_status(["CP_PROXY", "IG_CHANGE", "HY_CHANGE", "NFCI_LEVEL"], ["DCPN3M", "BAMLC0A0CM", "BAMLH0A0HYM2", "NFCI"]), [f"IG {metric_value_text(ig)}", f"HY {metric_value_text(hy)}", f"NFCI {metric_value_text(nfci)}"], "信用和金融条件传导。"),
-        node("securities_risk", "证券市场风险偏好", "VIX", signal_status(["VIX_RISK"], ["VIXCLS"]), [f"VIX {metric_value_text(vix)}"], "股票波动率和避险需求。"),
+        node("securities_risk", "证券市场风险偏好", "VIX", signal_status(["VIX_RISK", "VIX_MOMENTUM"], ["VIXCLS"]), [f"VIX {metric_value_text(vix)}", f"VIX Momentum {signal_value_text(signal_map.get('VIX_MOMENTUM'))}"], "股票波动率和避险需求；VIX上行只有在信用利差同步扩大时才说明压力进一步传导到信用融资。"),
     ]
 
     market_problem = next((item for item in nodes if item["problem_type"] == "market"), None)
@@ -665,6 +699,7 @@ def build_dashboard_data(trigger: str, generated: str, context: Dict[str, Any], 
                 "previous": s.previous, "previous_text": format_number(s.previous, s.unit),
                 "change": s.change, "change_text": format_signal_change(s.change, s.unit),
                 "unit": s.unit, "severity": s.severity, "meaning": s.interpretation,
+                "as_of": s.as_of,
             }
             for s in signals
         ],

@@ -85,39 +85,16 @@ def write_outputs(
         "dashboard_data.json": dashboard_data,
         "charts.json": charts_payload,
     }
-    # Preserve existing valid analysis.json if present, otherwise write placeholder
-    existing_analysis_path = LATEST_DIR / "analysis.json"
-    if existing_analysis_path.exists():
-        try:
-            existing_analysis = json.loads(existing_analysis_path.read_text(encoding="utf-8"))
-            existing_label = existing_analysis.get("stance", {}).get("label", "")
-            if existing_label and existing_label != "待模型分析":
-                latest_map["analysis.json"] = existing_analysis
-            else:
-                # Invalid or placeholder — write new placeholder
-                latest_map["analysis.json"] = {
-                    "meta": {"status": "pending_model_analysis", "generated_at_bjt": context.get("generated_at_bjt", "")},
-                    "stance": {"label": "待模型分析", "score_text": "", "one_liner": ""},
-                    "key_takeaways": [],
-                    "risk_flags": [],
-                    "narrative_blocks": {}
-                }
-        except Exception:
-            latest_map["analysis.json"] = {
-                "meta": {"status": "pending_model_analysis", "generated_at_bjt": context.get("generated_at_bjt", "")},
-                "stance": {"label": "待模型分析", "score_text": "", "one_liner": ""},
-                "key_takeaways": [],
-                "risk_flags": [],
-                "narrative_blocks": {}
-            }
-    else:
-        latest_map["analysis.json"] = {
-            "meta": {"status": "pending_model_analysis", "generated_at_bjt": context.get("generated_at_bjt", "")},
-            "stance": {"label": "待模型分析", "score_text": "", "one_liner": ""},
-            "key_takeaways": [],
-            "risk_flags": [],
-            "narrative_blocks": {}
-        }
+    # Always reset analysis to a placeholder after fresh data generation.
+    # The model/agent must read the newly generated model_input.json and overwrite this file;
+    # preserving an older analysis here would risk showing stale conclusions with fresh data.
+    latest_map["analysis.json"] = {
+        "meta": {"status": "pending_model_analysis", "generated_at_bjt": context.get("generated_at_bjt", "")},
+        "stance": {"label": "待模型分析", "score_text": "", "one_liner": ""},
+        "key_takeaways": [],
+        "risk_flags": [],
+        "narrative_blocks": {}
+    }
     paths["analysis_path"] = OUTPUT_DIR / f"usd_liquidity_analysis_{stamp}.json"
 
     for filename, payload in latest_map.items():

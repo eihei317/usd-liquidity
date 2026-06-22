@@ -231,6 +231,7 @@ class DerivedSignal:
     severity: str
     previous: Optional[float] = None
     change: Optional[float] = None
+    as_of: Optional[str] = None  # 从底层metric继承的时间
 
 
 # ─── Time helpers ──────────────────────────────────────────────────────────────

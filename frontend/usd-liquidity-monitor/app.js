@@ -14,6 +14,13 @@ function el(tag, className, text) {
 }
 
 async function loadJson(url) {
+  // 离线 fallback：若 data.js 已注入全局变量，直接返回
+  if (url === "/output/latest/dashboard_data.json" && window.DASHBOARD_DATA) {
+    return window.DASHBOARD_DATA;
+  }
+  if (url === "/output/latest/analysis.json" && window.ANALYSIS_DATA) {
+    return window.ANALYSIS_DATA;
+  }
   const response = await fetch(url, { cache: "no-store" });
   if (!response.ok) throw new Error(`${url} ${response.status}`);
   return response.json();
@@ -199,7 +206,14 @@ function renderRadarItem(item) {
   card.appendChild(el("strong", "", item.label || item.id));
   const value = el("div", "radar-value", item.value_text || "NA");
   card.appendChild(value);
-  card.appendChild(el("p", "radar-change", `上一期 ${item.previous_text || "NA"} / 变化 ${item.change_text || "NA"}`));
+  // 时间信息行：日期 + 频率 + 上一期 + 变化
+  const metaLine = el("p", "radar-meta");
+  if (item.as_of) {
+    metaLine.appendChild(el("span", "meta-as-of", `${item.as_of} ${item.frequency || ""}`));
+  }
+  metaLine.appendChild(el("span", "meta-prev", `上期 ${item.previous_text || "NA"}`));
+  metaLine.appendChild(el("span", "meta-change", `变化 ${item.change_text || "NA"}`));
+  card.appendChild(metaLine);
   card.appendChild(el("p", "radar-why", item.why || item.interpretation || ""));
   return card;
 }
@@ -209,7 +223,12 @@ function renderRadarMiniItem(item) {
   row.appendChild(el("span", "priority", item.priority || ""));
   row.appendChild(el("strong", "", item.label || item.id));
   row.appendChild(el("span", "mono", item.value_text || "NA"));
-  row.appendChild(el("span", "mono", item.change_text || "NA"));
+  // 时间信息
+  if (item.as_of) {
+    row.appendChild(el("span", "meta", `${item.as_of} ${item.frequency || ""}`));
+  }
+  row.appendChild(el("span", "mono", `上期 ${item.previous_text || "NA"}`));
+  row.appendChild(el("span", "mono", `变化 ${item.change_text || "NA"}`));
   row.appendChild(el("span", "", item.why || ""));
   return row;
 }
