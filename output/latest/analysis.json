@@ -1,130 +1,98 @@
 {
   "meta": {
-    "generated_at_bjt": "2026-06-07 12:13:00 UTC+08:00",
-    "data_as_of": "RRP: 2026-06-05 (stale 2d); SOFR/Yields: 2026-06-04 (stale 3d); DFII10: 2026-06-04 (stale 3d, T+2延迟); NFCI: 2026-05-29 (stale 9d)",
-    "model": "WorkBuddy-AI-Agent",
-    "input_freshness_note": "RRP已更新至最新（极新！）; SOFR/Yields/TGA有3天延迟（正常T+1/T+2）; NFCI有9天延迟（周频数据）"
+    "generated_at_bjt": "2026-06-23 11:07:27 UTC+08:00",
+    "data_as_of": "2026-06-22",
+    "model": "AI Agent",
+    "input_freshness_note": "核心日频指标：TGA/RRP/SOFR至2026-06-18，RRP更新至2026-06-22，信用OAS至2026-06-19，周频WRESBAL/SOMA至2026-06-17；RRP缓冲垫仍处于极低水平(3.9bn)。"
   },
   "stance": {
-    "label": "中性偏紧",
-    "confidence": "中高",
-    "score_text": "NFCI=-0.494（偏松），但RRP仅0.8bn（极低！），SOFR-IORB=-2.9999999999999805bp（利差收窄），REAL_10Y=2.11%（估值压力）",
-    "one_liner": "RRP缓冲已几乎耗尽（仅0.8bn，上期1.1bn，更新于2026-06-05)，准备金对冲击极度敏感；SOFR-IORB利差收窄至-2.9999999999999805bp（上期-4.0000000000000036bp，更新于2026-06-04)暗示回购融资边际收紧，但NFCI=-0.494（上期-0.5)整体金融条件仍偏松。后续TGA补库或QT冲击将直接传导至准备金。"
+    "label": "中性",
+    "confidence": "中等",
+    "score_text": "TGA下降释放流动性(+)，但RRP边际上升吸收流动性(-)，SOFR负偏离但交易量高(中性)，收益率曲线混合(1Y升/长端降)，信用压力不明显(中性)",
+    "one_liner": "美元流动性总体中性：TGA释放流动性被RRP边际上升部分抵消，回购融资并不紧，但RRP缓冲垫仍极低，未来TGA补库或美债供给冲击可能直接打到准备金。"
   },
   "key_takeaways": [
     {
-      "title": "RRP缓冲几乎耗尽，准备金脆弱性极高",
-      "text": "RRP余额最新仅0.8bn（上期1.1bn，更新于2026-06-05），较上期暴跌0.4bn（-32.2%）！缓冲垫已接近零，任何TGA补库或QT冲击将直接冲击银行准备金。",
-      "related_indicators": [
-        "RRPONTSYD",
-        "RRP_LEVEL",
-        "WRESBAL"
-      ]
+      "title": "TGA大幅下降释放流动性，但RRP边际上升部分抵消",
+      "text": "TGA下降41.4bn释放银行体系准备金，偏松；但RRP上升3.7bn，资金回到联储停车场，短期偏不利风险资产。净效果约释放37.7bn流动性，但RRP缓冲垫仍极低(3.9bn)，未来抗冲击能力有限。",
+      "evidence": [
+        "2026-06-18 TGA: 915.085bn，日变化 -41.4bn，释放流动性",
+        "2026-06-22 RRP_FLOW: +3.7bn，边际上升，资金回到联储停车场",
+        "2026-06-22 RRP_BUFFER: 3.9bn，仍极低，缓冲垫接近耗尽"
+      ],
+      "related_indicators": ["TGA", "RRPONTSYD"]
     },
     {
-      "title": "SOFR-IORB利差收窄，回购融资边际收紧",
-      "text": "SOFR-IORB从-4.0000000000000036bp收窄至-2.9999999999999805bp（更新于2026-06-04），说明SOFR相对政策锚上升，回购融资成本边际收紧。SOFR_VOLUME_IMPACT = -2.62 USD bn/day，价格×交易量冲击仍有限但边际恶化。",
-      "related_indicators": [
-        "SOFR_ANCHOR",
-        "SOFR_VOLUME_IMPACT",
-        "SOFR"
-      ]
+      "title": "SOFR负偏离政策锚但交易量高，回购融资并不紧",
+      "text": "SOFR-IORB为-3.0bp，回购融资价格并不紧；但SOFR_VOLUME_IMPACT为-2.6mn/day，负偏离发生在大交易量(3148bn)上，说明回购市场整体宽松但边际压力仍在。",
+      "evidence": [
+        "2026-06-18 SOFR_ANCHOR: -3.0bp，回购融资并不紧",
+        "2026-06-18 SOFR_VOLUME_IMPACT: -2.6mn/day，负偏离发生在大交易量上",
+        "2026-06-18 SOFR_VOLUME: 3148bn，交易量高"
+      ],
+      "related_indicators": ["SOFR", "SOFR_VOLUME"]
     },
     {
-      "title": "收益率曲线陡峭化，10Y-3M扩大至77bp",
-      "text": "10Y-2Y从42.0bp收窄至38.0bp，10Y-3M从69.0bp扩大至77.0bp（更新于?）。曲线陡峭化可能反映市场预期未来降息，但10Y实际收益率2.11%（上期2.11%）仍处于高位，估值压力持续。",
-      "related_indicators": [
-        "UST_10Y2Y",
-        "UST_10Y3M",
-        "REAL_10Y",
-        "NOMINAL_10Y"
-      ]
-    },
-    {
-      "title": "VIX下降至15.4，股市风险偏好中性偏乐观",
-      "text": "VIX从16.06下降至15.4（更新于2026-06-04），处于中性偏低区间。但注意：低VIX环境下流动性冲击可能更突然，因市场对风险定价不足。",
-      "related_indicators": [
-        "VIX_RISK",
-        "NFCI_LEVEL"
-      ]
+      "title": "美债收益率曲线混合：1Y上升，3Y和10Y下降",
+      "text": "1Y Treasury Yield上升2bp至4.00%，反映近端政策路径略有上行压力；3Y和10Y分别下降4bp和3bp至4.19%和4.46%，说明中段和长端压力边际缓和。曲线可能轻微陡峭化，但整体仍处于高位。",
+      "evidence": [
+        "2026-06-18 UST_1Y_YIELD: 4.00%，边际 +2bp",
+        "2026-06-18 UST_3Y_YIELD: 4.19%，边际 -4bp",
+        "2026-06-18 NOMINAL_10Y: 4.46%，边际 -3bp"
+      ],
+      "related_indicators": ["DTB3", "DFII10"]
     }
   ],
   "risk_flags": [
     {
-      "priority": "P0",
+      "priority": "P1",
       "severity": "high",
       "type": "market",
-      "title": "RRP缓冲几乎耗尽，准备金对冲击极度敏感",
-      "text": "RRP余额仅0.8bn（上期1.1bn，更新于2026-06-05），历史极低位。此后任何TGA补库（财政发债）或QT冲击将不再有RRP缓冲，直接冲击银行准备金。若准备金跌破3,000bn并加速下行，银行间融资条件可能迅速收紧，回购利率可能出现脉冲式飙升。",
+      "title": "RRP缓冲垫极低(3.9bn)，未来冲击吸收能力有限",
+      "text": "RRP缓冲垫从2026-06-18的0.3bn恢复到3.9bn，但仍处于极低水平。未来TGA补库、QT或美债供给冲击可能直接打到银行准备金，引发融资压力。这是Fed负债端传导链的关键脆弱点。",
       "evidence": [
-        "RRPONTSYD = 0.761bn（上期1.122bn，更新于2026-06-05），较上期暴跌0.4bn（-32.2%）",
-        "RRP_LEVEL衍生信号：缓冲垫接近完全耗尽",
-        "WRESBAL = 3013.902bn（上期3066.56bn，更新于2026-06-03），已跌破3,050bn警戒线"
+        "2026-06-22 RRP_BUFFER: 3.9bn，仍极低",
+        "2026-06-22 RRP_FLOW: +3.7bn，边际上升",
+        "RRP缓冲垫接近耗尽，未来抗冲击能力有限"
       ],
-      "related_indicators": [
-        "RRPONTSYD",
-        "RRP_LEVEL",
-        "WRESBAL"
-      ]
+      "related_indicators": ["RRPONTSYD"]
     },
     {
       "priority": "P1",
       "severity": "medium",
       "type": "market",
-      "title": "SOFR-IORB利差收窄，回购融资边际收紧",
-      "text": "SOFR-IORB从-4.0000000000000036bp收窄至-2.9999999999999805bp（更新于2026-06-04），说明回购融资成本边际上升。虽然绝对水平仍偏松，但趋势恶化，若继续收窄至零或转正，将标志着回购市场资金紧张。",
+      "title": "T-bill拍卖规模大幅上升(145bn vs 69bn)，但认购倍数略有下降",
+      "text": "最新T-bill拍卖规模从69bn大幅上升至145bn，但bid-to-cover从2.87下降至2.77。大规模供给 + 略有下降的认购倍数 = 边际吸收压力上升，可能占用交易商资产负债表。",
       "evidence": [
-        "SOFR_ANCHOR = -2.9999999999999805bp（上期-4.0000000000000036bp，更新于2026-06-04）",
-        "SOFR = 3.62%（上期3.61%，更新于2026-06-04）"
+        "2026-06-18 TBILL_AUCTION_SIZE: 145.0bn，上一期 69.0bn，变化 +76.0bn",
+        "2026-06-18 TBILL_AUCTION_BTC: 2.77，上一期 2.87，变化 -0.10",
+        "未来供给压力需关注upcoming_auctions"
       ],
-      "related_indicators": [
-        "SOFR_ANCHOR",
-        "SOFR",
-        "IORB"
-      ]
-    },
-    {
-      "priority": "P1",
-      "severity": "medium",
-      "type": "market",
-      "title": "实际收益率高位运行，估值压力持续",
-      "text": "10年期TIPS实际收益率2.11%（上期2.11%，更新于2026-06-04，T+2延迟），处于2024年以来高位区间。实际收益率持续高位对成长股、黄金及长久期资产估值构成结构性压力。",
-      "evidence": [
-        "REAL_10Y = 2.11%（上期2.11%，更新于2026-06-04，T+2延迟）",
-        "NOMINAL_10Y = 4.47%（上期4.49%）"
-      ],
-      "related_indicators": [
-        "REAL_10Y",
-        "NOMINAL_10Y",
-        "UST_1Y_YIELD"
-      ]
+      "related_indicators": ["TBILL_AUCTION_SIZE", "TBILL_AUCTION_BTC"]
     },
     {
       "priority": "P2",
       "severity": "low",
-      "type": "market",
-      "title": "TGA小幅下降，财政资金释放有限",
-      "text": "TGA最新844.521bn（上期845.722bn，更新于2026-06-04），较上期仅下降1.2bn，财政资金释放非常有限。后续若TGA需要补库，将直接冲击准备金。",
+      "type": "data",
+      "title": "部分周频指标滞后(REPO_FAILS_UST stale 13天)",
+      "text": "REPO_FAILS_UST更新至2026-06-10，滞后13天；SOMA更新至2026-06-17，滞后6天。这些数据只能作为背景，不能当作昨日边际信号。",
       "evidence": [
-        "TGA = 844.521bn（上期845.722bn，更新于2026-06-04），变化-1.2010000000000218bn",
-        "TGA_FLOW: -1.2bn（极小变化）"
+        "2026-06-10 REPO_FAILS_UST: stale_days=13",
+        "2026-06-17 SOMA: stale_days=6",
+        "周频/滞后指标只能作为结构背景"
       ],
-      "related_indicators": [
-        "TGA",
-        "TGA_FLOW",
-        "WRESBAL"
-      ]
+      "related_indicators": ["REPO_FAILS_UST", "SOMA"]
     }
   ],
   "narrative_blocks": {
-    "summary": "美元流动性结构性收紧信号明显。RRP缓冲从1.1bn暴跌至0.8bn（更新于2026-06-05，-32.2%），准备金对冲击极度敏感。SOFR-IORB利差从-4.0000000000000036bp收窄至-2.9999999999999805bp（更新于2026-06-04），回购融资边际收紧。但NFCI从-0.5变为-0.494（更新于2026-05-29）显示整体金融条件仍偏松，信用市场和股市尚未承压。核心风险：RRP耗尽后，任何流动性冲击将直接传导至准备金，可能触发回购利率脉冲。",
-    "rates": "短端：SOFR-IORB从-4.0000000000000036bp收窄至-2.9999999999999805bp（更新于2026-06-04），回购融资边际收紧。1年期美债3.82%（上期3.84%）。长端：10年期名义收益率4.47%（上期4.49%），实际收益率2.11%（上期2.11%，更新于2026-06-04，T+2延迟）。曲线：10Y-2Y从42.0bp收窄至38.0bp，10Y-3M从69.0bp扩大至77.0bp（更新于?）。",
-    "balance_sheet": "Fed负债端：RRP从1.1bn暴跌至0.8bn（更新于2026-06-05，-32.2%），缓冲垫几乎耗尽；TGA 844.521bn（上期845.722bn，更新于2026-06-04）；SOMA持续缩表（QT）。准备金从3066.56bn降至3013.902bn（更新于2026-06-03），已跌破3,050bn警戒线；RRP缓冲耗尽后，准备金对QT/TGA冲击的脆弱性极高。若准备金继续以当前速度下降，未来4-6周可能测试3,000bn关口。",
-    "market_transmission": "信用市场：IG OAS 0.74%（上期0.74%），HY OAS 2.74%（上期2.75%），信用传导暂未承压。股市风险偏好：VIX从16.06下降至15.4（更新于2026-06-04），中性偏低。离岸美元：广义美元指数从119.0318pt下行至118.8783pt（更新于2026-05-29），离岸美元融资条件暂未收紧。整体传导链条目前顺畅，但RRP耗尽是关键转折点。",
-    "jpy_carry": {
-      "label": "中性偏紧",
-      "one_liner": "美日利差维持，但需关注RRP耗尽后全球美元流动性收紧对日元carry的潜在冲击",
-      "analysis": "美日短端利差仍然显著，USD/JPY近期未出现快速下跌。但若RRP耗尽后美国准备金压力上升，可能通过全球美元融资成本上升渠道冲击日元空头仓位。建议监控USD/JPY实现波动率及CFTC日元净空头仓位。BOJ政策预期若转向鹰派，将是carry unwind的直接触发点。"
+    "summary": "美元流动性总体中性。TGA下降释放流动性，但RRP边际上升部分抵消。回购融资并不紧，但RRP缓冲垫仍极低，未来抗冲击能力有限。美债收益率曲线混合，信用压力不明显。",
+    "rates": "SOFR-IORB为-3.0bp，回购融资并不紧；EFFR和OBFR需要关注是否接近IORB。CP Rate-Policy Upper Proxy为-8.0bp，企业短融压力不明显。",
+    "balance_sheet": "TGA下降41.4bn释放流动性，但RRP上升3.7bn吸收流动性。RRP缓冲垫仍极低(3.9bn)，未来TGA补库或美债供给冲击可能直接打到准备金。WRESBAL为3033bn，周度下降47bn。",
+    "market_transmission": "回购融资并不紧，SOFR负偏离但交易量高。T-bill拍卖规模大幅上升但认购倍数略有下降，边际吸收压力上升。信用OAS不变，压力不明显。",
+    "treasury_yields": {
+      "label": "中性",
+      "one_liner": "1Y收益率上升2bp至4.00%，3Y和10Y分别下降4bp和3bp，曲线混合，整体仍处于高位。",
+      "analysis": "1Y Treasury Yield上升2bp至4.00%，反映近端政策路径略有上行压力，可能影响短债和现金收益率。3Y Treasury Yield下降4bp至4.19%，说明中段再定价压力边际缓和。10Y Treasury Yield下降3bp至4.46%，长期折现率锚压力边际缓和，对久期资产、成长股和黄金等长期现金流资产估值压力略减。曲线斜率：10Y-1Y为46bp，10Y-3Y为27bp，曲线混合。整体收益率仍处于高位，对风险资产估值仍有压制。"
     }
   }
 }
