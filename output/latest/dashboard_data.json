@@ -2,7 +2,7 @@
   "meta": {
     "title": "美元流动性监测",
     "trigger": "更新数据并分析",
-    "generated_at_bjt": "2026-06-24 10:45:25 UTC+08:00",
+    "generated_at_bjt": "2026-06-24 11:38:07 UTC+08:00",
     "data_as_of": "2026-06-24",
     "timezone": "BJT",
     "theme": "warm_claude",
@@ -716,7 +716,7 @@
   },
   "jpy_carry": {
     "meta": {
-      "generated_at_bjt": "2026-06-24 10:45:07 UTC+08:00",
+      "generated_at_bjt": "2026-06-24 11:37:48 UTC+08:00",
       "lookback": "日频约1年，CFTC约2年，REER/NEER约3年"
     },
     "risk": {
@@ -12218,8 +12218,8 @@
     }
   ],
   "chart_paths": [
-    "/Users/eiheisun/WorkBuddy/2026-05-04-task-1/output/usd_liquidity_chart_7d_20260624_104507.svg",
-    "/Users/eiheisun/WorkBuddy/2026-05-04-task-1/output/usd_liquidity_chart_30d_20260624_104507.svg"
+    "/Users/eiheisun/WorkBuddy/2026-05-04-task-1/output/usd_liquidity_chart_7d_20260624_113748.svg",
+    "/Users/eiheisun/WorkBuddy/2026-05-04-task-1/output/usd_liquidity_chart_30d_20260624_113748.svg"
   ],
   "data_quality": {
     "missing": [],

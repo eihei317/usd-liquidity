@@ -2,7 +2,7 @@ window.DASHBOARD_DATA = {
   "meta": {
     "title": "美元流动性监测",
     "trigger": "更新数据并分析",
-    "generated_at_bjt": "2026-06-24 10:45:25 UTC+08:00",
+    "generated_at_bjt": "2026-06-24 11:38:07 UTC+08:00",
     "data_as_of": "2026-06-24",
     "timezone": "BJT",
     "theme": "warm_claude",
@@ -716,7 +716,7 @@ window.DASHBOARD_DATA = {
   },
   "jpy_carry": {
     "meta": {
-      "generated_at_bjt": "2026-06-24 10:45:07 UTC+08:00",
+      "generated_at_bjt": "2026-06-24 11:37:48 UTC+08:00",
       "lookback": "日频约1年，CFTC约2年，REER/NEER约3年"
     },
     "risk": {
@@ -12218,8 +12218,8 @@ window.DASHBOARD_DATA = {
     }
   ],
   "chart_paths": [
-    "/Users/eiheisun/WorkBuddy/2026-05-04-task-1/output/usd_liquidity_chart_7d_20260624_104507.svg",
-    "/Users/eiheisun/WorkBuddy/2026-05-04-task-1/output/usd_liquidity_chart_30d_20260624_104507.svg"
+    "/Users/eiheisun/WorkBuddy/2026-05-04-task-1/output/usd_liquidity_chart_7d_20260624_113748.svg",
+    "/Users/eiheisun/WorkBuddy/2026-05-04-task-1/output/usd_liquidity_chart_30d_20260624_113748.svg"
   ],
   "data_quality": {
     "missing": [],
@@ -12267,88 +12267,100 @@ window.DASHBOARD_DATA = {
 window.ANALYSIS_DATA = {
   "meta": {
     "status": "model_analyzed",
-    "generated_at_bjt": "2026-06-24 10:45:25 UTC+08:00",
-    "model_run_at_bjt": "2026-06-24 10:43:34 UTC+08:00",
-    "data_freshness": "fresh",
-    "data_notes": "SOFR 2026-06-22, TGA/RRP 2026-06-23, UST yields 2026-06-23, VIX 2026-06-23, NFCI 2026-06-19 (滞后), JPY carry 2026-06-23"
+    "generated_at_bjt": "2026-06-24 11:38:07 UTC+08:00",
+    "model_run_at_bjt": "2026-06-24 11:37:00 UTC+08:00",
+    "data_freshness": "mostly_fresh",
+    "data_notes": "SOFR/TGA/UST 2026-06-22, RRP 2026-06-23, VIX 2026-06-22, NFCI 2026-06-19 (滞后3日), JPY carry 2026-06-23"
   },
   "stance": {
-    "label": "谨慎乐观",
-    "score": 2.2,
-    "score_text": "中性偏多",
-    "one_liner": "准备金缓冲垫接近耗尽但尚未崩塌，短端资金面平稳，长端收益率高位但信用条件偏松，日元carry风险可控。"
+    "label": "中性偏谨慎",
+    "score": 1.8,
+    "score_text": "中性偏紧",
+    "one_liner": "RRP缓冲垫接近历史低位（6.5bn），短端资金面平稳但脆弱性上升；长端收益率高位，信用条件偏松为风险资产提供一定支撑。"
   },
   "key_takeaways": [
     {
       "rank": 1,
-      "title": "准备金缓冲垫接近耗尽",
-      "summary": "RRP从上周的~35bn骤降至6.48bn，缓冲垫几乎耗尽。这意味着未来TGA补库或QT冲击将更直接传导至准备金端，资金面脆弱性上升。",
+      "title": "RRP缓冲垫接近历史低位",
+      "summary": "RRP从上周3.9bn微升至6.5bn，仍处于历史极低位。缓冲垫几乎耗尽意味着未来TGA补库或QT冲击将缺乏有效缓冲，资金面脆弱性持续高位。",
       "direction": "risk",
       "layer": "short_term_funding"
     },
     {
       "rank": 2,
-      "title": "短端资金面平稳但边际收紧",
-      "summary": "SOFR 3.61%稳定在IORB上方4bp，SOFR-IORB从-8bp收窄至-4bp，表明银行间资金充裕度边际下降但仍可控。",
+      "title": "短端资金面平稳，SOFR锚定",
+      "summary": "SOFR 3.61%，SOFR-IORB = -4.0bp，偏离在正常区间。SOFR交易量3,073bn，价格×规模冲击有限（-3.4mn/day）。短端资金面整体平稳。",
       "direction": "neutral",
       "layer": "short_term_funding"
     },
     {
       "rank": 3,
-      "title": "长端收益率高位持稳",
-      "summary": "UST 10Y 4.51%维持高位，1Y 4.04%/3Y 4.25%曲线陡峭化，反映市场对降息路径仍有分歧，估值压力持续。",
+      "title": "长端收益率维持高位",
+      "summary": "UST 1Y 4.04% / 3Y 4.25% / 10Y 4.51%，曲线小幅陡峭化。10Y收益率高位对长久期资产估值持续形成压力，但市场对降息路径仍有分歧。",
       "direction": "risk",
       "layer": "bond_anchor"
     },
     {
       "rank": 4,
-      "title": "信用条件偏松支撑风险偏好",
-      "summary": "NFCI -0.51处于偏松区间，IG/HY利差温和，VIX 17.28低位，风险资产获得一定支撑。",
+      "title": "信用条件偏松，VIX低位",
+      "summary": "NFCI -0.51偏松区间，VIX 17.28低位（较上期+0.50pt但仍低），IG/HY利差稳定。整体信用条件对风险资产友好。",
       "direction": "positive",
       "layer": "credit_market"
     },
     {
       "rank": 5,
-      "title": "日元carry风险可控",
-      "summary": "USD/JPY 161.74高位，JGB 10Y 2.27%稳定，CFTC日元净空头有所回落，carry交易风险中性偏高（score 3.0）但未失控。",
-      "direction": "neutral",
-      "layer": "jpy_carry"
+      "title": "TGA回升，准备金边际下降",
+      "summary": "TGA 942.8bn（+27.7bn日变化），WRESBAL 3,033bn（周降47bn）。财政现金余额回升正在边际压缩银行体系准备金。",
+      "direction": "risk",
+      "layer": "fed_liabilities"
     }
   ],
   "risk_flags": [
     {
-      "id": "rrp_buffer_exhausted",
+      "id": "rrp_buffer_critical",
       "severity": "high",
       "title": "RRP缓冲垫接近耗尽",
       "metric": "RRP_BUFFER",
-      "value": "6.48bn",
-      "threshold": "<50bn",
-      "detail": "RRP从上周~35bn骤降至6.48bn，缓冲垫几乎耗尽。未来TGA补库或QT冲击将更直接传导至准备金端。",
+      "value": "6.5bn",
+      "threshold": "<20bn (危险区间)",
+      "detail": "RRP 6.5bn处于历史极低位，缓冲垫几乎耗尽。未来TGA补库、QT或美债供给冲击将更直接传导至准备金端，缺乏非银现金缓冲。",
       "transmission_layer": "short_term_funding",
       "market_risk": true,
       "data_risk": false
     },
     {
-      "id": "ust_10y_high",
+      "id": "ust_10y_elevated",
       "severity": "medium",
-      "title": "UST 10Y高位",
+      "title": "UST 10Y收益率高位",
       "metric": "REAL_10Y",
       "value": "4.51%",
       "threshold": ">4.40%",
-      "detail": "UST 10Y 4.51%维持高位，对长久期资产估值形成压力，但曲线陡峭化暗示市场对降息仍有期待。",
+      "detail": "UST 10Y 4.51%维持高位，对长久期资产（科技股、新兴市场、高杠杆部门）估值形成持续压力。曲线陡峭化暗示降息预期未完全消退。",
       "transmission_layer": "bond_anchor",
       "market_risk": true,
       "data_risk": false
     },
     {
-      "id": "tga_rising",
+      "id": "tga_rising_pressure",
       "severity": "medium",
-      "title": "TGA回升",
+      "title": "TGA回升边际收紧准备金",
       "metric": "TGA",
       "value": "942.8bn",
       "delta": "+27.7bn",
-      "detail": "TGA从915bn回升至943bn，日变化+27.7bn，显示财政部现金需求上升，可能对准备金形成边际压力。",
-      "transmission_layer": "short_term_funding",
+      "detail": "TGA从915bn回升至943bn（+27.7bn），财政部现金需求上升正在边际压缩银行准备金。若TGA继续回升至950bn+，准备金端压力将加大。",
+      "transmission_layer": "fed_liabilities",
+      "market_risk": true,
+      "data_risk": false
+    },
+    {
+      "id": "wresbal_declining",
+      "severity": "medium",
+      "title": "准备金周度下降",
+      "metric": "WRESBAL",
+      "value": "3,033.4bn",
+      "delta": "-47.3bn (周变化)",
+      "detail": "WRESBAL周度下降47bn至3,033bn。虽仍处于相对高位，但在RRP缓冲垫耗尽背景下，准备金边际下降值得关注。",
+      "transmission_layer": "fed_liabilities",
       "market_risk": true,
       "data_risk": false
     },
@@ -12358,7 +12370,7 @@ window.ANALYSIS_DATA = {
       "title": "NFCI数据滞后",
       "metric": "NFCI",
       "value": "-0.51",
-      "detail": "NFCI数据截至2026-06-19，相对其他实时指标滞后约4个交易日，需注意时效性。",
+      "detail": "NFCI数据截至2026-06-19，相对其他实时指标滞后约3个交易日。最新信用条件变化未能及时反映。",
       "transmission_layer": "credit_market",
       "market_risk": false,
       "data_risk": true
@@ -12366,91 +12378,114 @@ window.ANALYSIS_DATA = {
   ],
   "narrative_blocks": {
     "headline": {
-      "title": "准备金缓冲垫接近耗尽，资金面脆弱性上升",
-      "summary": "本次snapshot显示RRP骤降至6.48bn，缓冲垫几乎耗尽。短端SOFR稳定在3.61%，信用条件偏松（NFCI -0.51），VIX低位17.28，风险资产获得支撑。但缓冲垫耗尽意味着未来任何TGA补库或QT冲击都将更直接传导至准备金端，资金面脆弱性显著上升。",
+      "title": "RRP缓冲垫接近耗尽，资金面脆弱性上升",
+      "summary": "本次snapshot最核心的边际变化是RRP持续处于历史极低位（6.5bn），缓冲垫几乎耗尽。短端SOFR 3.61%平稳，信用条件偏松（NFCI -0.51，VIX 17.28），风险偏好尚可。但缓冲垫耗尽意味着未来TGA补库或QT冲击将更直接传导至准备金端，资金面脆弱性显著上升。长端UST 10Y 4.51%高位，估值压力持续。",
       "direction": "cautious"
     },
     "short_term_funding": {
-      "title": "短端资金面：平稳但缓冲垫接近耗尽",
-      "metrics": ["SOFR", "EFFR", "RRP", "TGA", "WRESBAL"],
-      "summary": "SOFR 3.61%稳定在IORB上方4bp，SOFR-IORB从-8bp收窄至-4bp，表明银行间资金充裕度边际下降但仍可控。关键风险在于RRP从上周~35bn骤降至6.48bn，缓冲垫几乎耗尽。TGA 942.8bn（+27.7bn）显示财政部现金需求上升。",
+      "title": "短端资金面：平稳但脆弱性高",
+      "metrics": ["SOFR", "SOFR_ANCHOR", "RRP", "RRP_BUFFER", "TGA", "WRESBAL"],
+      "summary": "SOFR 3.61%稳定在IORB附近（偏离-4bp），短端资金面平稳。但RRP 6.5bn接近耗尽是核心风险——缓冲垫几乎耗尽后，未来任何TGA补库或QT冲击都将缺乏非银现金缓冲，更直接传导至准备金端。TGA 942.8bn（+27.7bn）和WRESBAL周降47bn至3,033bn，显示财政需求正在边际收紧准备金。",
       "key_points": [
-        "SOFR 3.61%稳定，偏离IORB仅4bp，银行间资金充裕",
-        "RRP 6.48bn接近耗尽，未来冲击将更直接传导至准备金",
-        "TGA回升+27.7bn，财政部现金需求上升"
+        "SOFR 3.61%稳定，SOFR-IORB = -4.0bp，短端资金平稳",
+        "RRP 6.5bn接近耗尽，缓冲垫几乎消失",
+        "TGA +27.7bn，财政部现金需求上升",
+        "WRESBAL周降47bn至3,033bn，准备金边际下降"
       ],
       "direction": "neutral_tightening",
-      "risks": ["RRP缓冲垫耗尽后资金面脆弱性上升", "TGA持续回升可能压缩准备金"]
+      "risks": ["RRP耗尽后冲击传导效率上升", "TGA继续回升将压缩准备金", "QT持续叠加效应"]
     },
     "policy_anchor": {
       "title": "政策锚：稳定",
       "metrics": ["IORB", "DFII10", "SOFR_VOLUME_IMPACT"],
-      "summary": "IORB 3.65%稳定，DFII10（10Y TIPS real yield）约1.75%，政策锚整体稳定。SOFR交易量相关指标显示市场活跃度正常。",
+      "summary": "IORB 3.65%稳定，政策利率锚无变化。DFII10（10Y TIPS real yield）约1.75%，通胀预期温和。SOFR交易量3,073bn，价格×规模冲击-3.4mn/day，市场活跃度正常。",
       "key_points": [
         "IORB 3.65%稳定，政策利率锚无变化",
-        "10Y real yield约1.75%，通胀预期温和"
+        "10Y real yield约1.75%，通胀预期温和",
+        "SOFR交易量正常，价格冲击有限"
       ],
       "direction": "stable"
     },
     "bond_anchor": {
-      "title": "债券定价锚：高位持稳",
+      "title": "债券定价锚：高位持稳，曲线小幅陡峭化",
       "metrics": ["UST_1Y_YIELD", "UST_3Y_YIELD", "UST_10Y_YIELD", "UST_10Y_2Y_SPREAD"],
-      "summary": "UST 1Y 4.04%/3Y 4.25%/10Y 4.51%曲线陡峭化，10Y维持高位。高收益率对长久期资产估值形成压力，但曲线形态暗示市场对降息仍有分歧。",
+      "summary": "UST 1Y 4.04% / 3Y 4.25% / 10Y 4.51%，曲线小幅陡峭化（1Y-10Y利差47bp）。10Y收益率高位对长久期资产估值形成压力，但曲线形态暗示市场对降息路径仍有分歧，衰退定价有限。",
       "key_points": [
         "UST 10Y 4.51%高位，估值压力持续",
-        "1Y 4.04%/3Y 4.25%曲线陡峭化",
-        "10Y-2Y spread维持正值，衰退定价有限"
+        "1Y-10Y利差47bp，曲线小幅陡峭化",
+        "10Y-2Y spread正值，衰退定价有限",
+        "市场对降息路径仍有分歧"
       ],
       "direction": "cautious",
-      "risks": ["高收益率持续压制长久期资产", "降息预期反复可能引发波动"]
+      "risks": ["高收益率持续压制长久期资产估值", "降息预期反复可能引发利率波动", "10Y突破4.60%将加剧压力"]
     },
     "credit_market": {
-      "title": "信用市场：偏松",
-      "metrics": ["NFCI", "VIX", "BAMLC0A0CM"],
-      "summary": "NFCI -0.51处于偏松区间，VIX 17.28低位，HY/IG信用利差温和。整体信用条件支持风险资产，但NFCI数据滞后至6/19需注意。",
+      "title": "信用市场：偏松，支撑风险资产",
+      "metrics": ["NFCI", "VIX", "BAMLC0A0CM", "BAMLH0A0HYM2"],
+      "summary": "NFCI -0.51处于偏松区间（数据截至6/19，滞后3日）。VIX 17.28低位，较上期+0.50pt但仍低于长期均值，市场情绪稳定。IG OAS 0.74%持平，HY OAS 2.65%微降1bp，信用利差温和。整体信用条件对风险资产友好。",
       "key_points": [
-        "NFCI -0.51偏松（数据截至6/19）",
+        "NFCI -0.51偏松（数据滞后3日）",
         "VIX 17.28低位，市场情绪稳定",
-        "信用利差温和，违约风险有限"
+        "IG/HY OAS稳定，信用利差温和",
+        "整体金融条件对风险资产友好"
       ],
       "direction": "positive",
-      "notes": ["NFCI数据滞后约4个交易日"]
+      "notes": ["NFCI数据滞后约3个交易日，需关注更新"]
     },
     "jpy_carry": {
-      "title": "日元Carry Trade：风险可控",
-      "metrics": ["USD_JPY", "JGB_10Y", "JPY_CARRY_RISK"],
-      "summary": "USD/JPY 161.74高位，JGB 10Y 2.27%稳定，CFTC日元净空头有所回落。Carry交易风险中性偏高（score 3.0），但未失控。",
+      "title": "日元Carry Trade：风险中性偏高",
+      "metrics": ["USD_JPY", "JGB_10Y", "JPY_CARRY_RISK", "CFTC_JPY_NET_SHORT"],
+      "summary": "USD/JPY 161.74高位持稳，JGB 10Y 2.27%稳定，日元融资成本可控。CFTC日元净空头有所回落，carry交易拥挤度下降。但USD/JPY处于历史高位，任何风险偏好恶化或日银意外加息都可能触发平仓。当前carry风险评分3.0/5，中性偏高。",
       "key_points": [
         "USD/JPY 161.74高位持稳",
         "JGB 10Y 2.27%稳定，融资成本可控",
-        "日元空头仓位回落，拥挤度下降"
+        "日元净空头回落，拥挤度下降",
+        "carry风险评分3.0/5，中性偏高"
       ],
       "direction": "neutral",
-      "risks": ["日元进一步走弱可能放大carry交易风险"]
+      "risks": ["USD/JPY进一步走高可能触发监管关注", "风险偏好恶化可能引发平仓", "日银意外加息是尾部风险"]
+    },
+    "repo_market": {
+      "title": "回购市场：平稳",
+      "metrics": ["BGCR", "TGCR", "BGCR_TGCR", "REPO_FAILS_UST"],
+      "summary": "BGCR-TGCR = +0.0bp，回购市场一般抵押品融资压力温和。Repo fails 118.7bn（截至6/10），处于正常区间。整体回购市场运行平稳，未出现抵押品短缺或融资紧张信号。",
+      "key_points": [
+        "BGCR-TGCR = +0.0bp，回购市场平稳",
+        "Repo fails 118.7bn正常区间",
+        "抵押品融资压力温和"
+      ],
+      "direction": "stable"
     },
     "transmission_chain": {
-      "title": "传导链状态",
+      "title": "传导链状态评估",
       "layers": [
-        {"layer": "Fed负债端", "status": "neutral", "note": "SOMA稳定，TGA回升"},
-        {"layer": "政策锚/准备金边际", "status": "tightening", "note": "RRP接近耗尽"},
-        {"layer": "银行间无抵押融资", "status": "stable", "note": "SOFR稳定"},
-        {"layer": "回购融资/抵押品", "status": "stable", "note": "BGCR/TGCR平稳"},
-        {"layer": "债券定价锚", "status": "cautious", "note": "10Y高位"},
-        {"layer": "离岸美元", "status": "neutral", "note": "EUR/USD基差稳定"},
-        {"layer": "信用市场/金融条件", "status": "positive", "note": "NFCI偏松"},
-        {"layer": "证券市场风险偏好", "status": "positive", "note": "VIX低位"}
+        {"layer": "Fed负债端（TGA/RRP/SOMA）", "status": "tightening", "note": "RRP接近耗尽，TGA回升"},
+        {"layer": "政策锚/准备金边际", "status": "tightening", "note": "RRP耗尽，准备金边际下降"},
+        {"layer": "银行间无抵押融资（EFFR/SOFR）", "status": "stable", "note": "SOFR稳定，偏离政策锚有限"},
+        {"layer": "回购融资/抵押品（BGCR/TGCR）", "status": "stable", "note": "回购市场平稳"},
+        {"layer": "债券定价锚（UST 1Y/3Y/10Y）", "status": "cautious", "note": "10Y 4.51%高位"},
+        {"layer": "离岸美元（EUR/USD基差）", "status": "neutral", "note": "未纳入本次分析"},
+        {"layer": "信用市场/金融条件（NFCI/VIX/OAS）", "status": "positive", "note": "NFCI偏松，VIX低位"},
+        {"layer": "证券市场风险偏好", "status": "positive", "note": "VIX 17.28低位"}
       ],
-      "bottleneck": "准备金缓冲垫耗尽，未来冲击传导效率上升"
+      "bottleneck": "RRP缓冲垫耗尽，未来冲击从Fed负债端到准备金端的传导效率显著上升",
+      "overall_assessment": "短端平稳但脆弱性高，长端收益率施压，信用条件偏松形成对冲"
     },
     "outlook": {
-      "title": "展望",
-      "summary": "短期内资金面平稳但脆弱性上升，关键观察点：(1) RRP能否企稳或回升；(2) TGA是否继续攀升；(3) UST 10Y能否突破4.60%。信用条件偏松为风险资产提供支撑，但需警惕缓冲垫耗尽后的资金面脉冲风险。",
+      "title": "展望与关键观察点",
+      "summary": "短期内资金面平稳但脆弱性高，关键观察点：(1) RRP能否企稳或适度回升；(2) TGA是否继续攀升至950bn+；(3) UST 10Y能否突破4.60%；(4) NFCI更新后是否维持偏松。信用条件偏松为风险资产提供支撑，但需警惕RRP耗尽后的资金面脉冲风险。若RRP持续低于20bn且TGA继续回升，建议降低久期敞口。",
       "watch_items": [
-        "RRP能否企稳或回升",
+        "RRP能否企稳或适度回升至20bn+",
         "TGA是否继续攀升至950bn+",
         "UST 10Y能否突破4.60%",
-        "NFCI更新后是否维持偏松"
-      ]
+        "NFCI更新后是否维持偏松（关注6/24更新）",
+        "WRESBAL是否加速下降"
+      ],
+      "scenario_analysis": {
+        "base_case": "RRP低位徘徊，TGA温和回升，资金面脆弱但短期不崩",
+        "upside": "RRP回升至50bn+，缓冲垫恢复，资金面压力缓解",
+        "downside": "RRP降至0，TGA突破950bn，准备金加速下降，回购利率脉冲上行"
+      }
     }
   }
 };
