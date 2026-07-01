@@ -19,7 +19,10 @@ async function loadJson(url) {
     return window.DASHBOARD_DATA;
   }
   if (url === "/output/latest/analysis.json" && window.ANALYSIS_DATA) {
-    return window.ANALYSIS_DATA;
+    // 占位符时继续 fetch 真正的 analysis.json，避免前端锁死在"待模型分析"
+    if (!(window.ANALYSIS_DATA.meta && window.ANALYSIS_DATA.meta.status === "pending_model_analysis")) {
+      return window.ANALYSIS_DATA;
+    }
   }
   const response = await fetch(url, { cache: "no-store" });
   if (!response.ok) throw new Error(`${url} ${response.status}`);
