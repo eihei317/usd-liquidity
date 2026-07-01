@@ -38,7 +38,7 @@ def init_db(db_path: Optional[str] = None) -> str:
         stale_days      INTEGER,
         snapshot_file   TEXT,
         ingested_at     TEXT    NOT NULL,
-        UNIQUE(metric_id, as_of, snapshot_file)
+        UNIQUE(metric_id, as_of)
     )
     ''')
 
@@ -55,7 +55,7 @@ def init_db(db_path: Optional[str] = None) -> str:
         severity          TEXT,
         snapshot_file     TEXT,
         ingested_at       TEXT    NOT NULL,
-        UNIQUE(signal_id, as_of, snapshot_file)
+        UNIQUE(signal_id, as_of)
     )
     ''')
 
@@ -129,7 +129,7 @@ def init_db(db_path: Optional[str] = None) -> str:
         snapshot_file   TEXT    NOT NULL,
         ingested_at     TEXT    NOT NULL,
         notes           TEXT,
-        UNIQUE(series_id, as_of, snapshot_file)
+        UNIQUE(series_id, as_of)
     )
     ''')
 
@@ -147,7 +147,7 @@ def init_db(db_path: Optional[str] = None) -> str:
         snapshot_file   TEXT    NOT NULL,
         ingested_at     TEXT    NOT NULL,
         notes           TEXT,
-        UNIQUE(series_id, as_of, snapshot_file)
+        UNIQUE(series_id, as_of)
     )
     ''')
 
@@ -213,7 +213,7 @@ def ingest_snapshot(snapshot_path: str, db_conn: Optional[sqlite3.Connection] = 
                      unit, frequency, source, source_url, status, stale_days,
                      snapshot_file, ingested_at)
                 VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
-                ON CONFLICT(metric_id, as_of, snapshot_file) DO UPDATE SET
+                ON CONFLICT(metric_id, as_of) DO UPDATE SET
                     value       = excluded.value,
                     previous    = excluded.previous,
                     change      = excluded.change,
@@ -251,7 +251,7 @@ def ingest_snapshot(snapshot_path: str, db_conn: Optional[sqlite3.Connection] = 
                     (signal_id, signal_name, as_of, value, previous, change,
                      unit, severity, snapshot_file, ingested_at)
                 VALUES (?,?,?,?,?,?,?,?,?,?)
-                ON CONFLICT(signal_id, as_of, snapshot_file) DO UPDATE SET
+                ON CONFLICT(signal_id, as_of) DO UPDATE SET
                     value       = excluded.value,
                     previous    = excluded.previous,
                     change      = excluded.change,

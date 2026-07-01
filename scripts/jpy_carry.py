@@ -250,7 +250,7 @@ def ensure_jpy_carry_table(conn: sqlite3.Connection) -> None:
         snapshot_file   TEXT    NOT NULL,
         ingested_at     TEXT    NOT NULL,
         notes           TEXT,
-        UNIQUE(series_id, as_of, snapshot_file)
+        UNIQUE(series_id, as_of)
     )
     ''')
     conn.execute('CREATE INDEX IF NOT EXISTS idx_jpy_series_id_date ON jpy_carry_series_ts(series_id, as_of)')
@@ -275,7 +275,7 @@ def upsert_jpy_series(
             '''INSERT INTO jpy_carry_series_ts
                 (series_id, series_name, category, as_of, value, unit, source, source_url, snapshot_file, ingested_at, notes)
                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-               ON CONFLICT(series_id, as_of, snapshot_file) DO UPDATE SET
+               ON CONFLICT(series_id, as_of) DO UPDATE SET
                    value=excluded.value,
                    series_name=excluded.series_name,
                    category=excluded.category,

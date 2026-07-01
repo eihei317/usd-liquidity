@@ -10,6 +10,7 @@ output/usd_liquidity_*.json
 output/usd_liquidity_*.svg
 output/jpy_carry_*.json
 output/*.db
+output/*.db.bak.*
 
 # Secrets
 .workbuddy/secrets/
