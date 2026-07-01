@@ -1,131 +1,41 @@
 {
   "meta": {
-    "generated_at_bjt": "2026-07-01 08:16:07 UTC+08:00",
-    "data_as_of": "2026-06-30",
-    "model": "AI Agent",
-    "input_freshness_note": "核心日频指标截至2026-06-30（RRP）和2026-06-29（SOFR/收益率/VIX等）；周频指标WRESBAL和SOMA截至2026-06-24；NFCI截至2026-06-19；T-bill拍卖数据截至2026-06-25；未来拍卖日程已更新至2026-08-30。"
+    "status": "pending_model_analysis",
+    "generated_at_bjt": "2026-07-01 08:31:04 UTC+08:00"
   },
   "stance": {
-    "label": "中性偏松",
-    "confidence": "中等",
-    "score_text": "TGA下降释放流动性，金融条件偏松（NFCI -0.516），SOFR融资压力不大（SOFR-ANCHOR -3bp）；但RRP缓冲垫极低（26.9bn）和准备金周频下降（-82bn）构成中期风险，整体偏松但需警惕流动性边际收紧。",
-    "one_liner": "美元流动性总体偏松，TGA释放和稳定融资条件支撑风险资产，但RRP缓冲垫几乎耗尽是中期隐患。"
+    "label": "待模型分析",
+    "score_text": "",
+    "one_liner": ""
   },
-  "key_takeaways": [
-    {
-      "title": "TGA下降释放财政资金，短期流动性偏松",
-      "text": "TGA余额876.96bn，日变化-18.62bn（2026-06-29），财政资金释放为银行体系注入流动性，短期偏松。未来拍卖日程显示7月1-2日将有242bn T-bill发行，需关注后续TGA回补压力。",
-      "evidence": [
-        "TGA日变化-18.62bn（2026-06-29，日频T+1），上一期+24.11bn（2026-06-26），边际变化-42.72bn，财政资金释放",
-        "未来7月1日17-Week Bill 72bn、7月2日4-Week+8-Week Bill共170bn，合计242bn短期供给",
-        "TGA余额876.96bn仍高于历史低位，短期释放不代表趋势反转"
-      ],
-      "related_indicators": [
-        "TGA",
-        "TGA_FLOW",
-        "TBILL_AUCTION_SIZE"
-      ]
-    },
-    {
-      "title": "回购融资条件稳定，SOFR相对政策锚偏离有限",
-      "text": "SOFR 3.62%，与IORB（3.65%）利差仅-3bp，回购融资价格贴近政策锚，抵押融资压力不大。SOFR交易量3126bn，价格×交易量影响约-2.6mn/day，冲击有限。",
-      "evidence": [
-        "SOFR-IORB = -3.0bp（2026-06-29，日频），上一期-3.0bp（2026-06-26），边际变化0.0bp，回购融资稳定",
-        "SOFR_VOLUME_IMPACT = -2.6mn/day（2026-06-29），SOFR交易量3126bn，价格偏离有限且交易量正常",
-        "BGCR-TGCR = 0.0bp，三方回购与一般抵押品利率结构稳定，无抵押品稀缺迹象"
-      ],
-      "related_indicators": [
-        "SOFR",
-        "IORB",
-        "SOFR_ANCHOR",
-        "SOFR_VOLUME_IMPACT",
-        "BGCR_TGCR"
-      ]
-    },
-    {
-      "title": "美债收益率曲线正常，长端稳定，金融条件偏松",
-      "text": "1Y/3Y/10Y收益率分别为3.97%/4.10%/4.38%，曲线斜率为正（10Y-2Y=30bp，10Y-3M=57bp），长端收益率边际变化为0，利率环境稳定。NFCI -0.516显示金融条件偏松，VIX 17.65较前期18.41回落，风险偏好稳定。",
-      "evidence": [
-        "10Y Treasury Yield 4.38%（2026-06-29），上一期4.38%，边际变化0.0bp，长端锚稳定",
-        "10Y-2Y = 30bp，10Y-3M = 57bp，曲线为正且边际走陡（+2bp/+6bp），无衰退定价",
-        "NFCI = -0.516（2026-06-19，周频），金融条件偏松；VIX 17.65（2026-06-29），较上一期18.41回落0.76pt"
-      ],
-      "related_indicators": [
-        "DGS10",
-        "DGS1",
-        "DGS3",
-        "T10Y2Y",
-        "T10Y3M",
-        "NFCI",
-        "VIXCLS"
-      ]
-    }
-  ],
+  "key_takeaways": [],
   "risk_flags": [
     {
-      "priority": "P1",
+      "priority": "P2",
       "severity": "medium",
       "type": "market",
-      "title": "RRP缓冲垫几乎耗尽，未来冲击吸收能力受限",
-      "text": "RRP余额仅26.9bn（2026-06-30），较上一期3.55bn上升23.35bn，缓冲垫存量极低。RRP边际流量为正（+23.35bn）代表资金回到联储停车场，短期偏不利风险资产；更关键的是存量缓冲垫接近耗尽，未来TGA补库、QT或美债供给冲击将更容易直接打到准备金，加剧银行间融资压力。",
+      "title": "日元carry trade平仓风险中性偏高，需持续监控",
+      "text": "CFTC日元净空头占比-33.9%偏拥挤，美日10Y利差172bp处于较窄区域，JGB 10Y有上行压力。若USD/JPY快速下跌、BOJ加息预期升温或VIX突破25，可能触发carry平仓并冲击美元风险资产流动性。",
       "evidence": [
-        "RRP_BUFFER = 26.9bn（2026-06-30，日频），上一期3.55bn，边际变化+23.35bn，缓冲垫极低",
-        "RRP_FLOW = +23.35bn（2026-06-30），资金回流联储停车场，短期偏紧",
-        "准备金WRESBAL 2951.4bn（2026-06-24，周频），较上一期3033.4bn下降82bn，周频降幅较大"
+        "CFTC JPY净空头/OI = -33.9%（2026-06-23，周频），空头仓位偏拥挤",
+        "美日10Y利差 = 172bp（2026-06-29），处于相对较窄区域",
+        "JGB 10Y = 2.657%（2026-05-29），BOJ政策正常化背景下有上行压力",
+        "USD/JPY 20日实现波动率 = 2.37%（2026-06-29），低位但未触发平仓"
       ],
       "related_indicators": [
-        "RRPONTSYD",
-        "RRP_FLOW",
-        "RRP_BUFFER",
-        "WRESBAL"
-      ]
-    },
-    {
-      "priority": "P2",
-      "severity": "low",
-      "type": "market",
-      "title": "准备金周频下降82bn，需关注持续性",
-      "text": "银行准备金余额2951.4bn（2026-06-24），周度下降82bn，绝对水平仍高，暂不构成即时压力。但结合RRP缓冲垫耗尽背景，若准备金持续下降，银行间融资价格可能面临上行压力。",
-      "evidence": [
-        "WRESBAL = 2951.4bn（2026-06-24，周频），上一期3033.4bn（2026-06-17），周度变化-82bn",
-        "准备金/GDP比率仍高于2019年9月Repo Crisis前低位，但边际方向需持续监控",
-        "SOMA 6344bn（2026-06-24），QT持续缩表背景下准备金长期趋降"
-      ],
-      "related_indicators": [
-        "WRESBAL",
-        "SOMA"
-      ]
-    },
-    {
-      "priority": "P2",
-      "severity": "info",
-      "type": "data",
-      "title": "JPY Carry数据缺失，无法评估日元carry对风险资产资金供给的影响",
-      "text": "jpy_carry_history为空，无法获取美日利差、USD/JPY、CFTC日元仓位等叠加判断数据。若日元快速升值或BOJ意外加息，可能导致carry trade平仓并冲击美股流动性，当前无法评估该风险。",
-      "evidence": [
-        "jpy_carry_history.history.length = 0，数据缺失",
-        "需BOJ政策利率、10Y JGB、USD/JPY历史、CFTC JPY仓位等数据才能评估",
-        "建议检查jpy_carry.py脚本状态和API可用性"
-      ],
-      "related_indicators": [
-        "JPY_CARRY"
+        "USDJPY",
+        "JPY_CALL",
+        "JGB10",
+        "CFTC_JPY",
+        "US_JP_10Y"
       ]
     }
   ],
   "narrative_blocks": {
-    "summary": "美元流动性总体偏松。TGA下降释放财政资金，SOFR融资价格稳定（SOFR-IORB仅-3bp），美债收益率曲线正常且长端锚定，NFCI显示金融条件偏松，VIX回落至17.65。主要风险来自RRP缓冲垫几乎耗尽（26.9bn）和准备金周频下降82bn，未来TGA补库或美债供给冲击可能更直接地影响准备金水位。短期风险资产流动性支撑仍在，但中期需警惕流动性边际收紧。",
-    "rates": "政策锚IORB 3.65%维持不变，SOFR 3.62%贴近政策锚，EFFR 3.63%和OBFR 3.62%均低于IORB，银行间无抵押融资无压力。回购市场BGCR/TGCR均与政策锚一致，抵押融资结构稳定。CP Rate-Policy Upper Proxy -3.0bp，企业短融压力不明显。",
-    "balance_sheet": "Fed负债端TGA 877.0bn（日变化-18.6bn）释放流动性；RRP 26.9bn边际上升23.4bn但存量缓冲垫极低；SOMA 6344.3bn反映QT持续背景。银行准备金2951.4bn，周度下降82bn，绝对水平尚高但边际方向偏紧。负债端总体释放流动性，但缓冲垫不足是中期风险。",
-    "market_transmission": "信用市场HY OAS 2.80%（边际-3bp）、IG OAS 0.76%（边际-1bp），信用利差稳定略收窄，融资风险溢价未扩大。VIX 17.65较前期回落，风险偏好稳定。NFCI -0.516显示金融条件偏松。离岸美元DTWEXBGS 120.89，美元指数小幅回落，离岸美元融资条件无异常。",
-    "treasury_yields": {
-      "label": "中性",
-      "one_liner": "1Y/3Y/10Y收益率3.97%/4.10%/4.38%，曲线斜率为正，长端锚定，收益率环境对风险资产友好。",
-      "analysis": "1Y Treasury Yield 3.97%，较上一期3.94%小幅上行3bp，反映短端政策路径稳定，现金收益率对风险资产的分流效应有限。3Y Treasury Yield 4.10%，与1Y利差仅13bp，中段再定价压力不大。10Y Treasury Yield 4.38%，边际变化0bp，长期名义折现率锚定，对久期资产、成长股和黄金的估值压力未增强。10Y-2Y利差30bp、10Y-3M利差57bp，曲线为正且边际走陡，无衰退定价。整体收益率环境稳定，对风险资产偏友好。"
-    },
     "jpy_carry": {
-      "label": "数据缺失",
-      "one_liner": "JPY Carry数据缺失，无法评估借日元买美元资产资金的边际供给情况。",
-      "analysis": "jpy_carry_history数据为空，无法获取美日短端利差、USD/JPY汇率、JGB收益率、CFTC日元仓位等关键变量，本次分析无法覆盖日元carry trade对美股/美元风险资产流动性供给的叠加影响。若后续BOJ加息预期上升或USD/JPY快速下跌，可能触发carry平仓并冲击美元风险资产流动性，建议补充JPY carry数据后再做综合判断。"
+      "label": "中性偏高",
+      "one_liner": "日元carry trade平仓风险为中性偏高：CFTC日元净空头占比-33.9%偏拥挤，美日10Y利差172bp处于相对较窄区域，但USD/JPY波动率仅2.37%、汇率未触发快速升值。",
+      "analysis": "USD/JPY 161.83（2026-06-29），逐日+0.12%，汇率稳定但未明显上行。JPY隔夜融资利率0.978%，融资端成本仍低。JGB 10Y 2.657%（2026-05-29），日本央行政策正常化背景下长端收益率有上行压力。美日10Y利差172bp，处于相对较窄区域，carry收益端安全垫下降。CFTC日元期货非商业净空头占比-33.9%（2026-06-23），空头仓位偏拥挤，若USD/JPY快速下跌或VIX大幅上行，容易触发平仓。USD/JPY 20日实现波动率仅2.37%，波动率低位时carry策略夏普较高，但也意味着一旦波动率跳升，平仓冲击会更大。整体平仓风险为中性偏高，需关注BOJ进一步加息预期、USD/JPY跌破160、或VIX突破25的触发条件。"
     }
   }
 }
