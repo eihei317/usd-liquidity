@@ -4,7 +4,7 @@ __pycache__/
 *$py.class
 *.so
 
-# Output (timestamped files; latest/ is tracked)
+# Output (timestamped files; latest/ and csv/ are tracked)
 output/usd_liquidity_*.md
 output/usd_liquidity_*.json
 output/usd_liquidity_*.svg
