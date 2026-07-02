@@ -1,37 +1,36 @@
 {
   "meta": {
-    "generated_at_bjt": "2026-07-01 08:15:45 UTC+08:00",
+    "generated_at_bjt": "2026-07-02 16:23:38 UTC+08:00",
     "model": "rule_summary",
     "prompt_file": "/Users/eiheisun/WorkBuddy/2026-05-04-task-1/prompts/jpy_usd_carry_liquidity_prompt.md",
     "note": "模型分析可基于 jpy_carry_model_input.json 覆盖本文件。"
   },
   "risk": {
     "label": "中性偏高",
-    "score": 3.0,
+    "score": 2.0,
     "reasons": [
       "CFTC日元非商业净空头占未平仓合约比例偏高",
-      "JGB 10Y阶段性上行，日本本土收益率吸引力增强",
       "美日10Y利差处于相对较窄区域，收益端安全垫下降"
     ]
   },
-  "one_liner": "日元 carry unwind 风险为中性偏高；CFTC日元非商业净空头占未平仓合约比例偏高；JGB 10Y阶段性上行，日本本土收益率吸引力增强",
+  "one_liner": "日元 carry unwind 风险为中性偏高；CFTC日元非商业净空头占未平仓合约比例偏高；美日10Y利差处于相对较窄区域，收益端安全垫下降",
   "dashboard_modules": [
     {
       "module": "日元融资端",
       "status": "低位但需观察",
-      "evidence": "0.978%",
+      "evidence": "0.976%",
       "explanation": "carry trade 的融资端"
     },
     {
       "module": "美日利差",
       "status": "仍有carry收益",
-      "evidence": "172bp",
+      "evidence": "175bp",
       "explanation": "美日长端利差越宽，carry收益端越顺风"
     },
     {
       "module": "汇率与波动",
       "status": "未触发unwind",
-      "evidence": "161.83 / vol 2.37%",
+      "evidence": "162.26 / vol 2.46%",
       "explanation": "快速日元升值和波动率上升才是核心触发。"
     },
     {

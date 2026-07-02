@@ -195,7 +195,7 @@ def build_combined_treasury_supply_chart(
             snapshot_file   TEXT    NOT NULL,
             ingested_at     TEXT    NOT NULL,
             notes           TEXT,
-            UNIQUE(series_id, as_of, snapshot_file)
+            UNIQUE(series_id, as_of)
         )
         ''')
         cur.execute('CREATE INDEX IF NOT EXISTS idx_engineered_series_id_date ON engineered_series_ts(series_id, as_of)')
@@ -223,7 +223,7 @@ def build_combined_treasury_supply_chart(
                 '''INSERT INTO engineered_series_ts
                     (series_id, series_name, category, as_of, value, unit, source, source_url, snapshot_file, ingested_at, notes)
                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-                   ON CONFLICT(series_id, as_of, snapshot_file) DO UPDATE SET
+                   ON CONFLICT(series_id, as_of) DO UPDATE SET
                        value=excluded.value,
                        ingested_at=excluded.ingested_at,
                        notes=excluded.notes''',
