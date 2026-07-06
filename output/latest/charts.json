@@ -2061,31 +2061,13 @@
         {
           "id": "USDJPY",
           "label": "USD/JPY（东京17:00）",
-          "points": [
-            {
-              "date": "2026-07-01",
-              "value": 162.68
-            },
-            {
-              "date": "2026-07-02",
-              "value": 161.44
-            }
-          ],
+          "points": [],
           "y_axis": "y"
         },
         {
           "id": "JPY_CALL",
           "label": "JPY隔夜融资成本",
-          "points": [
-            {
-              "date": "2026-07-01",
-              "value": 0.977
-            },
-            {
-              "date": "2026-07-02",
-              "value": 0.977
-            }
-          ],
+          "points": [],
           "y_axis": "y1"
         }
       ]
@@ -2157,22 +2139,45 @@
         {
           "id": "US_JP_2Y",
           "label": "2Y UST-JGB",
-          "points": [
-            {
-              "date": "2026-07-01",
-              "value": 278.8
-            }
-          ]
+          "points": []
         },
         {
           "id": "US_JP_10Y",
           "label": "10Y UST-JGB",
-          "points": [
-            {
-              "date": "2026-07-01",
-              "value": 179.00000000000006
-            }
-          ]
+          "points": []
+        }
+      ]
+    },
+    {
+      "id": "jpy_cftc_gross_2y",
+      "title": "CFTC JPY：空头 vs 多头（非商业，验证空头是否真加仓）",
+      "chart_type": "line",
+      "unit": "contracts",
+      "data_source": "SQLite jpy_carry_series_ts",
+      "series": [
+        {
+          "id": "CFTC_JPY_GROSS_SHORT",
+          "label": "非商业空头",
+          "points": []
+        },
+        {
+          "id": "CFTC_JPY_GROSS_LONG",
+          "label": "非商业多头",
+          "points": []
+        }
+      ]
+    },
+    {
+      "id": "jpy_cftc_short_share_2y",
+      "title": "CFTC JPY空头占比（空头/(空头+多头)，空头一侧真实强度）",
+      "chart_type": "line",
+      "unit": "short/(short+long)",
+      "data_source": "SQLite jpy_carry_series_ts",
+      "series": [
+        {
+          "id": "CFTC_JPY_SHORT_SHARE",
+          "label": "空头占比",
+          "points": []
         }
       ]
     },

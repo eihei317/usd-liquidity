@@ -195,7 +195,7 @@ def build_model_input_package(trigger: str, generated: str, stance: str, score: 
             "number_format_rule": "所有输出文本中的数值统一保留两位小数即可；不得输出浮点长尾，例如 -2.9999999999999805bp 应写为 -3.00bp。",
             "rrp_rule": "必须用RRP_FLOW说明边际流量方向，用RRP_BUFFER说明存量缓冲垫厚度；RRP下降短期可释放流动性，但极低RRP_BUFFER代表未来冲击更容易落到准备金。",
             "treasury_yields_rule": "必须在narrative_blocks.treasury_yields中专门分析1Y/3Y/10Y美国国债收益率：1Y=近端政策路径，3Y=中段再定价，10Y=长期折现率锚；10Y必须使用DGS10名义国债收益率，不得用DFII10/TIPS实际收益率替代。",
-            "jpy_carry_rule": "JPY Carry 的主目标是判断借日元买美股/美元风险资产的流动性供给是否顺畅；分析顺序为 JPY融资成本 -> 美日利差 -> USD/JPY趋势与波动 -> 仓位拥挤度 -> 对美股/风险资产流动性供给的影响。不要把美元流动性收紧对日元的冲击写成主线。", 
+            "jpy_carry_rule": "JPY Carry 的主目标是判断借日元买美股/美元风险资产的边际资金供给是否顺畅。CFTC 仓位必须做水平+流量（边际）两层分析，且必须拆分多空分项：仅当 CFTC_JPY_GROSS_SHORT 或 CFTC_JPY_SHORT_SHARE 上升（cftc_decomposition.driver=short_building）时，才能下『空头在加仓、carry 资金流支撑美元』的结论；若净空头上升只是多头平仓（long_unwinding/mixed），不得声称 carry 在加杠杆。水平高（short_share 近1年高位）说明未来反转踩踏更剧烈，与当下流量支撑分属不同时间轴。分析顺序：JPY融资成本 -> 美日利差 -> USD/JPY趋势与波动 -> 仓位拥挤度(多空拆解) -> 对美股/风险资产流动性供给的影响。不要把美元流动性收紧对日元的冲击写成主线。", 
             "json_schema_summary": {
                 "stance": ["label", "confidence", "score_text", "one_liner"],
                 "key_takeaway_item": ["title", "text", "evidence", "related_indicators"],

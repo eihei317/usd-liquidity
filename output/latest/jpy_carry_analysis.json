@@ -1,6 +1,6 @@
 {
   "meta": {
-    "generated_at_bjt": "2026-07-06 16:49:53 UTC+08:00",
+    "generated_at_bjt": "2026-07-06 17:29:28 UTC+08:00",
     "model": "rule_summary",
     "prompt_file": "/Users/eiheisun/WorkBuddy/2026-05-04-task-1/prompts/jpy_usd_carry_liquidity_prompt.md",
     "note": "模型分析可基于 jpy_carry_model_input.json 覆盖本文件。"
@@ -34,15 +34,22 @@
       "explanation": "快速日元升值和波动率上升才是核心触发。"
     },
     {
-      "module": "仓位拥挤度",
+      "module": "仓位拥挤度(净)",
       "status": "拥挤",
       "evidence": "-33.9%",
-      "explanation": "日元空头拥挤度，周频背景信号"
+      "explanation": "净空头边际变化需拆分：净空头变化并非来自新空头，而是多头平仓主导（多头周变化 -3,677.0 口、空头 -7,705.0 口）：看多日元者离场，不能解读为 carry 资金流增强；若空头也同步下降，则整体持仓在缩减。"
+    },
+    {
+      "module": "空头真实强度",
+      "status": "平仓主导",
+      "evidence": "69.6%",
+      "explanation": "净空头变化并非来自新空头，而是多头平仓主导（多头周变化 -3,677.0 口、空头 -7,705.0 口）：看多日元者离场，不能解读为 carry 资金流增强；若空头也同步下降，则整体持仓在缩减。"
     }
   ],
   "watchlist": [
     "USD/JPY 20日实现波动率",
     "CFTC JPY净仓位/OI",
+    "CFTC JPY空头占比(空头/(空头+多头))",
     "10Y UST-JGB利差",
     "VIX/HY OAS"
   ]
