@@ -1,6 +1,6 @@
 {
   "meta": {
-    "generated_at_bjt": "2026-07-02 16:23:38 UTC+08:00",
+    "generated_at_bjt": "2026-07-06 16:49:53 UTC+08:00",
     "model": "rule_summary",
     "prompt_file": "/Users/eiheisun/WorkBuddy/2026-05-04-task-1/prompts/jpy_usd_carry_liquidity_prompt.md",
     "note": "模型分析可基于 jpy_carry_model_input.json 覆盖本文件。"
@@ -18,19 +18,19 @@
     {
       "module": "日元融资端",
       "status": "低位但需观察",
-      "evidence": "0.976%",
+      "evidence": "0.977%",
       "explanation": "carry trade 的融资端"
     },
     {
       "module": "美日利差",
       "status": "仍有carry收益",
-      "evidence": "175bp",
+      "evidence": "179bp",
       "explanation": "美日长端利差越宽，carry收益端越顺风"
     },
     {
       "module": "汇率与波动",
       "status": "未触发unwind",
-      "evidence": "162.26 / vol 2.46%",
+      "evidence": "161.44 / vol 3.95%",
       "explanation": "快速日元升值和波动率上升才是核心触发。"
     },
     {
