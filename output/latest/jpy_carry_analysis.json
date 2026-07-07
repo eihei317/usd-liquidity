@@ -1,6 +1,6 @@
 {
   "meta": {
-    "generated_at_bjt": "2026-07-06 17:29:28 UTC+08:00",
+    "generated_at_bjt": "2026-07-07 10:59:15 UTC+08:00",
     "model": "rule_summary",
     "prompt_file": "/Users/eiheisun/WorkBuddy/2026-05-04-task-1/prompts/jpy_usd_carry_liquidity_prompt.md",
     "note": "模型分析可基于 jpy_carry_model_input.json 覆盖本文件。"
@@ -24,26 +24,26 @@
     {
       "module": "美日利差",
       "status": "仍有carry收益",
-      "evidence": "179bp",
+      "evidence": "180bp",
       "explanation": "美日长端利差越宽，carry收益端越顺风"
     },
     {
       "module": "汇率与波动",
       "status": "未触发unwind",
-      "evidence": "161.44 / vol 3.95%",
+      "evidence": "160.78 / vol 4.27%",
       "explanation": "快速日元升值和波动率上升才是核心触发。"
     },
     {
       "module": "仓位拥挤度(净)",
       "status": "拥挤",
-      "evidence": "-33.9%",
-      "explanation": "净空头边际变化需拆分：净空头变化并非来自新空头，而是多头平仓主导（多头周变化 -3,677.0 口、空头 -7,705.0 口）：看多日元者离场，不能解读为 carry 资金流增强；若空头也同步下降，则整体持仓在缩减。"
+      "evidence": "-35.3%",
+      "explanation": "净空头边际变化需拆分：净空头变化中空头主动加仓（空头周变化 +7,162.0 口、多头 -1,826.0 口）：投机盘真实卖出日元、买入美元，carry 资金流在增强，对美元短期利好。"
     },
     {
       "module": "空头真实强度",
-      "status": "平仓主导",
-      "evidence": "69.6%",
-      "explanation": "净空头变化并非来自新空头，而是多头平仓主导（多头周变化 -3,677.0 口、空头 -7,705.0 口）：看多日元者离场，不能解读为 carry 资金流增强；若空头也同步下降，则整体持仓在缩减。"
+      "status": "加仓",
+      "evidence": "70.5%",
+      "explanation": "净空头变化中空头主动加仓（空头周变化 +7,162.0 口、多头 -1,826.0 口）：投机盘真实卖出日元、买入美元，carry 资金流在增强，对美元短期利好。"
     }
   ],
   "watchlist": [
