@@ -1,6 +1,6 @@
 {
   "trigger": "更新数据并分析",
-  "generated_at_bjt": "2026-07-07 10:59:31 UTC+08:00",
+  "generated_at_bjt": "2026-07-07 11:28:06 UTC+08:00",
   "stance": "中性",
   "score": -0.10000000000000009,
   "metrics": [
@@ -1891,8 +1891,8 @@
     ]
   ],
   "chart_paths": [
-    "/Users/eiheisun/WorkBuddy/2026-05-04-task-1/output/usd_liquidity_chart_7d_20260707_105915.svg",
-    "/Users/eiheisun/WorkBuddy/2026-05-04-task-1/output/usd_liquidity_chart_30d_20260707_105915.svg"
+    "/Users/eiheisun/WorkBuddy/2026-05-04-task-1/output/usd_liquidity_chart_7d_20260707_112749.svg",
+    "/Users/eiheisun/WorkBuddy/2026-05-04-task-1/output/usd_liquidity_chart_30d_20260707_112749.svg"
   ],
   "upcoming_auctions": {
     "status": "ok",

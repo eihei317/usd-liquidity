@@ -308,7 +308,16 @@ def upsert_jpy_series(
     return inserted
 
 
-def load_jpy_series_from_db(series_id: str, snapshot_file: str, limit: Optional[int] = None) -> List[Tuple[str, float]]:
+def load_jpy_series_from_db(series_id: str, snapshot_file: Optional[str] = None, limit: Optional[int] = None) -> List[Tuple[str, float]]:
+    """Load a JPY carry series from SQLite.
+
+    By default (snapshot_file=None) this returns the FULL accumulated history for
+    the series_id across all runs (the DB accumulates one row per (series_id, as_of)
+    via upsert). Chart/history builders must use the full history so that an
+    intermittent fetch failure in the current run (which would otherwise only
+    persist its latest 1-2 points) does NOT shrink the rendered series to a single
+    point. Pass snapshot_file only when you explicitly need one run's slice.
+    """
     db_path = ROOT / "output" / "usd_liquidity.db"
     if not db_path.exists():
         return []
@@ -316,12 +325,20 @@ def load_jpy_series_from_db(series_id: str, snapshot_file: str, limit: Optional[
     try:
         ensure_jpy_carry_table(conn)
         cur = conn.cursor()
-        cur.execute(
-            '''SELECT as_of, value FROM jpy_carry_series_ts
-               WHERE series_id = ? AND snapshot_file = ?
-               ORDER BY as_of''',
-            (series_id, snapshot_file)
-        )
+        if snapshot_file:
+            cur.execute(
+                '''SELECT as_of, value FROM jpy_carry_series_ts
+                   WHERE series_id = ? AND snapshot_file = ?
+                   ORDER BY as_of''',
+                (series_id, snapshot_file)
+            )
+        else:
+            cur.execute(
+                '''SELECT as_of, value FROM jpy_carry_series_ts
+                   WHERE series_id = ?
+                   ORDER BY as_of''',
+                (series_id,)
+            )
         rows = [(r[0], r[1]) for r in cur.fetchall() if r[1] is not None]
     finally:
         conn.close()
@@ -541,19 +558,24 @@ def build_payload(trigger: str, stamp: Optional[str] = None) -> Tuple[Dict[str, 
         "US_JP_2Y": {"series_name": "2Y UST-JGB spread", "category": "engineered_spread", "rows": us_jp_2y_series, "unit": "bp", "source": "engineered", "source_url": "", "notes": "DGS2 minus latest JGB2 not after each US date"},
         "US_JP_10Y": {"series_name": "10Y UST-JGB spread", "category": "engineered_spread", "rows": us_jp_10y_series, "unit": "bp", "source": "engineered", "source_url": "", "notes": "DGS10 minus latest JGB10 not after each US date"},
     }, snapshot_file=snapshot_file, ingested_at=generated)
-    usdjpy_chart_rows = load_jpy_series_from_db("USDJPY", snapshot_file, 260)
-    call_chart_rows = load_jpy_series_from_db("JPY_CALL", snapshot_file, 260)
-    jgb2_chart_rows = load_jpy_series_from_db("JGB2", snapshot_file, 260)
-    jgb10_chart_rows = load_jpy_series_from_db("JGB10", snapshot_file, 260)
-    jgb30_chart_rows = load_jpy_series_from_db("JGB30", snapshot_file, 260)
-    cftc_net_oi_chart_rows = load_jpy_series_from_db("CFTC_JPY_NET_OI", snapshot_file)
-    cftc_gross_short_chart_rows = load_jpy_series_from_db("CFTC_JPY_GROSS_SHORT", snapshot_file)
-    cftc_gross_long_chart_rows = load_jpy_series_from_db("CFTC_JPY_GROSS_LONG", snapshot_file)
-    cftc_short_share_chart_rows = load_jpy_series_from_db("CFTC_JPY_SHORT_SHARE", snapshot_file)
-    neer_chart_rows = load_jpy_series_from_db("JPY_NEER", snapshot_file)
-    reer_chart_rows = load_jpy_series_from_db("JPY_REER", snapshot_file)
-    us_jp_2y_series = load_jpy_series_from_db("US_JP_2Y", snapshot_file)
-    us_jp_10y_series = load_jpy_series_from_db("US_JP_10Y", snapshot_file)
+    # Load the FULL accumulated history for each series (snapshot_file=None) so the
+    # rendered charts/history use the complete DB time series even if the current
+    # run's live fetch was incomplete.
+    usdjpy_chart_rows = load_jpy_series_from_db("USDJPY", limit=260)
+    call_chart_rows = load_jpy_series_from_db("JPY_CALL", limit=260)
+    jgb2_chart_rows = load_jpy_series_from_db("JGB2", limit=260)
+    jgb10_chart_rows = load_jpy_series_from_db("JGB10", limit=260)
+    jgb30_chart_rows = load_jpy_series_from_db("JGB30", limit=260)
+    cftc_net_oi_chart_rows = load_jpy_series_from_db("CFTC_JPY_NET_OI")
+    cftc_gross_short_chart_rows = load_jpy_series_from_db("CFTC_JPY_GROSS_SHORT")
+    cftc_gross_long_chart_rows = load_jpy_series_from_db("CFTC_JPY_GROSS_LONG")
+    cftc_short_share_chart_rows = load_jpy_series_from_db("CFTC_JPY_SHORT_SHARE")
+    cftc_open_interest_chart_rows = load_jpy_series_from_db("CFTC_JPY_OPEN_INTEREST")
+    usdjpy_vol20_chart_rows = load_jpy_series_from_db("USDJPY_VOL20")
+    neer_chart_rows = load_jpy_series_from_db("JPY_NEER")
+    reer_chart_rows = load_jpy_series_from_db("JPY_REER")
+    us_jp_2y_series = load_jpy_series_from_db("US_JP_2Y")
+    us_jp_10y_series = load_jpy_series_from_db("US_JP_10Y")
 
     charts = [
         {"id": "jpy_usdjpy_funding_1y", "title": "JPY Carry：USD/JPY 与日元隔夜融资成本", "chart_type": "line", "unit": "", "dual_axis": True, "y_axes": {"y": "USD/JPY", "y1": "%"}, "data_source": "SQLite jpy_carry_series_ts", "series": [
@@ -591,16 +613,16 @@ def build_payload(trigger: str, stamp: Optional[str] = None) -> Tuple[Dict[str, 
         "cards": cards,
         "cftc_decomposition": cftc_decomposition,
         "history": {
-            "USDJPY": chart_points_jpy(usdjpy_rows),
-            "JPY_CALL": chart_points_jpy(call_rows),
-            "JGB10": chart_points_jpy(jgb_rows.get("JGB10", [])),
+            "USDJPY": chart_points_jpy(usdjpy_chart_rows),
+            "JPY_CALL": chart_points_jpy(call_chart_rows),
+            "JGB10": chart_points_jpy(jgb10_chart_rows),
             "US_JP_10Y": chart_points_jpy(us_jp_10y_series),
-            "CFTC_JPY_NET_OI": chart_points_jpy(cftc_net_oi_series),
-            "CFTC_JPY_GROSS_SHORT": chart_points_jpy(cftc_gross_short_series),
-            "CFTC_JPY_GROSS_LONG": chart_points_jpy(cftc_gross_long_series),
-            "CFTC_JPY_SHORT_SHARE": chart_points_jpy(cftc_short_share_series),
-            "CFTC_JPY_OPEN_INTEREST": chart_points_jpy(cftc_open_interest_series),
-            "USDJPY_VOL20": chart_points_jpy(usdjpy_vol20_series),
+            "CFTC_JPY_NET_OI": chart_points_jpy(cftc_net_oi_chart_rows),
+            "CFTC_JPY_GROSS_SHORT": chart_points_jpy(cftc_gross_short_chart_rows),
+            "CFTC_JPY_GROSS_LONG": chart_points_jpy(cftc_gross_long_chart_rows),
+            "CFTC_JPY_SHORT_SHARE": chart_points_jpy(cftc_short_share_chart_rows),
+            "CFTC_JPY_OPEN_INTEREST": chart_points_jpy(cftc_open_interest_chart_rows),
+            "USDJPY_VOL20": chart_points_jpy(usdjpy_vol20_chart_rows),
         },
         "sources": sources,
         "notes": notes,

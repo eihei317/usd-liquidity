@@ -1,6 +1,6 @@
 {
   "meta": {
-    "generated_at_bjt": "2026-07-07 10:59:31 UTC+08:00",
+    "generated_at_bjt": "2026-07-07 11:28:06 UTC+08:00",
     "data_as_of": "2026-07-06",
     "model": "AI Agent (WorkBuddy)",
     "input_freshness_note": "核心日频数据 as_of 介于 2026-07-02 至 2026-07-06（RRP/曲线/政策锚至 7/6，SOFR/收益率/T-bill 拍卖至 7/2，TGA/EFFR/信用/VIX 至 7/3）；周频背景 SOMA/WRESBAL 7/1、REPO_FAILS 6/24、NFCI 6/26；事件驱动 T-bill 拍卖 7/2；JPY CFTC 6/30、USD/JPY 7/3。DCPN3M 与 CP_PROXY 缺上一期可比值，按数据风险标注。"
