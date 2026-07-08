@@ -1,8 +1,8 @@
 window.DASHBOARD_DATA = {
   "meta": {
     "title": "美元流动性监测",
-    "trigger": "修正DGS previous bug：fetch_fred_series limit 2->30",
-    "generated_at_bjt": "2026-07-08 18:11:37 UTC+08:00",
+    "trigger": "提高国债收益率在分析中的权重，重点分析边际变化：同步 prompt 与 analysis.py treasury_yields_rule",
+    "generated_at_bjt": "2026-07-08 18:21:53 UTC+08:00",
     "data_as_of": "2026-07-08",
     "timezone": "BJT",
     "theme": "warm_claude",
@@ -718,7 +718,7 @@ window.DASHBOARD_DATA = {
   },
   "jpy_carry": {
     "meta": {
-      "generated_at_bjt": "2026-07-08 18:11:23 UTC+08:00",
+      "generated_at_bjt": "2026-07-08 18:21:39 UTC+08:00",
       "lookback": "日频约1年，CFTC约2年，REER/NEER约3年"
     },
     "risk": {
@@ -21506,8 +21506,8 @@ window.DASHBOARD_DATA = {
     }
   ],
   "chart_paths": [
-    "/Users/eiheisun/WorkBuddy/2026-05-04-task-1/output/usd_liquidity_chart_7d_20260708_181123.svg",
-    "/Users/eiheisun/WorkBuddy/2026-05-04-task-1/output/usd_liquidity_chart_30d_20260708_181123.svg"
+    "/Users/eiheisun/WorkBuddy/2026-05-04-task-1/output/usd_liquidity_chart_7d_20260708_182138.svg",
+    "/Users/eiheisun/WorkBuddy/2026-05-04-task-1/output/usd_liquidity_chart_30d_20260708_182138.svg"
   ],
   "data_quality": {
     "missing": [],
@@ -21555,7 +21555,7 @@ window.DASHBOARD_DATA = {
 window.ANALYSIS_DATA = {
   "meta": {
     "status": "pending_model_analysis",
-    "generated_at_bjt": "2026-07-08 18:11:37 UTC+08:00"
+    "generated_at_bjt": "2026-07-08 18:21:53 UTC+08:00"
   },
   "stance": {
     "label": "待模型分析",
