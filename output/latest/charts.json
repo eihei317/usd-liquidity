@@ -11324,6 +11324,46 @@
           ]
         }
       ]
+    },
+    {
+      "id": "upcoming_tbill_supply_60d",
+      "title": "未来已公告拍卖规模：T-bill / Total",
+      "chart_type": "line",
+      "unit": "USD bn",
+      "series": [
+        {
+          "id": "UPCOMING_TBILL_SUPPLY",
+          "label": "Upcoming T-bill Supply（未来短债发行规模）",
+          "points": [
+            {
+              "date": "2026-07-08",
+              "value": 72.0
+            },
+            {
+              "date": "2026-07-09",
+              "value": 195.0
+            }
+          ],
+          "y_axis": "y"
+        },
+        {
+          "id": "UPCOMING_TOTAL_TREASURY_SUPPLY",
+          "label": "Upcoming Total Treasury Supply（未来已公告美债发行总额）",
+          "points": [
+            {
+              "date": "2026-07-08",
+              "value": 111.0
+            },
+            {
+              "date": "2026-07-09",
+              "value": 217.0
+            }
+          ],
+          "y_axis": "y"
+        }
+      ],
+      "data_source": "dashboard_data.upcoming_auctions.bill_schedule / auctions",
+      "note": "只包含TreasuryDirect已公告发行规模；未公告规模不当作零供给。"
     }
   ]
 }

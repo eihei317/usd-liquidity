@@ -1,6 +1,6 @@
 {
-  "trigger": "更新数据并分析",
-  "generated_at_bjt": "2026-07-08 11:24:39 UTC+08:00",
+  "trigger": "修正DGS previous bug：fetch_fred_series limit 2->30",
+  "generated_at_bjt": "2026-07-08 18:11:37 UTC+08:00",
   "stance": "中性",
   "score": -0.10000000000000009,
   "metrics": [
@@ -116,7 +116,7 @@
       "notes": "",
       "stale_days": 7,
       "extra": {
-        "fetch_url": "https://api.stlouisfed.org/fred/series/observations?series_id=WRESBAL&api_key=REDACTED&file_type=json&sort_order=desc&limit=2&observation_start=2026-01-09"
+        "fetch_url": "https://api.stlouisfed.org/fred/series/observations?series_id=WRESBAL&api_key=REDACTED&file_type=json&sort_order=desc&limit=30&observation_start=2026-01-09"
       }
     },
     {
@@ -136,7 +136,7 @@
       "notes": "",
       "stale_days": 2,
       "extra": {
-        "fetch_url": "https://api.stlouisfed.org/fred/series/observations?series_id=BAMLC0A0CM&api_key=REDACTED&file_type=json&sort_order=desc&limit=2&observation_start=2026-01-09"
+        "fetch_url": "https://api.stlouisfed.org/fred/series/observations?series_id=BAMLC0A0CM&api_key=REDACTED&file_type=json&sort_order=desc&limit=30&observation_start=2026-01-09"
       }
     },
     {
@@ -156,7 +156,7 @@
       "notes": "",
       "stale_days": 2,
       "extra": {
-        "fetch_url": "https://api.stlouisfed.org/fred/series/observations?series_id=BAMLH0A0HYM2&api_key=REDACTED&file_type=json&sort_order=desc&limit=2&observation_start=2026-01-09"
+        "fetch_url": "https://api.stlouisfed.org/fred/series/observations?series_id=BAMLH0A0HYM2&api_key=REDACTED&file_type=json&sort_order=desc&limit=30&observation_start=2026-01-09"
       }
     },
     {
@@ -164,11 +164,11 @@
       "name": "90-day AA nonfinancial commercial paper",
       "category": "信用传导",
       "value": 3.72,
-      "previous": null,
-      "change": null,
+      "previous": 3.67,
+      "change": 0.050000000000000266,
       "unit": "%",
       "as_of": "2026-06-26",
-      "previous_as_of": null,
+      "previous_as_of": "2026-06-17",
       "frequency": "daily T+1",
       "source": "FRED API",
       "source_url": "https://fred.stlouisfed.org/series/DCPN3M",
@@ -176,7 +176,7 @@
       "notes": "",
       "stale_days": 12,
       "extra": {
-        "fetch_url": "https://api.stlouisfed.org/fred/series/observations?series_id=DCPN3M&api_key=REDACTED&file_type=json&sort_order=desc&limit=2&observation_start=2026-01-09"
+        "fetch_url": "https://api.stlouisfed.org/fred/series/observations?series_id=DCPN3M&api_key=REDACTED&file_type=json&sort_order=desc&limit=30&observation_start=2026-01-09"
       }
     },
     {
@@ -908,11 +908,11 @@
       "name": "10-year Treasury inflation-indexed security real yield",
       "category": "国债收益率/曲线",
       "value": 2.24,
-      "previous": null,
-      "change": null,
+      "previous": 2.26,
+      "change": -0.019999999999999574,
       "unit": "%",
       "as_of": "2026-07-06",
-      "previous_as_of": null,
+      "previous_as_of": "2026-07-02",
       "frequency": "daily T+1",
       "source": "FRED API",
       "source_url": "https://fred.stlouisfed.org/series/DFII10",
@@ -920,7 +920,7 @@
       "notes": "",
       "stale_days": 2,
       "extra": {
-        "fetch_url": "https://api.stlouisfed.org/fred/series/observations?series_id=DFII10&api_key=REDACTED&file_type=json&sort_order=desc&limit=2&observation_start=2026-01-09"
+        "fetch_url": "https://api.stlouisfed.org/fred/series/observations?series_id=DFII10&api_key=REDACTED&file_type=json&sort_order=desc&limit=30&observation_start=2026-01-09"
       }
     },
     {
@@ -928,11 +928,11 @@
       "name": "1-year Treasury constant maturity yield",
       "category": "国债收益率/曲线",
       "value": 3.95,
-      "previous": null,
-      "change": null,
+      "previous": 3.96,
+      "change": -0.009999999999999787,
       "unit": "%",
       "as_of": "2026-07-06",
-      "previous_as_of": null,
+      "previous_as_of": "2026-07-02",
       "frequency": "daily T+1",
       "source": "FRED API",
       "source_url": "https://fred.stlouisfed.org/series/DGS1",
@@ -940,7 +940,7 @@
       "notes": "",
       "stale_days": 2,
       "extra": {
-        "fetch_url": "https://api.stlouisfed.org/fred/series/observations?series_id=DGS1&api_key=REDACTED&file_type=json&sort_order=desc&limit=2&observation_start=2026-01-09"
+        "fetch_url": "https://api.stlouisfed.org/fred/series/observations?series_id=DGS1&api_key=REDACTED&file_type=json&sort_order=desc&limit=30&observation_start=2026-01-09"
       }
     },
     {
@@ -948,11 +948,11 @@
       "name": "10-year Treasury constant maturity yield",
       "category": "国债收益率/曲线",
       "value": 4.48,
-      "previous": null,
-      "change": null,
+      "previous": 4.49,
+      "change": -0.009999999999999787,
       "unit": "%",
       "as_of": "2026-07-06",
-      "previous_as_of": null,
+      "previous_as_of": "2026-07-02",
       "frequency": "daily T+1",
       "source": "FRED API",
       "source_url": "https://fred.stlouisfed.org/series/DGS10",
@@ -960,7 +960,7 @@
       "notes": "",
       "stale_days": 2,
       "extra": {
-        "fetch_url": "https://api.stlouisfed.org/fred/series/observations?series_id=DGS10&api_key=REDACTED&file_type=json&sort_order=desc&limit=2&observation_start=2026-01-09"
+        "fetch_url": "https://api.stlouisfed.org/fred/series/observations?series_id=DGS10&api_key=REDACTED&file_type=json&sort_order=desc&limit=30&observation_start=2026-01-09"
       }
     },
     {
@@ -968,11 +968,11 @@
       "name": "2-year Treasury constant maturity yield",
       "category": "国债收益率/曲线",
       "value": 4.13,
-      "previous": null,
-      "change": null,
+      "previous": 4.14,
+      "change": -0.009999999999999787,
       "unit": "%",
       "as_of": "2026-07-06",
-      "previous_as_of": null,
+      "previous_as_of": "2026-07-02",
       "frequency": "daily T+1",
       "source": "FRED API",
       "source_url": "https://fred.stlouisfed.org/series/DGS2",
@@ -980,7 +980,7 @@
       "notes": "",
       "stale_days": 2,
       "extra": {
-        "fetch_url": "https://api.stlouisfed.org/fred/series/observations?series_id=DGS2&api_key=REDACTED&file_type=json&sort_order=desc&limit=2&observation_start=2026-01-09"
+        "fetch_url": "https://api.stlouisfed.org/fred/series/observations?series_id=DGS2&api_key=REDACTED&file_type=json&sort_order=desc&limit=30&observation_start=2026-01-09"
       }
     },
     {
@@ -988,11 +988,11 @@
       "name": "3-year Treasury constant maturity yield",
       "category": "国债收益率/曲线",
       "value": 4.14,
-      "previous": null,
-      "change": null,
+      "previous": 4.16,
+      "change": -0.020000000000000462,
       "unit": "%",
       "as_of": "2026-07-06",
-      "previous_as_of": null,
+      "previous_as_of": "2026-07-02",
       "frequency": "daily T+1",
       "source": "FRED API",
       "source_url": "https://fred.stlouisfed.org/series/DGS3",
@@ -1000,7 +1000,7 @@
       "notes": "",
       "stale_days": 2,
       "extra": {
-        "fetch_url": "https://api.stlouisfed.org/fred/series/observations?series_id=DGS3&api_key=REDACTED&file_type=json&sort_order=desc&limit=2&observation_start=2026-01-09"
+        "fetch_url": "https://api.stlouisfed.org/fred/series/observations?series_id=DGS3&api_key=REDACTED&file_type=json&sort_order=desc&limit=30&observation_start=2026-01-09"
       }
     },
     {
@@ -1008,11 +1008,11 @@
       "name": "30-year Treasury constant maturity yield",
       "category": "国债收益率/曲线",
       "value": 4.99,
-      "previous": null,
-      "change": null,
+      "previous": 4.98,
+      "change": 0.009999999999999787,
       "unit": "%",
       "as_of": "2026-07-06",
-      "previous_as_of": null,
+      "previous_as_of": "2026-07-02",
       "frequency": "daily T+1",
       "source": "FRED API",
       "source_url": "https://fred.stlouisfed.org/series/DGS30",
@@ -1020,7 +1020,7 @@
       "notes": "",
       "stale_days": 2,
       "extra": {
-        "fetch_url": "https://api.stlouisfed.org/fred/series/observations?series_id=DGS30&api_key=REDACTED&file_type=json&sort_order=desc&limit=2&observation_start=2026-01-09"
+        "fetch_url": "https://api.stlouisfed.org/fred/series/observations?series_id=DGS30&api_key=REDACTED&file_type=json&sort_order=desc&limit=30&observation_start=2026-01-09"
       }
     },
     {
@@ -1028,11 +1028,11 @@
       "name": "3-month Treasury constant maturity yield",
       "category": "国债收益率/曲线",
       "value": 3.87,
-      "previous": null,
-      "change": null,
+      "previous": 3.82,
+      "change": 0.050000000000000266,
       "unit": "%",
       "as_of": "2026-07-06",
-      "previous_as_of": null,
+      "previous_as_of": "2026-07-02",
       "frequency": "daily T+1",
       "source": "FRED API",
       "source_url": "https://fred.stlouisfed.org/series/DGS3MO",
@@ -1040,7 +1040,7 @@
       "notes": "",
       "stale_days": 2,
       "extra": {
-        "fetch_url": "https://api.stlouisfed.org/fred/series/observations?series_id=DGS3MO&api_key=REDACTED&file_type=json&sort_order=desc&limit=2&observation_start=2026-01-09"
+        "fetch_url": "https://api.stlouisfed.org/fred/series/observations?series_id=DGS3MO&api_key=REDACTED&file_type=json&sort_order=desc&limit=30&observation_start=2026-01-09"
       }
     },
     {
@@ -1048,11 +1048,11 @@
       "name": "3-month Treasury bill secondary market rate",
       "category": "国债收益率/曲线",
       "value": 3.74,
-      "previous": null,
-      "change": null,
+      "previous": 3.68,
+      "change": 0.06000000000000005,
       "unit": "%",
       "as_of": "2026-07-06",
-      "previous_as_of": null,
+      "previous_as_of": "2026-07-02",
       "frequency": "daily T+1",
       "source": "FRED API",
       "source_url": "https://fred.stlouisfed.org/series/DTB3",
@@ -1060,7 +1060,7 @@
       "notes": "",
       "stale_days": 2,
       "extra": {
-        "fetch_url": "https://api.stlouisfed.org/fred/series/observations?series_id=DTB3&api_key=REDACTED&file_type=json&sort_order=desc&limit=2&observation_start=2026-01-09"
+        "fetch_url": "https://api.stlouisfed.org/fred/series/observations?series_id=DTB3&api_key=REDACTED&file_type=json&sort_order=desc&limit=30&observation_start=2026-01-09"
       }
     },
     {
@@ -1080,7 +1080,7 @@
       "notes": "",
       "stale_days": 1,
       "extra": {
-        "fetch_url": "https://api.stlouisfed.org/fred/series/observations?series_id=T10Y2Y&api_key=REDACTED&file_type=json&sort_order=desc&limit=2&observation_start=2026-01-09"
+        "fetch_url": "https://api.stlouisfed.org/fred/series/observations?series_id=T10Y2Y&api_key=REDACTED&file_type=json&sort_order=desc&limit=30&observation_start=2026-01-09"
       }
     },
     {
@@ -1100,7 +1100,7 @@
       "notes": "",
       "stale_days": 1,
       "extra": {
-        "fetch_url": "https://api.stlouisfed.org/fred/series/observations?series_id=T10Y3M&api_key=REDACTED&file_type=json&sort_order=desc&limit=2&observation_start=2026-01-09"
+        "fetch_url": "https://api.stlouisfed.org/fred/series/observations?series_id=T10Y3M&api_key=REDACTED&file_type=json&sort_order=desc&limit=30&observation_start=2026-01-09"
       }
     },
     {
@@ -1120,7 +1120,7 @@
       "notes": "",
       "stale_days": 1,
       "extra": {
-        "fetch_url": "https://api.stlouisfed.org/fred/series/observations?series_id=DFEDTARU&api_key=REDACTED&file_type=json&sort_order=desc&limit=2&observation_start=2026-01-09"
+        "fetch_url": "https://api.stlouisfed.org/fred/series/observations?series_id=DFEDTARU&api_key=REDACTED&file_type=json&sort_order=desc&limit=30&observation_start=2026-01-09"
       }
     },
     {
@@ -1140,7 +1140,7 @@
       "notes": "",
       "stale_days": 0,
       "extra": {
-        "fetch_url": "https://api.stlouisfed.org/fred/series/observations?series_id=IORB&api_key=REDACTED&file_type=json&sort_order=desc&limit=2&observation_start=2026-01-09"
+        "fetch_url": "https://api.stlouisfed.org/fred/series/observations?series_id=IORB&api_key=REDACTED&file_type=json&sort_order=desc&limit=30&observation_start=2026-01-09"
       }
     },
     {
@@ -1193,7 +1193,7 @@
       "notes": "",
       "stale_days": 6,
       "extra": {
-        "fetch_url": "https://api.stlouisfed.org/fred/series/observations?series_id=DTWEXBGS&api_key=REDACTED&file_type=json&sort_order=desc&limit=2&observation_start=2026-01-09"
+        "fetch_url": "https://api.stlouisfed.org/fred/series/observations?series_id=DTWEXBGS&api_key=REDACTED&file_type=json&sort_order=desc&limit=30&observation_start=2026-01-09"
       }
     },
     {
@@ -1213,7 +1213,7 @@
       "notes": "",
       "stale_days": 2,
       "extra": {
-        "fetch_url": "https://api.stlouisfed.org/fred/series/observations?series_id=VIXCLS&api_key=REDACTED&file_type=json&sort_order=desc&limit=2&observation_start=2026-01-09"
+        "fetch_url": "https://api.stlouisfed.org/fred/series/observations?series_id=VIXCLS&api_key=REDACTED&file_type=json&sort_order=desc&limit=30&observation_start=2026-01-09"
       }
     },
     {
@@ -1233,7 +1233,7 @@
       "notes": "",
       "stale_days": 12,
       "extra": {
-        "fetch_url": "https://api.stlouisfed.org/fred/series/observations?series_id=NFCI&api_key=REDACTED&file_type=json&sort_order=desc&limit=2&observation_start=2026-01-09"
+        "fetch_url": "https://api.stlouisfed.org/fred/series/observations?series_id=NFCI&api_key=REDACTED&file_type=json&sort_order=desc&limit=30&observation_start=2026-01-09"
       }
     },
     {
@@ -1430,8 +1430,8 @@
       "unit": "bp",
       "interpretation": "用90天AA非金融商业票据利率减联邦基金目标上限，粗略观察企业短融相对政策利率是否变贵；这是信用传导代理指标，不是FRA-OIS。企业短融压力不明显",
       "severity": "偏松",
-      "previous": null,
-      "change": null,
+      "previous": -8.000000000000007,
+      "change": 5.000000000000027,
       "as_of": "2026-06-26"
     },
     {
@@ -1474,8 +1474,8 @@
       "unit": "%",
       "interpretation": "1年期收益率处于中间区间，需结合3年期和10年期确认曲线重定价",
       "severity": "中性",
-      "previous": null,
-      "change": null,
+      "previous": 3.96,
+      "change": -0.009999999999999787,
       "as_of": "2026-07-06"
     },
     {
@@ -1485,8 +1485,19 @@
       "unit": "%",
       "interpretation": "3年期收益率处于中间区间，观察其相对1年和10年的斜率变化。",
       "severity": "中性",
-      "previous": null,
-      "change": null,
+      "previous": 4.16,
+      "change": -0.020000000000000462,
+      "as_of": "2026-07-06"
+    },
+    {
+      "id": "NOMINAL_10Y",
+      "name": "10Y Treasury Yield（10年期美国国债收益率）",
+      "value": 4.48,
+      "unit": "%",
+      "interpretation": "长期名义折现率边际变化有限",
+      "severity": "中性",
+      "previous": 4.49,
+      "change": -0.009999999999999787,
       "as_of": "2026-07-06"
     },
     {
@@ -1495,6 +1506,17 @@
       "value": 4.48,
       "unit": "%",
       "interpretation": "10年期国债收益率处于中间区间。",
+      "severity": "中性",
+      "previous": 4.49,
+      "change": -0.009999999999999787,
+      "as_of": "2026-07-06"
+    },
+    {
+      "id": "REAL_10Y_MOMENTUM",
+      "name": "10Y Yield Momentum（10年期国债收益率边际变化）",
+      "value": -0.9999999999999787,
+      "unit": "bp",
+      "interpretation": "10年期国债收益率边际变化有限。",
       "severity": "中性",
       "previous": null,
       "change": null,
@@ -1869,19 +1891,217 @@
     ]
   ],
   "chart_paths": [
-    "/Users/eiheisun/WorkBuddy/2026-05-04-task-1/output/usd_liquidity_chart_7d_20260708_112313.svg",
-    "/Users/eiheisun/WorkBuddy/2026-05-04-task-1/output/usd_liquidity_chart_30d_20260708_112313.svg"
+    "/Users/eiheisun/WorkBuddy/2026-05-04-task-1/output/usd_liquidity_chart_7d_20260708_181123.svg",
+    "/Users/eiheisun/WorkBuddy/2026-05-04-task-1/output/usd_liquidity_chart_30d_20260708_181123.svg"
   ],
   "upcoming_auctions": {
-    "status": "error",
+    "status": "ok",
     "as_of": "2026-07-08",
     "lookforward_days": 60,
     "source_url": "https://www.treasurydirect.gov/TA_WS/securities/search?format=json&startDate=2026-07-08&endDate=2026-09-06",
-    "auctions": [],
-    "bill_schedule": [],
-    "next_auctions": [],
-    "large_auctions": [],
-    "notes": "GET failed: https://www.treasurydirect.gov/TA_WS/securities/search?format=json&startDate=2026-07-08&endDate=2026-09-06 | HTTPSConnectionPool(host='www.treasurydirect.gov', port=443): Read timed out. (read timeout=10)"
+    "auctions": [
+      {
+        "auctionDate": "2026-07-08",
+        "issueDate": "2026-07-14",
+        "announcementDate": "2026-07-07",
+        "securityType": "Bill",
+        "securityTerm": "17-Week",
+        "offeringAmount": 72.0,
+        "offeringAmountText": "$72bn",
+        "cusip": "912797VW4",
+        "is_bill": true,
+        "is_note_or_bond": false
+      },
+      {
+        "auctionDate": "2026-07-08",
+        "issueDate": "2026-07-15",
+        "announcementDate": "2026-07-02",
+        "securityType": "Note",
+        "securityTerm": "9-Year 10-Month",
+        "offeringAmount": 39.0,
+        "offeringAmountText": "$39bn",
+        "cusip": "91282CQQ7",
+        "is_bill": false,
+        "is_note_or_bond": true
+      },
+      {
+        "auctionDate": "2026-07-09",
+        "issueDate": "2026-07-14",
+        "announcementDate": "2026-07-07",
+        "securityType": "Bill",
+        "securityTerm": "4-Week",
+        "offeringAmount": 100.0,
+        "offeringAmountText": "$100bn",
+        "cusip": "912797UT2",
+        "is_bill": true,
+        "is_note_or_bond": false
+      },
+      {
+        "auctionDate": "2026-07-09",
+        "issueDate": "2026-07-14",
+        "announcementDate": "2026-07-07",
+        "securityType": "Bill",
+        "securityTerm": "8-Week",
+        "offeringAmount": 95.0,
+        "offeringAmountText": "$95bn",
+        "cusip": "912797VB0",
+        "is_bill": true,
+        "is_note_or_bond": false
+      },
+      {
+        "auctionDate": "2026-07-09",
+        "issueDate": "2026-07-15",
+        "announcementDate": "2026-07-02",
+        "securityType": "Bond",
+        "securityTerm": "29-Year 10-Month",
+        "offeringAmount": 22.0,
+        "offeringAmountText": "$22bn",
+        "cusip": "912810UU0",
+        "is_bill": false,
+        "is_note_or_bond": true
+      }
+    ],
+    "bill_schedule": [
+      {
+        "auctionDate": "2026-07-08",
+        "totalBillOffering": 72.0,
+        "items": [
+          {
+            "auctionDate": "2026-07-08",
+            "issueDate": "2026-07-14",
+            "announcementDate": "2026-07-07",
+            "securityType": "Bill",
+            "securityTerm": "17-Week",
+            "offeringAmount": 72.0,
+            "offeringAmountText": "$72bn",
+            "cusip": "912797VW4",
+            "is_bill": true,
+            "is_note_or_bond": false
+          }
+        ],
+        "totalBillOfferingText": "$72bn"
+      },
+      {
+        "auctionDate": "2026-07-09",
+        "totalBillOffering": 195.0,
+        "items": [
+          {
+            "auctionDate": "2026-07-09",
+            "issueDate": "2026-07-14",
+            "announcementDate": "2026-07-07",
+            "securityType": "Bill",
+            "securityTerm": "4-Week",
+            "offeringAmount": 100.0,
+            "offeringAmountText": "$100bn",
+            "cusip": "912797UT2",
+            "is_bill": true,
+            "is_note_or_bond": false
+          },
+          {
+            "auctionDate": "2026-07-09",
+            "issueDate": "2026-07-14",
+            "announcementDate": "2026-07-07",
+            "securityType": "Bill",
+            "securityTerm": "8-Week",
+            "offeringAmount": 95.0,
+            "offeringAmountText": "$95bn",
+            "cusip": "912797VB0",
+            "is_bill": true,
+            "is_note_or_bond": false
+          }
+        ],
+        "totalBillOfferingText": "$195bn"
+      }
+    ],
+    "next_auctions": [
+      {
+        "auctionDate": "2026-07-08",
+        "issueDate": "2026-07-14",
+        "announcementDate": "2026-07-07",
+        "securityType": "Bill",
+        "securityTerm": "17-Week",
+        "offeringAmount": 72.0,
+        "offeringAmountText": "$72bn",
+        "cusip": "912797VW4",
+        "is_bill": true,
+        "is_note_or_bond": false
+      },
+      {
+        "auctionDate": "2026-07-08",
+        "issueDate": "2026-07-15",
+        "announcementDate": "2026-07-02",
+        "securityType": "Note",
+        "securityTerm": "9-Year 10-Month",
+        "offeringAmount": 39.0,
+        "offeringAmountText": "$39bn",
+        "cusip": "91282CQQ7",
+        "is_bill": false,
+        "is_note_or_bond": true
+      },
+      {
+        "auctionDate": "2026-07-09",
+        "issueDate": "2026-07-14",
+        "announcementDate": "2026-07-07",
+        "securityType": "Bill",
+        "securityTerm": "4-Week",
+        "offeringAmount": 100.0,
+        "offeringAmountText": "$100bn",
+        "cusip": "912797UT2",
+        "is_bill": true,
+        "is_note_or_bond": false
+      },
+      {
+        "auctionDate": "2026-07-09",
+        "issueDate": "2026-07-14",
+        "announcementDate": "2026-07-07",
+        "securityType": "Bill",
+        "securityTerm": "8-Week",
+        "offeringAmount": 95.0,
+        "offeringAmountText": "$95bn",
+        "cusip": "912797VB0",
+        "is_bill": true,
+        "is_note_or_bond": false
+      },
+      {
+        "auctionDate": "2026-07-09",
+        "issueDate": "2026-07-15",
+        "announcementDate": "2026-07-02",
+        "securityType": "Bond",
+        "securityTerm": "29-Year 10-Month",
+        "offeringAmount": 22.0,
+        "offeringAmountText": "$22bn",
+        "cusip": "912810UU0",
+        "is_bill": false,
+        "is_note_or_bond": true
+      }
+    ],
+    "large_auctions": [
+      {
+        "auctionDate": "2026-07-09",
+        "issueDate": "2026-07-14",
+        "announcementDate": "2026-07-07",
+        "securityType": "Bill",
+        "securityTerm": "4-Week",
+        "offeringAmount": 100.0,
+        "offeringAmountText": "$100bn",
+        "cusip": "912797UT2",
+        "is_bill": true,
+        "is_note_or_bond": false
+      },
+      {
+        "auctionDate": "2026-07-09",
+        "issueDate": "2026-07-14",
+        "announcementDate": "2026-07-07",
+        "securityType": "Bill",
+        "securityTerm": "8-Week",
+        "offeringAmount": 95.0,
+        "offeringAmountText": "$95bn",
+        "cusip": "912797VB0",
+        "is_bill": true,
+        "is_note_or_bond": false
+      }
+    ],
+    "notes": "TreasuryDirect future auction calendar. offeringAmount may be absent before official announcement; treat missing amounts as data risk, not zero issuance."
   },
   "model_input_schema": "See usd_liquidity_model_input_*.json generated in the same output run."
 }

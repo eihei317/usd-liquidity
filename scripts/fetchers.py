@@ -93,7 +93,10 @@ def fetch_fred_series(series_id: str, name: str, category: str, unit: str, frequ
     source_page_url = f"https://fred.stlouisfed.org/series/{series_id}"
     api_key = get_fred_api_key()
     if api_key:
-        params = urllib.parse.urlencode({"series_id": series_id, "api_key": api_key, "file_type": "json", "sort_order": "desc", "limit": 2, "observation_start": start_date})
+        # limit 必须远大于 2：最新交易日紧跟市场假期时，FRED 仍会给假期日期发一条
+        # value="." 的 observation 占位；limit=2 会把真实上一交易日顶出窗口，导致 previous=None。
+        # 拉足够多的近期 observation，过滤 "." 后取最后两条有效行即可得到正确的 previous。
+        params = urllib.parse.urlencode({"series_id": series_id, "api_key": api_key, "file_type": "json", "sort_order": "desc", "limit": 30, "observation_start": start_date})
         url = f"https://api.stlouisfed.org/fred/series/observations?{params}"
         source = "FRED API"
     else:
@@ -228,7 +231,7 @@ def fetch_treasury_auctions(lookback_days: int) -> Metric:
     params = urllib.parse.urlencode({"format": "json", "startDate": start.isoformat(), "endDate": end.isoformat()})
     url = f"https://www.treasurydirect.gov/TA_WS/securities/search?{params}"
     try:
-        payload = http_get_json(url)
+        payload = http_get_json(url, timeout=30, retries=2)
         records = payload if isinstance(payload, list) else payload.get("data", []) if isinstance(payload, dict) else []
         parsed: List[Tuple[str, float, Dict[str, Any]]] = []
         for rec in records:
@@ -339,7 +342,7 @@ def fetch_upcoming_auctions(lookforward_days: int = 60) -> Dict[str, Any]:
     params = urllib.parse.urlencode({"format": "json", "startDate": today.isoformat(), "endDate": end.isoformat()})
     url = f"https://www.treasurydirect.gov/TA_WS/securities/search?{params}"
     try:
-        payload = http_get_json(url)
+        payload = http_get_json(url, timeout=30, retries=2)
         records = payload if isinstance(payload, list) else payload.get("data", []) if isinstance(payload, dict) else []
         auctions: List[Dict[str, Any]] = []
         for rec in records:
