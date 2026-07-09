@@ -2,7 +2,7 @@ window.DASHBOARD_DATA = {
   "meta": {
     "title": "美元流动性监测",
     "trigger": "今天的美元流动性简报",
-    "generated_at_bjt": "2026-07-09 11:01:59 UTC+08:00",
+    "generated_at_bjt": "2026-07-09 11:11:04 UTC+08:00",
     "data_as_of": "2026-07-09",
     "timezone": "BJT",
     "theme": "warm_claude",
@@ -54,13 +54,13 @@ window.DASHBOARD_DATA = {
         "id": "TGA",
         "label": "TGA（财政部一般账户）",
         "priority": "P0",
-        "value_text": "NA",
-        "previous_text": "NA",
-        "change_text": "NA",
-        "severity": "缺失",
+        "value_text": "785.0bn",
+        "previous_text": "783.1bn",
+        "change_text": "+1.9bn",
+        "severity": "中性",
         "why": "财政抽水/放水",
         "interpretation": "财政部现金余额，余额上升通常抽走银行体系准备金，下降通常释放准备金。",
-        "as_of": null,
+        "as_of": "2026-07-07",
         "frequency": "日频，Daily Treasury Statement 通常次一工作日 16:00 ET 前发布"
       },
       {
@@ -651,7 +651,7 @@ window.DASHBOARD_DATA = {
   },
   "jpy_carry": {
     "meta": {
-      "generated_at_bjt": "2026-07-09 11:01:41 UTC+08:00",
+      "generated_at_bjt": "2026-07-09 11:10:51 UTC+08:00",
       "lookback": "日频约1年，CFTC约2年，REER/NEER约3年"
     },
     "risk": {
@@ -9055,26 +9055,26 @@ window.DASHBOARD_DATA = {
           "id": "TGA",
           "label": "TGA（财政部一般账户）",
           "category": "Fed负债端",
-          "value": null,
-          "value_text": "NA",
+          "value": 784.964,
+          "value_text": "785.0bn",
           "unit": "USD bn",
-          "previous": null,
-          "change": null,
-          "change_text": "NA",
-          "change_direction": "unknown",
-          "as_of": null,
-          "previous_as_of": null,
+          "previous": 783.107,
+          "change": 1.8570000000000846,
+          "change_text": "+1.9bn",
+          "change_direction": "up",
+          "as_of": "2026-07-07",
+          "previous_as_of": "2026-07-06",
           "meaning": "财政部现金余额，余额上升通常抽走银行体系准备金，下降通常释放准备金。",
           "frequency": "日频，Daily Treasury Statement 通常次一工作日 16:00 ET 前发布",
           "data_lag": "覆盖上一工作日财政现金和债务操作",
           "comparison_basis": "与上一条有效工作日观测比较，不能与当天市场利率强行同日对齐。",
-          "freshness": "error",
+          "freshness": "ok",
           "importance": "high",
           "interpretation_hint": "",
           "source": "Treasury FiscalData",
           "source_url": "https://api.fiscaldata.treasury.gov/services/api/fiscal_service/v1/accounting/dts/operating_cash_balance?sort=-record_date&page[size]=90",
-          "status": "error",
-          "notes": "GET failed: https://api.fiscaldata.treasury.gov/services/api/fiscal_service/v1/accounting/dts/operating_cash_balance?sort=-record_date&page[size]=90 | HTTPSConnectionPool(host='api.fiscaldata.treasury.gov', port=443): Read timed out. (read timeout=10)"
+          "status": "ok",
+          "notes": ""
         },
         {
           "id": "RRPONTSYD",
@@ -9763,6 +9763,20 @@ window.DASHBOARD_DATA = {
       "severity": "偏松",
       "meaning": "用90天AA非金融商业票据利率减联邦基金目标上限，粗略观察企业短融相对政策利率是否变贵；这是信用传导代理指标，不是FRA-OIS。企业短融压力不明显",
       "as_of": "2026-06-26"
+    },
+    {
+      "id": "TGA_FLOW",
+      "label": "TGA Daily Change（财政部一般账户日变化）",
+      "value": 1.8570000000000846,
+      "value_text": "1.86bn",
+      "previous": 6.26400000000001,
+      "previous_text": "6.26bn",
+      "change": -4.406999999999925,
+      "change_text": "-4.4bn",
+      "unit": "bn",
+      "severity": "中性",
+      "meaning": "财政资金流变化不大",
+      "as_of": "2026-07-07"
     },
     {
       "id": "RRP_FLOW",
@@ -12057,6 +12071,10 @@ window.DASHBOARD_DATA = {
             {
               "date": "2026-07-06",
               "value": 783.107
+            },
+            {
+              "date": "2026-07-07",
+              "value": 784.964
             }
           ],
           "y_axis": "y"
@@ -21453,18 +21471,11 @@ window.DASHBOARD_DATA = {
     }
   ],
   "chart_paths": [
-    "/Users/eiheisun/WorkBuddy/2026-05-04-task-1/output/usd_liquidity_chart_7d_20260709_110141.svg",
-    "/Users/eiheisun/WorkBuddy/2026-05-04-task-1/output/usd_liquidity_chart_30d_20260709_110141.svg"
+    "/Users/eiheisun/WorkBuddy/2026-05-04-task-1/output/usd_liquidity_chart_7d_20260709_111051.svg",
+    "/Users/eiheisun/WorkBuddy/2026-05-04-task-1/output/usd_liquidity_chart_30d_20260709_111051.svg"
   ],
   "data_quality": {
-    "missing": [
-      {
-        "id": "TGA",
-        "label": "TGA（财政部一般账户）",
-        "reason": "GET failed: https://api.fiscaldata.treasury.gov/services/api/fiscal_service/v1/accounting/dts/operating_cash_balance?sort=-record_date&page[size]=90 | HTTPSConnectionPool(host='api.fiscaldata.treasury.gov', port=443): Read timed out. (read timeout=10)",
-        "fallback": "详见缺失数据与替代指标"
-      }
-    ],
+    "missing": [],
     "stale": [
       {
         "id": "DCPN3M",
@@ -21514,7 +21525,7 @@ window.DASHBOARD_DATA = {
 window.ANALYSIS_DATA = {
   "meta": {
     "status": "pending_model_analysis",
-    "generated_at_bjt": "2026-07-09 11:01:59 UTC+08:00"
+    "generated_at_bjt": "2026-07-09 11:11:04 UTC+08:00"
   },
   "stance": {
     "label": "待模型分析",

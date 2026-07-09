@@ -135,7 +135,7 @@ def fetch_fred_series(series_id: str, name: str, category: str, unit: str, frequ
 def fetch_tga() -> Metric:
     url = "https://api.fiscaldata.treasury.gov/services/api/fiscal_service/v1/accounting/dts/operating_cash_balance?sort=-record_date&page[size]=90"
     try:
-        payload = http_get_json(url)
+        payload = http_get_json(url, timeout=30, retries=2)
         records = payload.get("data", []) if isinstance(payload, dict) else []
         parsed: List[Tuple[str, float]] = []
         for rec in records:

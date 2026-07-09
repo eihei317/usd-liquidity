@@ -1,6 +1,6 @@
 {
   "trigger": "今天的美元流动性简报",
-  "generated_at_bjt": "2026-07-09 11:01:59 UTC+08:00",
+  "generated_at_bjt": "2026-07-09 11:11:04 UTC+08:00",
   "stance": "中性",
   "score": 0.5999999999999999,
   "metrics": [
@@ -64,21 +64,40 @@
     },
     {
       "id": "TGA",
-      "name": "Treasury General Account / operating cash balance",
+      "name": "Treasury General Account closing balance",
       "category": "Fed负债端",
-      "value": null,
-      "previous": null,
-      "change": null,
+      "value": 784.964,
+      "previous": 783.107,
+      "change": 1.8570000000000846,
       "unit": "USD bn",
-      "as_of": null,
-      "previous_as_of": null,
+      "as_of": "2026-07-07",
+      "previous_as_of": "2026-07-06",
       "frequency": "daily T+1",
       "source": "Treasury FiscalData",
       "source_url": "https://api.fiscaldata.treasury.gov/services/api/fiscal_service/v1/accounting/dts/operating_cash_balance?sort=-record_date&page[size]=90",
-      "status": "error",
-      "notes": "GET failed: https://api.fiscaldata.treasury.gov/services/api/fiscal_service/v1/accounting/dts/operating_cash_balance?sort=-record_date&page[size]=90 | HTTPSConnectionPool(host='api.fiscaldata.treasury.gov', port=443): Read timed out. (read timeout=10)",
-      "stale_days": null,
-      "extra": {}
+      "status": "ok",
+      "notes": "",
+      "stale_days": 2,
+      "extra": {
+        "raw_latest": {
+          "record_date": "2026-07-07",
+          "account_type": "Treasury General Account (TGA) Opening Balance",
+          "close_today_bal": "null",
+          "open_today_bal": "783107",
+          "open_month_bal": "919145",
+          "open_fiscal_year_bal": "890825",
+          "table_nbr": "I",
+          "table_nm": "Operating Cash Balance",
+          "sub_table_name": "Cash Balance Details",
+          "src_line_nbr": "1",
+          "record_fiscal_year": "2026",
+          "record_fiscal_quarter": "4",
+          "record_calendar_year": "2026",
+          "record_calendar_quarter": "3",
+          "record_calendar_month": "07",
+          "record_calendar_day": "07"
+        }
+      }
     },
     {
       "id": "WRESBAL",
@@ -1416,6 +1435,17 @@
       "as_of": "2026-06-26"
     },
     {
+      "id": "TGA_FLOW",
+      "name": "TGA Daily Change（财政部一般账户日变化）",
+      "value": 1.8570000000000846,
+      "unit": "bn",
+      "interpretation": "财政资金流变化不大",
+      "severity": "中性",
+      "previous": 6.26400000000001,
+      "change": -4.406999999999925,
+      "as_of": "2026-07-07"
+    },
+    {
       "id": "RRP_FLOW",
       "name": "RRP Flow（隔夜逆回购边际流量）",
       "value": -1.137,
@@ -1861,8 +1891,8 @@
     ]
   ],
   "chart_paths": [
-    "/Users/eiheisun/WorkBuddy/2026-05-04-task-1/output/usd_liquidity_chart_7d_20260709_110141.svg",
-    "/Users/eiheisun/WorkBuddy/2026-05-04-task-1/output/usd_liquidity_chart_30d_20260709_110141.svg"
+    "/Users/eiheisun/WorkBuddy/2026-05-04-task-1/output/usd_liquidity_chart_7d_20260709_111051.svg",
+    "/Users/eiheisun/WorkBuddy/2026-05-04-task-1/output/usd_liquidity_chart_30d_20260709_111051.svg"
   ],
   "upcoming_auctions": {
     "status": "ok",
