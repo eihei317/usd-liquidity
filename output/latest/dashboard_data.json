@@ -2,8 +2,8 @@
   "meta": {
     "title": "美元流动性监测",
     "trigger": "今天的美元流动性简报",
-    "generated_at_bjt": "2026-07-09 11:11:04 UTC+08:00",
-    "data_as_of": "2026-07-09",
+    "generated_at_bjt": "2026-07-10 16:43:15 UTC+08:00",
+    "data_as_of": "2026-07-10",
     "timezone": "BJT",
     "theme": "warm_claude",
     "version": "1.0"
@@ -17,7 +17,7 @@
       "紧张"
     ],
     "current_from_rule": "中性",
-    "score_from_rule": 0.5999999999999999
+    "score_from_rule": -0.1999999999999999
   },
   "trading_dashboard": {
     "core": [
@@ -26,13 +26,13 @@
         "id": "SOFR_ANCHOR",
         "label": "SOFR-IORB（担保隔夜融资利率-准备金余额利率）",
         "priority": "P0",
-        "value_text": "-3.0bp",
-        "previous_text": "-2.0bp",
-        "change_text": "-1.0bp",
+        "value_text": "-7.0bp",
+        "previous_text": "-3.0bp",
+        "change_text": "-4.0bp",
         "severity": "中性",
         "why": "回购融资是否高于政策锚",
         "interpretation": "SOFR相对IORB（准备金余额利率）的位置。回购融资与政策锚接近",
-        "as_of": "2026-07-07",
+        "as_of": "2026-07-08",
         "frequency": "日频，纽约联储约 8:00 ET 发布"
       },
       {
@@ -40,13 +40,13 @@
         "id": "SOFR_VOLUME_IMPACT",
         "label": "SOFR Rate-Volume Impact（SOFR价格×交易量影响）",
         "priority": "P0",
-        "value_text": "-2.6mn/day",
-        "previous_text": "-1.8mn/day",
-        "change_text": "-0.8mn/day",
-        "severity": "中性",
+        "value_text": "-6.1mn/day",
+        "previous_text": "-2.6mn/day",
+        "change_text": "-3.5mn/day",
+        "severity": "偏松",
         "why": "SOFR价格偏离作用在多大交易量上",
-        "interpretation": "SOFR交易量约3,154bn，但SOFR相对政策锚偏离有限，价格×规模冲击不大。",
-        "as_of": "2026-07-07",
+        "interpretation": "SOFR交易量约3,158bn，SOFR低于政策锚，按交易量估算日化融资成本低于政策锚约6.1百万美元。",
+        "as_of": "2026-07-08",
         "frequency": "日频，纽约联储SOFR记录随利率一同发布"
       },
       {
@@ -54,13 +54,13 @@
         "id": "TGA",
         "label": "TGA（财政部一般账户）",
         "priority": "P0",
-        "value_text": "785.0bn",
-        "previous_text": "783.1bn",
-        "change_text": "+1.9bn",
+        "value_text": "749.2bn",
+        "previous_text": "785.0bn",
+        "change_text": "-35.7bn",
         "severity": "中性",
         "why": "财政抽水/放水",
         "interpretation": "财政部现金余额，余额上升通常抽走银行体系准备金，下降通常释放准备金。",
-        "as_of": "2026-07-07",
+        "as_of": "2026-07-08",
         "frequency": "日频，Daily Treasury Statement 通常次一工作日 16:00 ET 前发布"
       },
       {
@@ -68,13 +68,13 @@
         "id": "RRP_FLOW",
         "label": "RRP Flow（隔夜逆回购边际流量）",
         "priority": "P0",
-        "value_text": "-1.14bn",
+        "value_text": "2.43bn",
         "previous_text": "NA",
         "change_text": "NA",
         "severity": "中性",
         "why": "RRP边际流量方向",
         "interpretation": "RRP日变化幅度有限，短期边际流量影响不大。",
-        "as_of": "2026-07-08",
+        "as_of": "2026-07-09",
         "frequency": "日频，纽约联储每日操作结果"
       },
       {
@@ -82,13 +82,13 @@
         "id": "RRP_BUFFER",
         "label": "RRP Buffer（隔夜逆回购存量缓冲垫）",
         "priority": "P0",
-        "value_text": "3.35bn",
-        "previous_text": "4.48bn",
-        "change_text": "-1.1bn",
+        "value_text": "5.77bn",
+        "previous_text": "3.35bn",
+        "change_text": "+2.4bn",
         "severity": "偏紧",
         "why": "非银现金缓冲垫厚度",
         "interpretation": "RRP存量缓冲垫几乎耗尽，后续TGA补库、QT或美债供给冲击更容易直接落到准备金。",
-        "as_of": "2026-07-08",
+        "as_of": "2026-07-09",
         "frequency": "日频，纽约联储每日操作结果"
       },
       {
@@ -96,13 +96,13 @@
         "id": "WRESBAL",
         "label": "WRESBAL（银行准备金余额）",
         "priority": "P1",
-        "value_text": "2,966.9bn",
-        "previous_text": "2,951.4bn",
-        "change_text": "+15.5bn",
+        "value_text": "3,098.9bn",
+        "previous_text": "2,966.9bn",
+        "change_text": "+132.0bn",
         "severity": "中性",
         "why": "银行准备金水位",
         "interpretation": "银行体系准备金余额，是美元流动性水位的核心变量，但发布频率较低。",
-        "as_of": "2026-07-01",
+        "as_of": "2026-07-08",
         "frequency": "周频，H.4.1 通常周四 16:30 ET 发布"
       },
       {
@@ -111,12 +111,12 @@
         "label": "1Y Treasury Yield（1年期美国国债收益率）",
         "priority": "P1",
         "value_text": "4.060%",
-        "previous_text": "3.950%",
-        "change_text": "+0.11%",
+        "previous_text": "4.060%",
+        "change_text": "0.00%",
         "severity": "中性",
         "why": "短债近端政策路径",
         "interpretation": "1年期收益率处于中间区间，需结合3年期和10年期确认曲线重定价",
-        "as_of": "2026-07-07",
+        "as_of": "2026-07-08",
         "frequency": "日频，FRED/H.15国债恒定期限收益率"
       },
       {
@@ -124,13 +124,13 @@
         "id": "UST_3Y_YIELD",
         "label": "3Y Treasury Yield（3年期美国国债收益率）",
         "priority": "P1",
-        "value_text": "4.180%",
-        "previous_text": "4.140%",
-        "change_text": "+0.04%",
+        "value_text": "4.210%",
+        "previous_text": "4.180%",
+        "change_text": "+0.03%",
         "severity": "中性",
         "why": "中段政策路径再定价",
         "interpretation": "3年期收益率处于中间区间，观察其相对1年和10年的斜率变化。",
-        "as_of": "2026-07-07",
+        "as_of": "2026-07-08",
         "frequency": "日频，FRED/H.15国债恒定期限收益率"
       },
       {
@@ -138,13 +138,13 @@
         "id": "REAL_10Y",
         "label": "10Y Treasury Yield（10年期美国国债收益率）",
         "priority": "P1",
-        "value_text": "4.550%",
-        "previous_text": "4.480%",
-        "change_text": "+0.07%",
+        "value_text": "4.560%",
+        "previous_text": "4.550%",
+        "change_text": "+0.01%",
         "severity": "偏紧",
         "why": "10年期国债收益率压力",
         "interpretation": "10年期国债收益率处于高位，对长期资产估值有压力；这描述的是level风险，不代表边际继续恶化。",
-        "as_of": "2026-07-07",
+        "as_of": "2026-07-08",
         "frequency": "日频，FRED/H.15国债恒定期限收益率"
       },
       {
@@ -152,13 +152,13 @@
         "id": "HY_CHANGE",
         "label": "HY OAS Change（高收益债期权调整利差变化）",
         "priority": "P1",
-        "value_text": "2.670%",
-        "previous_text": "2.720%",
-        "change_text": "-0.05%",
-        "severity": "偏松",
+        "value_text": "2.700%",
+        "previous_text": "2.670%",
+        "change_text": "+0.03%",
+        "severity": "中性",
         "why": "信用压力是否扩散",
-        "interpretation": "信用风险偏好改善",
-        "as_of": "2026-07-07",
+        "interpretation": "信用利差变化有限",
+        "as_of": "2026-07-08",
         "frequency": "日频，高收益债OAS"
       }
     ],
@@ -174,7 +174,7 @@
         "severity": "中性",
         "why": "银行融资压力是否扩散",
         "interpretation": "更广义的银行隔夜融资成本，观察压力是否从联邦基金市场扩散。",
-        "as_of": "2026-07-07",
+        "as_of": "2026-07-08",
         "frequency": "日频，纽约联储参考利率"
       },
       {
@@ -182,13 +182,13 @@
         "id": "TGCR",
         "label": "TGCR（三方一般抵押品利率）",
         "priority": "P2",
-        "value_text": "3.600%",
-        "previous_text": "3.610%",
-        "change_text": "-1.0bp",
+        "value_text": "3.570%",
+        "previous_text": "3.600%",
+        "change_text": "-3.0bp",
         "severity": "中性",
         "why": "三方回购融资确认",
         "interpretation": "三方回购市场的一般抵押品融资成本，反映机构化回购资金价格。",
-        "as_of": "2026-07-07",
+        "as_of": "2026-07-08",
         "frequency": "日频，纽约联储约 8:00 ET 发布"
       },
       {
@@ -196,13 +196,13 @@
         "id": "BGCR",
         "label": "BGCR（广义一般抵押品利率）",
         "priority": "P2",
-        "value_text": "3.600%",
-        "previous_text": "3.610%",
-        "change_text": "-1.0bp",
+        "value_text": "3.570%",
+        "previous_text": "3.600%",
+        "change_text": "-3.0bp",
         "severity": "中性",
         "why": "广义回购融资确认",
         "interpretation": "覆盖更广的一般抵押品回购利率，观察回购市场结构性扰动。",
-        "as_of": "2026-07-07",
+        "as_of": "2026-07-08",
         "frequency": "日频，纽约联储约 8:00 ET 发布"
       },
       {
@@ -216,7 +216,7 @@
         "severity": "中性",
         "why": "回购内部结构扰动",
         "interpretation": "比较广义回购与三方回购的结构差异。一般抵押品利率结构稳定",
-        "as_of": "2026-07-07",
+        "as_of": "2026-07-08",
         "frequency": "日频，纽约联储约 8:00 ET 发布"
       },
       {
@@ -224,13 +224,13 @@
         "id": "REAL_10Y_MOMENTUM",
         "label": "10Y Yield Momentum（10年期国债收益率边际变化）",
         "priority": "P2",
-        "value_text": "7.0bp",
+        "value_text": "1.0bp",
         "previous_text": "NA",
         "change_text": "NA",
-        "severity": "偏紧",
+        "severity": "中性",
         "why": "10年期国债收益率边际变化",
-        "interpretation": "10年期国债收益率边际上行，长期资产估值压力正在增强。",
-        "as_of": "2026-07-07",
+        "interpretation": "10年期国债收益率边际变化有限。",
+        "as_of": "2026-07-08",
         "frequency": "日频，FRED/H.15国债恒定期限收益率"
       },
       {
@@ -239,12 +239,12 @@
         "label": "IG OAS Change（投资级公司债期权调整利差变化）",
         "priority": "P2",
         "value_text": "0.760%",
-        "previous_text": "0.750%",
-        "change_text": "+0.01%",
+        "previous_text": "0.760%",
+        "change_text": "0.00%",
         "severity": "中性",
         "why": "投资级信用融资",
         "interpretation": "投资级信用利差变化有限",
-        "as_of": "2026-07-07",
+        "as_of": "2026-07-08",
         "frequency": "日频，投资级公司债OAS"
       },
       {
@@ -252,13 +252,13 @@
         "id": "VIX_RISK",
         "label": "VIX Level（标普500隐含波动率水平）",
         "priority": "P2",
-        "value_text": "16.13",
-        "previous_text": "15.57",
-        "change_text": "+0.56",
+        "value_text": "16.90",
+        "previous_text": "16.13",
+        "change_text": "+0.77",
         "severity": "中性",
         "why": "证券市场波动率水平",
         "interpretation": "证券市场波动率处于中性区间。",
-        "as_of": "2026-07-07",
+        "as_of": "2026-07-08",
         "frequency": "日频，标普500隐含波动率"
       },
       {
@@ -266,13 +266,13 @@
         "id": "VIX_MOMENTUM",
         "label": "VIX Momentum（标普500隐含波动率边际变化）",
         "priority": "P2",
-        "value_text": "0.56pt",
+        "value_text": "0.77pt",
         "previous_text": "NA",
         "change_text": "NA",
         "severity": "中性",
         "why": "证券市场风险偏好边际变化",
         "interpretation": "VIX边际变化有限。",
-        "as_of": "2026-07-07",
+        "as_of": "2026-07-08",
         "frequency": "日频，标普500隐含波动率"
       },
       {
@@ -280,13 +280,13 @@
         "id": "SOFR_VOLUME",
         "label": "SOFR Volume（SOFR交易量）",
         "priority": "P2",
-        "value_text": "3,154.0bn",
-        "previous_text": "3,212.0bn",
-        "change_text": "-58.0bn",
+        "value_text": "3,158.0bn",
+        "previous_text": "3,154.0bn",
+        "change_text": "+4.0bn",
         "severity": "中性",
         "why": "回购融资交易量级",
         "interpretation": "SOFR对应的隔夜回购交易量，用于把利率偏离转化为价格×规模的实际资金成本量级。",
-        "as_of": "2026-07-07",
+        "as_of": "2026-07-08",
         "frequency": "日频，纽约联储SOFR记录随利率一同发布"
       },
       {
@@ -380,13 +380,13 @@
         "id": "SOMA",
         "label": "SOMA（系统公开市场账户持仓）",
         "priority": "B",
-        "value_text": "6,334.5bn",
-        "previous_text": "6,344.3bn",
-        "change_text": "-9.9bn",
+        "value_text": "6,344.4bn",
+        "previous_text": "6,334.5bn",
+        "change_text": "+10.0bn",
         "severity": "中性",
         "why": "QT结构背景",
         "interpretation": "美联储公开市场账户持仓，反映QT和资产端收缩的结构背景。",
-        "as_of": "2026-07-01",
+        "as_of": "2026-07-08",
         "frequency": "周频，纽约联储/Fed资产负债表背景数据"
       },
       {
@@ -395,12 +395,12 @@
         "label": "1Y Treasury Yield（1年期美国国债收益率）",
         "priority": "B",
         "value_text": "4.060%",
-        "previous_text": "3.950%",
-        "change_text": "+11.0bp",
+        "previous_text": "4.060%",
+        "change_text": "0.0bp",
         "severity": "中性",
         "why": "近端政策路径",
         "interpretation": "1年期美国国债收益率，主要反映未来一年政策利率路径和短端再定价。",
-        "as_of": "2026-07-07",
+        "as_of": "2026-07-08",
         "frequency": "日频，FRED/H.15国债恒定期限收益率"
       },
       {
@@ -408,13 +408,13 @@
         "id": "DGS30",
         "label": "30Y Treasury Yield（30年期美国国债收益率）",
         "priority": "B",
-        "value_text": "5.050%",
-        "previous_text": "4.990%",
-        "change_text": "+6.0bp",
+        "value_text": "5.060%",
+        "previous_text": "5.050%",
+        "change_text": "+1.0bp",
         "severity": "中性",
         "why": "长期期限溢价",
         "interpretation": "30年期美国国债收益率，反映长期通胀、财政供给和期限溢价。",
-        "as_of": "2026-07-07",
+        "as_of": "2026-07-08",
         "frequency": "日频，FRED/H.15国债恒定期限收益率"
       },
       {
@@ -422,13 +422,13 @@
         "id": "UST_10Y2Y",
         "label": "10Y-2Y Treasury Spread（10年-2年美债利差）",
         "priority": "B",
-        "value_text": "35.0bp",
-        "previous_text": "36.0bp",
-        "change_text": "-1.0bp",
+        "value_text": "38.0bp",
+        "previous_text": "35.0bp",
+        "change_text": "+3.0bp",
         "severity": "中性",
         "why": "收益率曲线斜率",
         "interpretation": "收益率曲线为正，期限结构相对正常",
-        "as_of": "2026-07-08",
+        "as_of": "2026-07-09",
         "frequency": "日频，FRED曲线利差"
       },
       {
@@ -436,13 +436,13 @@
         "id": "UST_10Y3M",
         "label": "10Y-3M Treasury Spread（10年-3个月美债利差）",
         "priority": "B",
-        "value_text": "69.0bp",
+        "value_text": "71.0bp",
         "previous_text": "69.0bp",
-        "change_text": "0.0bp",
+        "change_text": "+2.0bp",
         "severity": "中性",
         "why": "衰退/降息预期",
         "interpretation": "10年-3个月曲线为正，政策短端对长期利率压制较弱",
-        "as_of": "2026-07-08",
+        "as_of": "2026-07-09",
         "frequency": "日频，FRED曲线利差"
       },
       {
@@ -509,140 +509,171 @@
   },
   "upcoming_auctions": {
     "status": "ok",
-    "as_of": "2026-07-09",
+    "as_of": "2026-07-10",
     "lookforward_days": 60,
-    "source_url": "https://www.treasurydirect.gov/TA_WS/securities/search?format=json&startDate=2026-07-09&endDate=2026-09-07",
+    "source_url": "https://www.treasurydirect.gov/TA_WS/securities/search?format=json&startDate=2026-07-10&endDate=2026-09-08",
     "auctions": [
       {
-        "auctionDate": "2026-07-09",
-        "issueDate": "2026-07-14",
-        "announcementDate": "2026-07-07",
+        "auctionDate": "2026-07-13",
+        "issueDate": "2026-07-16",
+        "announcementDate": "2026-07-09",
         "securityType": "Bill",
-        "securityTerm": "4-Week",
-        "offeringAmount": 100.0,
-        "offeringAmountText": "$100bn",
-        "cusip": "912797UT2",
+        "securityTerm": "13-Week",
+        "offeringAmount": 92.0,
+        "offeringAmountText": "$92bn",
+        "cusip": "912797UK1",
         "is_bill": true,
         "is_note_or_bond": false
       },
       {
-        "auctionDate": "2026-07-09",
-        "issueDate": "2026-07-14",
-        "announcementDate": "2026-07-07",
+        "auctionDate": "2026-07-13",
+        "issueDate": "2026-07-16",
+        "announcementDate": "2026-07-09",
         "securityType": "Bill",
-        "securityTerm": "8-Week",
+        "securityTerm": "26-Week",
+        "offeringAmount": 79.0,
+        "offeringAmountText": "$79bn",
+        "cusip": "912797VT1",
+        "is_bill": true,
+        "is_note_or_bond": false
+      },
+      {
+        "auctionDate": "2026-07-14",
+        "issueDate": "2026-07-16",
+        "announcementDate": "2026-07-09",
+        "securityType": "Bill",
+        "securityTerm": "6-Week",
         "offeringAmount": 95.0,
         "offeringAmountText": "$95bn",
-        "cusip": "912797VB0",
+        "cusip": "912797TY3",
         "is_bill": true,
         "is_note_or_bond": false
-      },
-      {
-        "auctionDate": "2026-07-09",
-        "issueDate": "2026-07-15",
-        "announcementDate": "2026-07-02",
-        "securityType": "Bond",
-        "securityTerm": "29-Year 10-Month",
-        "offeringAmount": 22.0,
-        "offeringAmountText": "$22bn",
-        "cusip": "912810UU0",
-        "is_bill": false,
-        "is_note_or_bond": true
       }
     ],
     "bill_schedule": [
       {
-        "auctionDate": "2026-07-09",
-        "totalBillOffering": 195.0,
+        "auctionDate": "2026-07-13",
+        "totalBillOffering": 171.0,
         "items": [
           {
-            "auctionDate": "2026-07-09",
-            "issueDate": "2026-07-14",
-            "announcementDate": "2026-07-07",
+            "auctionDate": "2026-07-13",
+            "issueDate": "2026-07-16",
+            "announcementDate": "2026-07-09",
             "securityType": "Bill",
-            "securityTerm": "4-Week",
-            "offeringAmount": 100.0,
-            "offeringAmountText": "$100bn",
-            "cusip": "912797UT2",
+            "securityTerm": "13-Week",
+            "offeringAmount": 92.0,
+            "offeringAmountText": "$92bn",
+            "cusip": "912797UK1",
             "is_bill": true,
             "is_note_or_bond": false
           },
           {
-            "auctionDate": "2026-07-09",
-            "issueDate": "2026-07-14",
-            "announcementDate": "2026-07-07",
+            "auctionDate": "2026-07-13",
+            "issueDate": "2026-07-16",
+            "announcementDate": "2026-07-09",
             "securityType": "Bill",
-            "securityTerm": "8-Week",
-            "offeringAmount": 95.0,
-            "offeringAmountText": "$95bn",
-            "cusip": "912797VB0",
+            "securityTerm": "26-Week",
+            "offeringAmount": 79.0,
+            "offeringAmountText": "$79bn",
+            "cusip": "912797VT1",
             "is_bill": true,
             "is_note_or_bond": false
           }
         ],
-        "totalBillOfferingText": "$195bn"
+        "totalBillOfferingText": "$171bn"
+      },
+      {
+        "auctionDate": "2026-07-14",
+        "totalBillOffering": 95.0,
+        "items": [
+          {
+            "auctionDate": "2026-07-14",
+            "issueDate": "2026-07-16",
+            "announcementDate": "2026-07-09",
+            "securityType": "Bill",
+            "securityTerm": "6-Week",
+            "offeringAmount": 95.0,
+            "offeringAmountText": "$95bn",
+            "cusip": "912797TY3",
+            "is_bill": true,
+            "is_note_or_bond": false
+          }
+        ],
+        "totalBillOfferingText": "$95bn"
       }
     ],
     "next_auctions": [
       {
-        "auctionDate": "2026-07-09",
-        "issueDate": "2026-07-14",
-        "announcementDate": "2026-07-07",
+        "auctionDate": "2026-07-13",
+        "issueDate": "2026-07-16",
+        "announcementDate": "2026-07-09",
         "securityType": "Bill",
-        "securityTerm": "4-Week",
-        "offeringAmount": 100.0,
-        "offeringAmountText": "$100bn",
-        "cusip": "912797UT2",
+        "securityTerm": "13-Week",
+        "offeringAmount": 92.0,
+        "offeringAmountText": "$92bn",
+        "cusip": "912797UK1",
         "is_bill": true,
         "is_note_or_bond": false
       },
       {
-        "auctionDate": "2026-07-09",
-        "issueDate": "2026-07-14",
-        "announcementDate": "2026-07-07",
+        "auctionDate": "2026-07-13",
+        "issueDate": "2026-07-16",
+        "announcementDate": "2026-07-09",
         "securityType": "Bill",
-        "securityTerm": "8-Week",
+        "securityTerm": "26-Week",
+        "offeringAmount": 79.0,
+        "offeringAmountText": "$79bn",
+        "cusip": "912797VT1",
+        "is_bill": true,
+        "is_note_or_bond": false
+      },
+      {
+        "auctionDate": "2026-07-14",
+        "issueDate": "2026-07-16",
+        "announcementDate": "2026-07-09",
+        "securityType": "Bill",
+        "securityTerm": "6-Week",
         "offeringAmount": 95.0,
         "offeringAmountText": "$95bn",
-        "cusip": "912797VB0",
+        "cusip": "912797TY3",
         "is_bill": true,
         "is_note_or_bond": false
-      },
-      {
-        "auctionDate": "2026-07-09",
-        "issueDate": "2026-07-15",
-        "announcementDate": "2026-07-02",
-        "securityType": "Bond",
-        "securityTerm": "29-Year 10-Month",
-        "offeringAmount": 22.0,
-        "offeringAmountText": "$22bn",
-        "cusip": "912810UU0",
-        "is_bill": false,
-        "is_note_or_bond": true
       }
     ],
     "large_auctions": [
       {
-        "auctionDate": "2026-07-09",
-        "issueDate": "2026-07-14",
-        "announcementDate": "2026-07-07",
+        "auctionDate": "2026-07-13",
+        "issueDate": "2026-07-16",
+        "announcementDate": "2026-07-09",
         "securityType": "Bill",
-        "securityTerm": "4-Week",
-        "offeringAmount": 100.0,
-        "offeringAmountText": "$100bn",
-        "cusip": "912797UT2",
+        "securityTerm": "13-Week",
+        "offeringAmount": 92.0,
+        "offeringAmountText": "$92bn",
+        "cusip": "912797UK1",
         "is_bill": true,
         "is_note_or_bond": false
       },
       {
-        "auctionDate": "2026-07-09",
-        "issueDate": "2026-07-14",
-        "announcementDate": "2026-07-07",
+        "auctionDate": "2026-07-13",
+        "issueDate": "2026-07-16",
+        "announcementDate": "2026-07-09",
         "securityType": "Bill",
-        "securityTerm": "8-Week",
+        "securityTerm": "26-Week",
+        "offeringAmount": 79.0,
+        "offeringAmountText": "$79bn",
+        "cusip": "912797VT1",
+        "is_bill": true,
+        "is_note_or_bond": false
+      },
+      {
+        "auctionDate": "2026-07-14",
+        "issueDate": "2026-07-16",
+        "announcementDate": "2026-07-09",
+        "securityType": "Bill",
+        "securityTerm": "6-Week",
         "offeringAmount": 95.0,
         "offeringAmountText": "$95bn",
-        "cusip": "912797VB0",
+        "cusip": "912797TY3",
         "is_bill": true,
         "is_note_or_bond": false
       }
@@ -651,7 +682,7 @@
   },
   "jpy_carry": {
     "meta": {
-      "generated_at_bjt": "2026-07-09 11:10:51 UTC+08:00",
+      "generated_at_bjt": "2026-07-10 16:43:03 UTC+08:00",
       "lookback": "日频约1年，CFTC约2年，REER/NEER约3年"
     },
     "risk": {
@@ -666,17 +697,17 @@
       {
         "id": "USDJPY",
         "label": "USD/JPY（美元兑日元）",
-        "value_text": "161.97",
-        "change_text": "逐日 -0.12%",
-        "as_of": "2026-07-07",
+        "value_text": "162.22",
+        "change_text": "逐日 +0.15%",
+        "as_of": "2026-07-08",
         "why": "日元快速升值会触发carry止损/回补"
       },
       {
         "id": "JPY_CALL",
         "label": "JPY隔夜融资成本（日本无担保隔夜拆借利率）",
         "value_text": "0.978%",
-        "change_text": "逐日 0.1bp",
-        "as_of": "2026-07-07",
+        "change_text": "逐日 0.0bp",
+        "as_of": "2026-07-08",
         "why": "carry trade 的融资端"
       },
       {
@@ -690,7 +721,7 @@
       {
         "id": "US_JP_10Y",
         "label": "10Y UST-JGB利差（美日10年期国债利差）",
-        "value_text": "186bp",
+        "value_text": "187bp",
         "change_text": "收益端核心",
         "as_of": "2026-06-30",
         "why": "美日长端利差越宽，carry收益端越顺风"
@@ -722,9 +753,9 @@
       {
         "id": "USDJPY_VOL20",
         "label": "USD/JPY 20日实现波动率（年化）",
-        "value_text": "5.22%",
+        "value_text": "5.23%",
         "change_text": "年化",
-        "as_of": "2026-07-07",
+        "as_of": "2026-07-08",
         "why": "波动率上升会降低carry策略夏普"
       },
       {
@@ -742,10 +773,6 @@
     },
     "history": {
       "USDJPY": [
-        {
-          "date": "2025-06-13",
-          "value": 143.8
-        },
         {
           "date": "2025-06-16",
           "value": 144.19
@@ -1781,13 +1808,13 @@
         {
           "date": "2026-07-07",
           "value": 161.97
+        },
+        {
+          "date": "2026-07-08",
+          "value": 162.22
         }
       ],
       "JPY_CALL": [
-        {
-          "date": "2025-06-13",
-          "value": 0.477
-        },
         {
           "date": "2025-06-16",
           "value": 0.477
@@ -2822,6 +2849,10 @@
         },
         {
           "date": "2026-07-07",
+          "value": 0.978
+        },
+        {
+          "date": "2026-07-08",
           "value": 0.978
         }
       ],
@@ -5095,6 +5126,10 @@
         {
           "date": "2026-07-07",
           "value": 186.0
+        },
+        {
+          "date": "2026-07-08",
+          "value": 186.99999999999997
         }
       ],
       "CFTC_JPY_NET_OI": [
@@ -7850,7 +7885,7 @@
         },
         {
           "date": "2025-07-09",
-          "value": 9.945282464713998
+          "value": 9.945282464713996
         },
         {
           "date": "2025-07-10",
@@ -7862,19 +7897,19 @@
         },
         {
           "date": "2025-07-14",
-          "value": 9.57072103924638
+          "value": 9.570721039246381
         },
         {
           "date": "2025-07-15",
-          "value": 9.57100417352176
+          "value": 9.571004173521763
         },
         {
           "date": "2025-07-16",
-          "value": 9.845002517674239
+          "value": 9.84500251767424
         },
         {
           "date": "2025-07-17",
-          "value": 9.857610974422766
+          "value": 9.857610974422764
         },
         {
           "date": "2025-07-18",
@@ -7882,7 +7917,7 @@
         },
         {
           "date": "2025-07-22",
-          "value": 9.19235128079438
+          "value": 9.192351280794378
         },
         {
           "date": "2025-07-23",
@@ -7894,7 +7929,7 @@
         },
         {
           "date": "2025-07-25",
-          "value": 7.6117233685117025
+          "value": 7.611723368511704
         },
         {
           "date": "2025-07-28",
@@ -7914,7 +7949,7 @@
         },
         {
           "date": "2025-08-01",
-          "value": 7.703191140441359
+          "value": 7.703191140441361
         },
         {
           "date": "2025-08-04",
@@ -7930,11 +7965,11 @@
         },
         {
           "date": "2025-08-07",
-          "value": 10.299479359777997
+          "value": 10.299479359778
         },
         {
           "date": "2025-08-08",
-          "value": 10.259548232048767
+          "value": 10.259548232048768
         },
         {
           "date": "2025-08-12",
@@ -7950,7 +7985,7 @@
         },
         {
           "date": "2025-08-15",
-          "value": 10.38149772498261
+          "value": 10.381497724982609
         },
         {
           "date": "2025-08-18",
@@ -7962,15 +7997,15 @@
         },
         {
           "date": "2025-08-20",
-          "value": 10.176114300243004
+          "value": 10.176114300243002
         },
         {
           "date": "2025-08-21",
-          "value": 9.872583017407754
+          "value": 9.872583017407752
         },
         {
           "date": "2025-08-22",
-          "value": 10.093891466647658
+          "value": 10.093891466647657
         },
         {
           "date": "2025-08-25",
@@ -7978,19 +8013,19 @@
         },
         {
           "date": "2025-08-26",
-          "value": 10.152136050711668
+          "value": 10.152136050711666
         },
         {
           "date": "2025-08-27",
-          "value": 10.123995770386454
+          "value": 10.123995770386456
         },
         {
           "date": "2025-08-28",
-          "value": 10.154639104301506
+          "value": 10.154639104301507
         },
         {
           "date": "2025-08-29",
-          "value": 9.575440421010585
+          "value": 9.575440421010583
         },
         {
           "date": "2025-09-01",
@@ -8006,7 +8041,7 @@
         },
         {
           "date": "2025-09-04",
-          "value": 7.578505997118345
+          "value": 7.578505997118344
         },
         {
           "date": "2025-09-05",
@@ -8018,7 +8053,7 @@
         },
         {
           "date": "2025-09-09",
-          "value": 7.098004420884707
+          "value": 7.098004420884709
         },
         {
           "date": "2025-09-10",
@@ -8030,7 +8065,7 @@
         },
         {
           "date": "2025-09-12",
-          "value": 6.4695807145304585
+          "value": 6.469580714530457
         },
         {
           "date": "2025-09-16",
@@ -8054,7 +8089,7 @@
         },
         {
           "date": "2025-09-24",
-          "value": 5.647144244575187
+          "value": 5.647144244575186
         },
         {
           "date": "2025-09-25",
@@ -8066,7 +8101,7 @@
         },
         {
           "date": "2025-09-29",
-          "value": 6.922138407461423
+          "value": 6.922138407461421
         },
         {
           "date": "2025-09-30",
@@ -8074,7 +8109,7 @@
         },
         {
           "date": "2025-10-01",
-          "value": 7.438599030207538
+          "value": 7.438599030207536
         },
         {
           "date": "2025-10-02",
@@ -8126,7 +8161,7 @@
         },
         {
           "date": "2025-10-21",
-          "value": 10.913712675704057
+          "value": 10.913712675704058
         },
         {
           "date": "2025-10-22",
@@ -8150,11 +8185,11 @@
         },
         {
           "date": "2025-10-29",
-          "value": 10.333259311155674
+          "value": 10.333259311155675
         },
         {
           "date": "2025-10-30",
-          "value": 10.250050713605772
+          "value": 10.250050713605775
         },
         {
           "date": "2025-10-31",
@@ -8178,7 +8213,7 @@
         },
         {
           "date": "2025-11-10",
-          "value": 7.818918368337184
+          "value": 7.818918368337183
         },
         {
           "date": "2025-11-11",
@@ -8202,7 +8237,7 @@
         },
         {
           "date": "2025-11-18",
-          "value": 5.5038163179800526
+          "value": 5.503816317980052
         },
         {
           "date": "2025-11-19",
@@ -8242,7 +8277,7 @@
         },
         {
           "date": "2025-12-03",
-          "value": 6.0216247122716755
+          "value": 6.021624712271675
         },
         {
           "date": "2025-12-04",
@@ -8262,19 +8297,19 @@
         },
         {
           "date": "2025-12-10",
-          "value": 6.519707983197534
+          "value": 6.519707983197533
         },
         {
           "date": "2025-12-11",
-          "value": 6.679040490127866
+          "value": 6.679040490127868
         },
         {
           "date": "2025-12-12",
-          "value": 6.76399881178735
+          "value": 6.763998811787351
         },
         {
           "date": "2025-12-15",
-          "value": 6.835412262089763
+          "value": 6.835412262089761
         },
         {
           "date": "2025-12-16",
@@ -8282,15 +8317,15 @@
         },
         {
           "date": "2025-12-17",
-          "value": 6.998898235013263
+          "value": 6.998898235013264
         },
         {
           "date": "2025-12-18",
-          "value": 6.966421271783528
+          "value": 6.966421271783527
         },
         {
           "date": "2025-12-19",
-          "value": 5.622651892570745
+          "value": 5.622651892570746
         },
         {
           "date": "2025-12-22",
@@ -8354,7 +8389,7 @@
         },
         {
           "date": "2026-01-16",
-          "value": 6.9545873515796055
+          "value": 6.954587351579606
         },
         {
           "date": "2026-01-19",
@@ -8370,7 +8405,7 @@
         },
         {
           "date": "2026-01-22",
-          "value": 6.905359635530453
+          "value": 6.905359635530452
         },
         {
           "date": "2026-01-23",
@@ -8418,7 +8453,7 @@
         },
         {
           "date": "2026-02-09",
-          "value": 12.630300123839493
+          "value": 12.630300123839492
         },
         {
           "date": "2026-02-10",
@@ -8434,7 +8469,7 @@
         },
         {
           "date": "2026-02-16",
-          "value": 13.49880442944171
+          "value": 13.498804429441712
         },
         {
           "date": "2026-02-17",
@@ -8442,11 +8477,11 @@
         },
         {
           "date": "2026-02-18",
-          "value": 13.579049812405477
+          "value": 13.579049812405481
         },
         {
           "date": "2026-02-19",
-          "value": 14.007817440671289
+          "value": 14.00781744067129
         },
         {
           "date": "2026-02-20",
@@ -8454,7 +8489,7 @@
         },
         {
           "date": "2026-02-24",
-          "value": 14.001703488671094
+          "value": 14.001703488671097
         },
         {
           "date": "2026-02-25",
@@ -8470,11 +8505,11 @@
         },
         {
           "date": "2026-03-02",
-          "value": 8.812981798471483
+          "value": 8.812981798471485
         },
         {
           "date": "2026-03-03",
-          "value": 8.804524692668725
+          "value": 8.804524692668727
         },
         {
           "date": "2026-03-04",
@@ -8482,7 +8517,7 @@
         },
         {
           "date": "2026-03-05",
-          "value": 8.50284085687188
+          "value": 8.502840856871881
         },
         {
           "date": "2026-03-06",
@@ -8490,7 +8525,7 @@
         },
         {
           "date": "2026-03-09",
-          "value": 8.331870061264699
+          "value": 8.331870061264697
         },
         {
           "date": "2026-03-10",
@@ -8498,7 +8533,7 @@
         },
         {
           "date": "2026-03-11",
-          "value": 8.931695914941388
+          "value": 8.93169591494139
         },
         {
           "date": "2026-03-12",
@@ -8518,7 +8553,7 @@
         },
         {
           "date": "2026-03-18",
-          "value": 5.758842970294824
+          "value": 5.758842970294823
         },
         {
           "date": "2026-03-19",
@@ -8526,7 +8561,7 @@
         },
         {
           "date": "2026-03-23",
-          "value": 5.175900181582896
+          "value": 5.175900181582895
         },
         {
           "date": "2026-03-24",
@@ -8534,15 +8569,15 @@
         },
         {
           "date": "2026-03-25",
-          "value": 5.904789818584628
+          "value": 5.904789818584629
         },
         {
           "date": "2026-03-26",
-          "value": 5.863464433704303
+          "value": 5.863464433704301
         },
         {
           "date": "2026-03-27",
-          "value": 5.891521559678016
+          "value": 5.891521559678017
         },
         {
           "date": "2026-03-30",
@@ -8550,7 +8585,7 @@
         },
         {
           "date": "2026-03-31",
-          "value": 5.726854894418104
+          "value": 5.726854894418105
         },
         {
           "date": "2026-04-01",
@@ -8562,7 +8597,7 @@
         },
         {
           "date": "2026-04-03",
-          "value": 6.220267035095591
+          "value": 6.22026703509559
         },
         {
           "date": "2026-04-06",
@@ -8582,7 +8617,7 @@
         },
         {
           "date": "2026-04-10",
-          "value": 6.469537053498047
+          "value": 6.469537053498048
         },
         {
           "date": "2026-04-13",
@@ -8590,11 +8625,11 @@
         },
         {
           "date": "2026-04-14",
-          "value": 6.4510249091318235
+          "value": 6.451024909131825
         },
         {
           "date": "2026-04-15",
-          "value": 6.455709440153481
+          "value": 6.455709440153483
         },
         {
           "date": "2026-04-16",
@@ -8602,7 +8637,7 @@
         },
         {
           "date": "2026-04-17",
-          "value": 6.355266657335283
+          "value": 6.355266657335282
         },
         {
           "date": "2026-04-20",
@@ -8618,11 +8653,11 @@
         },
         {
           "date": "2026-04-23",
-          "value": 5.66216138742934
+          "value": 5.6621613874293395
         },
         {
           "date": "2026-04-24",
-          "value": 5.569946358687419
+          "value": 5.569946358687421
         },
         {
           "date": "2026-04-27",
@@ -8630,7 +8665,7 @@
         },
         {
           "date": "2026-04-28",
-          "value": 5.676491896222666
+          "value": 5.676491896222667
         },
         {
           "date": "2026-04-30",
@@ -8710,7 +8745,7 @@
         },
         {
           "date": "2026-06-01",
-          "value": 8.692615975356542
+          "value": 8.69261597535654
         },
         {
           "date": "2026-06-02",
@@ -8722,11 +8757,11 @@
         },
         {
           "date": "2026-06-04",
-          "value": 2.0958462243692515
+          "value": 2.095846224369252
         },
         {
           "date": "2026-06-05",
-          "value": 1.894087603629379
+          "value": 1.8940876036293792
         },
         {
           "date": "2026-06-08",
@@ -8770,11 +8805,11 @@
         },
         {
           "date": "2026-06-22",
-          "value": 2.2146506681351728
+          "value": 2.2146506681351723
         },
         {
           "date": "2026-06-23",
-          "value": 2.3682712631720784
+          "value": 2.368271263172079
         },
         {
           "date": "2026-06-24",
@@ -8815,6 +8850,10 @@
         {
           "date": "2026-07-07",
           "value": 5.219157410224872
+        },
+        {
+          "date": "2026-07-08",
+          "value": 5.2264596348970755
         }
       ]
     },
@@ -8873,15 +8912,15 @@
           "id": "EFFR",
           "label": "EFFR（有效联邦基金利率）",
           "category": "银行间/回购融资",
-          "value": 3.63,
-          "value_text": "3.630%",
+          "value": 3.62,
+          "value_text": "3.620%",
           "unit": "%",
           "previous": 3.63,
-          "change": 0.0,
-          "change_text": "0.0bp",
-          "change_direction": "flat",
-          "as_of": "2026-07-07",
-          "previous_as_of": "2026-07-06",
+          "change": -0.009999999999999787,
+          "change_text": "-1.0bp",
+          "change_direction": "down",
+          "as_of": "2026-07-08",
+          "previous_as_of": "2026-07-07",
           "meaning": "银行间无抵押隔夜资金价格，最能观察准备金边际是否稀缺。",
           "frequency": "日频，纽约联储约 9:00 ET 发布",
           "data_lag": "反映上一工作日交易",
@@ -8898,15 +8937,15 @@
           "id": "SOFR",
           "label": "SOFR（担保隔夜融资利率）",
           "category": "银行间/回购融资",
-          "value": 3.62,
-          "value_text": "3.620%",
+          "value": 3.58,
+          "value_text": "3.580%",
           "unit": "%",
-          "previous": 3.63,
-          "change": -0.009999999999999787,
-          "change_text": "-1.0bp",
+          "previous": 3.62,
+          "change": -0.040000000000000036,
+          "change_text": "-4.0bp",
           "change_direction": "down",
-          "as_of": "2026-07-07",
-          "previous_as_of": "2026-07-06",
+          "as_of": "2026-07-08",
+          "previous_as_of": "2026-07-07",
           "meaning": "以美国国债为抵押的隔夜融资价格，反映回购市场和抵押品融资压力。",
           "frequency": "日频，纽约联储约 8:00 ET 发布",
           "data_lag": "反映上一工作日回购交易，约 14:30 ET 可能同日修订",
@@ -8930,8 +8969,8 @@
           "change": 0.0,
           "change_text": "0.0bp",
           "change_direction": "flat",
-          "as_of": "2026-07-07",
-          "previous_as_of": "2026-07-06",
+          "as_of": "2026-07-08",
+          "previous_as_of": "2026-07-07",
           "meaning": "更广义的银行隔夜融资成本，观察压力是否从联邦基金市场扩散。",
           "frequency": "日频，纽约联储参考利率",
           "data_lag": "通常反映上一工作日交易",
@@ -8948,15 +8987,15 @@
           "id": "TGCR",
           "label": "TGCR（三方一般抵押品利率）",
           "category": "银行间/回购融资",
-          "value": 3.6,
-          "value_text": "3.600%",
+          "value": 3.57,
+          "value_text": "3.570%",
           "unit": "%",
-          "previous": 3.61,
-          "change": -0.009999999999999787,
-          "change_text": "-1.0bp",
+          "previous": 3.6,
+          "change": -0.03000000000000025,
+          "change_text": "-3.0bp",
           "change_direction": "down",
-          "as_of": "2026-07-07",
-          "previous_as_of": "2026-07-06",
+          "as_of": "2026-07-08",
+          "previous_as_of": "2026-07-07",
           "meaning": "三方回购市场的一般抵押品融资成本，反映机构化回购资金价格。",
           "frequency": "日频，纽约联储约 8:00 ET 发布",
           "data_lag": "反映上一工作日三方回购交易，可能同日修订",
@@ -8973,15 +9012,15 @@
           "id": "BGCR",
           "label": "BGCR（广义一般抵押品利率）",
           "category": "银行间/回购融资",
-          "value": 3.6,
-          "value_text": "3.600%",
+          "value": 3.57,
+          "value_text": "3.570%",
           "unit": "%",
-          "previous": 3.61,
-          "change": -0.009999999999999787,
-          "change_text": "-1.0bp",
+          "previous": 3.6,
+          "change": -0.03000000000000025,
+          "change_text": "-3.0bp",
           "change_direction": "down",
-          "as_of": "2026-07-07",
-          "previous_as_of": "2026-07-06",
+          "as_of": "2026-07-08",
+          "previous_as_of": "2026-07-07",
           "meaning": "覆盖更广的一般抵押品回购利率，观察回购市场结构性扰动。",
           "frequency": "日频，纽约联储约 8:00 ET 发布",
           "data_lag": "反映上一工作日广义一般抵押品回购交易，可能同日修订",
@@ -9005,8 +9044,8 @@
           "change": 0.0,
           "change_text": "0.0bp",
           "change_direction": "flat",
-          "as_of": "2026-07-09",
-          "previous_as_of": "2026-07-08",
+          "as_of": "2026-07-10",
+          "previous_as_of": "2026-07-09",
           "meaning": "美联储支付给银行准备金的利率，是银行持有准备金的政策锚。",
           "frequency": "政策阶梯型，美联储政策利率",
           "data_lag": "只有政策调整时变化",
@@ -9030,8 +9069,8 @@
           "change": 0.0,
           "change_text": "0.0bp",
           "change_direction": "flat",
-          "as_of": "2026-07-07",
-          "previous_as_of": "2026-07-06",
+          "as_of": "2026-07-08",
+          "previous_as_of": "2026-07-07",
           "meaning": "纽约联储记录中的政策利率上限；当 IORB/FRED 不可用时，用作临时政策锚。",
           "frequency": "政策阶梯型，纽约联储记录中的目标上限",
           "data_lag": "来自EFFR记录，作为IORB缺失时的临时锚",
@@ -9055,15 +9094,15 @@
           "id": "TGA",
           "label": "TGA（财政部一般账户）",
           "category": "Fed负债端",
-          "value": 784.964,
-          "value_text": "785.0bn",
+          "value": 749.244,
+          "value_text": "749.2bn",
           "unit": "USD bn",
-          "previous": 783.107,
-          "change": 1.8570000000000846,
-          "change_text": "+1.9bn",
-          "change_direction": "up",
-          "as_of": "2026-07-07",
-          "previous_as_of": "2026-07-06",
+          "previous": 784.964,
+          "change": -35.72000000000003,
+          "change_text": "-35.7bn",
+          "change_direction": "down",
+          "as_of": "2026-07-08",
+          "previous_as_of": "2026-07-07",
           "meaning": "财政部现金余额，余额上升通常抽走银行体系准备金，下降通常释放准备金。",
           "frequency": "日频，Daily Treasury Statement 通常次一工作日 16:00 ET 前发布",
           "data_lag": "覆盖上一工作日财政现金和债务操作",
@@ -9080,15 +9119,15 @@
           "id": "RRPONTSYD",
           "label": "RRP（隔夜逆回购）",
           "category": "Fed负债端",
-          "value": 3.347,
-          "value_text": "3.3bn",
+          "value": 5.772,
+          "value_text": "5.8bn",
           "unit": "USD bn",
-          "previous": 4.484,
-          "change": -1.137,
-          "change_text": "-1.1bn",
-          "change_direction": "down",
-          "as_of": "2026-07-08",
-          "previous_as_of": "2026-07-07",
+          "previous": 3.347,
+          "change": 2.4250000000000003,
+          "change_text": "+2.4bn",
+          "change_direction": "up",
+          "as_of": "2026-07-09",
+          "previous_as_of": "2026-07-08",
           "meaning": "货币基金等机构停放在美联储的隔夜逆回购余额，是准备金压力前的缓冲垫。",
           "frequency": "日频，纽约联储每日操作结果",
           "data_lag": "同日操作结果，工作日/操作日口径",
@@ -9097,7 +9136,7 @@
           "importance": "high",
           "interpretation_hint": "",
           "source": "NY Fed Markets API",
-          "source_url": "https://markets.newyorkfed.org/api/rp/reverserepo/propositions/search.json?startDate=2026-06-25&endDate=2026-07-09",
+          "source_url": "https://markets.newyorkfed.org/api/rp/reverserepo/propositions/search.json?startDate=2026-06-26&endDate=2026-07-10",
           "status": "ok",
           "notes": "NY Fed reverse repo accepted amount; replaces FRED RRPONTSYD when FRED is slow or unavailable"
         },
@@ -9105,15 +9144,15 @@
           "id": "SOMA",
           "label": "SOMA（系统公开市场账户持仓）",
           "category": "Fed负债端",
-          "value": 6334.4721750830995,
-          "value_text": "6,334.5bn",
+          "value": 6344.4281750831,
+          "value_text": "6,344.4bn",
           "unit": "USD bn",
-          "previous": 6344.3455674457,
-          "change": -9.873392362600498,
-          "change_text": "-9.9bn",
-          "change_direction": "down",
-          "as_of": "2026-07-01",
-          "previous_as_of": "2026-06-24",
+          "previous": 6334.4721750830995,
+          "change": 9.956000000000131,
+          "change_text": "+10.0bn",
+          "change_direction": "up",
+          "as_of": "2026-07-08",
+          "previous_as_of": "2026-07-01",
           "meaning": "美联储公开市场账户持仓，反映QT和资产端收缩的结构背景。",
           "frequency": "周频，纽约联储/Fed资产负债表背景数据",
           "data_lag": "周度持仓或H.4.1口径",
@@ -9130,15 +9169,15 @@
           "id": "WRESBAL",
           "label": "WRESBAL（银行准备金余额）",
           "category": "Fed负债端",
-          "value": 2966.897,
-          "value_text": "2,966.9bn",
+          "value": 3098.911,
+          "value_text": "3,098.9bn",
           "unit": "USD bn",
-          "previous": 2951.416,
-          "change": 15.480999999999767,
-          "change_text": "+15.5bn",
+          "previous": 2966.897,
+          "change": 132.01400000000012,
+          "change_text": "+132.0bn",
           "change_direction": "up",
-          "as_of": "2026-07-01",
-          "previous_as_of": "2026-06-24",
+          "as_of": "2026-07-08",
+          "previous_as_of": "2026-07-01",
           "meaning": "银行体系准备金余额，是美元流动性水位的核心变量，但发布频率较低。",
           "frequency": "周频，H.4.1 通常周四 16:30 ET 发布",
           "data_lag": "反映周度准备金余额",
@@ -9165,12 +9204,12 @@
           "value": 4.06,
           "value_text": "4.060%",
           "unit": "%",
-          "previous": 3.95,
-          "change": 0.10999999999999943,
-          "change_text": "+11.0bp",
-          "change_direction": "up",
-          "as_of": "2026-07-07",
-          "previous_as_of": "2026-07-06",
+          "previous": 4.06,
+          "change": 0.0,
+          "change_text": "0.0bp",
+          "change_direction": "flat",
+          "as_of": "2026-07-08",
+          "previous_as_of": "2026-07-07",
           "meaning": "1年期美国国债收益率，主要反映未来一年政策利率路径和短端再定价。",
           "frequency": "日频，FRED/H.15国债恒定期限收益率",
           "data_lag": "通常随H.15数据发布滞后更新",
@@ -9187,15 +9226,15 @@
           "id": "DGS3",
           "label": "3Y Treasury Yield（3年期美国国债收益率）",
           "category": "国债收益率/曲线",
-          "value": 4.18,
-          "value_text": "4.180%",
+          "value": 4.21,
+          "value_text": "4.210%",
           "unit": "%",
-          "previous": 4.14,
-          "change": 0.040000000000000036,
-          "change_text": "+4.0bp",
+          "previous": 4.18,
+          "change": 0.03000000000000025,
+          "change_text": "+3.0bp",
           "change_direction": "up",
-          "as_of": "2026-07-07",
-          "previous_as_of": "2026-07-06",
+          "as_of": "2026-07-08",
+          "previous_as_of": "2026-07-07",
           "meaning": "3年期美国国债收益率，观察政策路径从短端向中段扩散的再定价。",
           "frequency": "日频，FRED/H.15国债恒定期限收益率",
           "data_lag": "通常随H.15数据发布滞后更新",
@@ -9212,15 +9251,15 @@
           "id": "DGS10",
           "label": "10Y Treasury Yield（10年期美国国债收益率）",
           "category": "国债收益率/曲线",
-          "value": 4.55,
-          "value_text": "4.550%",
+          "value": 4.56,
+          "value_text": "4.560%",
           "unit": "%",
-          "previous": 4.48,
-          "change": 0.0699999999999994,
-          "change_text": "+7.0bp",
+          "previous": 4.55,
+          "change": 0.009999999999999787,
+          "change_text": "+1.0bp",
           "change_direction": "up",
-          "as_of": "2026-07-07",
-          "previous_as_of": "2026-07-06",
+          "as_of": "2026-07-08",
+          "previous_as_of": "2026-07-07",
           "meaning": "10年期美国国债收益率，是全球资产折现率和长期美元资金价格的重要锚。",
           "frequency": "日频，FRED/H.15国债恒定期限收益率",
           "data_lag": "通常随H.15数据发布滞后更新",
@@ -9237,15 +9276,15 @@
           "id": "DFII10",
           "label": "10Y Real Yield（10年期TIPS实际收益率）",
           "category": "国债收益率/曲线",
-          "value": 2.3,
-          "value_text": "2.300%",
+          "value": 2.31,
+          "value_text": "2.310%",
           "unit": "%",
-          "previous": 2.24,
-          "change": 0.05999999999999961,
-          "change_text": "+6.0bp",
+          "previous": 2.3,
+          "change": 0.010000000000000231,
+          "change_text": "+1.0bp",
           "change_direction": "up",
-          "as_of": "2026-07-07",
-          "previous_as_of": "2026-07-06",
+          "as_of": "2026-07-08",
+          "previous_as_of": "2026-07-07",
           "meaning": "10年期TIPS实际收益率，剔除通胀补偿后观察真实无风险回报，对成长股、黄金和长期资产估值更敏感。",
           "frequency": "日频，FRED/H.15 10年期TIPS实际收益率",
           "data_lag": "通常随H.15数据发布滞后更新",
@@ -9262,15 +9301,15 @@
           "id": "DGS30",
           "label": "30Y Treasury Yield（30年期美国国债收益率）",
           "category": "国债收益率/曲线",
-          "value": 5.05,
-          "value_text": "5.050%",
+          "value": 5.06,
+          "value_text": "5.060%",
           "unit": "%",
-          "previous": 4.99,
-          "change": 0.05999999999999961,
-          "change_text": "+6.0bp",
+          "previous": 5.05,
+          "change": 0.009999999999999787,
+          "change_text": "+1.0bp",
           "change_direction": "up",
-          "as_of": "2026-07-07",
-          "previous_as_of": "2026-07-06",
+          "as_of": "2026-07-08",
+          "previous_as_of": "2026-07-07",
           "meaning": "30年期美国国债收益率，反映长期通胀、财政供给和期限溢价。",
           "frequency": "日频，FRED/H.15国债恒定期限收益率",
           "data_lag": "通常随H.15数据发布滞后更新",
@@ -9287,15 +9326,15 @@
           "id": "T10Y2Y",
           "label": "10Y-2Y Treasury Spread（10年-2年美债利差）",
           "category": "国债收益率/曲线",
-          "value": 0.35,
-          "value_text": "0.350%",
+          "value": 0.38,
+          "value_text": "0.380%",
           "unit": "%",
-          "previous": 0.36,
-          "change": -0.010000000000000009,
-          "change_text": "-1.0bp",
-          "change_direction": "down",
-          "as_of": "2026-07-08",
-          "previous_as_of": "2026-07-07",
+          "previous": 0.35,
+          "change": 0.030000000000000027,
+          "change_text": "+3.0bp",
+          "change_direction": "up",
+          "as_of": "2026-07-09",
+          "previous_as_of": "2026-07-08",
           "meaning": "10年减2年美债利差，观察收益率曲线是否倒挂以及增长/降息预期。",
           "frequency": "日频，FRED曲线利差",
           "data_lag": "由10年和2年国债收益率差计算",
@@ -9312,15 +9351,15 @@
           "id": "T10Y3M",
           "label": "10Y-3M Treasury Spread（10年-3个月美债利差）",
           "category": "国债收益率/曲线",
-          "value": 0.69,
-          "value_text": "0.690%",
+          "value": 0.71,
+          "value_text": "0.710%",
           "unit": "%",
           "previous": 0.69,
-          "change": 0.0,
-          "change_text": "0.0bp",
-          "change_direction": "flat",
-          "as_of": "2026-07-08",
-          "previous_as_of": "2026-07-07",
+          "change": 0.020000000000000018,
+          "change_text": "+2.0bp",
+          "change_direction": "up",
+          "as_of": "2026-07-09",
+          "previous_as_of": "2026-07-08",
           "meaning": "10年减3个月美债利差，观察政策短端与长期增长预期的差异。",
           "frequency": "日频，FRED曲线利差",
           "data_lag": "由10年和3个月国债收益率差计算",
@@ -9340,12 +9379,12 @@
           "value": 3.73,
           "value_text": "3.730%",
           "unit": "%",
-          "previous": 3.74,
-          "change": -0.010000000000000231,
-          "change_text": "-1.0bp",
-          "change_direction": "down",
-          "as_of": "2026-07-07",
-          "previous_as_of": "2026-07-06",
+          "previous": 3.73,
+          "change": 0.0,
+          "change_text": "0.0bp",
+          "change_direction": "flat",
+          "as_of": "2026-07-08",
+          "previous_as_of": "2026-07-07",
           "meaning": "3个月国库券二级市场利率，代表现金/货币基金可获得的短端无风险替代收益。",
           "frequency": "日频，3个月国库券二级市场利率",
           "data_lag": "通常随H.15数据发布滞后更新",
@@ -9362,15 +9401,15 @@
           "id": "DGS3MO",
           "label": "3M Treasury Yield（3个月美国国债收益率）",
           "category": "国债收益率/曲线",
-          "value": 3.86,
-          "value_text": "3.860%",
+          "value": 3.87,
+          "value_text": "3.870%",
           "unit": "%",
-          "previous": 3.87,
-          "change": -0.010000000000000231,
-          "change_text": "-1.0bp",
-          "change_direction": "down",
-          "as_of": "2026-07-07",
-          "previous_as_of": "2026-07-06",
+          "previous": 3.86,
+          "change": 0.010000000000000231,
+          "change_text": "+1.0bp",
+          "change_direction": "up",
+          "as_of": "2026-07-08",
+          "previous_as_of": "2026-07-07",
           "meaning": "3个月美国国债收益率，主要受当前政策利率和短端美元资金价格影响。",
           "frequency": "日频，FRED/H.15国债恒定期限收益率",
           "data_lag": "通常随H.15数据发布滞后更新",
@@ -9387,15 +9426,15 @@
           "id": "DGS2",
           "label": "2Y Treasury Yield（2年期美国国债收益率）",
           "category": "国债收益率/曲线",
-          "value": 4.19,
-          "value_text": "4.190%",
+          "value": 4.21,
+          "value_text": "4.210%",
           "unit": "%",
-          "previous": 4.13,
-          "change": 0.0600000000000005,
-          "change_text": "+6.0bp",
+          "previous": 4.19,
+          "change": 0.019999999999999574,
+          "change_text": "+2.0bp",
           "change_direction": "up",
-          "as_of": "2026-07-07",
-          "previous_as_of": "2026-07-06",
+          "as_of": "2026-07-08",
+          "previous_as_of": "2026-07-07",
           "meaning": "2年期美国国债收益率，主要反映未来数年美联储政策路径预期。",
           "frequency": "日频，FRED/H.15国债恒定期限收益率",
           "data_lag": "通常随H.15数据发布滞后更新",
@@ -9419,15 +9458,15 @@
           "id": "SOFR_VOLUME",
           "label": "SOFR Volume（SOFR交易量）",
           "category": "回购融资/市场深度",
-          "value": 3154.0,
-          "value_text": "3,154.0bn",
+          "value": 3158.0,
+          "value_text": "3,158.0bn",
           "unit": "USD bn",
-          "previous": 3212.0,
-          "change": -58.0,
-          "change_text": "-58.0bn",
-          "change_direction": "down",
-          "as_of": "2026-07-07",
-          "previous_as_of": "2026-07-06",
+          "previous": 3154.0,
+          "change": 4.0,
+          "change_text": "+4.0bn",
+          "change_direction": "up",
+          "as_of": "2026-07-08",
+          "previous_as_of": "2026-07-07",
           "meaning": "SOFR对应的隔夜回购交易量，用于把利率偏离转化为价格×规模的实际资金成本量级。",
           "frequency": "日频，纽约联储SOFR记录随利率一同发布",
           "data_lag": "反映上一工作日SOFR合格交易量",
@@ -9461,7 +9500,7 @@
           "importance": "medium_high",
           "interpretation_hint": "",
           "source": "TreasuryDirect",
-          "source_url": "https://www.treasurydirect.gov/TA_WS/securities/search?format=json&startDate=2026-06-18&endDate=2026-07-09",
+          "source_url": "https://www.treasurydirect.gov/TA_WS/securities/search?format=json&startDate=2026-06-19&endDate=2026-07-10",
           "status": "ok",
           "notes": "Aggregates all Treasury Bill auctions on the latest auction date; bid-to-cover is offering-amount weighted. Latest terms: 52-Week, 6-Week."
         },
@@ -9486,7 +9525,7 @@
           "importance": "medium_high",
           "interpretation_hint": "",
           "source": "TreasuryDirect",
-          "source_url": "https://www.treasurydirect.gov/TA_WS/securities/search?format=json&startDate=2026-06-18&endDate=2026-07-09",
+          "source_url": "https://www.treasurydirect.gov/TA_WS/securities/search?format=json&startDate=2026-06-19&endDate=2026-07-10",
           "status": "ok",
           "notes": "Aggregates all Treasury Bill auctions on the latest auction date; bid-to-cover is offering-amount weighted. Latest terms: 52-Week, 6-Week."
         },
@@ -9511,7 +9550,7 @@
           "importance": "medium_high",
           "interpretation_hint": "",
           "source": "TreasuryDirect",
-          "source_url": "https://www.treasurydirect.gov/TA_WS/securities/search?format=json&startDate=2026-06-18&endDate=2026-07-09",
+          "source_url": "https://www.treasurydirect.gov/TA_WS/securities/search?format=json&startDate=2026-06-19&endDate=2026-07-10",
           "status": "ok",
           "notes": "Uses bid-to-cover as free auction demand proxy; auction tail requires WI yield not available here"
         },
@@ -9604,12 +9643,12 @@
           "value": 0.76,
           "value_text": "0.760%",
           "unit": "%",
-          "previous": 0.75,
-          "change": 0.010000000000000009,
-          "change_text": "+1.0bp",
-          "change_direction": "up",
-          "as_of": "2026-07-07",
-          "previous_as_of": "2026-07-06",
+          "previous": 0.76,
+          "change": 0.0,
+          "change_text": "0.0bp",
+          "change_direction": "flat",
+          "as_of": "2026-07-08",
+          "previous_as_of": "2026-07-07",
           "meaning": "投资级公司债信用利差，观察高等级企业融资成本和信用风险溢价。",
           "frequency": "日频，投资级公司债OAS",
           "data_lag": "通常随ICE/BofA数据更新",
@@ -9626,15 +9665,15 @@
           "id": "BAMLH0A0HYM2",
           "label": "HY OAS（高收益债期权调整利差）",
           "category": "信用传导",
-          "value": 2.67,
-          "value_text": "2.670%",
+          "value": 2.7,
+          "value_text": "2.700%",
           "unit": "%",
-          "previous": 2.72,
-          "change": -0.050000000000000266,
-          "change_text": "-5.0bp",
-          "change_direction": "down",
-          "as_of": "2026-07-07",
-          "previous_as_of": "2026-07-06",
+          "previous": 2.67,
+          "change": 0.03000000000000025,
+          "change_text": "+3.0bp",
+          "change_direction": "up",
+          "as_of": "2026-07-08",
+          "previous_as_of": "2026-07-07",
           "meaning": "高收益债信用利差，观察压力是否外溢到风险信用资产。",
           "frequency": "日频，高收益债OAS",
           "data_lag": "通常随ICE/BofA数据更新",
@@ -9683,15 +9722,15 @@
           "id": "VIXCLS",
           "label": "VIX（标普500隐含波动率指数）",
           "category": "证券市场风险偏好",
-          "value": 16.13,
-          "value_text": "16.13",
+          "value": 16.9,
+          "value_text": "16.90",
           "unit": "index",
-          "previous": 15.57,
-          "change": 0.5599999999999987,
-          "change_text": "+0.56",
+          "previous": 16.13,
+          "change": 0.7699999999999996,
+          "change_text": "+0.77",
           "change_direction": "up",
-          "as_of": "2026-07-07",
-          "previous_as_of": "2026-07-06",
+          "as_of": "2026-07-08",
+          "previous_as_of": "2026-07-07",
           "meaning": "标普500隐含波动率指数，作为证券市场风险偏好和避险需求的确认指标。",
           "frequency": "日频，标普500隐含波动率",
           "data_lag": "通常随CBOE/FRED数据更新",
@@ -9711,30 +9750,30 @@
     {
       "id": "SOFR_ANCHOR",
       "label": "SOFR-IORB（担保隔夜融资利率-准备金余额利率）",
-      "value": -2.9999999999999805,
-      "value_text": "-3.0bp",
-      "previous": -2.0000000000000018,
-      "previous_text": "-2.0bp",
-      "change": -0.9999999999999787,
-      "change_text": "-1.0bp",
+      "value": -6.999999999999984,
+      "value_text": "-7.0bp",
+      "previous": -2.9999999999999805,
+      "previous_text": "-3.0bp",
+      "change": -4.0000000000000036,
+      "change_text": "-4.0bp",
       "unit": "bp",
       "severity": "中性",
       "meaning": "SOFR相对IORB（准备金余额利率）的位置。回购融资与政策锚接近",
-      "as_of": "2026-07-07"
+      "as_of": "2026-07-08"
     },
     {
       "id": "SOFR_VOLUME_IMPACT",
       "label": "SOFR Rate-Volume Impact（SOFR价格×交易量影响）",
-      "value": -2.628333333333316,
-      "value_text": "-2.6mn/day",
-      "previous": -1.7844444444444458,
-      "previous_text": "-1.8mn/day",
-      "change": -0.8438888888888703,
-      "change_text": "-0.8mn/day",
+      "value": -6.140555555555541,
+      "value_text": "-6.1mn/day",
+      "previous": -2.628333333333316,
+      "previous_text": "-2.6mn/day",
+      "change": -3.512222222222225,
+      "change_text": "-3.5mn/day",
       "unit": "USD mn/day",
-      "severity": "中性",
-      "meaning": "SOFR交易量约3,154bn，但SOFR相对政策锚偏离有限，价格×规模冲击不大。",
-      "as_of": "2026-07-07"
+      "severity": "偏松",
+      "meaning": "SOFR交易量约3,158bn，SOFR低于政策锚，按交易量估算日化融资成本低于政策锚约6.1百万美元。",
+      "as_of": "2026-07-08"
     },
     {
       "id": "BGCR_TGCR",
@@ -9748,7 +9787,7 @@
       "unit": "bp",
       "severity": "中性",
       "meaning": "比较广义回购与三方回购的结构差异。一般抵押品利率结构稳定",
-      "as_of": "2026-07-07"
+      "as_of": "2026-07-08"
     },
     {
       "id": "CP_PROXY",
@@ -9767,22 +9806,22 @@
     {
       "id": "TGA_FLOW",
       "label": "TGA Daily Change（财政部一般账户日变化）",
-      "value": 1.8570000000000846,
-      "value_text": "1.86bn",
-      "previous": 6.26400000000001,
-      "previous_text": "6.26bn",
-      "change": -4.406999999999925,
-      "change_text": "-4.4bn",
+      "value": -35.72000000000003,
+      "value_text": "-35.72bn",
+      "previous": 1.8570000000000846,
+      "previous_text": "1.86bn",
+      "change": -37.57700000000011,
+      "change_text": "-37.6bn",
       "unit": "bn",
       "severity": "中性",
       "meaning": "财政资金流变化不大",
-      "as_of": "2026-07-07"
+      "as_of": "2026-07-08"
     },
     {
       "id": "RRP_FLOW",
       "label": "RRP Flow（隔夜逆回购边际流量）",
-      "value": -1.137,
-      "value_text": "-1.14bn",
+      "value": 2.4250000000000003,
+      "value_text": "2.43bn",
       "previous": null,
       "previous_text": "NA",
       "change": null,
@@ -9790,139 +9829,139 @@
       "unit": "bn",
       "severity": "中性",
       "meaning": "RRP日变化幅度有限，短期边际流量影响不大。",
-      "as_of": "2026-07-08"
+      "as_of": "2026-07-09"
     },
     {
       "id": "RRP_BUFFER",
       "label": "RRP Buffer（隔夜逆回购存量缓冲垫）",
-      "value": 3.347,
-      "value_text": "3.35bn",
-      "previous": 4.484,
-      "previous_text": "4.48bn",
-      "change": -1.137,
-      "change_text": "-1.1bn",
+      "value": 5.772,
+      "value_text": "5.77bn",
+      "previous": 3.347,
+      "previous_text": "3.35bn",
+      "change": 2.4250000000000003,
+      "change_text": "+2.4bn",
       "unit": "bn",
       "severity": "偏紧",
       "meaning": "RRP存量缓冲垫几乎耗尽，后续TGA补库、QT或美债供给冲击更容易直接落到准备金。",
-      "as_of": "2026-07-08"
+      "as_of": "2026-07-09"
     },
     {
       "id": "UST_1Y_YIELD",
       "label": "1Y Treasury Yield（1年期美国国债收益率）",
       "value": 4.06,
       "value_text": "4.060%",
-      "previous": 3.95,
-      "previous_text": "3.950%",
-      "change": 0.10999999999999943,
-      "change_text": "+0.11%",
+      "previous": 4.06,
+      "previous_text": "4.060%",
+      "change": 0.0,
+      "change_text": "0.00%",
       "unit": "%",
       "severity": "中性",
       "meaning": "1年期收益率处于中间区间，需结合3年期和10年期确认曲线重定价",
-      "as_of": "2026-07-07"
+      "as_of": "2026-07-08"
     },
     {
       "id": "UST_3Y_YIELD",
       "label": "3Y Treasury Yield（3年期美国国债收益率）",
-      "value": 4.18,
-      "value_text": "4.180%",
-      "previous": 4.14,
-      "previous_text": "4.140%",
-      "change": 0.040000000000000036,
-      "change_text": "+0.04%",
+      "value": 4.21,
+      "value_text": "4.210%",
+      "previous": 4.18,
+      "previous_text": "4.180%",
+      "change": 0.03000000000000025,
+      "change_text": "+0.03%",
       "unit": "%",
       "severity": "中性",
       "meaning": "3年期收益率处于中间区间，观察其相对1年和10年的斜率变化。",
-      "as_of": "2026-07-07"
+      "as_of": "2026-07-08"
     },
     {
       "id": "NOMINAL_10Y",
       "label": "10Y Treasury Yield（10年期美国国债收益率）",
-      "value": 4.55,
-      "value_text": "4.550%",
-      "previous": 4.48,
-      "previous_text": "4.480%",
-      "change": 0.0699999999999994,
-      "change_text": "+0.07%",
+      "value": 4.56,
+      "value_text": "4.560%",
+      "previous": 4.55,
+      "previous_text": "4.550%",
+      "change": 0.009999999999999787,
+      "change_text": "+0.01%",
       "unit": "%",
-      "severity": "偏紧",
-      "meaning": "长期名义折现率上行，债券久期和股票估值承压",
-      "as_of": "2026-07-07"
+      "severity": "中性",
+      "meaning": "长期名义折现率边际变化有限",
+      "as_of": "2026-07-08"
     },
     {
       "id": "REAL_10Y",
       "label": "10Y Treasury Yield（10年期美国国债收益率）",
-      "value": 4.55,
-      "value_text": "4.550%",
-      "previous": 4.48,
-      "previous_text": "4.480%",
-      "change": 0.0699999999999994,
-      "change_text": "+0.07%",
+      "value": 4.56,
+      "value_text": "4.560%",
+      "previous": 4.55,
+      "previous_text": "4.550%",
+      "change": 0.009999999999999787,
+      "change_text": "+0.01%",
       "unit": "%",
       "severity": "偏紧",
       "meaning": "10年期国债收益率处于高位，对长期资产估值有压力；这描述的是level风险，不代表边际继续恶化。",
-      "as_of": "2026-07-07"
+      "as_of": "2026-07-08"
     },
     {
       "id": "REAL_10Y_MOMENTUM",
       "label": "10Y Yield Momentum（10年期国债收益率边际变化）",
-      "value": 6.99999999999994,
-      "value_text": "7.0bp",
+      "value": 0.9999999999999787,
+      "value_text": "1.0bp",
       "previous": null,
       "previous_text": "NA",
       "change": null,
       "change_text": "NA",
       "unit": "bp",
-      "severity": "偏紧",
-      "meaning": "10年期国债收益率边际上行，长期资产估值压力正在增强。",
-      "as_of": "2026-07-07"
+      "severity": "中性",
+      "meaning": "10年期国债收益率边际变化有限。",
+      "as_of": "2026-07-08"
     },
     {
       "id": "HY_CHANGE",
       "label": "HY OAS Change（高收益债期权调整利差变化）",
-      "value": 2.67,
-      "value_text": "2.670%",
-      "previous": 2.72,
-      "previous_text": "2.720%",
-      "change": -0.050000000000000266,
-      "change_text": "-0.05%",
+      "value": 2.7,
+      "value_text": "2.700%",
+      "previous": 2.67,
+      "previous_text": "2.670%",
+      "change": 0.03000000000000025,
+      "change_text": "+0.03%",
       "unit": "%",
-      "severity": "偏松",
-      "meaning": "信用风险偏好改善",
-      "as_of": "2026-07-07"
+      "severity": "中性",
+      "meaning": "信用利差变化有限",
+      "as_of": "2026-07-08"
     },
     {
       "id": "IG_CHANGE",
       "label": "IG OAS Change（投资级公司债期权调整利差变化）",
       "value": 0.76,
       "value_text": "0.760%",
-      "previous": 0.75,
-      "previous_text": "0.750%",
-      "change": 0.010000000000000009,
-      "change_text": "+0.01%",
+      "previous": 0.76,
+      "previous_text": "0.760%",
+      "change": 0.0,
+      "change_text": "0.00%",
       "unit": "%",
       "severity": "中性",
       "meaning": "投资级信用利差变化有限",
-      "as_of": "2026-07-07"
+      "as_of": "2026-07-08"
     },
     {
       "id": "VIX_RISK",
       "label": "VIX Level（标普500隐含波动率水平）",
-      "value": 16.13,
-      "value_text": "16.13",
-      "previous": 15.57,
-      "previous_text": "15.57",
-      "change": 0.5599999999999987,
-      "change_text": "+0.56",
+      "value": 16.9,
+      "value_text": "16.90",
+      "previous": 16.13,
+      "previous_text": "16.13",
+      "change": 0.7699999999999996,
+      "change_text": "+0.77",
       "unit": "",
       "severity": "中性",
       "meaning": "证券市场波动率处于中性区间。",
-      "as_of": "2026-07-07"
+      "as_of": "2026-07-08"
     },
     {
       "id": "VIX_MOMENTUM",
       "label": "VIX Momentum（标普500隐含波动率边际变化）",
-      "value": 0.5599999999999987,
-      "value_text": "0.56pt",
+      "value": 0.7699999999999996,
+      "value_text": "0.77pt",
       "previous": null,
       "previous_text": "NA",
       "change": null,
@@ -9930,7 +9969,7 @@
       "unit": "pt",
       "severity": "中性",
       "meaning": "VIX边际变化有限。",
-      "as_of": "2026-07-07"
+      "as_of": "2026-07-08"
     },
     {
       "id": "USD_CHANGE",
@@ -9949,30 +9988,30 @@
     {
       "id": "UST_10Y2Y",
       "label": "10Y-2Y Treasury Spread（10年-2年美债利差）",
-      "value": 35.0,
-      "value_text": "35.0bp",
-      "previous": 36.0,
-      "previous_text": "36.0bp",
-      "change": -1.0,
-      "change_text": "-1.0bp",
+      "value": 38.0,
+      "value_text": "38.0bp",
+      "previous": 35.0,
+      "previous_text": "35.0bp",
+      "change": 3.0,
+      "change_text": "+3.0bp",
       "unit": "bp",
       "severity": "中性",
       "meaning": "收益率曲线为正，期限结构相对正常",
-      "as_of": "2026-07-08"
+      "as_of": "2026-07-09"
     },
     {
       "id": "UST_10Y3M",
       "label": "10Y-3M Treasury Spread（10年-3个月美债利差）",
-      "value": 69.0,
-      "value_text": "69.0bp",
+      "value": 71.0,
+      "value_text": "71.0bp",
       "previous": 69.0,
       "previous_text": "69.0bp",
-      "change": 0.0,
-      "change_text": "0.0bp",
+      "change": 2.0,
+      "change_text": "+2.0bp",
       "unit": "bp",
       "severity": "中性",
       "meaning": "10年-3个月曲线为正，政策短端对长期利率压制较弱",
-      "as_of": "2026-07-08"
+      "as_of": "2026-07-09"
     },
     {
       "id": "NFCI_LEVEL",
@@ -10091,10 +10130,6 @@
           "label": "EFFR（有效联邦基金利率）",
           "points": [
             {
-              "date": "2026-06-29",
-              "value": 3.63
-            },
-            {
               "date": "2026-06-30",
               "value": 3.63
             },
@@ -10113,6 +10148,10 @@
             {
               "date": "2026-07-07",
               "value": 3.63
+            },
+            {
+              "date": "2026-07-08",
+              "value": 3.62
             }
           ],
           "y_axis": "y"
@@ -10121,10 +10160,6 @@
           "id": "SOFR",
           "label": "SOFR（担保隔夜融资利率）",
           "points": [
-            {
-              "date": "2026-06-29",
-              "value": 3.62
-            },
             {
               "date": "2026-06-30",
               "value": 3.68
@@ -10144,6 +10179,10 @@
             {
               "date": "2026-07-07",
               "value": 3.62
+            },
+            {
+              "date": "2026-07-08",
+              "value": 3.58
             }
           ],
           "y_axis": "y"
@@ -10153,10 +10192,6 @@
           "label": "TGCR（三方一般抵押品利率）",
           "points": [
             {
-              "date": "2026-06-29",
-              "value": 3.6
-            },
-            {
               "date": "2026-06-30",
               "value": 3.64
             },
@@ -10175,6 +10210,10 @@
             {
               "date": "2026-07-07",
               "value": 3.6
+            },
+            {
+              "date": "2026-07-08",
+              "value": 3.57
             }
           ],
           "y_axis": "y"
@@ -10184,10 +10223,6 @@
           "label": "BGCR（广义一般抵押品利率）",
           "points": [
             {
-              "date": "2026-06-29",
-              "value": 3.6
-            },
-            {
               "date": "2026-06-30",
               "value": 3.64
             },
@@ -10206,6 +10241,10 @@
             {
               "date": "2026-07-07",
               "value": 3.6
+            },
+            {
+              "date": "2026-07-08",
+              "value": 3.57
             }
           ],
           "y_axis": "y"
@@ -10222,10 +10261,6 @@
           "id": "EFFR",
           "label": "EFFR（有效联邦基金利率）",
           "points": [
-            {
-              "date": "2026-06-04",
-              "value": 3.62
-            },
             {
               "date": "2026-06-05",
               "value": 3.62
@@ -10301,6 +10336,10 @@
             {
               "date": "2026-07-07",
               "value": 3.63
+            },
+            {
+              "date": "2026-07-08",
+              "value": 3.62
             }
           ],
           "y_axis": "y"
@@ -10309,10 +10348,6 @@
           "id": "SOFR",
           "label": "SOFR（担保隔夜融资利率）",
           "points": [
-            {
-              "date": "2026-06-04",
-              "value": 3.62
-            },
             {
               "date": "2026-06-05",
               "value": 3.63
@@ -10388,6 +10423,10 @@
             {
               "date": "2026-07-07",
               "value": 3.62
+            },
+            {
+              "date": "2026-07-08",
+              "value": 3.58
             }
           ],
           "y_axis": "y"
@@ -10397,10 +10436,6 @@
           "label": "TGCR（三方一般抵押品利率）",
           "points": [
             {
-              "date": "2026-06-04",
-              "value": 3.59
-            },
-            {
               "date": "2026-06-05",
               "value": 3.61
             },
@@ -10475,6 +10510,10 @@
             {
               "date": "2026-07-07",
               "value": 3.6
+            },
+            {
+              "date": "2026-07-08",
+              "value": 3.57
             }
           ],
           "y_axis": "y"
@@ -10484,10 +10523,6 @@
           "label": "BGCR（广义一般抵押品利率）",
           "points": [
             {
-              "date": "2026-06-04",
-              "value": 3.59
-            },
-            {
               "date": "2026-06-05",
               "value": 3.61
             },
@@ -10562,6 +10597,10 @@
             {
               "date": "2026-07-07",
               "value": 3.6
+            },
+            {
+              "date": "2026-07-08",
+              "value": 3.57
             }
           ],
           "y_axis": "y"
@@ -10578,10 +10617,6 @@
           "id": "SOFR_ANCHOR",
           "label": "SOFR-IORB（担保隔夜融资利率-准备金余额利率）",
           "points": [
-            {
-              "date": "2026-06-29",
-              "value": -2.9999999999999805
-            },
             {
               "date": "2026-06-30",
               "value": 3.000000000000025
@@ -10601,6 +10636,10 @@
             {
               "date": "2026-07-07",
               "value": -2.9999999999999805
+            },
+            {
+              "date": "2026-07-08",
+              "value": -6.999999999999984
             }
           ],
           "y_axis": "y"
@@ -10609,10 +10648,6 @@
           "id": "BGCR_TGCR",
           "label": "BGCR-TGCR（广义一般抵押品利率-三方一般抵押品利率）",
           "points": [
-            {
-              "date": "2026-06-29",
-              "value": 0.0
-            },
             {
               "date": "2026-06-30",
               "value": 0.0
@@ -10632,6 +10667,10 @@
             {
               "date": "2026-07-07",
               "value": 0.0
+            },
+            {
+              "date": "2026-07-08",
+              "value": 0.0
             }
           ],
           "y_axis": "y"
@@ -10648,10 +10687,6 @@
           "id": "SOFR_ANCHOR",
           "label": "SOFR-IORB（担保隔夜融资利率-准备金余额利率）",
           "points": [
-            {
-              "date": "2026-06-04",
-              "value": -2.0000000000000018
-            },
             {
               "date": "2026-06-05",
               "value": -4.0000000000000036
@@ -10735,6 +10770,10 @@
             {
               "date": "2026-07-07",
               "value": -2.9999999999999805
+            },
+            {
+              "date": "2026-07-08",
+              "value": -6.999999999999984
             }
           ],
           "y_axis": "y"
@@ -10743,10 +10782,6 @@
           "id": "BGCR_TGCR",
           "label": "BGCR-TGCR（广义一般抵押品利率-三方一般抵押品利率）",
           "points": [
-            {
-              "date": "2026-06-04",
-              "value": 0.9999999999999787
-            },
             {
               "date": "2026-06-05",
               "value": 0.0
@@ -10830,6 +10865,10 @@
             {
               "date": "2026-07-07",
               "value": 0.0
+            },
+            {
+              "date": "2026-07-08",
+              "value": 0.0
             }
           ],
           "y_axis": "y"
@@ -10846,10 +10885,6 @@
           "id": "SOFR_VOLUME",
           "label": "SOFR Volume（SOFR交易量）",
           "points": [
-            {
-              "date": "2026-06-04",
-              "value": 3147.0
-            },
             {
               "date": "2026-06-05",
               "value": 3131.0
@@ -10925,6 +10960,10 @@
             {
               "date": "2026-07-07",
               "value": 3154.0
+            },
+            {
+              "date": "2026-07-08",
+              "value": 3158.0
             }
           ],
           "y_axis": "y"
@@ -11076,10 +11115,6 @@
           "label": "CP Rate-Policy Upper Proxy（商业票据利率-政策上限代理利差）",
           "points": [
             {
-              "date": "2026-06-04",
-              "value": -6.000000000000005
-            },
-            {
               "date": "2026-06-05",
               "value": -6.999999999999984
             },
@@ -11130,10 +11165,6 @@
           "id": "BAMLH0A0HYM2",
           "label": "HY OAS（高收益债期权调整利差）",
           "points": [
-            {
-              "date": "2026-06-04",
-              "value": 2.74
-            },
             {
               "date": "2026-06-05",
               "value": 2.76
@@ -11209,6 +11240,10 @@
             {
               "date": "2026-07-07",
               "value": 2.67
+            },
+            {
+              "date": "2026-07-08",
+              "value": 2.7
             }
           ],
           "y_axis": "y"
@@ -11217,10 +11252,6 @@
           "id": "BAMLC0A0CM",
           "label": "IG OAS（投资级公司债期权调整利差）",
           "points": [
-            {
-              "date": "2026-06-04",
-              "value": 0.74
-            },
             {
               "date": "2026-06-05",
               "value": 0.74
@@ -11296,6 +11327,10 @@
             {
               "date": "2026-07-07",
               "value": 0.76
+            },
+            {
+              "date": "2026-07-08",
+              "value": 0.76
             }
           ],
           "y_axis": "y"
@@ -11312,10 +11347,6 @@
           "id": "DGS1",
           "label": "1Y Treasury Yield（1年期美国国债收益率）",
           "points": [
-            {
-              "date": "2026-06-04",
-              "value": 3.82
-            },
             {
               "date": "2026-06-05",
               "value": 3.88
@@ -11391,6 +11422,10 @@
             {
               "date": "2026-07-07",
               "value": 4.06
+            },
+            {
+              "date": "2026-07-08",
+              "value": 4.06
             }
           ],
           "y_axis": "y"
@@ -11399,10 +11434,6 @@
           "id": "DGS3",
           "label": "3Y Treasury Yield（3年期美国国债收益率）",
           "points": [
-            {
-              "date": "2026-06-04",
-              "value": 4.1
-            },
             {
               "date": "2026-06-05",
               "value": 4.22
@@ -11478,6 +11509,10 @@
             {
               "date": "2026-07-07",
               "value": 4.18
+            },
+            {
+              "date": "2026-07-08",
+              "value": 4.21
             }
           ],
           "y_axis": "y"
@@ -11486,10 +11521,6 @@
           "id": "DGS10",
           "label": "10Y Treasury Yield（10年期美国国债收益率）",
           "points": [
-            {
-              "date": "2026-06-04",
-              "value": 4.47
-            },
             {
               "date": "2026-06-05",
               "value": 4.55
@@ -11565,6 +11596,10 @@
             {
               "date": "2026-07-07",
               "value": 4.55
+            },
+            {
+              "date": "2026-07-08",
+              "value": 4.56
             }
           ],
           "y_axis": "y"
@@ -11581,10 +11616,6 @@
           "id": "DFII10",
           "label": "10Y Real Yield（10年期TIPS实际收益率）",
           "points": [
-            {
-              "date": "2026-06-04",
-              "value": 2.11
-            },
             {
               "date": "2026-06-05",
               "value": 2.19
@@ -11660,6 +11691,10 @@
             {
               "date": "2026-07-07",
               "value": 2.3
+            },
+            {
+              "date": "2026-07-08",
+              "value": 2.31
             }
           ],
           "y_axis": "y"
@@ -11676,10 +11711,6 @@
           "id": "T10Y2Y",
           "label": "10Y-2Y Treasury Spread（10年-2年美债利差）",
           "points": [
-            {
-              "date": "2026-06-04",
-              "value": 0.42
-            },
             {
               "date": "2026-06-05",
               "value": 0.38
@@ -11759,6 +11790,10 @@
             {
               "date": "2026-07-08",
               "value": 0.35
+            },
+            {
+              "date": "2026-07-09",
+              "value": 0.38
             }
           ],
           "y_axis": "y"
@@ -11767,10 +11802,6 @@
           "id": "T10Y3M",
           "label": "10Y-3M Treasury Spread（10年-3个月美债利差）",
           "points": [
-            {
-              "date": "2026-06-04",
-              "value": 0.69
-            },
             {
               "date": "2026-06-05",
               "value": 0.77
@@ -11850,6 +11881,10 @@
             {
               "date": "2026-07-08",
               "value": 0.69
+            },
+            {
+              "date": "2026-07-09",
+              "value": 0.71
             }
           ],
           "y_axis": "y"
@@ -11866,10 +11901,6 @@
           "id": "VIXCLS",
           "label": "VIX（标普500隐含波动率指数）",
           "points": [
-            {
-              "date": "2026-06-04",
-              "value": 15.4
-            },
             {
               "date": "2026-06-05",
               "value": 21.51
@@ -11945,6 +11976,10 @@
             {
               "date": "2026-07-07",
               "value": 16.13
+            },
+            {
+              "date": "2026-07-08",
+              "value": 16.9
             }
           ],
           "y_axis": "y"
@@ -11996,10 +12031,6 @@
           "id": "TGA",
           "label": "TGA（财政部一般账户）",
           "points": [
-            {
-              "date": "2026-06-04",
-              "value": 844.521
-            },
             {
               "date": "2026-06-05",
               "value": 825.54
@@ -12075,6 +12106,10 @@
             {
               "date": "2026-07-07",
               "value": 784.964
+            },
+            {
+              "date": "2026-07-08",
+              "value": 749.244
             }
           ],
           "y_axis": "y"
@@ -12083,10 +12118,6 @@
           "id": "RRP",
           "label": "RRP（隔夜逆回购）",
           "points": [
-            {
-              "date": "2026-06-04",
-              "value": 1.122
-            },
             {
               "date": "2026-06-05",
               "value": 0.761
@@ -12166,6 +12197,10 @@
             {
               "date": "2026-07-08",
               "value": 3.347
+            },
+            {
+              "date": "2026-07-09",
+              "value": 5.772
             }
           ],
           "y_axis": "y1"
@@ -12176,6 +12211,31 @@
         "y": "TGA（十亿美元）",
         "y1": "RRP（十亿美元）"
       }
+    },
+    {
+      "id": "treasury_combined_supply_30d",
+      "title": "合并美债发行量：前20日 + 后10日",
+      "chart_type": "line",
+      "unit": "USD bn",
+      "series": [
+        {
+          "id": "TREASURY_COMBINED_SUPPLY",
+          "label": "Total Treasury Supply（全部美债发行量）",
+          "points": [
+            {
+              "date": "2026-07-13",
+              "value": 171.0
+            },
+            {
+              "date": "2026-07-14",
+              "value": 95.0
+            }
+          ],
+          "y_axis": "y"
+        }
+      ],
+      "data_source": "SQLite engineered_series_ts.TREASURY_COMBINED_SUPPLY（由 treasury_auctions_ts 工程聚合后落表）",
+      "note": "统计所有类型美债的当日发行规模；未公告规模不当作零。该图专用窗口：前20日 + 后10日。"
     },
     {
       "id": "jpy_usdjpy_funding_1y",
@@ -12193,10 +12253,6 @@
           "id": "USDJPY",
           "label": "USD/JPY（东京17:00）",
           "points": [
-            {
-              "date": "2025-06-13",
-              "value": 143.8
-            },
             {
               "date": "2025-06-16",
               "value": 144.19
@@ -13232,6 +13288,10 @@
             {
               "date": "2026-07-07",
               "value": 161.97
+            },
+            {
+              "date": "2026-07-08",
+              "value": 162.22
             }
           ],
           "y_axis": "y"
@@ -13240,10 +13300,6 @@
           "id": "JPY_CALL",
           "label": "JPY隔夜融资成本",
           "points": [
-            {
-              "date": "2025-06-13",
-              "value": 0.477
-            },
             {
               "date": "2025-06-16",
               "value": 0.477
@@ -14278,6 +14334,10 @@
             },
             {
               "date": "2026-07-07",
+              "value": 0.978
+            },
+            {
+              "date": "2026-07-08",
               "value": 0.978
             }
           ],
@@ -18064,10 +18124,6 @@
           "label": "2Y UST-JGB",
           "points": [
             {
-              "date": "2025-06-23",
-              "value": 310.2
-            },
-            {
               "date": "2025-06-24",
               "value": 301.2
             },
@@ -19102,6 +19158,10 @@
             {
               "date": "2026-07-07",
               "value": 280.80000000000007
+            },
+            {
+              "date": "2026-07-08",
+              "value": 282.8
             }
           ]
         },
@@ -19109,10 +19169,6 @@
           "id": "US_JP_10Y",
           "label": "10Y UST-JGB",
           "points": [
-            {
-              "date": "2025-06-23",
-              "value": 290.29999999999995
-            },
             {
               "date": "2025-06-24",
               "value": 285.49999999999994
@@ -20148,6 +20204,10 @@
             {
               "date": "2026-07-07",
               "value": 186.0
+            },
+            {
+              "date": "2026-07-08",
+              "value": 186.99999999999997
             }
           ]
         }
@@ -21448,8 +21508,12 @@
           "label": "Upcoming T-bill Supply（未来短债发行规模）",
           "points": [
             {
-              "date": "2026-07-09",
-              "value": 195.0
+              "date": "2026-07-13",
+              "value": 171.0
+            },
+            {
+              "date": "2026-07-14",
+              "value": 95.0
             }
           ],
           "y_axis": "y"
@@ -21459,8 +21523,12 @@
           "label": "Upcoming Total Treasury Supply（未来已公告美债发行总额）",
           "points": [
             {
-              "date": "2026-07-09",
-              "value": 217.0
+              "date": "2026-07-13",
+              "value": 171.0
+            },
+            {
+              "date": "2026-07-14",
+              "value": 95.0
             }
           ],
           "y_axis": "y"
@@ -21471,8 +21539,8 @@
     }
   ],
   "chart_paths": [
-    "/Users/eiheisun/WorkBuddy/2026-05-04-task-1/output/usd_liquidity_chart_7d_20260709_111051.svg",
-    "/Users/eiheisun/WorkBuddy/2026-05-04-task-1/output/usd_liquidity_chart_30d_20260709_111051.svg"
+    "/Users/eiheisun/WorkBuddy/2026-05-04-task-1/output/usd_liquidity_chart_7d_20260710_164302.svg",
+    "/Users/eiheisun/WorkBuddy/2026-05-04-task-1/output/usd_liquidity_chart_30d_20260710_164302.svg"
   ],
   "data_quality": {
     "missing": [],
@@ -21480,17 +21548,17 @@
       {
         "id": "DCPN3M",
         "label": "CP Rate（90天AA非金融商业票据利率）",
-        "stale_days": 13
+        "stale_days": 14
       },
       {
         "id": "REPO_FAILS_UST",
         "label": "Repo Fails（美国国债回购交割失败）",
-        "stale_days": 15
+        "stale_days": 16
       },
       {
         "id": "DTWEXBGS",
         "label": "DTWEXBGS（广义美元指数）",
-        "stale_days": 7
+        "stale_days": 8
       }
     ],
     "degraded_sources": [

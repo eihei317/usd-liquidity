@@ -1,32 +1,32 @@
 {
   "trigger": "今天的美元流动性简报",
-  "generated_at_bjt": "2026-07-09 11:11:04 UTC+08:00",
+  "generated_at_bjt": "2026-07-10 16:43:15 UTC+08:00",
   "stance": "中性",
-  "score": 0.5999999999999999,
+  "score": -0.1999999999999999,
   "metrics": [
     {
       "id": "RRPONTSYD",
       "name": "Overnight Reverse Repo accepted amount",
       "category": "Fed负债端",
-      "value": 3.347,
-      "previous": 4.484,
-      "change": -1.137,
+      "value": 5.772,
+      "previous": 3.347,
+      "change": 2.4250000000000003,
       "unit": "USD bn",
-      "as_of": "2026-07-08",
-      "previous_as_of": "2026-07-07",
+      "as_of": "2026-07-09",
+      "previous_as_of": "2026-07-08",
       "frequency": "daily T+1",
       "source": "NY Fed Markets API",
-      "source_url": "https://markets.newyorkfed.org/api/rp/reverserepo/propositions/search.json?startDate=2026-06-25&endDate=2026-07-09",
+      "source_url": "https://markets.newyorkfed.org/api/rp/reverserepo/propositions/search.json?startDate=2026-06-26&endDate=2026-07-10",
       "status": "ok",
       "notes": "NY Fed reverse repo accepted amount; replaces FRED RRPONTSYD when FRED is slow or unavailable",
       "stale_days": 1,
       "extra": {
         "raw_latest": {
-          "operationId": "RP 070826 26",
-          "operationDate": "2026-07-08",
+          "operationId": "RP 070926 26",
+          "operationDate": "2026-07-09",
           "operationType": "Reverse Repo",
           "note": "",
-          "totalAmtAccepted": 3347000000
+          "totalAmtAccepted": 5772000000
         },
         "lookback_days": 14
       }
@@ -35,30 +35,30 @@
       "id": "SOMA",
       "name": "SOMA holdings / QT background",
       "category": "Fed负债端",
-      "value": 6334.4721750830995,
-      "previous": 6344.3455674457,
-      "change": -9.873392362600498,
+      "value": 6344.4281750831,
+      "previous": 6334.4721750830995,
+      "change": 9.956000000000131,
       "unit": "USD bn",
-      "as_of": "2026-07-01",
-      "previous_as_of": "2026-06-24",
+      "as_of": "2026-07-08",
+      "previous_as_of": "2026-07-01",
       "frequency": "weekly",
       "source": "NY Fed Markets API",
       "source_url": "https://markets.newyorkfed.org/api/soma/summary.json",
       "status": "ok",
       "notes": "SOMA endpoint schema may change; use as weekly QT background",
-      "stale_days": 8,
+      "stale_days": 2,
       "extra": {
         "raw_latest": {
-          "asOfDate": "2026-07-01",
+          "asOfDate": "2026-07-08",
           "mbs": "1940863715777.00",
           "cmbs": "7533878406.10",
           "tips": "282633819500",
           "frn": "18382825800",
-          "tipsInflationCompensation": "108507711327.19",
+          "tipsInflationCompensation": "109065609408.32",
           "notesbonds": "3593418008900",
-          "bills": "489292926700",
+          "bills": "499248926700",
           "agencies": "2347000000",
-          "total": "6334472175083.10"
+          "total": "6344428175083.10"
         }
       }
     },
@@ -66,12 +66,12 @@
       "id": "TGA",
       "name": "Treasury General Account closing balance",
       "category": "Fed负债端",
-      "value": 784.964,
-      "previous": 783.107,
-      "change": 1.8570000000000846,
+      "value": 749.244,
+      "previous": 784.964,
+      "change": -35.72000000000003,
       "unit": "USD bn",
-      "as_of": "2026-07-07",
-      "previous_as_of": "2026-07-06",
+      "as_of": "2026-07-08",
+      "previous_as_of": "2026-07-07",
       "frequency": "daily T+1",
       "source": "Treasury FiscalData",
       "source_url": "https://api.fiscaldata.treasury.gov/services/api/fiscal_service/v1/accounting/dts/operating_cash_balance?sort=-record_date&page[size]=90",
@@ -80,10 +80,10 @@
       "stale_days": 2,
       "extra": {
         "raw_latest": {
-          "record_date": "2026-07-07",
+          "record_date": "2026-07-08",
           "account_type": "Treasury General Account (TGA) Opening Balance",
           "close_today_bal": "null",
-          "open_today_bal": "783107",
+          "open_today_bal": "784964",
           "open_month_bal": "919145",
           "open_fiscal_year_bal": "890825",
           "table_nbr": "I",
@@ -95,7 +95,7 @@
           "record_calendar_year": "2026",
           "record_calendar_quarter": "3",
           "record_calendar_month": "07",
-          "record_calendar_day": "07"
+          "record_calendar_day": "08"
         }
       }
     },
@@ -103,20 +103,20 @@
       "id": "WRESBAL",
       "name": "Reserve balances with Federal Reserve Banks",
       "category": "Fed负债端",
-      "value": 2966.897,
-      "previous": 2951.416,
-      "change": 15.480999999999767,
+      "value": 3098.911,
+      "previous": 2966.897,
+      "change": 132.01400000000012,
       "unit": "USD bn",
-      "as_of": "2026-07-01",
-      "previous_as_of": "2026-06-24",
+      "as_of": "2026-07-08",
+      "previous_as_of": "2026-07-01",
       "frequency": "weekly",
       "source": "FRED API",
       "source_url": "https://fred.stlouisfed.org/series/WRESBAL",
       "status": "ok",
       "notes": "",
-      "stale_days": 8,
+      "stale_days": 2,
       "extra": {
-        "fetch_url": "https://api.stlouisfed.org/fred/series/observations?series_id=WRESBAL&api_key=REDACTED&file_type=json&sort_order=desc&limit=30&observation_start=2026-01-10"
+        "fetch_url": "https://api.stlouisfed.org/fred/series/observations?series_id=WRESBAL&api_key=REDACTED&file_type=json&sort_order=desc&limit=30&observation_start=2026-01-11"
       }
     },
     {
@@ -124,11 +124,11 @@
       "name": "ICE BofA US Corporate OAS",
       "category": "信用传导",
       "value": 0.76,
-      "previous": 0.75,
-      "change": 0.010000000000000009,
+      "previous": 0.76,
+      "change": 0.0,
       "unit": "%",
-      "as_of": "2026-07-07",
-      "previous_as_of": "2026-07-06",
+      "as_of": "2026-07-08",
+      "previous_as_of": "2026-07-07",
       "frequency": "daily T+1",
       "source": "FRED API",
       "source_url": "https://fred.stlouisfed.org/series/BAMLC0A0CM",
@@ -136,19 +136,19 @@
       "notes": "",
       "stale_days": 2,
       "extra": {
-        "fetch_url": "https://api.stlouisfed.org/fred/series/observations?series_id=BAMLC0A0CM&api_key=REDACTED&file_type=json&sort_order=desc&limit=30&observation_start=2026-01-10"
+        "fetch_url": "https://api.stlouisfed.org/fred/series/observations?series_id=BAMLC0A0CM&api_key=REDACTED&file_type=json&sort_order=desc&limit=30&observation_start=2026-01-11"
       }
     },
     {
       "id": "BAMLH0A0HYM2",
       "name": "ICE BofA US High Yield OAS",
       "category": "信用传导",
-      "value": 2.67,
-      "previous": 2.72,
-      "change": -0.050000000000000266,
+      "value": 2.7,
+      "previous": 2.67,
+      "change": 0.03000000000000025,
       "unit": "%",
-      "as_of": "2026-07-07",
-      "previous_as_of": "2026-07-06",
+      "as_of": "2026-07-08",
+      "previous_as_of": "2026-07-07",
       "frequency": "daily T+1",
       "source": "FRED API",
       "source_url": "https://fred.stlouisfed.org/series/BAMLH0A0HYM2",
@@ -156,7 +156,7 @@
       "notes": "",
       "stale_days": 2,
       "extra": {
-        "fetch_url": "https://api.stlouisfed.org/fred/series/observations?series_id=BAMLH0A0HYM2&api_key=REDACTED&file_type=json&sort_order=desc&limit=30&observation_start=2026-01-10"
+        "fetch_url": "https://api.stlouisfed.org/fred/series/observations?series_id=BAMLH0A0HYM2&api_key=REDACTED&file_type=json&sort_order=desc&limit=30&observation_start=2026-01-11"
       }
     },
     {
@@ -174,21 +174,21 @@
       "source_url": "https://fred.stlouisfed.org/series/DCPN3M",
       "status": "ok",
       "notes": "",
-      "stale_days": 13,
+      "stale_days": 14,
       "extra": {
-        "fetch_url": "https://api.stlouisfed.org/fred/series/observations?series_id=DCPN3M&api_key=REDACTED&file_type=json&sort_order=desc&limit=30&observation_start=2026-01-10"
+        "fetch_url": "https://api.stlouisfed.org/fred/series/observations?series_id=DCPN3M&api_key=REDACTED&file_type=json&sort_order=desc&limit=30&observation_start=2026-01-11"
       }
     },
     {
       "id": "SOFR_VOLUME",
       "name": "SOFR transaction volume",
       "category": "回购融资/市场深度",
-      "value": 3154.0,
-      "previous": 3212.0,
-      "change": -58.0,
+      "value": 3158.0,
+      "previous": 3154.0,
+      "change": 4.0,
       "unit": "USD bn",
-      "as_of": "2026-07-07",
-      "previous_as_of": "2026-07-06",
+      "as_of": "2026-07-08",
+      "previous_as_of": "2026-07-07",
       "frequency": "daily T+1",
       "source": "NY Fed Markets API",
       "source_url": "https://markets.newyorkfed.org/api/rates/secured/sofr/last/2.json",
@@ -197,14 +197,14 @@
       "stale_days": 2,
       "extra": {
         "raw_latest": {
-          "effectiveDate": "2026-07-07",
+          "effectiveDate": "2026-07-08",
           "type": "SOFR",
-          "percentRate": 3.62,
-          "percentPercentile1": 3.58,
-          "percentPercentile25": 3.6,
-          "percentPercentile75": 3.67,
-          "percentPercentile99": 3.71,
-          "volumeInBillions": 3154,
+          "percentRate": 3.58,
+          "percentPercentile1": 3.55,
+          "percentPercentile25": 3.57,
+          "percentPercentile75": 3.64,
+          "percentPercentile99": 3.67,
+          "volumeInBillions": 3158,
           "revisionIndicator": ""
         }
       }
@@ -224,7 +224,7 @@
       "source_url": "https://data.financialresearch.gov/v1/series/timeseries?mnemonic=NYPD-PD_AFtD_T-A",
       "status": "ok",
       "notes": "Optional OFR STFM series; if unavailable, do not block the main briefing",
-      "stale_days": 15,
+      "stale_days": 16,
       "extra": {}
     },
     {
@@ -239,10 +239,10 @@
       "previous_as_of": "2026-07-06",
       "frequency": "event-based",
       "source": "TreasuryDirect",
-      "source_url": "https://www.treasurydirect.gov/TA_WS/securities/search?format=json&startDate=2026-06-18&endDate=2026-07-09",
+      "source_url": "https://www.treasurydirect.gov/TA_WS/securities/search?format=json&startDate=2026-06-19&endDate=2026-07-10",
       "status": "ok",
       "notes": "Aggregates all Treasury Bill auctions on the latest auction date; bid-to-cover is offering-amount weighted. Latest terms: 52-Week, 6-Week.",
-      "stale_days": 2,
+      "stale_days": 3,
       "extra": {
         "latest_auctions": [
           {
@@ -506,10 +506,10 @@
       "previous_as_of": "2026-07-06",
       "frequency": "event-based",
       "source": "TreasuryDirect",
-      "source_url": "https://www.treasurydirect.gov/TA_WS/securities/search?format=json&startDate=2026-06-18&endDate=2026-07-09",
+      "source_url": "https://www.treasurydirect.gov/TA_WS/securities/search?format=json&startDate=2026-06-19&endDate=2026-07-10",
       "status": "ok",
       "notes": "Aggregates all Treasury Bill auctions on the latest auction date; bid-to-cover is offering-amount weighted. Latest terms: 52-Week, 6-Week.",
-      "stale_days": 2,
+      "stale_days": 3,
       "extra": {
         "latest_auctions": [
           {
@@ -773,10 +773,10 @@
       "previous_as_of": "2026-07-07",
       "frequency": "event-based",
       "source": "TreasuryDirect",
-      "source_url": "https://www.treasurydirect.gov/TA_WS/securities/search?format=json&startDate=2026-06-18&endDate=2026-07-09",
+      "source_url": "https://www.treasurydirect.gov/TA_WS/securities/search?format=json&startDate=2026-06-19&endDate=2026-07-10",
       "status": "ok",
       "notes": "Uses bid-to-cover as free auction demand proxy; auction tail requires WI yield not available here",
-      "stale_days": 2,
+      "stale_days": 3,
       "extra": {
         "latest_auction": {
           "cusip": "912797VQ7",
@@ -907,12 +907,12 @@
       "id": "DFII10",
       "name": "10-year Treasury inflation-indexed security real yield",
       "category": "国债收益率/曲线",
-      "value": 2.3,
-      "previous": 2.24,
-      "change": 0.05999999999999961,
+      "value": 2.31,
+      "previous": 2.3,
+      "change": 0.010000000000000231,
       "unit": "%",
-      "as_of": "2026-07-07",
-      "previous_as_of": "2026-07-06",
+      "as_of": "2026-07-08",
+      "previous_as_of": "2026-07-07",
       "frequency": "daily T+1",
       "source": "FRED API",
       "source_url": "https://fred.stlouisfed.org/series/DFII10",
@@ -920,7 +920,7 @@
       "notes": "",
       "stale_days": 2,
       "extra": {
-        "fetch_url": "https://api.stlouisfed.org/fred/series/observations?series_id=DFII10&api_key=REDACTED&file_type=json&sort_order=desc&limit=30&observation_start=2026-01-10"
+        "fetch_url": "https://api.stlouisfed.org/fred/series/observations?series_id=DFII10&api_key=REDACTED&file_type=json&sort_order=desc&limit=30&observation_start=2026-01-11"
       }
     },
     {
@@ -928,11 +928,11 @@
       "name": "1-year Treasury constant maturity yield",
       "category": "国债收益率/曲线",
       "value": 4.06,
-      "previous": 3.95,
-      "change": 0.10999999999999943,
+      "previous": 4.06,
+      "change": 0.0,
       "unit": "%",
-      "as_of": "2026-07-07",
-      "previous_as_of": "2026-07-06",
+      "as_of": "2026-07-08",
+      "previous_as_of": "2026-07-07",
       "frequency": "daily T+1",
       "source": "FRED API",
       "source_url": "https://fred.stlouisfed.org/series/DGS1",
@@ -940,19 +940,19 @@
       "notes": "",
       "stale_days": 2,
       "extra": {
-        "fetch_url": "https://api.stlouisfed.org/fred/series/observations?series_id=DGS1&api_key=REDACTED&file_type=json&sort_order=desc&limit=30&observation_start=2026-01-10"
+        "fetch_url": "https://api.stlouisfed.org/fred/series/observations?series_id=DGS1&api_key=REDACTED&file_type=json&sort_order=desc&limit=30&observation_start=2026-01-11"
       }
     },
     {
       "id": "DGS10",
       "name": "10-year Treasury constant maturity yield",
       "category": "国债收益率/曲线",
-      "value": 4.55,
-      "previous": 4.48,
-      "change": 0.0699999999999994,
+      "value": 4.56,
+      "previous": 4.55,
+      "change": 0.009999999999999787,
       "unit": "%",
-      "as_of": "2026-07-07",
-      "previous_as_of": "2026-07-06",
+      "as_of": "2026-07-08",
+      "previous_as_of": "2026-07-07",
       "frequency": "daily T+1",
       "source": "FRED API",
       "source_url": "https://fred.stlouisfed.org/series/DGS10",
@@ -960,19 +960,19 @@
       "notes": "",
       "stale_days": 2,
       "extra": {
-        "fetch_url": "https://api.stlouisfed.org/fred/series/observations?series_id=DGS10&api_key=REDACTED&file_type=json&sort_order=desc&limit=30&observation_start=2026-01-10"
+        "fetch_url": "https://api.stlouisfed.org/fred/series/observations?series_id=DGS10&api_key=REDACTED&file_type=json&sort_order=desc&limit=30&observation_start=2026-01-11"
       }
     },
     {
       "id": "DGS2",
       "name": "2-year Treasury constant maturity yield",
       "category": "国债收益率/曲线",
-      "value": 4.19,
-      "previous": 4.13,
-      "change": 0.0600000000000005,
+      "value": 4.21,
+      "previous": 4.19,
+      "change": 0.019999999999999574,
       "unit": "%",
-      "as_of": "2026-07-07",
-      "previous_as_of": "2026-07-06",
+      "as_of": "2026-07-08",
+      "previous_as_of": "2026-07-07",
       "frequency": "daily T+1",
       "source": "FRED API",
       "source_url": "https://fred.stlouisfed.org/series/DGS2",
@@ -980,19 +980,19 @@
       "notes": "",
       "stale_days": 2,
       "extra": {
-        "fetch_url": "https://api.stlouisfed.org/fred/series/observations?series_id=DGS2&api_key=REDACTED&file_type=json&sort_order=desc&limit=30&observation_start=2026-01-10"
+        "fetch_url": "https://api.stlouisfed.org/fred/series/observations?series_id=DGS2&api_key=REDACTED&file_type=json&sort_order=desc&limit=30&observation_start=2026-01-11"
       }
     },
     {
       "id": "DGS3",
       "name": "3-year Treasury constant maturity yield",
       "category": "国债收益率/曲线",
-      "value": 4.18,
-      "previous": 4.14,
-      "change": 0.040000000000000036,
+      "value": 4.21,
+      "previous": 4.18,
+      "change": 0.03000000000000025,
       "unit": "%",
-      "as_of": "2026-07-07",
-      "previous_as_of": "2026-07-06",
+      "as_of": "2026-07-08",
+      "previous_as_of": "2026-07-07",
       "frequency": "daily T+1",
       "source": "FRED API",
       "source_url": "https://fred.stlouisfed.org/series/DGS3",
@@ -1000,19 +1000,19 @@
       "notes": "",
       "stale_days": 2,
       "extra": {
-        "fetch_url": "https://api.stlouisfed.org/fred/series/observations?series_id=DGS3&api_key=REDACTED&file_type=json&sort_order=desc&limit=30&observation_start=2026-01-10"
+        "fetch_url": "https://api.stlouisfed.org/fred/series/observations?series_id=DGS3&api_key=REDACTED&file_type=json&sort_order=desc&limit=30&observation_start=2026-01-11"
       }
     },
     {
       "id": "DGS30",
       "name": "30-year Treasury constant maturity yield",
       "category": "国债收益率/曲线",
-      "value": 5.05,
-      "previous": 4.99,
-      "change": 0.05999999999999961,
+      "value": 5.06,
+      "previous": 5.05,
+      "change": 0.009999999999999787,
       "unit": "%",
-      "as_of": "2026-07-07",
-      "previous_as_of": "2026-07-06",
+      "as_of": "2026-07-08",
+      "previous_as_of": "2026-07-07",
       "frequency": "daily T+1",
       "source": "FRED API",
       "source_url": "https://fred.stlouisfed.org/series/DGS30",
@@ -1020,19 +1020,19 @@
       "notes": "",
       "stale_days": 2,
       "extra": {
-        "fetch_url": "https://api.stlouisfed.org/fred/series/observations?series_id=DGS30&api_key=REDACTED&file_type=json&sort_order=desc&limit=30&observation_start=2026-01-10"
+        "fetch_url": "https://api.stlouisfed.org/fred/series/observations?series_id=DGS30&api_key=REDACTED&file_type=json&sort_order=desc&limit=30&observation_start=2026-01-11"
       }
     },
     {
       "id": "DGS3MO",
       "name": "3-month Treasury constant maturity yield",
       "category": "国债收益率/曲线",
-      "value": 3.86,
-      "previous": 3.87,
-      "change": -0.010000000000000231,
+      "value": 3.87,
+      "previous": 3.86,
+      "change": 0.010000000000000231,
       "unit": "%",
-      "as_of": "2026-07-07",
-      "previous_as_of": "2026-07-06",
+      "as_of": "2026-07-08",
+      "previous_as_of": "2026-07-07",
       "frequency": "daily T+1",
       "source": "FRED API",
       "source_url": "https://fred.stlouisfed.org/series/DGS3MO",
@@ -1040,7 +1040,7 @@
       "notes": "",
       "stale_days": 2,
       "extra": {
-        "fetch_url": "https://api.stlouisfed.org/fred/series/observations?series_id=DGS3MO&api_key=REDACTED&file_type=json&sort_order=desc&limit=30&observation_start=2026-01-10"
+        "fetch_url": "https://api.stlouisfed.org/fred/series/observations?series_id=DGS3MO&api_key=REDACTED&file_type=json&sort_order=desc&limit=30&observation_start=2026-01-11"
       }
     },
     {
@@ -1048,11 +1048,11 @@
       "name": "3-month Treasury bill secondary market rate",
       "category": "国债收益率/曲线",
       "value": 3.73,
-      "previous": 3.74,
-      "change": -0.010000000000000231,
+      "previous": 3.73,
+      "change": 0.0,
       "unit": "%",
-      "as_of": "2026-07-07",
-      "previous_as_of": "2026-07-06",
+      "as_of": "2026-07-08",
+      "previous_as_of": "2026-07-07",
       "frequency": "daily T+1",
       "source": "FRED API",
       "source_url": "https://fred.stlouisfed.org/series/DTB3",
@@ -1060,19 +1060,19 @@
       "notes": "",
       "stale_days": 2,
       "extra": {
-        "fetch_url": "https://api.stlouisfed.org/fred/series/observations?series_id=DTB3&api_key=REDACTED&file_type=json&sort_order=desc&limit=30&observation_start=2026-01-10"
+        "fetch_url": "https://api.stlouisfed.org/fred/series/observations?series_id=DTB3&api_key=REDACTED&file_type=json&sort_order=desc&limit=30&observation_start=2026-01-11"
       }
     },
     {
       "id": "T10Y2Y",
       "name": "10-year minus 2-year Treasury spread",
       "category": "国债收益率/曲线",
-      "value": 0.35,
-      "previous": 0.36,
-      "change": -0.010000000000000009,
+      "value": 0.38,
+      "previous": 0.35,
+      "change": 0.030000000000000027,
       "unit": "%",
-      "as_of": "2026-07-08",
-      "previous_as_of": "2026-07-07",
+      "as_of": "2026-07-09",
+      "previous_as_of": "2026-07-08",
       "frequency": "daily T+1",
       "source": "FRED API",
       "source_url": "https://fred.stlouisfed.org/series/T10Y2Y",
@@ -1080,19 +1080,19 @@
       "notes": "",
       "stale_days": 1,
       "extra": {
-        "fetch_url": "https://api.stlouisfed.org/fred/series/observations?series_id=T10Y2Y&api_key=REDACTED&file_type=json&sort_order=desc&limit=30&observation_start=2026-01-10"
+        "fetch_url": "https://api.stlouisfed.org/fred/series/observations?series_id=T10Y2Y&api_key=REDACTED&file_type=json&sort_order=desc&limit=30&observation_start=2026-01-11"
       }
     },
     {
       "id": "T10Y3M",
       "name": "10-year minus 3-month Treasury spread",
       "category": "国债收益率/曲线",
-      "value": 0.69,
+      "value": 0.71,
       "previous": 0.69,
-      "change": 0.0,
+      "change": 0.020000000000000018,
       "unit": "%",
-      "as_of": "2026-07-08",
-      "previous_as_of": "2026-07-07",
+      "as_of": "2026-07-09",
+      "previous_as_of": "2026-07-08",
       "frequency": "daily T+1",
       "source": "FRED API",
       "source_url": "https://fred.stlouisfed.org/series/T10Y3M",
@@ -1100,7 +1100,7 @@
       "notes": "",
       "stale_days": 1,
       "extra": {
-        "fetch_url": "https://api.stlouisfed.org/fred/series/observations?series_id=T10Y3M&api_key=REDACTED&file_type=json&sort_order=desc&limit=30&observation_start=2026-01-10"
+        "fetch_url": "https://api.stlouisfed.org/fred/series/observations?series_id=T10Y3M&api_key=REDACTED&file_type=json&sort_order=desc&limit=30&observation_start=2026-01-11"
       }
     },
     {
@@ -1111,8 +1111,8 @@
       "previous": 3.75,
       "change": 0.0,
       "unit": "%",
-      "as_of": "2026-07-08",
-      "previous_as_of": "2026-07-07",
+      "as_of": "2026-07-09",
+      "previous_as_of": "2026-07-08",
       "frequency": "daily / policy step",
       "source": "FRED API",
       "source_url": "https://fred.stlouisfed.org/series/DFEDTARU",
@@ -1120,7 +1120,7 @@
       "notes": "",
       "stale_days": 1,
       "extra": {
-        "fetch_url": "https://api.stlouisfed.org/fred/series/observations?series_id=DFEDTARU&api_key=REDACTED&file_type=json&sort_order=desc&limit=30&observation_start=2026-01-10"
+        "fetch_url": "https://api.stlouisfed.org/fred/series/observations?series_id=DFEDTARU&api_key=REDACTED&file_type=json&sort_order=desc&limit=30&observation_start=2026-01-11"
       }
     },
     {
@@ -1131,8 +1131,8 @@
       "previous": 3.65,
       "change": 0.0,
       "unit": "%",
-      "as_of": "2026-07-09",
-      "previous_as_of": "2026-07-08",
+      "as_of": "2026-07-10",
+      "previous_as_of": "2026-07-09",
       "frequency": "daily / policy step",
       "source": "FRED API",
       "source_url": "https://fred.stlouisfed.org/series/IORB",
@@ -1140,7 +1140,7 @@
       "notes": "",
       "stale_days": 0,
       "extra": {
-        "fetch_url": "https://api.stlouisfed.org/fred/series/observations?series_id=IORB&api_key=REDACTED&file_type=json&sort_order=desc&limit=30&observation_start=2026-01-10"
+        "fetch_url": "https://api.stlouisfed.org/fred/series/observations?series_id=IORB&api_key=REDACTED&file_type=json&sort_order=desc&limit=30&observation_start=2026-01-11"
       }
     },
     {
@@ -1151,8 +1151,8 @@
       "previous": 3.75,
       "change": 0.0,
       "unit": "%",
-      "as_of": "2026-07-07",
-      "previous_as_of": "2026-07-06",
+      "as_of": "2026-07-08",
+      "previous_as_of": "2026-07-07",
       "frequency": "daily / policy step",
       "source": "NY Fed Markets API",
       "source_url": "https://markets.newyorkfed.org/api/rates/unsecured/effr/last/2.json",
@@ -1161,16 +1161,16 @@
       "stale_days": 2,
       "extra": {
         "raw_latest": {
-          "effectiveDate": "2026-07-07",
+          "effectiveDate": "2026-07-08",
           "type": "EFFR",
-          "percentRate": 3.63,
+          "percentRate": 3.62,
           "percentPercentile1": 3.6,
           "percentPercentile25": 3.62,
           "percentPercentile75": 3.63,
-          "percentPercentile99": 3.64,
+          "percentPercentile99": 3.65,
           "targetRateFrom": 3.5,
           "targetRateTo": 3.75,
-          "volumeInBillions": 117,
+          "volumeInBillions": 131,
           "revisionIndicator": ""
         },
         "raw_previous": {}
@@ -1191,21 +1191,21 @@
       "source_url": "https://fred.stlouisfed.org/series/DTWEXBGS",
       "status": "ok",
       "notes": "",
-      "stale_days": 7,
+      "stale_days": 8,
       "extra": {
-        "fetch_url": "https://api.stlouisfed.org/fred/series/observations?series_id=DTWEXBGS&api_key=REDACTED&file_type=json&sort_order=desc&limit=30&observation_start=2026-01-10"
+        "fetch_url": "https://api.stlouisfed.org/fred/series/observations?series_id=DTWEXBGS&api_key=REDACTED&file_type=json&sort_order=desc&limit=30&observation_start=2026-01-11"
       }
     },
     {
       "id": "VIXCLS",
       "name": "CBOE Volatility Index: VIX",
       "category": "证券市场风险偏好",
-      "value": 16.13,
-      "previous": 15.57,
-      "change": 0.5599999999999987,
+      "value": 16.9,
+      "previous": 16.13,
+      "change": 0.7699999999999996,
       "unit": "index",
-      "as_of": "2026-07-07",
-      "previous_as_of": "2026-07-06",
+      "as_of": "2026-07-08",
+      "previous_as_of": "2026-07-07",
       "frequency": "daily T+1",
       "source": "FRED API",
       "source_url": "https://fred.stlouisfed.org/series/VIXCLS",
@@ -1213,7 +1213,7 @@
       "notes": "",
       "stale_days": 2,
       "extra": {
-        "fetch_url": "https://api.stlouisfed.org/fred/series/observations?series_id=VIXCLS&api_key=REDACTED&file_type=json&sort_order=desc&limit=30&observation_start=2026-01-10"
+        "fetch_url": "https://api.stlouisfed.org/fred/series/observations?series_id=VIXCLS&api_key=REDACTED&file_type=json&sort_order=desc&limit=30&observation_start=2026-01-11"
       }
     },
     {
@@ -1231,21 +1231,21 @@
       "source_url": "https://fred.stlouisfed.org/series/NFCI",
       "status": "ok",
       "notes": "",
-      "stale_days": 6,
+      "stale_days": 7,
       "extra": {
-        "fetch_url": "https://api.stlouisfed.org/fred/series/observations?series_id=NFCI&api_key=REDACTED&file_type=json&sort_order=desc&limit=30&observation_start=2026-01-10"
+        "fetch_url": "https://api.stlouisfed.org/fred/series/observations?series_id=NFCI&api_key=REDACTED&file_type=json&sort_order=desc&limit=30&observation_start=2026-01-11"
       }
     },
     {
       "id": "BGCR",
       "name": "Broad General Collateral Rate",
       "category": "银行间/回购融资",
-      "value": 3.6,
-      "previous": 3.61,
-      "change": -0.009999999999999787,
+      "value": 3.57,
+      "previous": 3.6,
+      "change": -0.03000000000000025,
       "unit": "%",
-      "as_of": "2026-07-07",
-      "previous_as_of": "2026-07-06",
+      "as_of": "2026-07-08",
+      "previous_as_of": "2026-07-07",
       "frequency": "daily T+1",
       "source": "NY Fed Markets API",
       "source_url": "https://markets.newyorkfed.org/api/rates/secured/bgcr/last/2.json",
@@ -1254,14 +1254,14 @@
       "stale_days": 2,
       "extra": {
         "raw_latest": {
-          "effectiveDate": "2026-07-07",
+          "effectiveDate": "2026-07-08",
           "type": "BGCR",
-          "percentRate": 3.6,
-          "percentPercentile1": 3.5,
-          "percentPercentile25": 3.6,
-          "percentPercentile75": 3.6,
-          "percentPercentile99": 3.67,
-          "volumeInBillions": 1325,
+          "percentRate": 3.57,
+          "percentPercentile1": 3.52,
+          "percentPercentile25": 3.57,
+          "percentPercentile75": 3.57,
+          "percentPercentile99": 3.63,
+          "volumeInBillions": 1319,
           "revisionIndicator": ""
         }
       }
@@ -1270,12 +1270,12 @@
       "id": "EFFR",
       "name": "Effective Federal Funds Rate",
       "category": "银行间/回购融资",
-      "value": 3.63,
+      "value": 3.62,
       "previous": 3.63,
-      "change": 0.0,
+      "change": -0.009999999999999787,
       "unit": "%",
-      "as_of": "2026-07-07",
-      "previous_as_of": "2026-07-06",
+      "as_of": "2026-07-08",
+      "previous_as_of": "2026-07-07",
       "frequency": "daily T+1",
       "source": "NY Fed Markets API",
       "source_url": "https://markets.newyorkfed.org/api/rates/unsecured/effr/last/2.json",
@@ -1284,16 +1284,16 @@
       "stale_days": 2,
       "extra": {
         "raw_latest": {
-          "effectiveDate": "2026-07-07",
+          "effectiveDate": "2026-07-08",
           "type": "EFFR",
-          "percentRate": 3.63,
+          "percentRate": 3.62,
           "percentPercentile1": 3.6,
           "percentPercentile25": 3.62,
           "percentPercentile75": 3.63,
-          "percentPercentile99": 3.64,
+          "percentPercentile99": 3.65,
           "targetRateFrom": 3.5,
           "targetRateTo": 3.75,
-          "volumeInBillions": 117,
+          "volumeInBillions": 131,
           "revisionIndicator": ""
         }
       }
@@ -1306,8 +1306,8 @@
       "previous": 3.62,
       "change": 0.0,
       "unit": "%",
-      "as_of": "2026-07-07",
-      "previous_as_of": "2026-07-06",
+      "as_of": "2026-07-08",
+      "previous_as_of": "2026-07-07",
       "frequency": "daily T+1",
       "source": "NY Fed Markets API",
       "source_url": "https://markets.newyorkfed.org/api/rates/unsecured/obfr/last/2.json",
@@ -1316,14 +1316,14 @@
       "stale_days": 2,
       "extra": {
         "raw_latest": {
-          "effectiveDate": "2026-07-07",
+          "effectiveDate": "2026-07-08",
           "type": "OBFR",
           "percentRate": 3.62,
           "percentPercentile1": 3.55,
           "percentPercentile25": 3.62,
           "percentPercentile75": 3.63,
           "percentPercentile99": 3.68,
-          "volumeInBillions": 253,
+          "volumeInBillions": 266,
           "revisionIndicator": ""
         }
       }
@@ -1332,12 +1332,12 @@
       "id": "SOFR",
       "name": "Secured Overnight Financing Rate",
       "category": "银行间/回购融资",
-      "value": 3.62,
-      "previous": 3.63,
-      "change": -0.009999999999999787,
+      "value": 3.58,
+      "previous": 3.62,
+      "change": -0.040000000000000036,
       "unit": "%",
-      "as_of": "2026-07-07",
-      "previous_as_of": "2026-07-06",
+      "as_of": "2026-07-08",
+      "previous_as_of": "2026-07-07",
       "frequency": "daily T+1",
       "source": "NY Fed Markets API",
       "source_url": "https://markets.newyorkfed.org/api/rates/secured/sofr/last/2.json",
@@ -1346,14 +1346,14 @@
       "stale_days": 2,
       "extra": {
         "raw_latest": {
-          "effectiveDate": "2026-07-07",
+          "effectiveDate": "2026-07-08",
           "type": "SOFR",
-          "percentRate": 3.62,
-          "percentPercentile1": 3.58,
-          "percentPercentile25": 3.6,
-          "percentPercentile75": 3.67,
-          "percentPercentile99": 3.71,
-          "volumeInBillions": 3154,
+          "percentRate": 3.58,
+          "percentPercentile1": 3.55,
+          "percentPercentile25": 3.57,
+          "percentPercentile75": 3.64,
+          "percentPercentile99": 3.67,
+          "volumeInBillions": 3158,
           "revisionIndicator": ""
         }
       }
@@ -1362,12 +1362,12 @@
       "id": "TGCR",
       "name": "Tri-party General Collateral Rate",
       "category": "银行间/回购融资",
-      "value": 3.6,
-      "previous": 3.61,
-      "change": -0.009999999999999787,
+      "value": 3.57,
+      "previous": 3.6,
+      "change": -0.03000000000000025,
       "unit": "%",
-      "as_of": "2026-07-07",
-      "previous_as_of": "2026-07-06",
+      "as_of": "2026-07-08",
+      "previous_as_of": "2026-07-07",
       "frequency": "daily T+1",
       "source": "NY Fed Markets API",
       "source_url": "https://markets.newyorkfed.org/api/rates/secured/tgcr/last/2.json",
@@ -1376,14 +1376,14 @@
       "stale_days": 2,
       "extra": {
         "raw_latest": {
-          "effectiveDate": "2026-07-07",
+          "effectiveDate": "2026-07-08",
           "type": "TGCR",
-          "percentRate": 3.6,
-          "percentPercentile1": 3.53,
-          "percentPercentile25": 3.6,
-          "percentPercentile75": 3.6,
-          "percentPercentile99": 3.64,
-          "volumeInBillions": 1278,
+          "percentRate": 3.57,
+          "percentPercentile1": 3.52,
+          "percentPercentile25": 3.57,
+          "percentPercentile75": 3.57,
+          "percentPercentile99": 3.63,
+          "volumeInBillions": 1279,
           "revisionIndicator": ""
         }
       }
@@ -1393,24 +1393,24 @@
     {
       "id": "SOFR_ANCHOR",
       "name": "SOFR-IORB（担保隔夜融资利率-准备金余额利率）",
-      "value": -2.9999999999999805,
+      "value": -6.999999999999984,
       "unit": "bp",
       "interpretation": "SOFR相对IORB（准备金余额利率）的位置。回购融资与政策锚接近",
       "severity": "中性",
-      "previous": -2.0000000000000018,
-      "change": -0.9999999999999787,
-      "as_of": "2026-07-07"
+      "previous": -2.9999999999999805,
+      "change": -4.0000000000000036,
+      "as_of": "2026-07-08"
     },
     {
       "id": "SOFR_VOLUME_IMPACT",
       "name": "SOFR Rate-Volume Impact（SOFR价格×交易量影响）",
-      "value": -2.628333333333316,
+      "value": -6.140555555555541,
       "unit": "USD mn/day",
-      "interpretation": "SOFR交易量约3,154bn，但SOFR相对政策锚偏离有限，价格×规模冲击不大。",
-      "severity": "中性",
-      "previous": -1.7844444444444458,
-      "change": -0.8438888888888703,
-      "as_of": "2026-07-07"
+      "interpretation": "SOFR交易量约3,158bn，SOFR低于政策锚，按交易量估算日化融资成本低于政策锚约6.1百万美元。",
+      "severity": "偏松",
+      "previous": -2.628333333333316,
+      "change": -3.512222222222225,
+      "as_of": "2026-07-08"
     },
     {
       "id": "BGCR_TGCR",
@@ -1421,7 +1421,7 @@
       "severity": "中性",
       "previous": 0.0,
       "change": 0.0,
-      "as_of": "2026-07-07"
+      "as_of": "2026-07-08"
     },
     {
       "id": "CP_PROXY",
@@ -1437,35 +1437,35 @@
     {
       "id": "TGA_FLOW",
       "name": "TGA Daily Change（财政部一般账户日变化）",
-      "value": 1.8570000000000846,
+      "value": -35.72000000000003,
       "unit": "bn",
       "interpretation": "财政资金流变化不大",
       "severity": "中性",
-      "previous": 6.26400000000001,
-      "change": -4.406999999999925,
-      "as_of": "2026-07-07"
+      "previous": 1.8570000000000846,
+      "change": -37.57700000000011,
+      "as_of": "2026-07-08"
     },
     {
       "id": "RRP_FLOW",
       "name": "RRP Flow（隔夜逆回购边际流量）",
-      "value": -1.137,
+      "value": 2.4250000000000003,
       "unit": "bn",
       "interpretation": "RRP日变化幅度有限，短期边际流量影响不大。",
       "severity": "中性",
       "previous": null,
       "change": null,
-      "as_of": "2026-07-08"
+      "as_of": "2026-07-09"
     },
     {
       "id": "RRP_BUFFER",
       "name": "RRP Buffer（隔夜逆回购存量缓冲垫）",
-      "value": 3.347,
+      "value": 5.772,
       "unit": "bn",
       "interpretation": "RRP存量缓冲垫几乎耗尽，后续TGA补库、QT或美债供给冲击更容易直接落到准备金。",
       "severity": "偏紧",
-      "previous": 4.484,
-      "change": -1.137,
-      "as_of": "2026-07-08"
+      "previous": 3.347,
+      "change": 2.4250000000000003,
+      "as_of": "2026-07-09"
     },
     {
       "id": "UST_1Y_YIELD",
@@ -1474,64 +1474,64 @@
       "unit": "%",
       "interpretation": "1年期收益率处于中间区间，需结合3年期和10年期确认曲线重定价",
       "severity": "中性",
-      "previous": 3.95,
-      "change": 0.10999999999999943,
-      "as_of": "2026-07-07"
+      "previous": 4.06,
+      "change": 0.0,
+      "as_of": "2026-07-08"
     },
     {
       "id": "UST_3Y_YIELD",
       "name": "3Y Treasury Yield（3年期美国国债收益率）",
-      "value": 4.18,
+      "value": 4.21,
       "unit": "%",
       "interpretation": "3年期收益率处于中间区间，观察其相对1年和10年的斜率变化。",
       "severity": "中性",
-      "previous": 4.14,
-      "change": 0.040000000000000036,
-      "as_of": "2026-07-07"
+      "previous": 4.18,
+      "change": 0.03000000000000025,
+      "as_of": "2026-07-08"
     },
     {
       "id": "NOMINAL_10Y",
       "name": "10Y Treasury Yield（10年期美国国债收益率）",
-      "value": 4.55,
+      "value": 4.56,
       "unit": "%",
-      "interpretation": "长期名义折现率上行，债券久期和股票估值承压",
-      "severity": "偏紧",
-      "previous": 4.48,
-      "change": 0.0699999999999994,
-      "as_of": "2026-07-07"
+      "interpretation": "长期名义折现率边际变化有限",
+      "severity": "中性",
+      "previous": 4.55,
+      "change": 0.009999999999999787,
+      "as_of": "2026-07-08"
     },
     {
       "id": "REAL_10Y",
       "name": "10Y Treasury Yield（10年期美国国债收益率）",
-      "value": 4.55,
+      "value": 4.56,
       "unit": "%",
       "interpretation": "10年期国债收益率处于高位，对长期资产估值有压力；这描述的是level风险，不代表边际继续恶化。",
       "severity": "偏紧",
-      "previous": 4.48,
-      "change": 0.0699999999999994,
-      "as_of": "2026-07-07"
+      "previous": 4.55,
+      "change": 0.009999999999999787,
+      "as_of": "2026-07-08"
     },
     {
       "id": "REAL_10Y_MOMENTUM",
       "name": "10Y Yield Momentum（10年期国债收益率边际变化）",
-      "value": 6.99999999999994,
+      "value": 0.9999999999999787,
       "unit": "bp",
-      "interpretation": "10年期国债收益率边际上行，长期资产估值压力正在增强。",
-      "severity": "偏紧",
+      "interpretation": "10年期国债收益率边际变化有限。",
+      "severity": "中性",
       "previous": null,
       "change": null,
-      "as_of": "2026-07-07"
+      "as_of": "2026-07-08"
     },
     {
       "id": "HY_CHANGE",
       "name": "HY OAS Change（高收益债期权调整利差变化）",
-      "value": 2.67,
+      "value": 2.7,
       "unit": "%",
-      "interpretation": "信用风险偏好改善",
-      "severity": "偏松",
-      "previous": 2.72,
-      "change": -0.050000000000000266,
-      "as_of": "2026-07-07"
+      "interpretation": "信用利差变化有限",
+      "severity": "中性",
+      "previous": 2.67,
+      "change": 0.03000000000000025,
+      "as_of": "2026-07-08"
     },
     {
       "id": "IG_CHANGE",
@@ -1540,31 +1540,31 @@
       "unit": "%",
       "interpretation": "投资级信用利差变化有限",
       "severity": "中性",
-      "previous": 0.75,
-      "change": 0.010000000000000009,
-      "as_of": "2026-07-07"
+      "previous": 0.76,
+      "change": 0.0,
+      "as_of": "2026-07-08"
     },
     {
       "id": "VIX_RISK",
       "name": "VIX Level（标普500隐含波动率水平）",
-      "value": 16.13,
+      "value": 16.9,
       "unit": "",
       "interpretation": "证券市场波动率处于中性区间。",
       "severity": "中性",
-      "previous": 15.57,
-      "change": 0.5599999999999987,
-      "as_of": "2026-07-07"
+      "previous": 16.13,
+      "change": 0.7699999999999996,
+      "as_of": "2026-07-08"
     },
     {
       "id": "VIX_MOMENTUM",
       "name": "VIX Momentum（标普500隐含波动率边际变化）",
-      "value": 0.5599999999999987,
+      "value": 0.7699999999999996,
       "unit": "pt",
       "interpretation": "VIX边际变化有限。",
       "severity": "中性",
       "previous": null,
       "change": null,
-      "as_of": "2026-07-07"
+      "as_of": "2026-07-08"
     },
     {
       "id": "USD_CHANGE",
@@ -1580,24 +1580,24 @@
     {
       "id": "UST_10Y2Y",
       "name": "10Y-2Y Treasury Spread（10年-2年美债利差）",
-      "value": 35.0,
+      "value": 38.0,
       "unit": "bp",
       "interpretation": "收益率曲线为正，期限结构相对正常",
       "severity": "中性",
-      "previous": 36.0,
-      "change": -1.0,
-      "as_of": "2026-07-08"
+      "previous": 35.0,
+      "change": 3.0,
+      "as_of": "2026-07-09"
     },
     {
       "id": "UST_10Y3M",
       "name": "10Y-3M Treasury Spread（10年-3个月美债利差）",
-      "value": 69.0,
+      "value": 71.0,
       "unit": "bp",
       "interpretation": "10年-3个月曲线为正，政策短端对长期利率压制较弱",
       "severity": "中性",
       "previous": 69.0,
-      "change": 0.0,
-      "as_of": "2026-07-08"
+      "change": 2.0,
+      "as_of": "2026-07-09"
     },
     {
       "id": "NFCI_LEVEL",
@@ -1891,145 +1891,176 @@
     ]
   ],
   "chart_paths": [
-    "/Users/eiheisun/WorkBuddy/2026-05-04-task-1/output/usd_liquidity_chart_7d_20260709_111051.svg",
-    "/Users/eiheisun/WorkBuddy/2026-05-04-task-1/output/usd_liquidity_chart_30d_20260709_111051.svg"
+    "/Users/eiheisun/WorkBuddy/2026-05-04-task-1/output/usd_liquidity_chart_7d_20260710_164302.svg",
+    "/Users/eiheisun/WorkBuddy/2026-05-04-task-1/output/usd_liquidity_chart_30d_20260710_164302.svg"
   ],
   "upcoming_auctions": {
     "status": "ok",
-    "as_of": "2026-07-09",
+    "as_of": "2026-07-10",
     "lookforward_days": 60,
-    "source_url": "https://www.treasurydirect.gov/TA_WS/securities/search?format=json&startDate=2026-07-09&endDate=2026-09-07",
+    "source_url": "https://www.treasurydirect.gov/TA_WS/securities/search?format=json&startDate=2026-07-10&endDate=2026-09-08",
     "auctions": [
       {
-        "auctionDate": "2026-07-09",
-        "issueDate": "2026-07-14",
-        "announcementDate": "2026-07-07",
+        "auctionDate": "2026-07-13",
+        "issueDate": "2026-07-16",
+        "announcementDate": "2026-07-09",
         "securityType": "Bill",
-        "securityTerm": "4-Week",
-        "offeringAmount": 100.0,
-        "offeringAmountText": "$100bn",
-        "cusip": "912797UT2",
+        "securityTerm": "13-Week",
+        "offeringAmount": 92.0,
+        "offeringAmountText": "$92bn",
+        "cusip": "912797UK1",
         "is_bill": true,
         "is_note_or_bond": false
       },
       {
-        "auctionDate": "2026-07-09",
-        "issueDate": "2026-07-14",
-        "announcementDate": "2026-07-07",
+        "auctionDate": "2026-07-13",
+        "issueDate": "2026-07-16",
+        "announcementDate": "2026-07-09",
         "securityType": "Bill",
-        "securityTerm": "8-Week",
+        "securityTerm": "26-Week",
+        "offeringAmount": 79.0,
+        "offeringAmountText": "$79bn",
+        "cusip": "912797VT1",
+        "is_bill": true,
+        "is_note_or_bond": false
+      },
+      {
+        "auctionDate": "2026-07-14",
+        "issueDate": "2026-07-16",
+        "announcementDate": "2026-07-09",
+        "securityType": "Bill",
+        "securityTerm": "6-Week",
         "offeringAmount": 95.0,
         "offeringAmountText": "$95bn",
-        "cusip": "912797VB0",
+        "cusip": "912797TY3",
         "is_bill": true,
         "is_note_or_bond": false
-      },
-      {
-        "auctionDate": "2026-07-09",
-        "issueDate": "2026-07-15",
-        "announcementDate": "2026-07-02",
-        "securityType": "Bond",
-        "securityTerm": "29-Year 10-Month",
-        "offeringAmount": 22.0,
-        "offeringAmountText": "$22bn",
-        "cusip": "912810UU0",
-        "is_bill": false,
-        "is_note_or_bond": true
       }
     ],
     "bill_schedule": [
       {
-        "auctionDate": "2026-07-09",
-        "totalBillOffering": 195.0,
+        "auctionDate": "2026-07-13",
+        "totalBillOffering": 171.0,
         "items": [
           {
-            "auctionDate": "2026-07-09",
-            "issueDate": "2026-07-14",
-            "announcementDate": "2026-07-07",
+            "auctionDate": "2026-07-13",
+            "issueDate": "2026-07-16",
+            "announcementDate": "2026-07-09",
             "securityType": "Bill",
-            "securityTerm": "4-Week",
-            "offeringAmount": 100.0,
-            "offeringAmountText": "$100bn",
-            "cusip": "912797UT2",
+            "securityTerm": "13-Week",
+            "offeringAmount": 92.0,
+            "offeringAmountText": "$92bn",
+            "cusip": "912797UK1",
             "is_bill": true,
             "is_note_or_bond": false
           },
           {
-            "auctionDate": "2026-07-09",
-            "issueDate": "2026-07-14",
-            "announcementDate": "2026-07-07",
+            "auctionDate": "2026-07-13",
+            "issueDate": "2026-07-16",
+            "announcementDate": "2026-07-09",
             "securityType": "Bill",
-            "securityTerm": "8-Week",
-            "offeringAmount": 95.0,
-            "offeringAmountText": "$95bn",
-            "cusip": "912797VB0",
+            "securityTerm": "26-Week",
+            "offeringAmount": 79.0,
+            "offeringAmountText": "$79bn",
+            "cusip": "912797VT1",
             "is_bill": true,
             "is_note_or_bond": false
           }
         ],
-        "totalBillOfferingText": "$195bn"
+        "totalBillOfferingText": "$171bn"
+      },
+      {
+        "auctionDate": "2026-07-14",
+        "totalBillOffering": 95.0,
+        "items": [
+          {
+            "auctionDate": "2026-07-14",
+            "issueDate": "2026-07-16",
+            "announcementDate": "2026-07-09",
+            "securityType": "Bill",
+            "securityTerm": "6-Week",
+            "offeringAmount": 95.0,
+            "offeringAmountText": "$95bn",
+            "cusip": "912797TY3",
+            "is_bill": true,
+            "is_note_or_bond": false
+          }
+        ],
+        "totalBillOfferingText": "$95bn"
       }
     ],
     "next_auctions": [
       {
-        "auctionDate": "2026-07-09",
-        "issueDate": "2026-07-14",
-        "announcementDate": "2026-07-07",
+        "auctionDate": "2026-07-13",
+        "issueDate": "2026-07-16",
+        "announcementDate": "2026-07-09",
         "securityType": "Bill",
-        "securityTerm": "4-Week",
-        "offeringAmount": 100.0,
-        "offeringAmountText": "$100bn",
-        "cusip": "912797UT2",
+        "securityTerm": "13-Week",
+        "offeringAmount": 92.0,
+        "offeringAmountText": "$92bn",
+        "cusip": "912797UK1",
         "is_bill": true,
         "is_note_or_bond": false
       },
       {
-        "auctionDate": "2026-07-09",
-        "issueDate": "2026-07-14",
-        "announcementDate": "2026-07-07",
+        "auctionDate": "2026-07-13",
+        "issueDate": "2026-07-16",
+        "announcementDate": "2026-07-09",
         "securityType": "Bill",
-        "securityTerm": "8-Week",
+        "securityTerm": "26-Week",
+        "offeringAmount": 79.0,
+        "offeringAmountText": "$79bn",
+        "cusip": "912797VT1",
+        "is_bill": true,
+        "is_note_or_bond": false
+      },
+      {
+        "auctionDate": "2026-07-14",
+        "issueDate": "2026-07-16",
+        "announcementDate": "2026-07-09",
+        "securityType": "Bill",
+        "securityTerm": "6-Week",
         "offeringAmount": 95.0,
         "offeringAmountText": "$95bn",
-        "cusip": "912797VB0",
+        "cusip": "912797TY3",
         "is_bill": true,
         "is_note_or_bond": false
-      },
-      {
-        "auctionDate": "2026-07-09",
-        "issueDate": "2026-07-15",
-        "announcementDate": "2026-07-02",
-        "securityType": "Bond",
-        "securityTerm": "29-Year 10-Month",
-        "offeringAmount": 22.0,
-        "offeringAmountText": "$22bn",
-        "cusip": "912810UU0",
-        "is_bill": false,
-        "is_note_or_bond": true
       }
     ],
     "large_auctions": [
       {
-        "auctionDate": "2026-07-09",
-        "issueDate": "2026-07-14",
-        "announcementDate": "2026-07-07",
+        "auctionDate": "2026-07-13",
+        "issueDate": "2026-07-16",
+        "announcementDate": "2026-07-09",
         "securityType": "Bill",
-        "securityTerm": "4-Week",
-        "offeringAmount": 100.0,
-        "offeringAmountText": "$100bn",
-        "cusip": "912797UT2",
+        "securityTerm": "13-Week",
+        "offeringAmount": 92.0,
+        "offeringAmountText": "$92bn",
+        "cusip": "912797UK1",
         "is_bill": true,
         "is_note_or_bond": false
       },
       {
-        "auctionDate": "2026-07-09",
-        "issueDate": "2026-07-14",
-        "announcementDate": "2026-07-07",
+        "auctionDate": "2026-07-13",
+        "issueDate": "2026-07-16",
+        "announcementDate": "2026-07-09",
         "securityType": "Bill",
-        "securityTerm": "8-Week",
+        "securityTerm": "26-Week",
+        "offeringAmount": 79.0,
+        "offeringAmountText": "$79bn",
+        "cusip": "912797VT1",
+        "is_bill": true,
+        "is_note_or_bond": false
+      },
+      {
+        "auctionDate": "2026-07-14",
+        "issueDate": "2026-07-16",
+        "announcementDate": "2026-07-09",
+        "securityType": "Bill",
+        "securityTerm": "6-Week",
         "offeringAmount": 95.0,
         "offeringAmountText": "$95bn",
-        "cusip": "912797VB0",
+        "cusip": "912797TY3",
         "is_bill": true,
         "is_note_or_bond": false
       }
