@@ -1,6 +1,6 @@
 {
   "trigger": "更新数据并分析",
-  "generated_at_bjt": "2026-07-13 10:27:14 UTC+08:00",
+  "generated_at_bjt": "2026-07-13 11:16:52 UTC+08:00",
   "stance": "中性",
   "score": -0.7000000000000002,
   "metrics": [
@@ -944,6 +944,24 @@
       }
     },
     {
+      "id": "DGS1",
+      "name": "1年期国债收益率",
+      "category": "国债收益率/曲线",
+      "value": 4.06,
+      "previous": 4.02,
+      "change": 0.040000000000000036,
+      "unit": "%",
+      "as_of": "2026-07-10",
+      "previous_as_of": "2026-07-09",
+      "frequency": "daily / same-day (Treasury 4pm ET)",
+      "source": "Treasury.gov Daily Par Yield Curve",
+      "source_url": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/daily-treasury-rates.csv/2026/all?type=daily_treasury_yield_curve&field_tdr_date_value=2026&page&_format=csv",
+      "status": "ok",
+      "notes": "同日源：Treasury.gov 每日国债收益率曲线，约美东16:00发布，比FRED T+1快一天；FRED为兜底",
+      "stale_days": 3,
+      "extra": {}
+    },
+    {
       "id": "DGS10",
       "name": "10-year Treasury constant maturity yield",
       "category": "国债收益率/曲线",
@@ -962,6 +980,24 @@
       "extra": {
         "fetch_url": "https://api.stlouisfed.org/fred/series/observations?series_id=DGS10&api_key=REDACTED&file_type=json&sort_order=desc&limit=30&observation_start=2026-01-14"
       }
+    },
+    {
+      "id": "DGS10",
+      "name": "10年期国债收益率",
+      "category": "国债收益率/曲线",
+      "value": 4.56,
+      "previous": 4.54,
+      "change": 0.019999999999999574,
+      "unit": "%",
+      "as_of": "2026-07-10",
+      "previous_as_of": "2026-07-09",
+      "frequency": "daily / same-day (Treasury 4pm ET)",
+      "source": "Treasury.gov Daily Par Yield Curve",
+      "source_url": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/daily-treasury-rates.csv/2026/all?type=daily_treasury_yield_curve&field_tdr_date_value=2026&page&_format=csv",
+      "status": "ok",
+      "notes": "同日源：Treasury.gov 每日国债收益率曲线，约美东16:00发布，比FRED T+1快一天；FRED为兜底",
+      "stale_days": 3,
+      "extra": {}
     },
     {
       "id": "DGS2",
@@ -984,6 +1020,24 @@
       }
     },
     {
+      "id": "DGS2",
+      "name": "2年期国债收益率",
+      "category": "国债收益率/曲线",
+      "value": 4.21,
+      "previous": 4.16,
+      "change": 0.04999999999999982,
+      "unit": "%",
+      "as_of": "2026-07-10",
+      "previous_as_of": "2026-07-09",
+      "frequency": "daily / same-day (Treasury 4pm ET)",
+      "source": "Treasury.gov Daily Par Yield Curve",
+      "source_url": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/daily-treasury-rates.csv/2026/all?type=daily_treasury_yield_curve&field_tdr_date_value=2026&page&_format=csv",
+      "status": "ok",
+      "notes": "同日源：Treasury.gov 每日国债收益率曲线，约美东16:00发布，比FRED T+1快一天；FRED为兜底",
+      "stale_days": 3,
+      "extra": {}
+    },
+    {
       "id": "DGS3",
       "name": "3-year Treasury constant maturity yield",
       "category": "国债收益率/曲线",
@@ -1002,6 +1056,24 @@
       "extra": {
         "fetch_url": "https://api.stlouisfed.org/fred/series/observations?series_id=DGS3&api_key=REDACTED&file_type=json&sort_order=desc&limit=30&observation_start=2026-01-14"
       }
+    },
+    {
+      "id": "DGS3",
+      "name": "3年期国债收益率",
+      "category": "国债收益率/曲线",
+      "value": 4.22,
+      "previous": 4.18,
+      "change": 0.040000000000000036,
+      "unit": "%",
+      "as_of": "2026-07-10",
+      "previous_as_of": "2026-07-09",
+      "frequency": "daily / same-day (Treasury 4pm ET)",
+      "source": "Treasury.gov Daily Par Yield Curve",
+      "source_url": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/daily-treasury-rates.csv/2026/all?type=daily_treasury_yield_curve&field_tdr_date_value=2026&page&_format=csv",
+      "status": "ok",
+      "notes": "同日源：Treasury.gov 每日国债收益率曲线，约美东16:00发布，比FRED T+1快一天；FRED为兜底",
+      "stale_days": 3,
+      "extra": {}
     },
     {
       "id": "DGS30",
@@ -1024,6 +1096,24 @@
       }
     },
     {
+      "id": "DGS30",
+      "name": "30年期国债收益率",
+      "category": "国债收益率/曲线",
+      "value": 5.06,
+      "previous": 5.05,
+      "change": 0.009999999999999787,
+      "unit": "%",
+      "as_of": "2026-07-10",
+      "previous_as_of": "2026-07-09",
+      "frequency": "daily / same-day (Treasury 4pm ET)",
+      "source": "Treasury.gov Daily Par Yield Curve",
+      "source_url": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/daily-treasury-rates.csv/2026/all?type=daily_treasury_yield_curve&field_tdr_date_value=2026&page&_format=csv",
+      "status": "ok",
+      "notes": "同日源：Treasury.gov 每日国债收益率曲线，约美东16:00发布，比FRED T+1快一天；FRED为兜底",
+      "stale_days": 3,
+      "extra": {}
+    },
+    {
       "id": "DGS3MO",
       "name": "3-month Treasury constant maturity yield",
       "category": "国债收益率/曲线",
@@ -1042,6 +1132,24 @@
       "extra": {
         "fetch_url": "https://api.stlouisfed.org/fred/series/observations?series_id=DGS3MO&api_key=REDACTED&file_type=json&sort_order=desc&limit=30&observation_start=2026-01-14"
       }
+    },
+    {
+      "id": "DGS3MO",
+      "name": "3个月期国债收益率",
+      "category": "国债收益率/曲线",
+      "value": 3.85,
+      "previous": 3.83,
+      "change": 0.020000000000000018,
+      "unit": "%",
+      "as_of": "2026-07-10",
+      "previous_as_of": "2026-07-09",
+      "frequency": "daily / same-day (Treasury 4pm ET)",
+      "source": "Treasury.gov Daily Par Yield Curve",
+      "source_url": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/daily-treasury-rates.csv/2026/all?type=daily_treasury_yield_curve&field_tdr_date_value=2026&page&_format=csv",
+      "status": "ok",
+      "notes": "同日源：Treasury.gov 每日国债收益率曲线，约美东16:00发布，比FRED T+1快一天；FRED为兜底",
+      "stale_days": 3,
+      "extra": {}
     },
     {
       "id": "DTB3",
@@ -1084,6 +1192,24 @@
       }
     },
     {
+      "id": "T10Y2Y",
+      "name": "10Y-2Y Treasury spread",
+      "category": "国债收益率/曲线",
+      "value": 0.34999999999999964,
+      "previous": 0.3799999999999999,
+      "change": -0.03000000000000025,
+      "unit": "%",
+      "as_of": "2026-07-10",
+      "previous_as_of": "2026-07-09",
+      "frequency": "daily / same-day (Treasury 4pm ET)",
+      "source": "Treasury.gov Daily Par Yield Curve",
+      "source_url": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/daily-treasury-rates.csv/2026/all?type=daily_treasury_yield_curve&field_tdr_date_value=2026&page&_format=csv",
+      "status": "ok",
+      "notes": "由同日 DGS10-DGS2 计算",
+      "stale_days": 3,
+      "extra": {}
+    },
+    {
       "id": "T10Y3M",
       "name": "10-year minus 3-month Treasury spread",
       "category": "国债收益率/曲线",
@@ -1102,6 +1228,24 @@
       "extra": {
         "fetch_url": "https://api.stlouisfed.org/fred/series/observations?series_id=T10Y3M&api_key=REDACTED&file_type=json&sort_order=desc&limit=30&observation_start=2026-01-14"
       }
+    },
+    {
+      "id": "T10Y3M",
+      "name": "10Y-3M Treasury spread",
+      "category": "国债收益率/曲线",
+      "value": 0.7099999999999995,
+      "previous": 0.71,
+      "change": -4.440892098500626e-16,
+      "unit": "%",
+      "as_of": "2026-07-10",
+      "previous_as_of": "2026-07-09",
+      "frequency": "daily / same-day (Treasury 4pm ET)",
+      "source": "Treasury.gov Daily Par Yield Curve",
+      "source_url": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/daily-treasury-rates.csv/2026/all?type=daily_treasury_yield_curve&field_tdr_date_value=2026&page&_format=csv",
+      "status": "ok",
+      "notes": "由同日 DGS10-DGS3MO 计算",
+      "stale_days": 3,
+      "extra": {}
     },
     {
       "id": "DFEDTARU",
@@ -1470,57 +1614,57 @@
     {
       "id": "UST_1Y_YIELD",
       "name": "1Y Treasury Yield（1年期美国国债收益率）",
-      "value": 4.02,
+      "value": 4.06,
       "unit": "%",
       "interpretation": "1年期收益率处于中间区间，需结合3年期和10年期确认曲线重定价",
       "severity": "中性",
-      "previous": 4.06,
-      "change": -0.040000000000000036,
-      "as_of": "2026-07-09"
+      "previous": 4.02,
+      "change": 0.040000000000000036,
+      "as_of": "2026-07-10"
     },
     {
       "id": "UST_3Y_YIELD",
       "name": "3Y Treasury Yield（3年期美国国债收益率）",
-      "value": 4.18,
+      "value": 4.22,
       "unit": "%",
       "interpretation": "3年期收益率处于中间区间，观察其相对1年和10年的斜率变化。",
       "severity": "中性",
-      "previous": 4.21,
-      "change": -0.03000000000000025,
-      "as_of": "2026-07-09"
+      "previous": 4.18,
+      "change": 0.040000000000000036,
+      "as_of": "2026-07-10"
     },
     {
       "id": "NOMINAL_10Y",
       "name": "10Y Treasury Yield（10年期美国国债收益率）",
-      "value": 4.54,
+      "value": 4.56,
       "unit": "%",
       "interpretation": "长期名义折现率边际变化有限",
       "severity": "中性",
-      "previous": 4.56,
-      "change": -0.019999999999999574,
-      "as_of": "2026-07-09"
+      "previous": 4.54,
+      "change": 0.019999999999999574,
+      "as_of": "2026-07-10"
     },
     {
       "id": "REAL_10Y",
       "name": "10Y Treasury Yield（10年期美国国债收益率）",
-      "value": 4.54,
+      "value": 4.56,
       "unit": "%",
       "interpretation": "10年期国债收益率处于高位，对长期资产估值有压力；这描述的是level风险，不代表边际继续恶化。",
       "severity": "偏紧",
-      "previous": 4.56,
-      "change": -0.019999999999999574,
-      "as_of": "2026-07-09"
+      "previous": 4.54,
+      "change": 0.019999999999999574,
+      "as_of": "2026-07-10"
     },
     {
       "id": "REAL_10Y_MOMENTUM",
       "name": "10Y Yield Momentum（10年期国债收益率边际变化）",
-      "value": -1.9999999999999574,
+      "value": 1.9999999999999574,
       "unit": "bp",
       "interpretation": "10年期国债收益率边际变化有限。",
       "severity": "中性",
       "previous": null,
       "change": null,
-      "as_of": "2026-07-09"
+      "as_of": "2026-07-10"
     },
     {
       "id": "HY_CHANGE",
@@ -1580,23 +1724,23 @@
     {
       "id": "UST_10Y2Y",
       "name": "10Y-2Y Treasury Spread（10年-2年美债利差）",
-      "value": 35.0,
+      "value": 34.999999999999964,
       "unit": "bp",
       "interpretation": "收益率曲线为正，期限结构相对正常",
       "severity": "中性",
-      "previous": 38.0,
-      "change": -3.0,
+      "previous": 37.999999999999986,
+      "change": -3.0000000000000213,
       "as_of": "2026-07-10"
     },
     {
       "id": "UST_10Y3M",
       "name": "10Y-3M Treasury Spread（10年-3个月美债利差）",
-      "value": 71.0,
+      "value": 70.99999999999996,
       "unit": "bp",
       "interpretation": "10年-3个月曲线为正，政策短端对长期利率压制较弱",
       "severity": "中性",
       "previous": 71.0,
-      "change": 0.0,
+      "change": -4.263256414560601e-14,
       "as_of": "2026-07-10"
     },
     {
@@ -1891,8 +2035,8 @@
     ]
   ],
   "chart_paths": [
-    "/Users/eiheisun/WorkBuddy/2026-05-04-task-1/output/usd_liquidity_chart_7d_20260713_102658.svg",
-    "/Users/eiheisun/WorkBuddy/2026-05-04-task-1/output/usd_liquidity_chart_30d_20260713_102658.svg"
+    "/Users/eiheisun/WorkBuddy/2026-05-04-task-1/output/usd_liquidity_chart_7d_20260713_111634.svg",
+    "/Users/eiheisun/WorkBuddy/2026-05-04-task-1/output/usd_liquidity_chart_30d_20260713_111634.svg"
   ],
   "upcoming_auctions": {
     "status": "ok",

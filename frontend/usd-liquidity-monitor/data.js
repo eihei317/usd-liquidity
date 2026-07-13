@@ -2,7 +2,7 @@ window.DASHBOARD_DATA = {
   "meta": {
     "title": "美元流动性监测",
     "trigger": "更新数据并分析",
-    "generated_at_bjt": "2026-07-13 10:27:14 UTC+08:00",
+    "generated_at_bjt": "2026-07-13 11:16:52 UTC+08:00",
     "data_as_of": "2026-07-13",
     "timezone": "BJT",
     "theme": "warm_claude",
@@ -110,13 +110,13 @@ window.DASHBOARD_DATA = {
         "id": "UST_1Y_YIELD",
         "label": "1Y Treasury Yield（1年期美国国债收益率）",
         "priority": "P1",
-        "value_text": "4.020%",
-        "previous_text": "4.060%",
-        "change_text": "-0.04%",
+        "value_text": "4.060%",
+        "previous_text": "4.020%",
+        "change_text": "+0.04%",
         "severity": "中性",
         "why": "短债近端政策路径",
         "interpretation": "1年期收益率处于中间区间，需结合3年期和10年期确认曲线重定价",
-        "as_of": "2026-07-09",
+        "as_of": "2026-07-10",
         "frequency": "日频，FRED/H.15国债恒定期限收益率"
       },
       {
@@ -124,13 +124,13 @@ window.DASHBOARD_DATA = {
         "id": "UST_3Y_YIELD",
         "label": "3Y Treasury Yield（3年期美国国债收益率）",
         "priority": "P1",
-        "value_text": "4.180%",
-        "previous_text": "4.210%",
-        "change_text": "-0.03%",
+        "value_text": "4.220%",
+        "previous_text": "4.180%",
+        "change_text": "+0.04%",
         "severity": "中性",
         "why": "中段政策路径再定价",
         "interpretation": "3年期收益率处于中间区间，观察其相对1年和10年的斜率变化。",
-        "as_of": "2026-07-09",
+        "as_of": "2026-07-10",
         "frequency": "日频，FRED/H.15国债恒定期限收益率"
       },
       {
@@ -138,13 +138,13 @@ window.DASHBOARD_DATA = {
         "id": "REAL_10Y",
         "label": "10Y Treasury Yield（10年期美国国债收益率）",
         "priority": "P1",
-        "value_text": "4.540%",
-        "previous_text": "4.560%",
-        "change_text": "-0.02%",
+        "value_text": "4.560%",
+        "previous_text": "4.540%",
+        "change_text": "+0.02%",
         "severity": "偏紧",
         "why": "10年期国债收益率压力",
         "interpretation": "10年期国债收益率处于高位，对长期资产估值有压力；这描述的是level风险，不代表边际继续恶化。",
-        "as_of": "2026-07-09",
+        "as_of": "2026-07-10",
         "frequency": "日频，FRED/H.15国债恒定期限收益率"
       },
       {
@@ -224,13 +224,13 @@ window.DASHBOARD_DATA = {
         "id": "REAL_10Y_MOMENTUM",
         "label": "10Y Yield Momentum（10年期国债收益率边际变化）",
         "priority": "P2",
-        "value_text": "-2.0bp",
+        "value_text": "2.0bp",
         "previous_text": "NA",
         "change_text": "NA",
         "severity": "中性",
         "why": "10年期国债收益率边际变化",
         "interpretation": "10年期国债收益率边际变化有限。",
-        "as_of": "2026-07-09",
+        "as_of": "2026-07-10",
         "frequency": "日频，FRED/H.15国债恒定期限收益率"
       },
       {
@@ -394,13 +394,13 @@ window.DASHBOARD_DATA = {
         "id": "DGS1",
         "label": "1Y Treasury Yield（1年期美国国债收益率）",
         "priority": "B",
-        "value_text": "4.020%",
-        "previous_text": "4.060%",
-        "change_text": "-4.0bp",
+        "value_text": "4.060%",
+        "previous_text": "4.020%",
+        "change_text": "+4.0bp",
         "severity": "中性",
         "why": "近端政策路径",
         "interpretation": "1年期美国国债收益率，主要反映未来一年政策利率路径和短端再定价。",
-        "as_of": "2026-07-09",
+        "as_of": "2026-07-10",
         "frequency": "日频，FRED/H.15国债恒定期限收益率"
       },
       {
@@ -408,13 +408,13 @@ window.DASHBOARD_DATA = {
         "id": "DGS30",
         "label": "30Y Treasury Yield（30年期美国国债收益率）",
         "priority": "B",
-        "value_text": "5.050%",
-        "previous_text": "5.060%",
-        "change_text": "-1.0bp",
+        "value_text": "5.060%",
+        "previous_text": "5.050%",
+        "change_text": "+1.0bp",
         "severity": "中性",
         "why": "长期期限溢价",
         "interpretation": "30年期美国国债收益率，反映长期通胀、财政供给和期限溢价。",
-        "as_of": "2026-07-09",
+        "as_of": "2026-07-10",
         "frequency": "日频，FRED/H.15国债恒定期限收益率"
       },
       {
@@ -438,7 +438,7 @@ window.DASHBOARD_DATA = {
         "priority": "B",
         "value_text": "71.0bp",
         "previous_text": "71.0bp",
-        "change_text": "0.0bp",
+        "change_text": "-0.0bp",
         "severity": "中性",
         "why": "衰退/降息预期",
         "interpretation": "10年-3个月曲线为正，政策短端对长期利率压制较弱",
@@ -682,7 +682,7 @@ window.DASHBOARD_DATA = {
   },
   "jpy_carry": {
     "meta": {
-      "generated_at_bjt": "2026-07-13 10:26:59 UTC+08:00",
+      "generated_at_bjt": "2026-07-13 11:16:34 UTC+08:00",
       "lookback": "日频约1年，CFTC约2年，REER/NEER约3年"
     },
     "risk": {
@@ -9229,15 +9229,15 @@ window.DASHBOARD_DATA = {
           "id": "DGS1",
           "label": "1Y Treasury Yield（1年期美国国债收益率）",
           "category": "国债收益率/曲线",
-          "value": 4.02,
-          "value_text": "4.020%",
+          "value": 4.06,
+          "value_text": "4.060%",
           "unit": "%",
-          "previous": 4.06,
-          "change": -0.040000000000000036,
-          "change_text": "-4.0bp",
-          "change_direction": "down",
-          "as_of": "2026-07-09",
-          "previous_as_of": "2026-07-08",
+          "previous": 4.02,
+          "change": 0.040000000000000036,
+          "change_text": "+4.0bp",
+          "change_direction": "up",
+          "as_of": "2026-07-10",
+          "previous_as_of": "2026-07-09",
           "meaning": "1年期美国国债收益率，主要反映未来一年政策利率路径和短端再定价。",
           "frequency": "日频，FRED/H.15国债恒定期限收益率",
           "data_lag": "通常随H.15数据发布滞后更新",
@@ -9245,24 +9245,24 @@ window.DASHBOARD_DATA = {
           "freshness": "ok",
           "importance": "high",
           "interpretation_hint": "",
-          "source": "FRED API",
-          "source_url": "https://fred.stlouisfed.org/series/DGS1",
+          "source": "Treasury.gov Daily Par Yield Curve",
+          "source_url": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/daily-treasury-rates.csv/2026/all?type=daily_treasury_yield_curve&field_tdr_date_value=2026&page&_format=csv",
           "status": "ok",
-          "notes": ""
+          "notes": "同日源：Treasury.gov 每日国债收益率曲线，约美东16:00发布，比FRED T+1快一天；FRED为兜底"
         },
         {
           "id": "DGS3",
           "label": "3Y Treasury Yield（3年期美国国债收益率）",
           "category": "国债收益率/曲线",
-          "value": 4.18,
-          "value_text": "4.180%",
+          "value": 4.22,
+          "value_text": "4.220%",
           "unit": "%",
-          "previous": 4.21,
-          "change": -0.03000000000000025,
-          "change_text": "-3.0bp",
-          "change_direction": "down",
-          "as_of": "2026-07-09",
-          "previous_as_of": "2026-07-08",
+          "previous": 4.18,
+          "change": 0.040000000000000036,
+          "change_text": "+4.0bp",
+          "change_direction": "up",
+          "as_of": "2026-07-10",
+          "previous_as_of": "2026-07-09",
           "meaning": "3年期美国国债收益率，观察政策路径从短端向中段扩散的再定价。",
           "frequency": "日频，FRED/H.15国债恒定期限收益率",
           "data_lag": "通常随H.15数据发布滞后更新",
@@ -9270,24 +9270,24 @@ window.DASHBOARD_DATA = {
           "freshness": "ok",
           "importance": "high",
           "interpretation_hint": "",
-          "source": "FRED API",
-          "source_url": "https://fred.stlouisfed.org/series/DGS3",
+          "source": "Treasury.gov Daily Par Yield Curve",
+          "source_url": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/daily-treasury-rates.csv/2026/all?type=daily_treasury_yield_curve&field_tdr_date_value=2026&page&_format=csv",
           "status": "ok",
-          "notes": ""
+          "notes": "同日源：Treasury.gov 每日国债收益率曲线，约美东16:00发布，比FRED T+1快一天；FRED为兜底"
         },
         {
           "id": "DGS10",
           "label": "10Y Treasury Yield（10年期美国国债收益率）",
           "category": "国债收益率/曲线",
-          "value": 4.54,
-          "value_text": "4.540%",
+          "value": 4.56,
+          "value_text": "4.560%",
           "unit": "%",
-          "previous": 4.56,
-          "change": -0.019999999999999574,
-          "change_text": "-2.0bp",
-          "change_direction": "down",
-          "as_of": "2026-07-09",
-          "previous_as_of": "2026-07-08",
+          "previous": 4.54,
+          "change": 0.019999999999999574,
+          "change_text": "+2.0bp",
+          "change_direction": "up",
+          "as_of": "2026-07-10",
+          "previous_as_of": "2026-07-09",
           "meaning": "10年期美国国债收益率，是全球资产折现率和长期美元资金价格的重要锚。",
           "frequency": "日频，FRED/H.15国债恒定期限收益率",
           "data_lag": "通常随H.15数据发布滞后更新",
@@ -9295,10 +9295,10 @@ window.DASHBOARD_DATA = {
           "freshness": "ok",
           "importance": "high",
           "interpretation_hint": "",
-          "source": "FRED API",
-          "source_url": "https://fred.stlouisfed.org/series/DGS10",
+          "source": "Treasury.gov Daily Par Yield Curve",
+          "source_url": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/daily-treasury-rates.csv/2026/all?type=daily_treasury_yield_curve&field_tdr_date_value=2026&page&_format=csv",
           "status": "ok",
-          "notes": ""
+          "notes": "同日源：Treasury.gov 每日国债收益率曲线，约美东16:00发布，比FRED T+1快一天；FRED为兜底"
         },
         {
           "id": "DFII10",
@@ -9329,15 +9329,15 @@ window.DASHBOARD_DATA = {
           "id": "DGS30",
           "label": "30Y Treasury Yield（30年期美国国债收益率）",
           "category": "国债收益率/曲线",
-          "value": 5.05,
-          "value_text": "5.050%",
+          "value": 5.06,
+          "value_text": "5.060%",
           "unit": "%",
-          "previous": 5.06,
-          "change": -0.009999999999999787,
-          "change_text": "-1.0bp",
-          "change_direction": "down",
-          "as_of": "2026-07-09",
-          "previous_as_of": "2026-07-08",
+          "previous": 5.05,
+          "change": 0.009999999999999787,
+          "change_text": "+1.0bp",
+          "change_direction": "up",
+          "as_of": "2026-07-10",
+          "previous_as_of": "2026-07-09",
           "meaning": "30年期美国国债收益率，反映长期通胀、财政供给和期限溢价。",
           "frequency": "日频，FRED/H.15国债恒定期限收益率",
           "data_lag": "通常随H.15数据发布滞后更新",
@@ -9345,20 +9345,20 @@ window.DASHBOARD_DATA = {
           "freshness": "ok",
           "importance": "medium",
           "interpretation_hint": "",
-          "source": "FRED API",
-          "source_url": "https://fred.stlouisfed.org/series/DGS30",
+          "source": "Treasury.gov Daily Par Yield Curve",
+          "source_url": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/daily-treasury-rates.csv/2026/all?type=daily_treasury_yield_curve&field_tdr_date_value=2026&page&_format=csv",
           "status": "ok",
-          "notes": ""
+          "notes": "同日源：Treasury.gov 每日国债收益率曲线，约美东16:00发布，比FRED T+1快一天；FRED为兜底"
         },
         {
           "id": "T10Y2Y",
           "label": "10Y-2Y Treasury Spread（10年-2年美债利差）",
           "category": "国债收益率/曲线",
-          "value": 0.35,
+          "value": 0.34999999999999964,
           "value_text": "0.350%",
           "unit": "%",
-          "previous": 0.38,
-          "change": -0.030000000000000027,
+          "previous": 0.3799999999999999,
+          "change": -0.03000000000000025,
           "change_text": "-3.0bp",
           "change_direction": "down",
           "as_of": "2026-07-10",
@@ -9370,21 +9370,21 @@ window.DASHBOARD_DATA = {
           "freshness": "ok",
           "importance": "medium",
           "interpretation_hint": "",
-          "source": "FRED API",
-          "source_url": "https://fred.stlouisfed.org/series/T10Y2Y",
+          "source": "Treasury.gov Daily Par Yield Curve",
+          "source_url": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/daily-treasury-rates.csv/2026/all?type=daily_treasury_yield_curve&field_tdr_date_value=2026&page&_format=csv",
           "status": "ok",
-          "notes": ""
+          "notes": "由同日 DGS10-DGS2 计算"
         },
         {
           "id": "T10Y3M",
           "label": "10Y-3M Treasury Spread（10年-3个月美债利差）",
           "category": "国债收益率/曲线",
-          "value": 0.71,
+          "value": 0.7099999999999995,
           "value_text": "0.710%",
           "unit": "%",
           "previous": 0.71,
-          "change": 0.0,
-          "change_text": "0.0bp",
+          "change": -4.440892098500626e-16,
+          "change_text": "-0.0bp",
           "change_direction": "flat",
           "as_of": "2026-07-10",
           "previous_as_of": "2026-07-09",
@@ -9395,10 +9395,10 @@ window.DASHBOARD_DATA = {
           "freshness": "ok",
           "importance": "medium",
           "interpretation_hint": "",
-          "source": "FRED API",
-          "source_url": "https://fred.stlouisfed.org/series/T10Y3M",
+          "source": "Treasury.gov Daily Par Yield Curve",
+          "source_url": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/daily-treasury-rates.csv/2026/all?type=daily_treasury_yield_curve&field_tdr_date_value=2026&page&_format=csv",
           "status": "ok",
-          "notes": ""
+          "notes": "由同日 DGS10-DGS3MO 计算"
         },
         {
           "id": "DTB3",
@@ -9429,15 +9429,15 @@ window.DASHBOARD_DATA = {
           "id": "DGS3MO",
           "label": "3M Treasury Yield（3个月美国国债收益率）",
           "category": "国债收益率/曲线",
-          "value": 3.83,
-          "value_text": "3.830%",
+          "value": 3.85,
+          "value_text": "3.850%",
           "unit": "%",
-          "previous": 3.87,
-          "change": -0.040000000000000036,
-          "change_text": "-4.0bp",
-          "change_direction": "down",
-          "as_of": "2026-07-09",
-          "previous_as_of": "2026-07-08",
+          "previous": 3.83,
+          "change": 0.020000000000000018,
+          "change_text": "+2.0bp",
+          "change_direction": "up",
+          "as_of": "2026-07-10",
+          "previous_as_of": "2026-07-09",
           "meaning": "3个月美国国债收益率，主要受当前政策利率和短端美元资金价格影响。",
           "frequency": "日频，FRED/H.15国债恒定期限收益率",
           "data_lag": "通常随H.15数据发布滞后更新",
@@ -9445,24 +9445,24 @@ window.DASHBOARD_DATA = {
           "freshness": "ok",
           "importance": "medium",
           "interpretation_hint": "",
-          "source": "FRED API",
-          "source_url": "https://fred.stlouisfed.org/series/DGS3MO",
+          "source": "Treasury.gov Daily Par Yield Curve",
+          "source_url": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/daily-treasury-rates.csv/2026/all?type=daily_treasury_yield_curve&field_tdr_date_value=2026&page&_format=csv",
           "status": "ok",
-          "notes": ""
+          "notes": "同日源：Treasury.gov 每日国债收益率曲线，约美东16:00发布，比FRED T+1快一天；FRED为兜底"
         },
         {
           "id": "DGS2",
           "label": "2Y Treasury Yield（2年期美国国债收益率）",
           "category": "国债收益率/曲线",
-          "value": 4.16,
-          "value_text": "4.160%",
+          "value": 4.21,
+          "value_text": "4.210%",
           "unit": "%",
-          "previous": 4.21,
-          "change": -0.04999999999999982,
-          "change_text": "-5.0bp",
-          "change_direction": "down",
-          "as_of": "2026-07-09",
-          "previous_as_of": "2026-07-08",
+          "previous": 4.16,
+          "change": 0.04999999999999982,
+          "change_text": "+5.0bp",
+          "change_direction": "up",
+          "as_of": "2026-07-10",
+          "previous_as_of": "2026-07-09",
           "meaning": "2年期美国国债收益率，主要反映未来数年美联储政策路径预期。",
           "frequency": "日频，FRED/H.15国债恒定期限收益率",
           "data_lag": "通常随H.15数据发布滞后更新",
@@ -9470,10 +9470,10 @@ window.DASHBOARD_DATA = {
           "freshness": "ok",
           "importance": "medium",
           "interpretation_hint": "",
-          "source": "FRED API",
-          "source_url": "https://fred.stlouisfed.org/series/DGS2",
+          "source": "Treasury.gov Daily Par Yield Curve",
+          "source_url": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/daily-treasury-rates.csv/2026/all?type=daily_treasury_yield_curve&field_tdr_date_value=2026&page&_format=csv",
           "status": "ok",
-          "notes": ""
+          "notes": "同日源：Treasury.gov 每日国债收益率曲线，约美东16:00发布，比FRED T+1快一天；FRED为兜底"
         }
       ]
     },
@@ -9876,64 +9876,64 @@ window.DASHBOARD_DATA = {
     {
       "id": "UST_1Y_YIELD",
       "label": "1Y Treasury Yield（1年期美国国债收益率）",
-      "value": 4.02,
-      "value_text": "4.020%",
-      "previous": 4.06,
-      "previous_text": "4.060%",
-      "change": -0.040000000000000036,
-      "change_text": "-0.04%",
+      "value": 4.06,
+      "value_text": "4.060%",
+      "previous": 4.02,
+      "previous_text": "4.020%",
+      "change": 0.040000000000000036,
+      "change_text": "+0.04%",
       "unit": "%",
       "severity": "中性",
       "meaning": "1年期收益率处于中间区间，需结合3年期和10年期确认曲线重定价",
-      "as_of": "2026-07-09"
+      "as_of": "2026-07-10"
     },
     {
       "id": "UST_3Y_YIELD",
       "label": "3Y Treasury Yield（3年期美国国债收益率）",
-      "value": 4.18,
-      "value_text": "4.180%",
-      "previous": 4.21,
-      "previous_text": "4.210%",
-      "change": -0.03000000000000025,
-      "change_text": "-0.03%",
+      "value": 4.22,
+      "value_text": "4.220%",
+      "previous": 4.18,
+      "previous_text": "4.180%",
+      "change": 0.040000000000000036,
+      "change_text": "+0.04%",
       "unit": "%",
       "severity": "中性",
       "meaning": "3年期收益率处于中间区间，观察其相对1年和10年的斜率变化。",
-      "as_of": "2026-07-09"
+      "as_of": "2026-07-10"
     },
     {
       "id": "NOMINAL_10Y",
       "label": "10Y Treasury Yield（10年期美国国债收益率）",
-      "value": 4.54,
-      "value_text": "4.540%",
-      "previous": 4.56,
-      "previous_text": "4.560%",
-      "change": -0.019999999999999574,
-      "change_text": "-0.02%",
+      "value": 4.56,
+      "value_text": "4.560%",
+      "previous": 4.54,
+      "previous_text": "4.540%",
+      "change": 0.019999999999999574,
+      "change_text": "+0.02%",
       "unit": "%",
       "severity": "中性",
       "meaning": "长期名义折现率边际变化有限",
-      "as_of": "2026-07-09"
+      "as_of": "2026-07-10"
     },
     {
       "id": "REAL_10Y",
       "label": "10Y Treasury Yield（10年期美国国债收益率）",
-      "value": 4.54,
-      "value_text": "4.540%",
-      "previous": 4.56,
-      "previous_text": "4.560%",
-      "change": -0.019999999999999574,
-      "change_text": "-0.02%",
+      "value": 4.56,
+      "value_text": "4.560%",
+      "previous": 4.54,
+      "previous_text": "4.540%",
+      "change": 0.019999999999999574,
+      "change_text": "+0.02%",
       "unit": "%",
       "severity": "偏紧",
       "meaning": "10年期国债收益率处于高位，对长期资产估值有压力；这描述的是level风险，不代表边际继续恶化。",
-      "as_of": "2026-07-09"
+      "as_of": "2026-07-10"
     },
     {
       "id": "REAL_10Y_MOMENTUM",
       "label": "10Y Yield Momentum（10年期国债收益率边际变化）",
-      "value": -1.9999999999999574,
-      "value_text": "-2.0bp",
+      "value": 1.9999999999999574,
+      "value_text": "2.0bp",
       "previous": null,
       "previous_text": "NA",
       "change": null,
@@ -9941,7 +9941,7 @@ window.DASHBOARD_DATA = {
       "unit": "bp",
       "severity": "中性",
       "meaning": "10年期国债收益率边际变化有限。",
-      "as_of": "2026-07-09"
+      "as_of": "2026-07-10"
     },
     {
       "id": "HY_CHANGE",
@@ -10016,11 +10016,11 @@ window.DASHBOARD_DATA = {
     {
       "id": "UST_10Y2Y",
       "label": "10Y-2Y Treasury Spread（10年-2年美债利差）",
-      "value": 35.0,
+      "value": 34.999999999999964,
       "value_text": "35.0bp",
-      "previous": 38.0,
+      "previous": 37.999999999999986,
       "previous_text": "38.0bp",
-      "change": -3.0,
+      "change": -3.0000000000000213,
       "change_text": "-3.0bp",
       "unit": "bp",
       "severity": "中性",
@@ -10030,12 +10030,12 @@ window.DASHBOARD_DATA = {
     {
       "id": "UST_10Y3M",
       "label": "10Y-3M Treasury Spread（10年-3个月美债利差）",
-      "value": 71.0,
+      "value": 70.99999999999996,
       "value_text": "71.0bp",
       "previous": 71.0,
       "previous_text": "71.0bp",
-      "change": 0.0,
-      "change_text": "0.0bp",
+      "change": -4.263256414560601e-14,
+      "change_text": "-0.0bp",
       "unit": "bp",
       "severity": "中性",
       "meaning": "10年-3个月曲线为正，政策短端对长期利率压制较弱",
@@ -11366,6 +11366,10 @@ window.DASHBOARD_DATA = {
             {
               "date": "2026-07-09",
               "value": 4.02
+            },
+            {
+              "date": "2026-07-10",
+              "value": 4.06
             }
           ],
           "y_axis": "y"
@@ -11453,6 +11457,10 @@ window.DASHBOARD_DATA = {
             {
               "date": "2026-07-09",
               "value": 4.18
+            },
+            {
+              "date": "2026-07-10",
+              "value": 4.22
             }
           ],
           "y_axis": "y"
@@ -11540,6 +11548,10 @@ window.DASHBOARD_DATA = {
             {
               "date": "2026-07-09",
               "value": 4.54
+            },
+            {
+              "date": "2026-07-10",
+              "value": 4.56
             }
           ],
           "y_axis": "y"
@@ -11733,7 +11745,7 @@ window.DASHBOARD_DATA = {
             },
             {
               "date": "2026-07-10",
-              "value": 0.35
+              "value": 0.34999999999999964
             }
           ],
           "y_axis": "y"
@@ -11824,7 +11836,7 @@ window.DASHBOARD_DATA = {
             },
             {
               "date": "2026-07-10",
-              "value": 0.71
+              "value": 0.7099999999999995
             }
           ],
           "y_axis": "y"
@@ -21454,8 +21466,8 @@ window.DASHBOARD_DATA = {
     }
   ],
   "chart_paths": [
-    "/Users/eiheisun/WorkBuddy/2026-05-04-task-1/output/usd_liquidity_chart_7d_20260713_102658.svg",
-    "/Users/eiheisun/WorkBuddy/2026-05-04-task-1/output/usd_liquidity_chart_30d_20260713_102658.svg"
+    "/Users/eiheisun/WorkBuddy/2026-05-04-task-1/output/usd_liquidity_chart_7d_20260713_111634.svg",
+    "/Users/eiheisun/WorkBuddy/2026-05-04-task-1/output/usd_liquidity_chart_30d_20260713_111634.svg"
   ],
   "data_quality": {
     "missing": [],
@@ -21502,16 +21514,16 @@ window.DASHBOARD_DATA = {
 };
 window.ANALYSIS_DATA = {
   "meta": {
-    "generated_at_bjt": "2026-07-13 10:27:14 UTC+08:00",
-    "data_as_of": "2026-07-10（RRP最新）；多数日频利率/收益率截至2026-07-09（T+1）；隔夜政策利率IORB 2026-07-13为最新",
+    "generated_at_bjt": "2026-07-13 11:18:30 UTC+08:00",
+    "data_as_of": "收益率（Treasury.gov 同日源）2026-07-10；RRP（NY Fed 同日）2026-07-10；SOFR/EFFR/TGA（FRED T+1）2026-07-09；政策利率 IORB 2026-07-13 最新",
     "model": "AI Agent (USD Liquidity Monitor)",
-    "input_freshness_note": "核心日频利率/收益率截至2026-07-09（周末滞后约4天），RRP截至2026-07-10，隔夜政策利率IORB 2026-07-13最新；广义美元指数DTWEXBGS(2026-07-02)与NFCI(2026-07-03)滞后约1–2周仅作背景；CP利率DCPN3M滞后17天、回购fails(2026-07-01)滞后12天，口径降级。"
+    "input_freshness_note": "收益率已改从 Treasury.gov 每日国债收益率曲线（同日16:00 ET发布）抓取，比 FRED T+1 快一天，本次为 7-10；RRP 走 NY Fed API 同日源（7-10）。SOFR/EFFR/TGA 仍为 FRED T+1（7-09），因本次触发在美东周日夜、FRED 尚未发布 7-10 日频数据；广义美元指数(7-02)与NFCI(7-03)滞后约1–2周仅作背景。下一次在北京时间21:00后运行可同时拿到同日收益率+RRP+SOFR/TGA。"
   },
   "stance": {
     "label": "中性",
     "confidence": "中等",
-    "score_text": "规则基线约-0.7；急性融资端明显宽松（SOFR-IORB -12bp且成交量大、收益率全线下行、VIX 15.84），但RRP缓冲垫耗尽（约0.55万亿）削弱系统抗冲击能力、日元carry空头拥挤——综合为中性。",
-    "one_liner": "短端资金面与风险偏好当下宽松，但RRP缓冲垫近乎耗尽令系统缺乏减震垫，整体中性、对未来 shocks 脆弱。"
+    "score_text": "规则基线约-0.7；急性融资端明显宽松（SOFR-IORB -12bp且成交量大、VIX 15.84），但RRP缓冲垫耗尽（约0.55万亿）削弱系统抗冲击能力、收益率端边际回升（bear steepening）构成温和逆风、日元carry空头拥挤——综合为中性。",
+    "one_liner": "短端资金面与风险偏好当下宽松，但RRP缓冲垫近乎耗尽令系统缺乏减震垫、且收益率端边际回升，整体中性、对未来 shocks 脆弱。"
   },
   "key_takeaways": [
     {
@@ -21531,13 +21543,13 @@ window.ANALYSIS_DATA = {
       ]
     },
     {
-      "title": "国债收益率全曲线小幅下行，折现率压力边际缓和",
-      "text": "1Y/3Y/10Y较上一有效观测同步下行，短中段政策预期与长期名义折现率同步缓和，对成长股与久期资产估值压力较上周略降；但10Y仍处4.5%高位，长期估值压力未消除，收益率端是需持续盯防的一阶维度。",
+      "title": "国债收益率全曲线小幅上行（bear steepening），折现率压力边际回升",
+      "text": "1Y/3Y/10Y 较上一有效观测同步上行（1Y +4bp、3Y +4bp、10Y +2bp），短中段政策预期与长期名义折现率边际回升；10Y 仍处 4.56% 高位，对久期资产、成长股与黄金等长期现金流资产的估值压制较上周略增。曲线 10Y-2Y 由 38bp 收窄至 35bp（bear steepening，短端上行更多），10Y-3M 持平 71bp。收益率端由上周的“缓和”转为“边际回升”，方向已反转，是需持续盯防的一阶维度。",
       "evidence": [
-        "1Y 4.02%（2026-07-09）较前一日4.06% -4bp，近端现金收益率小幅回落",
-        "3Y 4.18%（2026-07-09）较前一日4.21% -3bp，中段再定价缓和",
-        "10Y 4.54%（2026-07-09）较前一日4.56% -2bp，长期折现率边际走平但仍高",
-        "10Y-2Y 35.0bp（2026-07-10）较前一日38.0bp -3bp，轻微牛平；10Y-3M 71.0bp持平"
+        "1Y 4.06%（2026-07-10，Treasury.gov 同日源）较前一日4.02% +4bp",
+        "3Y 4.22%（2026-07-10）较前一日4.18% +4bp",
+        "10Y 4.56%（2026-07-10）较前一日4.54% +2bp，长期折现率边际回升",
+        "10Y-2Y 35.0bp（2026-07-10）较前一日38.0bp -3bp，bear steepening"
       ],
       "related_indicators": [
         "DGS1",
@@ -21630,14 +21642,14 @@ window.ANALYSIS_DATA = {
     }
   ],
   "narrative_blocks": {
-    "summary": "美元流动性整体中性：短端回购资金面宽松（SOFR低于政策锚且成交量大）、国债收益率全线下行、VIX低位，风险偏好平稳；但RRP缓冲垫近乎耗尽、日元carry空头仓位拥挤，系统抗冲击能力下降，对未来TGA补库/美债供给冲击脆弱。",
-    "rates": "政策锚IORB 3.65%、联邦基金目标上限3.75%维持不变；SOFR 3.53%低于IORB 12bp，EFFR/OBFR 3.62%贴近政策区间下沿，银行间与回购融资均无压力。短端曲线：3M 3.83%、2Y 4.16%、1Y 4.02%，现金收益率仍具吸引力。",
+    "summary": "美元流动性整体中性：短端回购资金面宽松（SOFR低于政策锚且成交量大）、VIX低位、风险偏好平稳；但RRP缓冲垫近乎耗尽、收益率端边际回升（bear steepening）、日元carry空头仓位拥挤，系统抗冲击能力下降，对未来TGA补库/美债供给冲击脆弱。",
+    "rates": "政策锚IORB 3.65%、联邦基金目标上限3.75%维持不变；SOFR 3.53%低于IORB 12bp，EFFR/OBFR 3.62%贴近政策区间下沿，银行间与回购融资均无压力。短端曲线：3M 3.83%、2Y 4.21%、1Y 4.06%，现金收益率仍具吸引力。",
     "balance_sheet": "负债端：TGA 744.64bn小幅回落（-4.61bn），温和释放；RRP降至约0.55tn，缓冲垫基本耗尽；准备金WRESBAL 3,098.9bn周环比+132bn，短期充裕。结构上QT（SOMA 6,344.4bn周环比+9.96bn）继续缩表，但RRP耗尽后缩表对准备金的传导更直接。",
-    "market_transmission": "信用端IG OAS 0.76%、HY OAS 2.70%均持平，信用融资无溢价扩张；VIX 15.84低位；NFCI -0.52（滞后）显示金融条件偏松。传导链上融资端与信用端平静、收益率边际缓和，主要风险集中在结构性缓冲（RRP）与cross-asset（carry）两端。",
+    "market_transmission": "信用端IG OAS 0.76%、HY OAS 2.70%均持平，信用融资无溢价扩张；VIX 15.84低位；NFCI -0.52（滞后）显示金融条件偏松。传导链上融资端与信用端平静、收益率边际回升，主要风险集中在结构性缓冲（RRP）与cross-asset（carry）两端。",
     "treasury_yields": {
       "label": "中性",
-      "one_liner": "全曲线小幅下行（1Y -4bp、3Y -3bp、10Y -2bp），折现率压力边际缓和，但10Y仍处4.54%高位，长期估值压力未消除。",
-      "analysis": "边际变化：1Y由4.06%降至4.02%（-4bp），3Y由4.21%降至4.18%（-3bp），10Y由4.56%降至4.54%（-2bp），均较上一有效观测小幅下行，说明近端政策路径与中段再定价同步缓和、长期名义折现率边际走平。水平含义：10Y 4.54%仍处高位，对久期资产、成长股与黄金等长期现金流资产的估值压制仍在，但边际下行使折现率压力较上周略缓。曲线结构：10Y-2Y由38bp收窄至35bp（轻微牛平），10Y-3M持平于71bp，曲线整体为正、无衰退倒挂信号。综合：收益率端不构成急性收紧，但10Y level偏高，对风险资产是持续的温和逆风而非当前主导矛盾，权重与融资/RRP/信用并列。"
+      "one_liner": "全曲线小幅上行（1Y +4bp/3Y +4bp/10Y +2bp），bear steepening，折现率压力边际回升；10Y 仍处 4.56% 高位，长期估值压力未消。",
+      "analysis": "边际变化：1Y 由 4.02% 升至 4.06%（+4bp），3Y 由 4.18% 升至 4.22%（+4bp），10Y 由 4.54% 升至 4.56%（+2bp），均较上一有效观测小幅上行，说明近端政策路径与中段再定价同步回升、长期名义折现率边际走高——与上周的“下行/缓和”方向相反（本次改用 Treasury.gov 同日源，更正了此前基于 FRED 7-09 的“下行”误读）。水平含义：10Y 4.56% 仍处高位，对久期资产、成长股与黄金等长期现金流资产的估值压制仍在且较上周略增。曲线结构：10Y-2Y 由 38bp 收窄至 35bp（bear steepening，因短端 2Y +5bp 上行多于长端 10Y +2bp），10Y-3M 持平于 71bp，曲线整体为正、无衰退倒挂信号。综合：收益率端不构成急性收紧，但方向已从“缓和”转为“边际回升”，对风险资产是持续的温和逆风，权重与融资/RRP/信用并列，需持续盯防 10Y level 是否突破近期区间上沿。"
     },
     "jpy_carry": {
       "label": "中性",

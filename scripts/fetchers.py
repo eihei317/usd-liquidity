@@ -132,6 +132,91 @@ def fetch_fred_series(series_id: str, name: str, category: str, unit: str, frequ
         return metric
 
 
+def fetch_treasury_par_yield_curve() -> Dict[str, Any]:
+    """Fetch SAME-DAY Treasury par yield curve from Treasury.gov (released ~4pm ET same day).
+
+    Faster than FRED daily constant-maturity series (which are T+1). Returns a dict of
+    Metric objects keyed by the same ids used downstream (DGS1/DGS2/DGS3/DGS10/DGS30/DGS3MO
+    plus computed T10Y2Y/T10Y3M), so signals/prompt/frontend are unaffected. FRED remains the
+    fallback for these ids in fetch_all_metrics. Returns {} on any failure.
+    """
+    year = datetime.now(UTC).year
+    url = (
+        f"https://home.treasury.gov/resource-center/data-chart-center/interest-rates/"
+        f"daily-treasury-rates.csv/{year}/all?type=daily_treasury_yield_curve"
+        f"&field_tdr_date_value={year}&page&_format=csv"
+    )
+    try:
+        text = http_get_text(url, timeout=15, retries=2)
+        rows = [r for r in csv.reader(io.StringIO(text)) if r and any(c.strip() for c in r)]
+        if len(rows) < 3:
+            return {}
+        header = [h.strip().strip('"') for h in rows[0]]
+        col_map = {"1 Yr": "DGS1", "2 Yr": "DGS2", "3 Yr": "DGS3",
+                   "10 Yr": "DGS10", "30 Yr": "DGS30", "3 Mo": "DGS3MO"}
+        col_to_mid = {name: col_map[name] for name in col_map if name in header}
+        col_index = {name: header.index(name) for name in col_to_mid}
+        if not col_to_mid:
+            return {}
+        name_map = {"DGS1": "1年期国债收益率", "DGS2": "2年期国债收益率",
+                    "DGS3": "3年期国债收益率", "DGS10": "10年期国债收益率",
+                    "DGS30": "30年期国债收益率", "DGS3MO": "3个月期国债收益率"}
+
+        def parse_row(row):
+            out: Dict[str, Tuple[str, float]] = {}
+            d = parse_date_guess(row[0])
+            if not d:
+                return out
+            for name in col_to_mid:
+                i = col_index[name]
+                if i < len(row):
+                    v = safe_float(row[i])
+                    if v is not None:
+                        out[col_to_mid[name]] = (d, v)
+            return out
+
+        latest = parse_row(rows[1])          # most recent (CSV is date-descending)
+        previous = parse_row(rows[2]) if len(rows) > 2 else {}
+        result: Dict[str, Any] = {}
+        for name in col_to_mid:
+            mid = col_to_mid[name]
+            if mid in latest:
+                result[mid] = make_metric(
+                    mid, name_map.get(mid, mid), "国债收益率/曲线",
+                    latest[mid], previous.get(mid), "%",
+                    "daily / same-day (Treasury 4pm ET)",
+                    "Treasury.gov Daily Par Yield Curve", url,
+                    notes="同日源：Treasury.gov 每日国债收益率曲线，约美东16:00发布，比FRED T+1快一天；FRED为兜底",
+                )
+        # curve spreads computed from same-day levels
+        d10, d2, d3m = result.get("DGS10"), result.get("DGS2"), result.get("DGS3MO")
+        if d10 and d2 and d10.value is not None and d2.value is not None:
+            sp = d10.value - d2.value
+            psp = (d10.previous - d2.previous) if (d10.previous is not None and d2.previous is not None) else None
+            result["T10Y2Y"] = make_metric(
+                "T10Y2Y", "10Y-2Y Treasury spread", "国债收益率/曲线",
+                (d10.as_of, sp),
+                (d10.previous_as_of, psp) if psp is not None else None, "%",
+                "daily / same-day (Treasury 4pm ET)",
+                "Treasury.gov Daily Par Yield Curve", url,
+                notes="由同日 DGS10-DGS2 计算",
+            )
+        if d10 and d3m and d10.value is not None and d3m.value is not None:
+            sp = d10.value - d3m.value
+            psp = (d10.previous - d3m.previous) if (d10.previous is not None and d3m.previous is not None) else None
+            result["T10Y3M"] = make_metric(
+                "T10Y3M", "10Y-3M Treasury spread", "国债收益率/曲线",
+                (d10.as_of, sp),
+                (d10.previous_as_of, psp) if psp is not None else None, "%",
+                "daily / same-day (Treasury 4pm ET)",
+                "Treasury.gov Daily Par Yield Curve", url,
+                notes="由同日 DGS10-DGS3MO 计算",
+            )
+        return result
+    except Exception:
+        return {}
+
+
 def fetch_tga() -> Metric:
     url = "https://api.fiscaldata.treasury.gov/services/api/fiscal_service/v1/accounting/dts/operating_cash_balance?sort=-record_date&page[size]=90"
     try:
@@ -526,6 +611,12 @@ def fetch_all_metrics(auction_lookback_days: int) -> List[Metric]:
     for job in fred_jobs:
         metrics.append(job())
         time.sleep(0.15)
+    # Same-day Treasury par yield curve overrides FRED T+1 for yield ids (stable sort keeps
+    # these appended-later metrics as the winning id in metric_map). FRED values remain as
+    # fallback if fetch_treasury_par_yield_curve() returns {}.
+    ty = fetch_treasury_par_yield_curve()
+    if ty:
+        metrics.extend(ty.values())
     add_synthetic_policy_anchor(metrics)
     metrics.sort(key=lambda m: (m.category, m.id))
     return metrics
