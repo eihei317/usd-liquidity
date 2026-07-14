@@ -95,7 +95,7 @@ def build_charts_payload(series_bundle: Dict[str, List[Tuple[str, float]]], upco
         ("tbill_auction_btc_45d", "T-bill拍卖认购倍数：最近45日", 45, "ratio", [("TBILL_AUCTION_BTC", "T-bill Auction BTC（短期国债拍卖投标覆盖倍数）")]),
         ("cp_proxy_30d", "企业短融代理利差：最近一月", 35, "bp", [("CP_PROXY", "CP Rate-Policy Upper Proxy（商业票据利率-政策上限代理利差）")]),
         ("credit_oas_30d", "信用利差：最近一月", 35, "%", [("BAMLH0A0HYM2", "HY OAS（高收益债期权调整利差）"), ("BAMLC0A0CM", "IG OAS（投资级公司债期权调整利差）")]),
-        ("treasury_yields_30d", "美国国债收益率：1Y / 3Y / 10Y 最近一月", 35, "%", [("DGS1", "1Y Treasury Yield（1年期美国国债收益率）"), ("DGS3", "3Y Treasury Yield（3年期美国国债收益率）"), ("DGS10", "10Y Treasury Yield（10年期美国国债收益率）")]),
+        ("treasury_yields_30d", "美国国债收益率：1Y / 3Y / 5Y / 7Y 最近一月", 35, "%", [("DGS1", "1Y Treasury Yield（1年期美国国债收益率）"), ("DGS3", "3Y Treasury Yield（3年期美国国债收益率）"), ("DGS5", "5Y Treasury Yield（5年期美国国债收益率）"), ("DGS7", "7Y Treasury Yield（7年期美国国债收益率）"), ("DGS10", "10Y Treasury Yield（10年期美国国债收益率，背景）")]),
         ("real_yields_30d", "真实贴现率：最近一月", 35, "%", [("DFII10", "10Y Real Yield（10年期TIPS实际收益率）")]),
         ("treasury_curve_30d", "美债长短端利差：最近一月", 35, "%", [("T10Y2Y", "10Y-2Y Treasury Spread（10年-2年美债利差）"), ("T10Y3M", "10Y-3M Treasury Spread（10年-3个月美债利差）")]),
         ("risk_appetite_30d", "证券市场风险偏好：最近一月", 35, "index", [("VIXCLS", "VIX（标普500隐含波动率指数）")]),
@@ -306,7 +306,7 @@ def group_indicators(metrics: List[Metric]) -> List[Dict[str, Any]]:
     group_defs = [
         ("front_end_rates", "短端资金利率", "观察银行间与回购市场资金价格是否偏离政策锚。", ["EFFR", "SOFR", "OBFR", "TGCR", "BGCR", "IORB", "POLICY_UPPER_NYFED"]),
         ("fed_liability", "Fed负债端水位", "观察TGA、RRP、SOMA与准备金水位对银行体系流动性的影响。", ["TGA", "RRPONTSYD", "SOMA", "WRESBAL"]),
-        ("treasury_curve", "国债收益率与曲线", "观察1Y、3Y、10Y收益率组合、真实折现率和曲线利差的变化。", ["DGS1", "DGS3", "DGS10", "DFII10", "DGS30", "T10Y2Y", "T10Y3M", "DTB3", "DGS3MO", "DGS2"]),
+        ("treasury_curve", "国债收益率与曲线", "观察1Y、3Y、5Y、7Y收益率腹部组合、10Y背景折现率和曲线利差的变化。", ["DGS1", "DGS3", "DGS5", "DGS7", "DGS10", "DFII10", "T10Y2Y", "T10Y3M", "DTB3", "DGS3MO", "DGS2"]),
         ("collateral_treasury", "抵押品与国债吸收", "观察SOFR交易量、T-bill拍卖量级/认购倍数、回购抵押品链条和交割压力。", ["SOFR_VOLUME", "TBILL_AUCTION_SIZE", "TBILL_AUCTION_BTC", "UST_AUCTION_BTC", "REPO_FAILS_UST"]),
         ("offshore_credit", "离岸美元、信用与金融条件", "观察压力是否外溢到离岸美元、信用市场和综合金融条件。", ["DTWEXBGS", "DCPN3M", "BAMLC0A0CM", "BAMLH0A0HYM2", "NFCI"]),
         ("securities_risk", "证券市场风险偏好", "观察利率和信用条件是否进一步反映到股票波动率和风险偏好。", ["VIXCLS"]),
@@ -335,6 +335,8 @@ def build_trading_dashboard(metrics: List[Metric], signals: List[DerivedSignal])
         "RRP_BUFFER": "RRPONTSYD",
         "UST_1Y_YIELD": "DGS1",
         "UST_3Y_YIELD": "DGS3",
+        "UST_5Y_YIELD": "DGS5",
+        "UST_7Y_YIELD": "DGS7",
         "NOMINAL_10Y": "DGS10",
         "REAL_10Y": "DGS10",
         "REAL_10Y_MOMENTUM": "DGS10",
@@ -406,7 +408,8 @@ def build_trading_dashboard(metrics: List[Metric], signals: List[DerivedSignal])
             metric_item("WRESBAL", "P1", "银行准备金水位"),
             signal_item("UST_1Y_YIELD", "P1", "短债近端政策路径"),
             signal_item("UST_3Y_YIELD", "P1", "中段政策路径再定价"),
-            signal_item("REAL_10Y", "P1", "10年期国债收益率压力"),
+            signal_item("UST_5Y_YIELD", "P1", "腹部5年期再定价"),
+            signal_item("UST_7Y_YIELD", "P1", "腹部7年期再定价"),
             signal_item("HY_CHANGE", "P1", "信用压力是否扩散"),
         ]),
         "confirm": compact([
@@ -414,7 +417,6 @@ def build_trading_dashboard(metrics: List[Metric], signals: List[DerivedSignal])
             metric_item("TGCR", "P2", "三方回购融资确认"),
             metric_item("BGCR", "P2", "广义回购融资确认"),
             signal_item("BGCR_TGCR", "P2", "回购内部结构扰动"),
-            signal_item("REAL_10Y_MOMENTUM", "P2", "10年期国债收益率边际变化"),
             signal_item("IG_CHANGE", "P2", "投资级信用融资"),
             signal_item("VIX_RISK", "P2", "证券市场波动率水平"),
             signal_item("VIX_MOMENTUM", "P2", "证券市场风险偏好边际变化"),
@@ -428,8 +430,12 @@ def build_trading_dashboard(metrics: List[Metric], signals: List[DerivedSignal])
         ]),
         "background": compact([
             metric_item("SOMA", "B", "QT结构背景"),
-            metric_item("DGS1", "B", "近端政策路径"),
-            metric_item("DGS30", "B", "长期期限溢价"),
+            metric_item("DGS5", "B", "腹部5年期再定价"),
+            metric_item("DGS7", "B", "腹部7年期再定价"),
+            metric_item("DGS10", "B", "长端折现率背景"),
+            signal_item("NOMINAL_10Y", "B", "10Y名义收益率边际"),
+            signal_item("REAL_10Y", "B", "10Y收益率水平背景"),
+            signal_item("REAL_10Y_MOMENTUM", "B", "10Y收益率边际变化"),
             signal_item("UST_10Y2Y", "B", "收益率曲线斜率"),
             signal_item("UST_10Y3M", "B", "衰退/降息预期"),
             signal_item("NFCI_LEVEL", "B", "公开金融条件代理"),
@@ -621,6 +627,8 @@ def build_transmission_chain(context: Dict[str, Any], signals: List[DerivedSigna
     hy = metrics_dict.get("BAMLH0A0HYM2")
     dgs1 = metrics_dict.get("DGS1")
     dgs3 = metrics_dict.get("DGS3")
+    dgs5 = metrics_dict.get("DGS5")
+    dgs7 = metrics_dict.get("DGS7")
     dgs10 = metrics_dict.get("DGS10")
     real_10y = metrics_dict.get("DGS10")
     curve_10y2y = metrics_dict.get("T10Y2Y")
@@ -633,7 +641,7 @@ def build_transmission_chain(context: Dict[str, Any], signals: List[DerivedSigna
         node("reserve_anchor", "政策锚/准备金边际", "IORB 是准备金报酬锚", signal_status(["SOFR_ANCHOR"], ["IORB"]), [f"IORB {metric_value_text(iorb)}", f"SOFR-Anchor {signal_value_text(signal_map.get('SOFR_ANCHOR'))}"], "SOFR接近或高于政策锚说明回购融资端准备金边际变紧。"),
         node("unsecured_funding", "银行间无抵押融资", "EFFR/OBFR", signal_status([], ["EFFR", "OBFR"]), [f"EFFR {metric_value_text(effr)}", f"OBFR {metric_value_text(obfr)}"], "银行间资金价格是否同步抬升。"),
         node("repo_collateral", "回购融资/抵押品链条", "SOFR/TGCR/BGCR + SOFR交易量 + T-bill吸收", signal_status(["SOFR_ANCHOR", "SOFR_VOLUME_IMPACT", "BGCR_TGCR", "TBILL_AUCTION_STRESS", "AUCTION_BTC"], ["SOFR", "SOFR_VOLUME", "TGCR", "BGCR", "TBILL_AUCTION_SIZE", "TBILL_AUCTION_BTC"]), [f"SOFR {metric_value_text(sofr)}", f"SOFR Volume {metric_value_text(sofr_volume)}", f"SOFR-Anchor {signal_value_text(signal_map.get('SOFR_ANCHOR'))}", f"T-bill Stress {signal_value_text(signal_map.get('TBILL_AUCTION_STRESS'))}", f"T-bill BTC {metric_value_text(tbill_btc)}"], "回购/抵押品融资压力，必须同时看价格偏离和承载该价格的交易量，以及T-bill供给×需求压力评分。"),
-        node("bond_pricing", "债券定价锚/收益率曲线", "1Y/3Y/10Y", signal_status(["UST_1Y_YIELD", "REAL_10Y", "REAL_10Y_MOMENTUM", "UST_10Y2Y", "UST_10Y3M"], ["DGS1", "DGS3", "DGS10"]), [f"1Y {metric_value_text(dgs1)}", f"3Y {metric_value_text(dgs3)}", f"10Y {metric_value_text(dgs10)}", f"10Y Momentum {signal_value_text(signal_map.get('REAL_10Y_MOMENTUM'))}"], "用1Y看近端政策路径，3Y看中段再定价，10Y看长期折现率锚。"),
+        node("bond_pricing", "债券定价锚/收益率曲线", "1Y/3Y/5Y/7Y（10Y仅背景）", signal_status(["UST_1Y_YIELD", "UST_3Y_YIELD", "UST_5Y_YIELD", "UST_7Y_YIELD", "REAL_10Y", "REAL_10Y_MOMENTUM", "UST_10Y2Y", "UST_10Y3M"], ["DGS1", "DGS3", "DGS5", "DGS7", "DGS10"]), [f"1Y {metric_value_text(dgs1)}", f"3Y {metric_value_text(dgs3)}", f"5Y {metric_value_text(dgs5)}", f"7Y {metric_value_text(dgs7)}", f"10Y {metric_value_text(dgs10)}（背景）", f"10Y Momentum {signal_value_text(signal_map.get('REAL_10Y_MOMENTUM'))}"], "用1Y看近端政策路径，3Y看中段再定价，5Y/7Y看腹部传导，10Y仅作长期折现率背景锚。"),
         node("offshore_usd", "离岸美元", "美元指数", signal_status(["USD_CHANGE"], ["DTWEXBGS"]), [f"DTWEXBGS {metric_value_text(usd)}"], "离岸美元融资压力。"),
         node("credit_market", "信用市场/金融条件", "CP/IG/HY/NFCI", signal_status(["CP_PROXY", "IG_CHANGE", "HY_CHANGE", "NFCI_LEVEL"], ["DCPN3M", "BAMLC0A0CM", "BAMLH0A0HYM2", "NFCI"]), [f"IG {metric_value_text(ig)}", f"HY {metric_value_text(hy)}", f"NFCI {metric_value_text(nfci)}"], "信用和金融条件传导。"),
         node("securities_risk", "证券市场风险偏好", "VIX", signal_status(["VIX_RISK", "VIX_MOMENTUM"], ["VIXCLS"]), [f"VIX {metric_value_text(vix)}", f"VIX Momentum {signal_value_text(signal_map.get('VIX_MOMENTUM'))}"], "股票波动率和避险需求；VIX上行只有在信用利差同步扩大时才说明压力进一步传导到信用融资。"),

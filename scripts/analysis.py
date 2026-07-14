@@ -60,6 +60,8 @@ _SIGNAL_BASE_METRICS = {
     "RRP_BUFFER": "RRPONTSYD",
     "UST_1Y_YIELD": "DGS1",
     "UST_3Y_YIELD": "DGS3",
+    "UST_5Y_YIELD": "DGS5",
+    "UST_7Y_YIELD": "DGS7",
     "NOMINAL_10Y": "DGS10",
     "REAL_10Y": "DGS10",
     "REAL_10Y_MOMENTUM": "DGS10",
@@ -194,7 +196,7 @@ def build_model_input_package(trigger: str, generated: str, stance: str, score: 
             "risk_type_rule": "risk_flags.type 必须区分 market 与 data；数据缺口不能写成真实市场压力。",
             "number_format_rule": "所有输出文本中的数值统一保留两位小数即可；不得输出浮点长尾，例如 -2.9999999999999805bp 应写为 -3.00bp。",
             "rrp_rule": "必须用RRP_FLOW说明边际流量方向，用RRP_BUFFER说明存量缓冲垫厚度；RRP下降短期可释放流动性，但极低RRP_BUFFER代表未来冲击更容易落到准备金。",
-            "treasury_yields_rule": "国债收益率（尤其边际变化）是本简报一阶高权重维度，与融资/RRP/信用并列且优先；形成stance时必须显式纳入1Y/3Y/10Y边际变化，不得因融资端平稳而压低其权重。必须在narrative_blocks.treasury_yields中专门分析1Y/3Y/10Y美国国债收益率（10Y必须用DGS10名义，不得用DFII10/TIPS替代），且1Y/3Y/10Y每一个都必须拆成水平+边际变化两层，边际变化量化到bp并解释对折现率/久期/风险资产估值的含义；当任一收益率较上期变动超约3bp或斜率明显移动时，必须在key_takeaways专门给出收益率边际变化解读，并在stance判断中体现其权重。",
+            "treasury_yields_rule": "国债收益率（尤其边际变化）是本简报一阶高权重维度，与融资/RRP/信用并列且优先；主框架为1Y/3Y/5Y/7Y腹部组合（1Y近端政策路径、3Y中段再定价、5Y/7Y腹部传导），形成stance时必须显式纳入1Y/3Y/5Y/7Y边际变化，不得因融资端平稳而压低其权重。必须在narrative_blocks.treasury_yields中专门分析1Y/3Y/5Y/7Y美国国债收益率；10Y仅作曲线/长期名义折现率背景锚、不是一阶高权重维度，可用DGS10名义或DFII10补充但不得喧宾夺主；1Y/3Y/5Y/7Y每一个都必须拆成水平+边际变化两层，边际变化量化到bp并解释对折现率/久期/风险资产估值的含义；当任一收益率较上期变动超约3bp或腹部斜率（5Y-3Y/7Y-5Y）明显移动时，必须在key_takeaways专门给出收益率边际变化解读，并在stance判断中体现其权重。10Y斜率（10Y-2Y/10Y-3M）仅作衰退/降息预期背景，不替代1Y/3Y/5Y/7Y原始收益率判断。",
             "jpy_carry_rule": "JPY Carry 的主目标是判断借日元买美股/美元风险资产的边际资金供给是否顺畅。CFTC 仓位必须做水平+流量（边际）两层分析，且必须拆分多空分项：仅当 CFTC_JPY_GROSS_SHORT 或 CFTC_JPY_SHORT_SHARE 上升（cftc_decomposition.driver=short_building）时，才能下『空头在加仓、carry 资金流支撑美元』的结论；若净空头上升只是多头平仓（long_unwinding/mixed），不得声称 carry 在加杠杆。水平高（short_share 近1年高位）说明未来反转踩踏更剧烈，与当下流量支撑分属不同时间轴。分析顺序：JPY融资成本 -> 美日利差 -> USD/JPY趋势与波动 -> 仓位拥挤度(多空拆解) -> 对美股/风险资产流动性供给的影响。不要把美元流动性收紧对日元的冲击写成主线。", 
             "json_schema_summary": {
                 "stance": ["label", "confidence", "score_text", "one_liner"],
@@ -231,7 +233,7 @@ def signal_takeaway(signal: DerivedSignal, idx: int) -> Dict[str, Any]:
 
 
 def build_fallback_risk_flags(signals: List[DerivedSignal], metrics: List[Metric]) -> List[Dict[str, Any]]:
-    priority_order = ["SOFR_ANCHOR", "SOFR_VOLUME_IMPACT", "TGA_FLOW", "RRP_FLOW", "RRP_BUFFER", "TBILL_AUCTION_STRESS", "UST_1Y_YIELD", "UST_3Y_YIELD", "REAL_10Y", "REAL_10Y_MOMENTUM", "HY_CHANGE", "IG_CHANGE", "VIX_RISK", "VIX_MOMENTUM", "USD_CHANGE", "NFCI_LEVEL", "CP_PROXY", "UST_10Y2Y", "UST_10Y3M"]
+    priority_order = ["SOFR_ANCHOR", "SOFR_VOLUME_IMPACT", "TGA_FLOW", "RRP_FLOW", "RRP_BUFFER", "TBILL_AUCTION_STRESS", "UST_1Y_YIELD", "UST_3Y_YIELD", "UST_5Y_YIELD", "UST_7Y_YIELD", "HY_CHANGE", "IG_CHANGE", "VIX_RISK", "VIX_MOMENTUM", "USD_CHANGE", "NFCI_LEVEL", "CP_PROXY", "UST_10Y2Y", "UST_10Y3M", "NOMINAL_10Y", "REAL_10Y", "REAL_10Y_MOMENTUM"]
     priority_index = {signal_id: idx for idx, signal_id in enumerate(priority_order)}
     risky_signals = [s for s in signals if s.severity in {"偏紧", "紧张", "缺失"}]
     risky_signals = sorted(risky_signals, key=lambda s: priority_index.get(s.id, 99))
@@ -270,7 +272,7 @@ def build_fallback_risk_flags(signals: List[DerivedSignal], metrics: List[Metric
 def build_fallback_analysis(generated: str, context: Dict[str, Any], signals: List[DerivedSignal], highlights: List[str]) -> Dict[str, Any]:
     stance = context.get("stance", "中性")
     metrics = [Metric(**m) for m in context.get("metrics", [])]
-    priority = {"SOFR_ANCHOR": 0, "SOFR_VOLUME_IMPACT": 1, "TGA_FLOW": 2, "RRP_FLOW": 3, "RRP_BUFFER": 4, "TBILL_AUCTION_STRESS": 5, "UST_1Y_YIELD": 6, "UST_3Y_YIELD": 7, "REAL_10Y": 8, "REAL_10Y_MOMENTUM": 9, "HY_CHANGE": 10, "IG_CHANGE": 11, "VIX_RISK": 12, "VIX_MOMENTUM": 13, "UST_10Y2Y": 14, "UST_10Y3M": 15, "NFCI_LEVEL": 16, "CP_PROXY": 17}
+    priority = {"SOFR_ANCHOR": 0, "SOFR_VOLUME_IMPACT": 1, "TGA_FLOW": 2, "RRP_FLOW": 3, "RRP_BUFFER": 4, "TBILL_AUCTION_STRESS": 5, "UST_1Y_YIELD": 6, "UST_3Y_YIELD": 7, "UST_5Y_YIELD": 8, "UST_7Y_YIELD": 9, "HY_CHANGE": 10, "IG_CHANGE": 11, "VIX_RISK": 12, "VIX_MOMENTUM": 13, "UST_10Y2Y": 14, "UST_10Y3M": 15, "NOMINAL_10Y": 16, "REAL_10Y": 17, "REAL_10Y_MOMENTUM": 18, "NFCI_LEVEL": 19, "CP_PROXY": 20}
     selected = sorted(signals, key=lambda s: priority.get(s.id, 99))[:5]
     data_as_of = None
     dates = [m.as_of for m in metrics]
@@ -310,8 +312,8 @@ def build_fallback_analysis(generated: str, context: Dict[str, Any], signals: Li
             "market_transmission": "信用、离岸美元、10年期国债收益率和VIX用于确认压力是否外溢到证券市场。",
             "treasury_yields": {
                 "label": "中性",
-                "one_liner": "1Y/3Y/10Y收益率组合用于拆分近端政策路径、中段再定价与长期折现率锚。",
-                "analysis": "1Y看近端政策路径，3Y看中段再定价，10Y看长期名义折现率锚；正式模型分析会结合三者最新值、边际变化和曲线斜率输出判断。",
+                "one_liner": "1Y/3Y/5Y/7Y腹部组合用于拆分近端政策路径、中段再定价与腹部传导，10Y仅作折现率背景。",
+                "analysis": "1Y看近端政策路径，3Y看中段再定价，5Y/7Y看腹部传导，10Y仅作长期名义折现率背景；正式模型分析会结合1Y/3Y/5Y/7Y最新值、边际变化和腹部斜率输出判断，10Y斜率用于衰退/降息预期观察。",
             },
         },
     }

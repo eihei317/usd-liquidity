@@ -394,7 +394,7 @@ def fetch_chart_series(days: int = 40) -> Dict[str, List[Tuple[str, float]]]:
         "EFFR", "SOFR", "TGCR", "BGCR", "OBFR", "IORB", "POLICY_UPPER_NYFED",
         "SOFR_VOLUME", "TBILL_AUCTION_SIZE", "TBILL_AUCTION_BTC",
         "RRPONTSYD", "TGA", "DCPN3M", "DTB3", "DGS3MO", "DGS1", "DGS2",
-        "DGS3", "DGS10", "DFII10", "DGS30", "T10Y2Y", "T10Y3M",
+        "DGS3", "DGS5", "DGS7", "DGS10", "DFII10", "T10Y2Y", "T10Y3M",
         "BAMLH0A0HYM2", "BAMLC0A0CM", "VIXCLS", "NFCI", "DTWEXBGS",
     ]
     for metric_id in metric_ids:

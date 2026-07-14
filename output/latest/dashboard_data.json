@@ -2,7 +2,7 @@
   "meta": {
     "title": "美元流动性监测",
     "trigger": "更新数据并分析",
-    "generated_at_bjt": "2026-07-14 15:15:46 UTC+08:00",
+    "generated_at_bjt": "2026-07-14 20:21:40 UTC+08:00",
     "data_as_of": "2026-07-14",
     "timezone": "BJT",
     "theme": "warm_claude",
@@ -17,7 +17,7 @@
       "紧张"
     ],
     "current_from_rule": "中性",
-    "score_from_rule": 0.7999999999999996
+    "score_from_rule": 1.5999999999999999
   },
   "trading_dashboard": {
     "core": [
@@ -26,13 +26,13 @@
         "id": "SOFR_ANCHOR",
         "label": "SOFR-IORB（担保隔夜融资利率-准备金余额利率）",
         "priority": "P0",
-        "value_text": "-10.0bp",
-        "previous_text": "-12.0bp",
-        "change_text": "+2.0bp",
-        "severity": "偏松",
+        "value_text": "-5.0bp",
+        "previous_text": "-10.0bp",
+        "change_text": "+5.0bp",
+        "severity": "中性",
         "why": "回购融资是否高于政策锚",
-        "interpretation": "SOFR相对IORB（准备金余额利率）的位置。回购融资低于政策锚，说明资金面不紧",
-        "as_of": "2026-07-10",
+        "interpretation": "SOFR相对IORB（准备金余额利率）的位置。回购融资与政策锚接近",
+        "as_of": "2026-07-13",
         "frequency": "日频，纽约联储约 8:00 ET 发布"
       },
       {
@@ -40,13 +40,13 @@
         "id": "SOFR_VOLUME_IMPACT",
         "label": "SOFR Rate-Volume Impact（SOFR价格×交易量影响）",
         "priority": "P0",
-        "value_text": "-8.5mn/day",
-        "previous_text": "-10.4mn/day",
-        "change_text": "+1.9mn/day",
-        "severity": "偏松",
+        "value_text": "-4.3mn/day",
+        "previous_text": "-8.5mn/day",
+        "change_text": "+4.2mn/day",
+        "severity": "中性",
         "why": "SOFR价格偏离作用在多大交易量上",
-        "interpretation": "SOFR交易量约3,056bn，SOFR低于政策锚，按交易量估算日化融资成本低于政策锚约8.5百万美元。",
-        "as_of": "2026-07-10",
+        "interpretation": "SOFR交易量约3,096bn，但SOFR相对政策锚偏离有限，价格×规模冲击不大。",
+        "as_of": "2026-07-13",
         "frequency": "日频，纽约联储SOFR记录随利率一同发布"
       },
       {
@@ -135,15 +135,29 @@
       },
       {
         "type": "signal",
-        "id": "REAL_10Y",
-        "label": "10Y Treasury Yield（10年期美国国债收益率）",
+        "id": "UST_5Y_YIELD",
+        "label": "5Y Treasury Yield（5年期美国国债收益率）",
         "priority": "P1",
-        "value_text": "4.620%",
-        "previous_text": "4.560%",
+        "value_text": "4.370%",
+        "previous_text": "4.300%",
+        "change_text": "+0.07%",
+        "severity": "中性",
+        "why": "腹部5年期再定价",
+        "interpretation": "5年期收益率处于中间区间，观察其相对3年和7年的斜率变化。",
+        "as_of": "2026-07-13",
+        "frequency": "日频，FRED/H.15国债恒定期限收益率"
+      },
+      {
+        "type": "signal",
+        "id": "UST_7Y_YIELD",
+        "label": "7Y Treasury Yield（7年期美国国债收益率）",
+        "priority": "P1",
+        "value_text": "4.480%",
+        "previous_text": "4.420%",
         "change_text": "+0.06%",
-        "severity": "偏紧",
-        "why": "10年期国债收益率压力",
-        "interpretation": "10年期国债收益率处于高位，对长期资产估值有压力；这描述的是level风险，不代表边际继续恶化。",
+        "severity": "中性",
+        "why": "腹部7年期再定价",
+        "interpretation": "7年期收益率处于中间区间，观察其相对5年和10年的斜率变化。",
         "as_of": "2026-07-13",
         "frequency": "日频，FRED/H.15国债恒定期限收益率"
       },
@@ -182,13 +196,13 @@
         "id": "TGCR",
         "label": "TGCR（三方一般抵押品利率）",
         "priority": "P2",
-        "value_text": "3.520%",
-        "previous_text": "3.510%",
-        "change_text": "+1.0bp",
+        "value_text": "3.580%",
+        "previous_text": "3.520%",
+        "change_text": "+6.0bp",
         "severity": "中性",
         "why": "三方回购融资确认",
         "interpretation": "三方回购市场的一般抵押品融资成本，反映机构化回购资金价格。",
-        "as_of": "2026-07-10",
+        "as_of": "2026-07-13",
         "frequency": "日频，纽约联储约 8:00 ET 发布"
       },
       {
@@ -196,13 +210,13 @@
         "id": "BGCR",
         "label": "BGCR（广义一般抵押品利率）",
         "priority": "P2",
-        "value_text": "3.520%",
-        "previous_text": "3.510%",
-        "change_text": "+1.0bp",
+        "value_text": "3.580%",
+        "previous_text": "3.520%",
+        "change_text": "+6.0bp",
         "severity": "中性",
         "why": "广义回购融资确认",
         "interpretation": "覆盖更广的一般抵押品回购利率，观察回购市场结构性扰动。",
-        "as_of": "2026-07-10",
+        "as_of": "2026-07-13",
         "frequency": "日频，纽约联储约 8:00 ET 发布"
       },
       {
@@ -216,22 +230,8 @@
         "severity": "中性",
         "why": "回购内部结构扰动",
         "interpretation": "比较广义回购与三方回购的结构差异。一般抵押品利率结构稳定",
-        "as_of": "2026-07-10",
-        "frequency": "日频，纽约联储约 8:00 ET 发布"
-      },
-      {
-        "type": "signal",
-        "id": "REAL_10Y_MOMENTUM",
-        "label": "10Y Yield Momentum（10年期国债收益率边际变化）",
-        "priority": "P2",
-        "value_text": "6.0bp",
-        "previous_text": "NA",
-        "change_text": "NA",
-        "severity": "偏紧",
-        "why": "10年期国债收益率边际变化",
-        "interpretation": "10年期国债收益率边际上行，长期资产估值压力正在增强。",
         "as_of": "2026-07-13",
-        "frequency": "日频，FRED/H.15国债恒定期限收益率"
+        "frequency": "日频，纽约联储约 8:00 ET 发布"
       },
       {
         "type": "signal",
@@ -280,13 +280,13 @@
         "id": "SOFR_VOLUME",
         "label": "SOFR Volume（SOFR交易量）",
         "priority": "P2",
-        "value_text": "3,056.0bn",
-        "previous_text": "3,126.0bn",
-        "change_text": "-70.0bn",
+        "value_text": "3,096.0bn",
+        "previous_text": "3,056.0bn",
+        "change_text": "+40.0bn",
         "severity": "中性",
         "why": "回购融资交易量级",
         "interpretation": "SOFR对应的隔夜回购交易量，用于把利率偏离转化为价格×规模的实际资金成本量级。",
-        "as_of": "2026-07-10",
+        "as_of": "2026-07-13",
         "frequency": "日频，纽约联储SOFR记录随利率一同发布"
       },
       {
@@ -391,29 +391,85 @@
       },
       {
         "type": "metric",
-        "id": "DGS1",
-        "label": "1Y Treasury Yield（1年期美国国债收益率）",
+        "id": "DGS5",
+        "label": "5Y Treasury Yield（5年期美国国债收益率）",
         "priority": "B",
-        "value_text": "4.120%",
-        "previous_text": "4.060%",
-        "change_text": "+6.0bp",
+        "value_text": "4.370%",
+        "previous_text": "4.300%",
+        "change_text": "+7.0bp",
         "severity": "中性",
-        "why": "近端政策路径",
-        "interpretation": "1年期美国国债收益率，主要反映未来一年政策利率路径和短端再定价。",
+        "why": "腹部5年期再定价",
+        "interpretation": "5年期美国国债收益率，处于曲线腹部，观察短端政策预期向长端传导的中段再定价。",
         "as_of": "2026-07-13",
         "frequency": "日频，FRED/H.15国债恒定期限收益率"
       },
       {
         "type": "metric",
-        "id": "DGS30",
-        "label": "30Y Treasury Yield（30年期美国国债收益率）",
+        "id": "DGS7",
+        "label": "7Y Treasury Yield（7年期美国国债收益率）",
         "priority": "B",
-        "value_text": "5.100%",
-        "previous_text": "5.060%",
-        "change_text": "+4.0bp",
+        "value_text": "4.480%",
+        "previous_text": "4.420%",
+        "change_text": "+6.0bp",
         "severity": "中性",
-        "why": "长期期限溢价",
-        "interpretation": "30年期美国国债收益率，反映长期通胀、财政供给和期限溢价。",
+        "why": "腹部7年期再定价",
+        "interpretation": "7年期美国国债收益率，处于曲线腹部偏长端，衔接腹部再定价与长端折现率。",
+        "as_of": "2026-07-13",
+        "frequency": "日频，FRED/H.15国债恒定期限收益率"
+      },
+      {
+        "type": "metric",
+        "id": "DGS10",
+        "label": "10Y Treasury Yield（10年期美国国债收益率）",
+        "priority": "B",
+        "value_text": "4.620%",
+        "previous_text": "4.560%",
+        "change_text": "+6.0bp",
+        "severity": "中性",
+        "why": "长端折现率背景",
+        "interpretation": "10年期美国国债收益率，是全球资产折现率和长期美元资金价格的重要锚，本简报仅作曲线/折现率背景观察。",
+        "as_of": "2026-07-13",
+        "frequency": "日频，FRED/H.15国债恒定期限收益率"
+      },
+      {
+        "type": "signal",
+        "id": "NOMINAL_10Y",
+        "label": "10Y Treasury Yield（10年期美国国债收益率）",
+        "priority": "B",
+        "value_text": "4.620%",
+        "previous_text": "4.560%",
+        "change_text": "+0.06%",
+        "severity": "偏紧",
+        "why": "10Y名义收益率边际",
+        "interpretation": "长期名义折现率上行，债券久期和股票估值承压",
+        "as_of": "2026-07-13",
+        "frequency": "日频，FRED/H.15国债恒定期限收益率"
+      },
+      {
+        "type": "signal",
+        "id": "REAL_10Y",
+        "label": "10Y Treasury Yield（10年期美国国债收益率）",
+        "priority": "B",
+        "value_text": "4.620%",
+        "previous_text": "4.560%",
+        "change_text": "+0.06%",
+        "severity": "偏紧",
+        "why": "10Y收益率水平背景",
+        "interpretation": "10年期国债收益率处于高位，对长期资产估值有压力；这描述的是level风险，不代表边际继续恶化。",
+        "as_of": "2026-07-13",
+        "frequency": "日频，FRED/H.15国债恒定期限收益率"
+      },
+      {
+        "type": "signal",
+        "id": "REAL_10Y_MOMENTUM",
+        "label": "10Y Yield Momentum（10年期国债收益率边际变化）",
+        "priority": "B",
+        "value_text": "6.0bp",
+        "previous_text": "NA",
+        "change_text": "NA",
+        "severity": "偏紧",
+        "why": "10Y收益率边际变化",
+        "interpretation": "10年期国债收益率边际上行，长期资产估值压力正在增强。",
         "as_of": "2026-07-13",
         "frequency": "日频，FRED/H.15国债恒定期限收益率"
       },
@@ -579,7 +635,7 @@
   },
   "jpy_carry": {
     "meta": {
-      "generated_at_bjt": "2026-07-14 15:15:29 UTC+08:00",
+      "generated_at_bjt": "2026-07-14 20:21:16 UTC+08:00",
       "lookback": "日频约1年，CFTC约2年，REER/NEER约3年"
     },
     "risk": {
@@ -8870,15 +8926,15 @@
           "id": "SOFR",
           "label": "SOFR（担保隔夜融资利率）",
           "category": "银行间/回购融资",
-          "value": 3.55,
-          "value_text": "3.550%",
+          "value": 3.6,
+          "value_text": "3.600%",
           "unit": "%",
-          "previous": 3.53,
-          "change": 0.020000000000000018,
-          "change_text": "+2.0bp",
+          "previous": 3.55,
+          "change": 0.050000000000000266,
+          "change_text": "+5.0bp",
           "change_direction": "up",
-          "as_of": "2026-07-10",
-          "previous_as_of": "2026-07-09",
+          "as_of": "2026-07-13",
+          "previous_as_of": "2026-07-10",
           "meaning": "以美国国债为抵押的隔夜融资价格，反映回购市场和抵押品融资压力。",
           "frequency": "日频，纽约联储约 8:00 ET 发布",
           "data_lag": "反映上一工作日回购交易，约 14:30 ET 可能同日修订",
@@ -8920,15 +8976,15 @@
           "id": "TGCR",
           "label": "TGCR（三方一般抵押品利率）",
           "category": "银行间/回购融资",
-          "value": 3.52,
-          "value_text": "3.520%",
+          "value": 3.58,
+          "value_text": "3.580%",
           "unit": "%",
-          "previous": 3.51,
-          "change": 0.010000000000000231,
-          "change_text": "+1.0bp",
+          "previous": 3.52,
+          "change": 0.06000000000000005,
+          "change_text": "+6.0bp",
           "change_direction": "up",
-          "as_of": "2026-07-10",
-          "previous_as_of": "2026-07-09",
+          "as_of": "2026-07-13",
+          "previous_as_of": "2026-07-10",
           "meaning": "三方回购市场的一般抵押品融资成本，反映机构化回购资金价格。",
           "frequency": "日频，纽约联储约 8:00 ET 发布",
           "data_lag": "反映上一工作日三方回购交易，可能同日修订",
@@ -8945,15 +9001,15 @@
           "id": "BGCR",
           "label": "BGCR（广义一般抵押品利率）",
           "category": "银行间/回购融资",
-          "value": 3.52,
-          "value_text": "3.520%",
+          "value": 3.58,
+          "value_text": "3.580%",
           "unit": "%",
-          "previous": 3.51,
-          "change": 0.010000000000000231,
-          "change_text": "+1.0bp",
+          "previous": 3.52,
+          "change": 0.06000000000000005,
+          "change_text": "+6.0bp",
           "change_direction": "up",
-          "as_of": "2026-07-10",
-          "previous_as_of": "2026-07-09",
+          "as_of": "2026-07-13",
+          "previous_as_of": "2026-07-10",
           "meaning": "覆盖更广的一般抵押品回购利率，观察回购市场结构性扰动。",
           "frequency": "日频，纽约联储约 8:00 ET 发布",
           "data_lag": "反映上一工作日广义一般抵押品回购交易，可能同日修订",
@@ -9128,7 +9184,7 @@
     {
       "id": "treasury_curve",
       "title": "国债收益率与曲线",
-      "description": "观察1Y、3Y、10Y收益率组合、真实折现率和曲线利差的变化。",
+      "description": "观察1Y、3Y、5Y、7Y收益率腹部组合、10Y背景折现率和曲线利差的变化。",
       "indicators": [
         {
           "id": "DGS1",
@@ -9181,6 +9237,56 @@
           "notes": "同日源：Treasury.gov 每日国债收益率曲线，约美东16:00发布，比FRED T+1快一天；FRED为兜底"
         },
         {
+          "id": "DGS5",
+          "label": "5Y Treasury Yield（5年期美国国债收益率）",
+          "category": "国债收益率/曲线",
+          "value": 4.37,
+          "value_text": "4.370%",
+          "unit": "%",
+          "previous": 4.3,
+          "change": 0.07000000000000028,
+          "change_text": "+7.0bp",
+          "change_direction": "up",
+          "as_of": "2026-07-13",
+          "previous_as_of": "2026-07-10",
+          "meaning": "5年期美国国债收益率，处于曲线腹部，观察短端政策预期向长端传导的中段再定价。",
+          "frequency": "日频，FRED/H.15国债恒定期限收益率",
+          "data_lag": "通常随H.15数据发布滞后更新",
+          "comparison_basis": "与上一条有效观测比较，主要看腹部中段再定价。",
+          "freshness": "ok",
+          "importance": "medium",
+          "interpretation_hint": "",
+          "source": "Treasury.gov Daily Par Yield Curve",
+          "source_url": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/daily-treasury-rates.csv/2026/all?type=daily_treasury_yield_curve&field_tdr_date_value=2026&page&_format=csv",
+          "status": "ok",
+          "notes": "同日源：Treasury.gov 每日国债收益率曲线，约美东16:00发布，比FRED T+1快一天；FRED为兜底"
+        },
+        {
+          "id": "DGS7",
+          "label": "7Y Treasury Yield（7年期美国国债收益率）",
+          "category": "国债收益率/曲线",
+          "value": 4.48,
+          "value_text": "4.480%",
+          "unit": "%",
+          "previous": 4.42,
+          "change": 0.0600000000000005,
+          "change_text": "+6.0bp",
+          "change_direction": "up",
+          "as_of": "2026-07-13",
+          "previous_as_of": "2026-07-10",
+          "meaning": "7年期美国国债收益率，处于曲线腹部偏长端，衔接腹部再定价与长端折现率。",
+          "frequency": "日频，FRED/H.15国债恒定期限收益率",
+          "data_lag": "通常随H.15数据发布滞后更新",
+          "comparison_basis": "与上一条有效观测比较，主要看腹部偏长端再定价。",
+          "freshness": "ok",
+          "importance": "medium",
+          "interpretation_hint": "",
+          "source": "Treasury.gov Daily Par Yield Curve",
+          "source_url": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/daily-treasury-rates.csv/2026/all?type=daily_treasury_yield_curve&field_tdr_date_value=2026&page&_format=csv",
+          "status": "ok",
+          "notes": "同日源：Treasury.gov 每日国债收益率曲线，约美东16:00发布，比FRED T+1快一天；FRED为兜底"
+        },
+        {
           "id": "DGS10",
           "label": "10Y Treasury Yield（10年期美国国债收益率）",
           "category": "国债收益率/曲线",
@@ -9193,10 +9299,10 @@
           "change_direction": "up",
           "as_of": "2026-07-13",
           "previous_as_of": "2026-07-10",
-          "meaning": "10年期美国国债收益率，是全球资产折现率和长期美元资金价格的重要锚。",
+          "meaning": "10年期美国国债收益率，是全球资产折现率和长期美元资金价格的重要锚，本简报仅作曲线/折现率背景观察。",
           "frequency": "日频，FRED/H.15国债恒定期限收益率",
           "data_lag": "通常随H.15数据发布滞后更新",
-          "comparison_basis": "与上一条有效观测比较，主要看长期折现率。",
+          "comparison_basis": "与上一条有效观测比较，本简报仅作曲线/折现率背景观察。",
           "freshness": "ok",
           "importance": "high",
           "interpretation_hint": "",
@@ -9229,31 +9335,6 @@
           "source_url": "https://fred.stlouisfed.org/series/DFII10",
           "status": "ok",
           "notes": ""
-        },
-        {
-          "id": "DGS30",
-          "label": "30Y Treasury Yield（30年期美国国债收益率）",
-          "category": "国债收益率/曲线",
-          "value": 5.1,
-          "value_text": "5.100%",
-          "unit": "%",
-          "previous": 5.06,
-          "change": 0.040000000000000036,
-          "change_text": "+4.0bp",
-          "change_direction": "up",
-          "as_of": "2026-07-13",
-          "previous_as_of": "2026-07-10",
-          "meaning": "30年期美国国债收益率，反映长期通胀、财政供给和期限溢价。",
-          "frequency": "日频，FRED/H.15国债恒定期限收益率",
-          "data_lag": "通常随H.15数据发布滞后更新",
-          "comparison_basis": "与上一条有效观测比较，主要看长期期限溢价。",
-          "freshness": "ok",
-          "importance": "medium",
-          "interpretation_hint": "",
-          "source": "Treasury.gov Daily Par Yield Curve",
-          "source_url": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/daily-treasury-rates.csv/2026/all?type=daily_treasury_yield_curve&field_tdr_date_value=2026&page&_format=csv",
-          "status": "ok",
-          "notes": "同日源：Treasury.gov 每日国债收益率曲线，约美东16:00发布，比FRED T+1快一天；FRED为兜底"
         },
         {
           "id": "T10Y2Y",
@@ -9391,15 +9472,15 @@
           "id": "SOFR_VOLUME",
           "label": "SOFR Volume（SOFR交易量）",
           "category": "回购融资/市场深度",
-          "value": 3056.0,
-          "value_text": "3,056.0bn",
+          "value": 3096.0,
+          "value_text": "3,096.0bn",
           "unit": "USD bn",
-          "previous": 3126.0,
-          "change": -70.0,
-          "change_text": "-70.0bn",
-          "change_direction": "down",
-          "as_of": "2026-07-10",
-          "previous_as_of": "2026-07-09",
+          "previous": 3056.0,
+          "change": 40.0,
+          "change_text": "+40.0bn",
+          "change_direction": "up",
+          "as_of": "2026-07-13",
+          "previous_as_of": "2026-07-10",
           "meaning": "SOFR对应的隔夜回购交易量，用于把利率偏离转化为价格×规模的实际资金成本量级。",
           "frequency": "日频，纽约联储SOFR记录随利率一同发布",
           "data_lag": "反映上一工作日SOFR合格交易量",
@@ -9683,30 +9764,30 @@
     {
       "id": "SOFR_ANCHOR",
       "label": "SOFR-IORB（担保隔夜融资利率-准备金余额利率）",
-      "value": -10.000000000000009,
-      "value_text": "-10.0bp",
-      "previous": -12.00000000000001,
-      "previous_text": "-12.0bp",
-      "change": 2.0000000000000018,
-      "change_text": "+2.0bp",
+      "value": -4.999999999999982,
+      "value_text": "-5.0bp",
+      "previous": -10.000000000000009,
+      "previous_text": "-10.0bp",
+      "change": 5.000000000000027,
+      "change_text": "+5.0bp",
       "unit": "bp",
-      "severity": "偏松",
-      "meaning": "SOFR相对IORB（准备金余额利率）的位置。回购融资低于政策锚，说明资金面不紧",
-      "as_of": "2026-07-10"
+      "severity": "中性",
+      "meaning": "SOFR相对IORB（准备金余额利率）的位置。回购融资与政策锚接近",
+      "as_of": "2026-07-13"
     },
     {
       "id": "SOFR_VOLUME_IMPACT",
       "label": "SOFR Rate-Volume Impact（SOFR价格×交易量影响）",
-      "value": -8.488888888888896,
-      "value_text": "-8.5mn/day",
-      "previous": -10.420000000000009,
-      "previous_text": "-10.4mn/day",
-      "change": 1.9311111111111128,
-      "change_text": "+1.9mn/day",
+      "value": -4.299999999999985,
+      "value_text": "-4.3mn/day",
+      "previous": -8.488888888888896,
+      "previous_text": "-8.5mn/day",
+      "change": 4.188888888888911,
+      "change_text": "+4.2mn/day",
       "unit": "USD mn/day",
-      "severity": "偏松",
-      "meaning": "SOFR交易量约3,056bn，SOFR低于政策锚，按交易量估算日化融资成本低于政策锚约8.5百万美元。",
-      "as_of": "2026-07-10"
+      "severity": "中性",
+      "meaning": "SOFR交易量约3,096bn，但SOFR相对政策锚偏离有限，价格×规模冲击不大。",
+      "as_of": "2026-07-13"
     },
     {
       "id": "BGCR_TGCR",
@@ -9720,7 +9801,7 @@
       "unit": "bp",
       "severity": "中性",
       "meaning": "比较广义回购与三方回购的结构差异。一般抵押品利率结构稳定",
-      "as_of": "2026-07-10"
+      "as_of": "2026-07-13"
     },
     {
       "id": "CP_PROXY",
@@ -9804,6 +9885,34 @@
       "unit": "%",
       "severity": "中性",
       "meaning": "3年期收益率处于中间区间，观察其相对1年和10年的斜率变化。",
+      "as_of": "2026-07-13"
+    },
+    {
+      "id": "UST_5Y_YIELD",
+      "label": "5Y Treasury Yield（5年期美国国债收益率）",
+      "value": 4.37,
+      "value_text": "4.370%",
+      "previous": 4.3,
+      "previous_text": "4.300%",
+      "change": 0.07000000000000028,
+      "change_text": "+0.07%",
+      "unit": "%",
+      "severity": "中性",
+      "meaning": "5年期收益率处于中间区间，观察其相对3年和7年的斜率变化。",
+      "as_of": "2026-07-13"
+    },
+    {
+      "id": "UST_7Y_YIELD",
+      "label": "7Y Treasury Yield（7年期美国国债收益率）",
+      "value": 4.48,
+      "value_text": "4.480%",
+      "previous": 4.42,
+      "previous_text": "4.420%",
+      "change": 0.0600000000000005,
+      "change_text": "+0.06%",
+      "unit": "%",
+      "severity": "中性",
+      "meaning": "7年期收益率处于中间区间，观察其相对5年和10年的斜率变化。",
       "as_of": "2026-07-13"
     },
     {
@@ -10026,9 +10135,9 @@
       "reason": "观察短债供给吸收、货币基金现金分流和抵押品链条压力；拍卖倍数必须和发行规模一起看。"
     },
     {
-      "indicator": "1Y / 3Y / 10Y国债收益率",
+      "indicator": "1Y / 3Y / 5Y / 7Y国债收益率（腹部组合）",
       "importance": "中高",
-      "reason": "1年期看近端政策路径，3年期看中段再定价，10年期是全球折现率锚。"
+      "reason": "1年期看近端政策路径，3年期看中段再定价，5Y/7Y看腹部传导，10年期仅作折现率背景锚。"
     },
     {
       "indicator": "10Y实际收益率",
@@ -10108,6 +10217,10 @@
             {
               "date": "2026-07-10",
               "value": 3.55
+            },
+            {
+              "date": "2026-07-13",
+              "value": 3.6
             }
           ],
           "y_axis": "y"
@@ -10135,6 +10248,10 @@
             {
               "date": "2026-07-10",
               "value": 3.52
+            },
+            {
+              "date": "2026-07-13",
+              "value": 3.58
             }
           ],
           "y_axis": "y"
@@ -10162,6 +10279,10 @@
             {
               "date": "2026-07-10",
               "value": 3.52
+            },
+            {
+              "date": "2026-07-13",
+              "value": 3.58
             }
           ],
           "y_axis": "y"
@@ -10344,6 +10465,10 @@
             {
               "date": "2026-07-10",
               "value": 3.55
+            },
+            {
+              "date": "2026-07-13",
+              "value": 3.6
             }
           ],
           "y_axis": "y"
@@ -10431,6 +10556,10 @@
             {
               "date": "2026-07-10",
               "value": 3.52
+            },
+            {
+              "date": "2026-07-13",
+              "value": 3.58
             }
           ],
           "y_axis": "y"
@@ -10518,6 +10647,10 @@
             {
               "date": "2026-07-10",
               "value": 3.52
+            },
+            {
+              "date": "2026-07-13",
+              "value": 3.58
             }
           ],
           "y_axis": "y"
@@ -10553,6 +10686,10 @@
             {
               "date": "2026-07-10",
               "value": -10.000000000000009
+            },
+            {
+              "date": "2026-07-13",
+              "value": -4.999999999999982
             }
           ],
           "y_axis": "y"
@@ -10579,6 +10716,10 @@
             },
             {
               "date": "2026-07-10",
+              "value": 0.0
+            },
+            {
+              "date": "2026-07-13",
               "value": 0.0
             }
           ],
@@ -10675,6 +10816,10 @@
             {
               "date": "2026-07-10",
               "value": -10.000000000000009
+            },
+            {
+              "date": "2026-07-13",
+              "value": -4.999999999999982
             }
           ],
           "y_axis": "y"
@@ -10761,6 +10906,10 @@
             },
             {
               "date": "2026-07-10",
+              "value": 0.0
+            },
+            {
+              "date": "2026-07-13",
               "value": 0.0
             }
           ],
@@ -10857,6 +11006,10 @@
             {
               "date": "2026-07-10",
               "value": 3056.0
+            },
+            {
+              "date": "2026-07-13",
+              "value": 3096.0
             }
           ],
           "y_axis": "y"
@@ -11212,7 +11365,7 @@
     },
     {
       "id": "treasury_yields_30d",
-      "title": "美国国债收益率：1Y / 3Y / 10Y 最近一月",
+      "title": "美国国债收益率：1Y / 3Y / 5Y / 7Y 最近一月",
       "chart_type": "line",
       "unit": "%",
       "series": [
@@ -11399,8 +11552,38 @@
           "y_axis": "y"
         },
         {
+          "id": "DGS5",
+          "label": "5Y Treasury Yield（5年期美国国债收益率）",
+          "points": [
+            {
+              "date": "2026-07-10",
+              "value": 4.3
+            },
+            {
+              "date": "2026-07-13",
+              "value": 4.37
+            }
+          ],
+          "y_axis": "y"
+        },
+        {
+          "id": "DGS7",
+          "label": "7Y Treasury Yield（7年期美国国债收益率）",
+          "points": [
+            {
+              "date": "2026-07-10",
+              "value": 4.42
+            },
+            {
+              "date": "2026-07-13",
+              "value": 4.48
+            }
+          ],
+          "y_axis": "y"
+        },
+        {
           "id": "DGS10",
-          "label": "10Y Treasury Yield（10年期美国国债收益率）",
+          "label": "10Y Treasury Yield（10年期美国国债收益率，背景）",
           "points": [
             {
               "date": "2026-06-09",
@@ -21391,8 +21574,8 @@
     }
   ],
   "chart_paths": [
-    "/Users/eiheisun/WorkBuddy/2026-05-04-task-1/output/usd_liquidity_chart_7d_20260714_151529.svg",
-    "/Users/eiheisun/WorkBuddy/2026-05-04-task-1/output/usd_liquidity_chart_30d_20260714_151529.svg"
+    "/Users/eiheisun/WorkBuddy/2026-05-04-task-1/output/usd_liquidity_chart_7d_20260714_202116.svg",
+    "/Users/eiheisun/WorkBuddy/2026-05-04-task-1/output/usd_liquidity_chart_30d_20260714_202116.svg"
   ],
   "data_quality": {
     "missing": [],

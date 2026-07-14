@@ -162,6 +162,24 @@ def derive_signals(metrics: List[Metric]) -> Tuple[List[DerivedSignal], float, L
         else:
             add_signal("UST_3Y_YIELD", "3Y Treasury Yield（3年期美国国债收益率）", dgs3.value, "%", "3年期收益率处于中间区间，观察其相对1年和10年的斜率变化。", "中性", 0.0, previous=dgs3.previous, as_of=dgs3.as_of)
 
+    dgs5 = mm.get("DGS5")
+    if dgs5 and dgs5.value is not None:
+        if dgs5.value >= 4.5:
+            add_signal("UST_5Y_YIELD", "5Y Treasury Yield（5年期美国国债收益率）", dgs5.value, "%", "5年期收益率处于高位，腹部再定价压力向长端传导。", "偏紧", 0.3, previous=dgs5.previous, as_of=dgs5.as_of)
+        elif dgs5.value <= 3.0:
+            add_signal("UST_5Y_YIELD", "5Y Treasury Yield（5年期美国国债收益率）", dgs5.value, "%", "5年期收益率处于较低区间，腹部再定价压力较小。", "偏松", -0.2, previous=dgs5.previous, as_of=dgs5.as_of)
+        else:
+            add_signal("UST_5Y_YIELD", "5Y Treasury Yield（5年期美国国债收益率）", dgs5.value, "%", "5年期收益率处于中间区间，观察其相对3年和7年的斜率变化。", "中性", 0.0, previous=dgs5.previous, as_of=dgs5.as_of)
+
+    dgs7 = mm.get("DGS7")
+    if dgs7 and dgs7.value is not None:
+        if dgs7.value >= 4.5:
+            add_signal("UST_7Y_YIELD", "7Y Treasury Yield（7年期美国国债收益率）", dgs7.value, "%", "7年期收益率处于高位，腹部偏长端再定价压力较大。", "偏紧", 0.3, previous=dgs7.previous, as_of=dgs7.as_of)
+        elif dgs7.value <= 3.0:
+            add_signal("UST_7Y_YIELD", "7Y Treasury Yield（7年期美国国债收益率）", dgs7.value, "%", "7年期收益率处于较低区间，腹部偏长端再定价压力较小。", "偏松", -0.2, previous=dgs7.previous, as_of=dgs7.as_of)
+        else:
+            add_signal("UST_7Y_YIELD", "7Y Treasury Yield（7年期美国国债收益率）", dgs7.value, "%", "7年期收益率处于中间区间，观察其相对5年和10年的斜率变化。", "中性", 0.0, previous=dgs7.previous, as_of=dgs7.as_of)
+
     dgs10 = mm.get("DGS10")
     if dgs10 and dgs10.change is not None:
         dgs10_chg_bp = dgs10.change * 100.0

@@ -136,7 +136,7 @@ def fetch_treasury_par_yield_curve() -> Dict[str, Any]:
     """Fetch SAME-DAY Treasury par yield curve from Treasury.gov (released ~4pm ET same day).
 
     Faster than FRED daily constant-maturity series (which are T+1). Returns a dict of
-    Metric objects keyed by the same ids used downstream (DGS1/DGS2/DGS3/DGS10/DGS30/DGS3MO
+    Metric objects keyed by the same ids used downstream (DGS1/DGS2/DGS3/DGS5/DGS7/DGS10/DGS3MO
     plus computed T10Y2Y/T10Y3M), so signals/prompt/frontend are unaffected. FRED remains the
     fallback for these ids in fetch_all_metrics. Returns {} on any failure.
     """
@@ -153,14 +153,16 @@ def fetch_treasury_par_yield_curve() -> Dict[str, Any]:
             return {}
         header = [h.strip().strip('"') for h in rows[0]]
         col_map = {"1 Yr": "DGS1", "2 Yr": "DGS2", "3 Yr": "DGS3",
-                   "10 Yr": "DGS10", "30 Yr": "DGS30", "3 Mo": "DGS3MO"}
+                   "5 Yr": "DGS5", "7 Yr": "DGS7",
+                   "10 Yr": "DGS10", "3 Mo": "DGS3MO"}
         col_to_mid = {name: col_map[name] for name in col_map if name in header}
         col_index = {name: header.index(name) for name in col_to_mid}
         if not col_to_mid:
             return {}
         name_map = {"DGS1": "1年期国债收益率", "DGS2": "2年期国债收益率",
-                    "DGS3": "3年期国债收益率", "DGS10": "10年期国债收益率",
-                    "DGS30": "30年期国债收益率", "DGS3MO": "3个月期国债收益率"}
+                    "DGS3": "3年期国债收益率", "DGS5": "5年期国债收益率",
+                    "DGS7": "7年期国债收益率", "DGS10": "10年期国债收益率",
+                    "DGS3MO": "3个月期国债收益率"}
 
         def parse_row(row):
             out: Dict[str, Tuple[str, float]] = {}
@@ -590,9 +592,10 @@ def fetch_all_metrics(auction_lookback_days: int) -> List[Metric]:
         lambda: fetch_fred_series("DGS1", "1-year Treasury constant maturity yield", "国债收益率/曲线", "%", "daily T+1"),
         lambda: fetch_fred_series("DGS2", "2-year Treasury constant maturity yield", "国债收益率/曲线", "%", "daily T+1"),
         lambda: fetch_fred_series("DGS3", "3-year Treasury constant maturity yield", "国债收益率/曲线", "%", "daily T+1"),
+        lambda: fetch_fred_series("DGS5", "5-year Treasury constant maturity yield", "国债收益率/曲线", "%", "daily T+1"),
+        lambda: fetch_fred_series("DGS7", "7-year Treasury constant maturity yield", "国债收益率/曲线", "%", "daily T+1"),
         lambda: fetch_fred_series("DGS10", "10-year Treasury constant maturity yield", "国债收益率/曲线", "%", "daily T+1"),
         lambda: fetch_fred_series("DFII10", "10-year Treasury inflation-indexed security real yield", "国债收益率/曲线", "%", "daily T+1"),
-        lambda: fetch_fred_series("DGS30", "30-year Treasury constant maturity yield", "国债收益率/曲线", "%", "daily T+1"),
         lambda: fetch_fred_series("T10Y2Y", "10-year minus 2-year Treasury spread", "国债收益率/曲线", "%", "daily T+1"),
         lambda: fetch_fred_series("T10Y3M", "10-year minus 3-month Treasury spread", "国债收益率/曲线", "%", "daily T+1"),
         lambda: fetch_fred_series("VIXCLS", "CBOE Volatility Index: VIX", "证券市场风险偏好", "index", "daily T+1"),

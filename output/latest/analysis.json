@@ -1,145 +1,143 @@
 {
   "meta": {
-    "generated_at_bjt": "2026-07-14 15:15:46 UTC+08:00",
+    "generated_at_bjt": "2026-07-14 20:24:19 UTC+08:00",
     "data_as_of": "2026-07-13",
-    "model": "AI Agent (WorkBuddy USD Liquidity Pipeline)",
-    "input_freshness_note": "核心日频指标日期不一致：RRP 与国债收益率为 2026-07-13，SOFR/TGA/信用/VIX/美元为 2026-07-10（T+1 发布），NFCI 为周频 2026-07-03，JPY carry CFTC 为 2026-07-07；商业源 MOVE/FRA-OIS/真实 cross-currency basis/实时美债订单簿/GS FCI 缺失，已用 NFCI、SOFR-CP 利差、DTWEXBGS 代理替代。"
+    "model": "model_analysis",
+    "input_freshness_note": "各指标日期不一致：收益率/回购/货币市场为日频截至2026-07-13，TGA截至07-10，WRESBAL/SOMA/NFCI为周频（07-08/07-03），CP_PROXY仅截至06-26偏滞后；结论不强行同日对齐，日频边际以07-13 vs 07-10为准。"
   },
   "stance": {
-    "label": "中性",
+    "label": "中性偏紧",
     "confidence": "中等",
-    "score_text": "规则分数 0.80（中性偏松方向）；模型按一阶权重纳入 1Y/3Y/10Y 收益率全线 +6~8bp 上行与 T-bill 供给压力跳升（STRESS 50），将其从偏松拉回中性；融资端 SOFR/TGA/信用/VIX/NFCI 仍宽松形成对冲。",
-    "one_liner": "收益率上行与短债供给压力构成主要偏紧拉力，但回购/TGA/信用端维持宽松、风险偏好平稳，美元流动性整体中性。"
+    "score_text": "腹部收益率同步上行+RRP缓冲垫近乎耗尽构成结构性脆弱，但前端融资偏松、准备金充裕，资金面尚未紧张。",
+    "one_liner": "美元流动性整体中性偏紧：国债腹部1Y/3Y/5Y/7Y同步上行+6~8bp构成一阶估值压制，RRP缓冲垫近乎耗尽是结构性脆弱点；但SOFR仍低于政策锚、准备金充裕、TGA回落，资金面尚未紧张。"
   },
   "key_takeaways": [
     {
-      "title": "美债收益率全线走高，折现率上移压制久期资产",
-      "text": "1Y/3Y/10Y 名义国债收益率同步上行 6~8bp，为本简报一阶高权重偏紧信号；长端折现率抬升对成长股、黄金等长期现金流资产估值构成压制，与回购/TGA/信用端的宽松形成对冲。",
+      "title": "国债腹部收益率同步上行（一阶高权重信号）",
+      "text": "1Y/3Y/5Y/7Y腹部组合在2026-07-13 vs 07-10全部上行：1Y 4.12%(+6bp)、3Y 4.30%(+8bp)、5Y 4.37%(+7bp)、7Y 4.48%(+6bp)，腹部斜率(5Y-3Y、7Y-5Y)小幅走陡。收益率边际变化是本简报一阶高权重维度，对久期资产、成长股、黄金等长期现金流资产估值形成普遍压制；10Y仅作背景也升至4.62%(+6bp)。",
       "evidence": [
-        "1Y Treasury Yield 4.12% @2026-07-13（日频/FRED 恒定期限），较 2026-07-10 的 4.06% 上行 6bp，近端政策路径上移、现金收益分流风险资产",
-        "3Y Treasury Yield 4.30% @2026-07-13，较 4.22% 上行 8bp（单段最大），中段再定价最陡，短端政策预期向腹部扩散",
-        "10Y Treasury Yield 4.62% @2026-07-13，较 4.56% 上行 6bp；REAL_10Y_MOMENTUM +6.0bp 确认压力累积而非缓和，久期资产/成长股/黄金估值压力边际增强",
-        "斜率 10Y-1Y +73bp、10Y-3M +73bp（10Y-2Y +36bp）@2026-07-13，曲线未倒挂但长端上行抬升融资成本"
+        "日期/口径：日频 FRED/H.15 恒定期限收益率，2026-07-13 vs 2026-07-10",
+        "UST_1Y_YIELD 4.12%（上期4.06%，+6bp）",
+        "UST_3Y_YIELD 4.30%（上期4.22%，+8bp）",
+        "UST_5Y_YIELD 4.37%（上期4.30%，+7bp）",
+        "UST_7Y_YIELD 4.48%（上期4.42%，+6bp）"
       ],
       "related_indicators": [
         "UST_1Y_YIELD",
         "UST_3Y_YIELD",
-        "NOMINAL_10Y",
-        "REAL_10Y"
+        "UST_5Y_YIELD",
+        "UST_7Y_YIELD",
+        "DGS10"
       ]
     },
     {
-      "title": "短债拍卖吸收压力跳升，但需求仍承接",
-      "text": "本周 T-bill 拍卖规模激增至 195bn、认购倍数降至 2.79x，吸收压力评分由 0 跳升至 50；价格×规模看供给边际走紧，但 BTC 仍高于 2.5x，需求端暂未失控，未来 7-14 还有 $95bn 6-week bill 待结算。",
+      "title": "前端融资实际偏松，非资金面紧张",
+      "text": "SOFR 3.60%仍低于IORB政策锚3.65%（SOFR-Anchor -5.0bp，较上期-10.0bp收窄），TGCR/BGCR 3.58%亦低于锚；准备金WRESBAL 3098.9bn充裕，TGA 738.3bn较前回落释放准备金。尽管SOFR交易量升至3096bn，但因利率仍在锚下，SOFR_VOLUME_IMPACT为-4.3mn/day（较-8.5改善），价格×规模冲击有限。当前并非回购/银行间流动性紧张。",
       "evidence": [
-        "TBILL_AUCTION_STRESS 50.00 @2026-07-09（事件驱动），较 2026-07-08 的 0.00 跳升 50，供给规模×需求覆盖压力评分骤升",
-        "TBILL_AUCTION_SIZE 195.0bn @2026-07-09，较 72.0bn 增 123.0bn（大规模供给）",
-        "TBILL_AUCTION_BTC 2.79x @2026-07-09，较 3.41x 降 0.62x（需求覆盖边际走弱但仍承接）",
-        "未来拍卖 2026-07-14 6-Week Bill $95bn，结算 2026-07-16（TreasuryDirect）——供给滚动未结束，不得视为零供给"
+        "日期/口径：日频 纽约联储，2026-07-13 vs 2026-07-10",
+        "SOFR 3.60%（上期3.55%，+5bp），IORB 3.65%",
+        "SOFR_ANCHOR -5.0bp（上期-10.0bp，+5.0bp）",
+        "SOFR_VOLUME 3096bn（上期3056bn，+40bn）；SOFR_VOLUME_IMPACT -4.3mn/day"
       ],
       "related_indicators": [
-        "TBILL_AUCTION_STRESS",
-        "TBILL_AUCTION_SIZE",
-        "TBILL_AUCTION_BTC"
-      ]
-    },
-    {
-      "title": "回购与融资端维持宽松，对冲收益率偏紧",
-      "text": "SOFR 低于政策锚 10bp、SOFR 价格×交易量影响为负（-8.5mn/day）、BGCR-TGCR 零扰动、TGA 下降释放资金，抵押融资与银行体系流动性仍宽松，是压制总判断走向偏紧的主要对冲力量。",
-      "evidence": [
-        "SOFR-IORB -10.0bp @2026-07-10（日频/纽约联储），较 -12.0bp 改善 2bp，SOFR 仍低于政策锚表明回购融资不紧",
-        "SOFR_VOLUME_IMPACT -8.5mn/day @2026-07-10，较 -10.4mn/day 改善 1.9mn/day，利率偏离作用在大交易量上仍偏宽松方向",
-        "TGA Daily Change -6.4bn @2026-07-10（日频/DTS），较 -4.6bn 多降 1.8bn，财政部账户下降向银行体系释放准备金",
-        "BGCR-TGCR +0.0bp @2026-07-10 持平，一般抵押品融资结构无扰动"
-      ],
-      "related_indicators": [
+        "SOFR",
+        "IORB",
         "SOFR_ANCHOR",
+        "SOFR_VOLUME",
         "SOFR_VOLUME_IMPACT",
-        "TGA_FLOW",
-        "BGCR_TGCR"
+        "TGA",
+        "WRESBAL"
       ]
     },
     {
-      "title": "风险偏好与金融条件平稳偏松",
-      "text": "VIX 回落至 15.03、NFCI 维持 -0.52 宽松区间、广义美元指数走弱、HY OAS 略降，信用与权益风险偏好未恶化，与收益率上行形成对冲，支撑总判断维持中性而非偏紧。",
+      "title": "日元carry中性偏高，杠杆资金供给未明显增强",
+      "text": "JPY carry风险评级中性偏高（score 2.0）：CFTC日元非商业净空头占未平仓比例偏高，但驱动为mixed（净空头变化由空头-30,939口、多头+375口共同构成，属空头回补而非新加空），按规则不得下『空头加仓支撑美元』结论；美日10Y利差处于相对较窄区域，carry收益端安全垫下降。整体对美股/美元风险资产的杠杆资金供给未明显增强也未断裂。",
       "evidence": [
-        "VIX 15.03 @2026-07-10（日频），较 15.84 降 0.81pt（VIX_MOMENTUM -0.81pt），股票风险偏好平稳略暖",
-        "NFCI -0.52 @2026-07-03（周频/芝加哥联储），较 -0.51 微降 0.01，金融条件处宽松区间",
-        "Broad Dollar Index -0.25pt @2026-07-10，美元边际走弱缓解离岸美元融资压力",
-        "HY OAS 2.69% @2026-07-10，较 2.70% 降 0.01%，高收益信用压力边际缓和"
+        "口径：JPY carry叠加分析，CFTC约2年、REER/NEER约3年",
+        "risk.label=中性偏高，score=2.0",
+        "cftc_decomposition.driver=mixed，净空头变化=空头-30,939口/多头+375口",
+        "原因：净空头占比偏高 + 美日10Y利差偏窄使carry缓冲下降"
       ],
       "related_indicators": [
-        "VIX_RISK",
-        "NFCI_LEVEL",
-        "USD_CHANGE",
-        "HY_CHANGE"
+        "jpy_carry",
+        "DTWEXBGS",
+        "DGS10"
       ]
     }
   ],
   "risk_flags": [
     {
+      "priority": "P0",
+      "severity": "high",
+      "type": "market",
+      "title": "RRP缓冲垫近乎耗尽（结构性脆弱点）",
+      "text": "RRPONTSYD仅0.795bn（2026-07-13），远低于50bn缓冲线，触发『缓冲垫几乎耗尽』偏紧判定（score 1.2）。这意味着未来TGA补库、QT或美债供给冲击将更直接落到银行准备金，而非先被RRP停车场吸收；当前准备金虽充裕(3098.9bn)，但抗冲击的安全垫已极薄。",
+      "evidence": [
+        "日期/口径：日频 纽约联储逆回购，2026-07-13 vs 2026-07-10",
+        "RRPONTSYD 0.795bn（上期0.545bn，+0.25bn）",
+        "RRP_BUFFER信号判定：<50bn → 偏紧，score 1.2",
+        "WRESBAL 3098.9bn（周频07-08）仍充裕，但缓冲垫薄"
+      ],
+      "related_indicators": [
+        "RRPONTSYD",
+        "RRP_BUFFER",
+        "RRP_FLOW",
+        "WRESBAL",
+        "TGA"
+      ]
+    },
+    {
       "priority": "P1",
       "severity": "medium",
       "type": "market",
-      "title": "RRP 缓冲垫接近耗尽，结构性脆弱点",
-      "text": "RRP 存量缓冲垫仅 0.8bn，处历史极低水平；未来 TGA 补库、QT 或美债供给冲击将更易直接打到银行准备金，缺乏缓冲。RRP 边际流量 +0.2bn 小幅回流联储停车场，短期偏不利但量级极小。该脆弱点与收益率上行、短债供给压力叠加，是总判断偏紧一侧的关键支撑。",
+      "title": "短债供给吸收压力抬升（规模大、覆盖下降）",
+      "text": "TBILL_AUCTION_SIZE升至195bn（2026-07-09，+123bn），同期BTC降至2.79x（-0.62x），TBILL_AUCTION_STRESS评分升至50；未来6周Bill $95bn将于2026-07-14结算。大规模供给叠加覆盖倍数下降，货币基金/银行需吸收的新增短债量级变大，需持续观察需求能否承接。",
       "evidence": [
-        "RRP_BUFFER 0.8bn @2026-07-13（日频/纽约联储），较 2026-07-10 的 0.5bn 升 0.2bn，但仍处极低，缓冲垫接近耗尽",
-        "RRP_FLOW +0.2bn @2026-07-13（首期/无上一期可比），资金边际小幅回流联储停车场，短期偏不利风险资产"
+        "日期/口径：事件驱动 财政部拍卖，2026-07-09 vs 2026-07-08",
+        "TBILL_AUCTION_SIZE 195bn（上期72bn，+123bn）",
+        "TBILL_AUCTION_BTC 2.79x（上期3.41x，-0.62x）",
+        "TBILL_AUCTION_STRESS 50.00（上期0.00）；未来6周Bill $95bn 结算日2026-07-14"
       ],
       "related_indicators": [
-        "RRP_BUFFER",
-        "RRP_FLOW"
+        "TBILL_AUCTION_SIZE",
+        "TBILL_AUCTION_BTC",
+        "TBILL_AUCTION_STRESS",
+        "RRPONTSYD"
       ]
     },
     {
       "priority": "P2",
-      "severity": "low",
+      "severity": "info",
       "type": "data",
-      "title": "商业/低频数据源缺失，离岸美元真实压力或被低估",
-      "text": "MOVE Index、FRA-OIS、真实 cross-currency basis、实时美债订单簿深度、GS FCI 无免费官方实时源，已用 NFCI/SOFR-CP 利差/DTWEXBGS 代理；离岸美元融资与利率波动真实压力可能被低估，属数据风险而非市场压力。",
+      "title": "部分指标日期口径不一致（仅作背景，非市场压力）",
+      "text": "CP_PROXY仅截至2026-06-26（上期06-17）、NFCI为周频截至07-03、WRESBAL/SOMA周频截至07-08；与日频收益率/回购不可同日对齐。这些仅作背景，不构成实时市场压力判断，也不得与日频边际强行比较。",
       "evidence": [
-        "unavailable_sources：MOVE Index、FRA-OIS、True cross-currency basis、Real-time Treasury order book depth、Goldman Sachs FCI 均缺失",
-        "proxy：以 NFCI(-0.52)、SOFR-CP 利差、DTWEXBGS 替代，覆盖范围有限"
+        "CP_PROXY as_of=2026-06-26（频率日频但滞后）",
+        "NFCI as_of=2026-07-03（周频）",
+        "WRESBAL/SOMA as_of=2026-07-08（周频）"
       ],
       "related_indicators": [
-        "NFCI_LEVEL",
-        "DTWEXBGS"
-      ]
-    },
-    {
-      "priority": "P2",
-      "severity": "medium",
-      "type": "market",
-      "title": "日元 carry 拥挤度高位，边际逆风累积",
-      "text": "CFTC 日元空头占比 67.8% 处近1年 90% 分位（水平高），但驱动为 mixed（空头 -30,939 口、多头 +375 口），并非净加仓，不能解读为 carry 加杠杆；JGB 10Y 上行 4.6bp 至 2.69% 削弱利差安全垫，USD/JPY 自高位小幅回落。高拥挤度下未来若 USD/JPY 快速贬值或 JGB 续升，踩踏风险大，对美股/美元风险资产杠杆资金支撑边际弱化。",
-      "evidence": [
-        "CFTC_JPY_SHORT_SHARE 67.8% @2026-07-07，近1年 90% 分位（水平高）；driver=mixed，空头 -30,939 口、多头 +375 口",
-        "US-JP 10Y 利差 187bp @2026-06-30 仍宽，但 JGB10 2.69% 逐日 +4.6bp 上行削弱安全垫",
-        "USD/JPY 161.70 @2026-07-10，日变动 -0.40%；20日实现波动率 5.43% 低位"
-      ],
-      "related_indicators": [
-        "CFTC_JPY_SHORT_SHARE",
-        "US_JP_10Y",
-        "JGB10",
-        "USDJPY"
+        "CP_PROXY",
+        "NFCI",
+        "WRESBAL",
+        "SOMA"
       ]
     }
   ],
   "narrative_blocks": {
-    "summary": "2026-07-13 可用数据显示，美元流动性整体中性：回购融资（SOFR 低于政策锚 10bp）、TGA 下降释放、信用（HY OAS 略降）、VIX 下行与 NFCI 宽松共同构成宽松一侧；但 1Y/3Y/10Y 国债收益率同步上行 6~8bp（一阶高权重偏紧）、RRP 缓冲垫仅 0.8bn 接近耗尽、T-bill 供给吸收压力跳升（评分 50）构成偏紧拉力。两者对冲，总判断中性，收益率与短债供给是后续主要观察点。",
-    "balance_sheet": "Fed 负债端：TGA 日降 6.4bn 向银行体系释放准备金（偏松）；RRP 边际 +0.2bn 小幅回流停车场但量级极小，存量缓冲垫仅 0.8bn 处极低，是未来冲击打到准备金前的薄弱防线。SOMA/WRESBAL 等周频仅作结构背景。",
-    "market_transmission": "传导链：收益率上行 → 折现率抬升压制久期资产/成长股/黄金；短债供给压力（195bn + BTC 降至 2.79x）→ 交易商资产负债表占用与抵押品链条压力；RRP 缓冲垫极低放大未来 TGA 补库/QT 冲击。信用端（HY/IG OAS 平稳）与风险偏好（VIX 15.03、美元走弱）未恶化，缓冲了传导。",
-    "rates": "政策锚体系：SOFR -10bp、CP_PROXY -3bp 均低于上限，走廊内融资宽松；收益率曲线 10Y-1Y +73bp、10Y-2Y +36bp 陡峭未倒挂。定价锚 1Y/3Y/10Y 全线 +6~8bp 上行，为本简报偏紧主信号。",
+    "summary": "美元流动性整体中性偏紧。国债腹部1Y/3Y/5Y/7Y收益率同步上行+6~8bp，是本期一阶高权重信号，对久期资产估值形成普遍压制；但前端融资实际偏松（SOFR仍低于政策锚、准备金充裕、TGA回落），资金面尚未紧张。结构性脆弱点在RRP缓冲垫近乎耗尽，叠加短债供给规模大、覆盖下降，未来冲击更易直接落到准备金。",
+    "rates": "短端资金利率重点看相对政策锚位置：SOFR 3.60%低于IORB 3.65%（SOFR-Anchor -5.0bp，较上期收窄），TGCR/BGCR 3.58%亦低于锚，回购融资端准备金边际不紧；同时以SOFR_VOLUME 3096bn把价格偏离映射到规模，SOFR_VOLUME_IMPACT -4.3mn/day说明冲击有限。",
+    "balance_sheet": "TGA 738.3bn小幅回落释放准备金，WRESBAL 3098.9bn充裕；但RRPONTSYD仅0.795bn，缓冲垫近乎耗尽，未来TGA补库/QT/美债供给冲击将更直接落到准备金。RRP需区分边际流量(+0.25bn)与存量缓冲垫(极薄)。",
+    "market_transmission": "信用与离岸美元平稳：IG OAS 0.77%、HY OAS 2.69%基本不变，VIX 15.03（回落）显示风险偏好舒适，DTWEXBGS 120.50微跌；NFCI -0.52偏松。收益率上行是本期主要传导压力源，但暂未外溢为信用或美元融资紧张。日元carry中性偏高，CFTC为mixed（空头回补而非新加空），杠杆资金供给未明显增强也未断裂。",
     "treasury_yields": {
       "label": "偏紧",
-      "one_liner": "1Y/3Y/10Y 名义收益率同步上行 6~8bp，长端折现率抬升压制久期资产，为本简报一阶偏紧信号",
-      "analysis": "1Y Treasury Yield 4.12%（2026-07-13，较 2026-07-10 的 4.06% 上行 6bp）：近端政策路径上移，现金收益率上升对风险资产形成分流压力。3Y Treasury Yield 4.30%（较 4.22% 上行 8bp）：中段再定价最陡，短端政策预期向腹部扩散，曲线腹部上行反映市场对近端利率更久维持高位的定价。10Y Treasury Yield 4.62%（较 4.56% 上行 6bp）：长期名义折现率锚上移，久期资产、成长股与黄金等长期现金流资产估值压力边际增强；REAL_10Y_MOMENTUM +6.0bp 确认压力正在累积而非缓和。斜率方面 10Y-1Y +73bp、10Y-3M +73bp（10Y-2Y +36bp）整体陡峭，曲线未倒挂，增长/降息预期未进入衰退定价，但长端上行意味着实体融资成本抬升。综合：收益率组合全线 +6~8bp 上行，为本简报一阶偏紧信号，与回购/TGA/信用端的宽松形成对冲，但折现率上行对风险资产估值的压制需重点跟踪。"
+      "one_liner": "1Y/3Y/5Y/7Y腹部组合全部上行+6~8bp（3Y +8bp最大），10Y仅作背景升至4.62%。",
+      "analysis": "本期国债收益率主框架1Y/3Y/5Y/7Y（腹部组合）相对2026-07-10全部上行：1Y 4.12%(+6bp)、3Y 4.30%(+8bp)、5Y 4.37%(+7bp)、7Y 4.48%(+6bp)，腹部斜率(5Y-3Y=+7bp、7Y-5Y=+11bp)小幅走陡，反映政策预期从中段向长端均匀再定价。每个期限均拆为水平+边际两层：水平看绝对位置（7Y 4.48%仍处4.5%附近高位、1Y 4.12%高于现金替代），边际看bp变动——全组合>3bp阈值，构成一阶估值压制，对久期资产、成长股、黄金折现率压力上升。10Y仅作曲线/折现率背景锚：DGS10 4.62%(+6bp)，10Y-2Y +36bp(+1bp)、10Y-3M +73bp(+2bp)，斜率平稳，衰退/降息预期背景未明显变化，不替代1Y/3Y/5Y/7Y原始判断。"
     },
     "jpy_carry": {
-      "label": "中性",
-      "one_liner": "carry 资金供给当下顺畅（低融资、宽利差、低波动、USD/JPY 高位）但拥挤度高、JGB 上行构成边际逆风",
-      "analysis": "日元融资成本 0.977%（2026-07-10，边际 -0.1bp）仍处低位，美日 10Y 利差 187bp（2026-06-30）维持宽阔，USD/JPY 161.70（2026-07-10，日变动 -0.40%）高位小幅回落，20 日实现波动率 5.43% 低位——当前借日元买美元风险资产的资金供给仍顺畅。但 CFTC 仓位显示拥挤度水平偏高：CFTC_JPY_SHORT_SHARE 67.8%（2026-07-07）处近1年 90% 分位，一旦反转踩踏剧烈；流量方向为 mixed（空头 -30,939 口、多头 +375 口），并非净加仓，不能解读为 carry 仍在加杠杆。边际逆风来自 JGB 10Y 上行 4.6bp 至 2.69%（2026-06-30），削弱利差安全垫，且 USD/JPY 近期自 144 升至 161 后小幅回落，若快速贬值将触发止损。整体：carry 资金供给当下顺畅但拥挤度高、边际逆风累积，对美股/美元风险资产的杠杆资金支撑边际弱化但不失控。"
+      "label": "中性偏高",
+      "one_liner": "日元净空头占比偏高但CFTC驱动为mixed（空头回补而非新加空），carry杠杆资金供给未明显增强。",
+      "analysis": "JPY carry风险评级中性偏高(score 2.0)。CFTC日元非商业净空头占未平仓比例偏高，但cftc_decomposition.driver=mixed：净空头变化由空头-30,939口、多头+375口共同构成，属空头回补而非新加空，按规则不得下『空头加仓支撑美元』结论。美日10Y利差处于相对较窄区域，carry收益端安全垫下降。整体对美股/美元风险资产的杠杆资金供给未明显增强也未断裂，与当下美元流动性中性偏紧相互印证。"
     }
   }
 }
