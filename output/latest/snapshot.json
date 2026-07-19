@@ -1,6 +1,6 @@
 {
-  "trigger": "更新数据并分析（JGB 10Y CNBC补丁修复，日债端不再陈旧）",
-  "generated_at_bjt": "2026-07-19 16:56:56 UTC+08:00",
+  "trigger": "更新数据并分析（NEER改BIS日频、REER删除）",
+  "generated_at_bjt": "2026-07-19 19:51:10 UTC+08:00",
   "stance": "中性",
   "score": 0.5999999999999999,
   "metrics": [
@@ -1856,8 +1856,8 @@
     ]
   ],
   "chart_paths": [
-    "/Users/eiheisun/WorkBuddy/2026-05-04-task-1/output/usd_liquidity_chart_7d_20260719_165636.svg",
-    "/Users/eiheisun/WorkBuddy/2026-05-04-task-1/output/usd_liquidity_chart_30d_20260719_165636.svg"
+    "/Users/eiheisun/WorkBuddy/2026-05-04-task-1/output/usd_liquidity_chart_7d_20260719_195051.svg",
+    "/Users/eiheisun/WorkBuddy/2026-05-04-task-1/output/usd_liquidity_chart_30d_20260719_195051.svg"
   ],
   "upcoming_auctions": {
     "status": "ok",

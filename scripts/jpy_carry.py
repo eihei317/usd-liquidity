@@ -16,7 +16,7 @@ import sys
 import time
 import urllib.parse
 import urllib.request
-from datetime import datetime, timedelta, timezone
+from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
@@ -143,6 +143,12 @@ def fetch_boj_series(db: str, code: str, start_yyyymm: str, end_yyyymm: str) -> 
     rows: List[Tuple[str, float]] = []
     for date, value in zip(dates, nums):
         parsed = parse_date_guess(date)
+        # BOJ monthly series (e.g. FM09 NEER/REER) return dates as 'YYYYMM'.
+        # parse_date_guess leaves those unparsed (falls through to the raw string),
+        # which previously persisted keys like '202605' that never overwrote the
+        # stale legacy 'YYYY-01-02' rows. Normalize to ISO first-of-month here.
+        if parsed and len(parsed) == 6 and parsed.isdigit():
+            parsed = f"{parsed[:4]}-{parsed[4:6]}-01"
         number = safe_float(value)
         if parsed and number is not None:
             rows.append((parsed, number))
@@ -250,6 +256,47 @@ def fetch_cnbc_jgb() -> Tuple[Dict[str, Tuple[str, float]], Dict[str, Any]]:
     if not out:
         raise RuntimeError("CNBC JGB quote API returned no usable tenors")
     return out, {"source": "CNBC", "source_url": "https://www.cnbc.com/bonds/", "frequency": "daily", "name": "CNBC real-time JGB yields (JP2Y/JP5Y/JP10Y/JP30Y)", "missing_tenors": missing}
+
+
+def fetch_bis_neer(keep: int = 900) -> Tuple[List[Tuple[str, float]], Dict[str, Any]]:
+    """Fetch the *daily* nominal effective exchange rate (NEER) for the yen from
+    the BIS Data Portal SDMX API.
+
+    Why this replaces BOJ FM09: the previous NEER/REER came from BOJ's monthly
+    effective-exchange-rate series, which lags ~1.5 months and refreshes only
+    once a month — near-zero marginal information for a daily-updated carry
+    monitor. BIS publishes a *daily* nominal EER (broad, 64-economy basket) that
+    lags only a few business days, so we use it as the daily NEER. REER is
+    dropped entirely: a *real* effective rate needs monthly CPI, so no daily REER
+    exists at any source.
+
+    Key = FREQ.EER_TYPE.EER_BASKET.REF_AREA = D.N.B.JP
+    (Daily / Nominal / Broad / Japan). Holiday rows come back as NaN and are
+    filtered. Returns (rows, meta); `keep` trims to roughly the last ~3.5y.
+    """
+    url = "https://stats.bis.org/api/v2/data/dataflow/BIS/WS_EER/1.0/D.N.B.JP?format=csv"
+    raw = urllib.request.urlopen(
+        urllib.request.Request(url, headers={"User-Agent": USER_AGENT, "Accept": "text/csv, */*"}),
+        timeout=30,
+    ).read().decode("utf-8", "replace")
+    reader = csv.DictReader(io.StringIO(raw))
+    rows: List[Tuple[str, float]] = []
+    for r in reader:
+        d = parse_date_guess(r.get("TIME_PERIOD"))
+        v = safe_float(r.get("OBS_VALUE"))  # NaN -> None, so holidays drop out
+        if d and v is not None:
+            rows.append((d, v))
+    rows = normalize_rows(rows)
+    if keep and len(rows) > keep:
+        rows = rows[-keep:]
+    if not rows:
+        raise RuntimeError("BIS daily NEER returned no usable rows")
+    return rows, {
+        "source": "BIS",
+        "source_url": url,
+        "frequency": "daily",
+        "name": "BIS daily nominal effective exchange rate (JPY, broad 64-economy basket)",
+    }
 
 
 def _decompose_cftc_net(short_chg: Optional[float], long_chg: Optional[float]) -> Dict[str, Any]:
@@ -430,7 +477,20 @@ def persist_jpy_carry_series(series_map: Dict[str, Dict[str, Any]], snapshot_fil
     conn = sqlite3.connect(str(db_path))
     try:
         ensure_jpy_carry_table(conn)
+        # One-time cleanup: JPY_REER was retired (monthly, needs CPI, no daily
+        # source). Drop any legacy REER rows so it no longer lingers in the DB.
+        conn.execute("DELETE FROM jpy_carry_series_ts WHERE series_id = ?", ("JPY_REER",))
         for series_id, meta in series_map.items():
+            rows = meta.get("rows", [])
+            # JPY_NEER is fully re-fetched every run (BIS daily full history), so
+            # clear its prior rows first — this also purges the legacy monthly
+            # 'YYYY-MM-01' / stale 'YYYY-01-02' keys from the old BOJ source.
+            # Only purge when we actually have fresh rows, so a transient fetch
+            # failure can't wipe otherwise-good history.
+            if series_id == "JPY_NEER" and rows:
+                conn.execute(
+                    "DELETE FROM jpy_carry_series_ts WHERE series_id = ?", (series_id,)
+                )
             upsert_jpy_series(
                 conn,
                 series_id=series_id,
@@ -461,6 +521,13 @@ def fmt_bp(value: Optional[float], digits: int = 1) -> str:
     return "NA" if value is None else f"{value:.{digits}f}bp"
 
 
+def fmt_asof_month(iso: Optional[str]) -> Optional[str]:
+    """Render a monthly as_of (stored as YYYY-MM-01) compactly as 'YYYY-MM'."""
+    if not iso or len(iso) < 7:
+        return iso
+    return iso[:7]
+
+
 def build_payload(trigger: str, stamp: Optional[str] = None) -> Tuple[Dict[str, Any], Dict[str, Any], Dict[str, Any]]:
     generated = now_bjt().strftime("%Y-%m-%d %H:%M:%S %Z")
     stamp = stamp or now_bjt().strftime("%Y%m%d_%H%M%S")
@@ -479,8 +546,7 @@ def build_payload(trigger: str, stamp: Optional[str] = None) -> Tuple[Dict[str, 
 
     boj_usdjpy = safe_fetch("BOJ USDJPY", lambda: fetch_boj_series("FM08", "FXERD04", start_daily, end))
     boj_call = safe_fetch("BOJ call rate", lambda: fetch_boj_series("FM01", "STRDCLUCON", start_daily, end))
-    boj_neer = safe_fetch("BOJ NEER", lambda: fetch_boj_series("FM09", "FX180110001", start_monthly, end))
-    boj_reer = safe_fetch("BOJ REER", lambda: fetch_boj_series("FM09", "FX180110002", start_monthly, end))
+    bis_neer = safe_fetch("BIS NEER", fetch_bis_neer)  # daily NEER; replaces monthly BOJ FM09 NEER/REER
     mof = safe_fetch("MOF JGB", fetch_mof_jgb)
     cnbc_jgb, cnbc_jgb_meta = safe_fetch("CNBC JGB", fetch_cnbc_jgb) or ({}, {"source": "CNBC"})
     if cnbc_jgb_meta.get("missing_tenors"):
@@ -493,8 +559,7 @@ def build_payload(trigger: str, stamp: Optional[str] = None) -> Tuple[Dict[str, 
 
     usdjpy_rows, usdjpy_meta = boj_usdjpy if boj_usdjpy else ([], {"source_url": ""})
     call_rows, call_meta = boj_call if boj_call else ([], {"source_url": ""})
-    neer_rows, neer_meta = boj_neer if boj_neer else ([], {"source_url": ""})
-    reer_rows, reer_meta = boj_reer if boj_reer else ([], {"source_url": ""})
+    neer_rows, neer_meta = bis_neer if bis_neer else ([], {"source_url": ""})
     jgb_mof, jgb_meta = mof if mof else ({"JGB2": [], "JGB10": [], "JGB30": []}, {"source_url": ""})
     dgs10_latest = latest_non_null(fred_dgs10)
     dgs10_latest_date = dgs10_latest[0] if dgs10_latest else None
@@ -550,10 +615,23 @@ def build_payload(trigger: str, stamp: Optional[str] = None) -> Tuple[Dict[str, 
     jgb2_latest = latest_non_null(jgb_rows.get("JGB2", []))
     jgb30_latest = latest_non_null(jgb_rows.get("JGB30", []))
 
-    reer_latest = latest_non_null(reer_rows)
-    reer_prev12 = point_before(reer_rows, reer_latest[0], 365) if reer_latest else None
-    reer_chg12 = (reer_latest[1] - reer_prev12[1]) if reer_latest and reer_prev12 else None
+    # JPY NEER is now BIS daily (was monthly BOJ). Report a daily change and a
+    # ~1-month (20-obs) change; REER dropped (needs monthly CPI, no daily source).
     neer_latest = latest_non_null(neer_rows)
+    neer_prev1 = point_before(neer_rows, neer_latest[0], 1) if neer_latest else None
+    neer_prev20 = point_before(neer_rows, neer_latest[0], 20) if neer_latest else None
+    neer_chg1 = (neer_latest[1] - neer_prev1[1]) if neer_latest and neer_prev1 else None
+    neer_chg20 = (neer_latest[1] - neer_prev20[1]) if neer_latest and neer_prev20 else None
+
+    # Staleness guard: BIS daily NEER lags only a few business days, so flag a
+    # real source stall if the latest point is older than ~10 days.
+    if neer_latest:
+        try:
+            _age = (now_bjt().date() - date.fromisoformat(neer_latest[0])).days
+            if _age > 10:
+                notes.append(f"JPY NEER 数据陈旧（as_of={neer_latest[0]}，已 {_age} 天），BIS 日频源可能停更")
+        except Exception:
+            pass
 
     cftc_latest = cftc_rows[-1] if cftc_rows else None
     cftc_prev = cftc_rows[-2] if len(cftc_rows) >= 2 else None
@@ -638,11 +716,12 @@ def build_payload(trigger: str, stamp: Optional[str] = None) -> Tuple[Dict[str, 
         card("CFTC_JPY_GROSS_SHORT", "CFTC JPY非商业空头（总口数）", f"{cftc_short:,.0f}" if cftc_short is not None else "NA", f"周变化 {cftc_short_chg:,.0f} 口" if cftc_short_chg is not None else "NA", cftc_latest.get("date") if cftc_latest else None, "空头合约绝对量；周变化确认 carry 是否真在加仓（比 net/OI 更直接）"),
         card("CFTC_JPY_SHORT_SHARE", "CFTC JPY空头占比（空头/(空头+多头)）", f"{cftc_short_share:.1%}" if cftc_short_share is not None else "NA", f"周变化 {cftc_short_share_chg:+.1%}" if cftc_short_share_chg is not None else "NA", cftc_latest.get("date") if cftc_latest else None, (f"空头一侧真实强度代理；近1年分位 {cftc_short_share_pctile:.0%}" if cftc_short_share_pctile is not None else "空头一侧真实强度代理；净空头变多可能只是多头平仓，需看此值确认空头真加仓")),
         card("USDJPY_VOL20", "USD/JPY 20日实现波动率（年化）", fmt_pct(usdjpy_vol20), "年化", usdjpy_latest[0] if usdjpy_latest else None, "波动率上升会降低carry策略夏普"),
-        card("JPY_REER", "JPY REER（日元实际有效汇率）", f"{reer_latest[1]:.2f}" if reer_latest else "NA", f"约12月 {reer_chg12:+.2f}" if reer_chg12 is not None else "NA", reer_latest[0] if reer_latest else None, "估值和政策敏感度背景"),
+        card("JPY_NEER", "JPY NEER（日元名义有效汇率，BIS日频）", f"{neer_latest[1]:.2f}" if neer_latest else "NA", f"逐日 {neer_chg1:+.2f}｜约1月 {neer_chg20:+.2f}" if (neer_chg1 is not None and neer_chg20 is not None) else (f"逐日 {neer_chg1:+.2f}" if neer_chg1 is not None else "NA"), neer_latest[0] if neer_latest else None, "相对一篮子货币的日元强弱/资金流广度背景（日频）"),
     ]
 
     sources = [
-        {"name": "BOJ Time-Series Data Search API", "url": "https://www.stat-search.boj.or.jp/api/v1/getDataCode", "items": ["FM08/FXERD04 USDJPY", "FM01/STRDCLUCON call rate", "FM09 NEER/REER"]},
+        {"name": "BOJ Time-Series Data Search API", "url": "https://www.stat-search.boj.or.jp/api/v1/getDataCode", "items": ["FM08/FXERD04 USDJPY", "FM01/STRDCLUCON call rate"]},
+        {"name": "BIS Data Portal (daily NEER)", "url": neer_meta.get("source_url"), "items": ["D.N.B.JP 日频名义有效汇率（广义64经济体篮子）"]},
         {"name": "MOF JGB constant-maturity CSV (history)", "url": jgb_meta.get("source_url"), "items": ["2Y/10Y/30Y JGB yields long-run history"]},
         {"name": "CNBC real-time JGB yields (latest daily patch)", "url": cnbc_jgb_meta.get("source_url"), "items": ["JP2Y/JP5Y/JP10Y/JP30Y latest values"]},
         {"name": "CFTC Public Reporting API", "url": cftc_meta.get("source_url"), "items": ["JPY futures non-commercial positioning"]},
@@ -661,8 +740,7 @@ def build_payload(trigger: str, stamp: Optional[str] = None) -> Tuple[Dict[str, 
         "JGB30": {"series_name": "JGB 30Y", "category": "jgb", "rows": jgb_rows.get("JGB30", []), "unit": "%", "source": "MOF+CNBC", "source_url": jgb_meta.get("source_url", "")},
         "DGS2": {"series_name": "US Treasury 2Y", "category": "ust", "rows": fred_dgs2, "unit": "%", "source": "FRED", "source_url": "https://fred.stlouisfed.org/series/DGS2"},
         "DGS10": {"series_name": "US Treasury 10Y", "category": "ust", "rows": fred_dgs10, "unit": "%", "source": "FRED", "source_url": "https://fred.stlouisfed.org/series/DGS10"},
-        "JPY_NEER": {"series_name": "JPY NEER", "category": "effective_fx", "rows": neer_rows, "unit": "index", "source": "BOJ", "source_url": neer_meta.get("source_url", "")},
-        "JPY_REER": {"series_name": "JPY REER", "category": "effective_fx", "rows": reer_rows, "unit": "index", "source": "BOJ", "source_url": reer_meta.get("source_url", "")},
+        "JPY_NEER": {"series_name": "JPY NEER (daily)", "category": "effective_fx", "rows": neer_rows, "unit": "index", "source": "BIS", "source_url": neer_meta.get("source_url", "")},
         "CFTC_JPY_NET_OI": {"series_name": "CFTC JPY net position / open interest", "category": "positioning", "rows": cftc_net_oi_series, "unit": "net/OI", "source": "CFTC", "source_url": cftc_meta.get("source_url", ""), "notes": "non-commercial net / open interest"},
         "CFTC_JPY_GROSS_SHORT": {"series_name": "CFTC JPY non-commercial gross short", "category": "positioning", "rows": cftc_gross_short_series, "unit": "contracts", "source": "CFTC", "source_url": cftc_meta.get("source_url", ""), "notes": "non-commercial short positions, gross"},
         "CFTC_JPY_GROSS_LONG": {"series_name": "CFTC JPY non-commercial gross long", "category": "positioning", "rows": cftc_gross_long_series, "unit": "contracts", "source": "CFTC", "source_url": cftc_meta.get("source_url", ""), "notes": "non-commercial long positions, gross"},
@@ -686,8 +764,7 @@ def build_payload(trigger: str, stamp: Optional[str] = None) -> Tuple[Dict[str, 
     cftc_short_share_chart_rows = load_jpy_series_from_db("CFTC_JPY_SHORT_SHARE")
     cftc_open_interest_chart_rows = load_jpy_series_from_db("CFTC_JPY_OPEN_INTEREST")
     usdjpy_vol20_chart_rows = load_jpy_series_from_db("USDJPY_VOL20")
-    neer_chart_rows = load_jpy_series_from_db("JPY_NEER")
-    reer_chart_rows = load_jpy_series_from_db("JPY_REER")
+    neer_chart_rows = load_jpy_series_from_db("JPY_NEER", limit=260)  # BIS daily, ~1y window
     us_jp_2y_series = load_jpy_series_from_db("US_JP_2Y")
     us_jp_10y_series = load_jpy_series_from_db("US_JP_10Y")
 
@@ -704,9 +781,8 @@ def build_payload(trigger: str, stamp: Optional[str] = None) -> Tuple[Dict[str, 
         {"id": "jpy_cftc_position_2y", "title": "CFTC JPY仓位拥挤度", "chart_type": "line", "unit": "net/OI", "data_source": "SQLite jpy_carry_series_ts.CFTC_JPY_NET_OI", "series": [
             {"id": "CFTC_JPY_NET_OI", "label": "JPY非商业净仓位/OI", "points": chart_points_jpy(cftc_net_oi_chart_rows)},
         ]},
-        {"id": "jpy_effective_fx_3y", "title": "JPY NEER / REER", "chart_type": "line", "unit": "index", "data_source": "SQLite jpy_carry_series_ts", "series": [
-            {"id": "JPY_NEER", "label": "JPY NEER", "points": chart_points_jpy(neer_chart_rows)},
-            {"id": "JPY_REER", "label": "JPY REER", "points": chart_points_jpy(reer_chart_rows)},
+        {"id": "jpy_effective_fx_3y", "title": "JPY NEER（日元名义有效汇率，BIS日频）", "chart_type": "line", "unit": "index", "data_source": "SQLite jpy_carry_series_ts.JPY_NEER", "series": [
+            {"id": "JPY_NEER", "label": "JPY NEER（BIS日频·广义64经济体篮子）", "points": chart_points_jpy(neer_chart_rows)},
         ]},
         {"id": "us_jp_spread", "title": "美日利差代理", "chart_type": "line", "unit": "bp", "data_source": "SQLite jpy_carry_series_ts.US_JP_2Y/US_JP_10Y", "series": [
             {"id": "US_JP_2Y", "label": "2Y UST-JGB", "points": chart_points_jpy(us_jp_2y_series[-260:])},
@@ -722,7 +798,7 @@ def build_payload(trigger: str, stamp: Optional[str] = None) -> Tuple[Dict[str, 
     ]
 
     jpy_carry = {
-        "meta": {"generated_at_bjt": generated, "lookback": "日频约1年，CFTC约2年，REER/NEER约3年"},
+        "meta": {"generated_at_bjt": generated, "lookback": "日频约1年，CFTC约2年，NEER(BIS日频)约1年"},
         "risk": {"label": label, "score": round(score, 1), "reasons": reasons[:5]},
         "cards": cards,
         "cftc_decomposition": cftc_decomposition,
