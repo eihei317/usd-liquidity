@@ -1,7 +1,7 @@
 {
   "jpy_carry": {
     "meta": {
-      "generated_at_bjt": "2026-07-19 16:24:59 UTC+08:00",
+      "generated_at_bjt": "2026-07-19 16:56:36 UTC+08:00",
       "lookback": "日频约1年，CFTC约2年，REER/NEER约3年"
     },
     "risk": {
@@ -32,9 +32,9 @@
       {
         "id": "JGB10",
         "label": "JGB 10Y（日本10年期国债收益率）",
-        "value_text": "2.690%",
-        "change_text": "逐日 4.6bp",
-        "as_of": "2026-06-30",
+        "value_text": "2.692%",
+        "change_text": "逐日 0.0bp",
+        "as_of": "2026-07-18",
         "why": "日本本土资产吸引力和资金回流压力"
       },
       {
@@ -42,7 +42,7 @@
         "label": "10Y UST-JGB利差（美日10年期国债利差）",
         "value_text": "188bp",
         "change_text": "收益端核心",
-        "as_of": "2026-06-30",
+        "as_of": "2026-07-16",
         "why": "美日长端利差越宽，carry收益端越顺风"
       },
       {
@@ -2177,14 +2177,6 @@
       ],
       "JGB10": [
         {
-          "date": "2025-06-06",
-          "value": 1.477
-        },
-        {
-          "date": "2025-06-09",
-          "value": 1.491
-        },
-        {
           "date": "2025-06-10",
           "value": 1.498
         },
@@ -3215,6 +3207,14 @@
         {
           "date": "2026-06-30",
           "value": 2.69
+        },
+        {
+          "date": "2026-07-16",
+          "value": 2.692
+        },
+        {
+          "date": "2026-07-18",
+          "value": 2.692
         }
       ],
       "US_JP_10Y": [
@@ -4472,7 +4472,7 @@
         },
         {
           "date": "2026-07-16",
-          "value": 188.00000000000003
+          "value": 187.8
         }
       ],
       "CFTC_JPY_NET_OI": [
@@ -8271,10 +8271,17 @@
         ]
       },
       {
-        "name": "MOF JGB constant-maturity CSV",
+        "name": "MOF JGB constant-maturity CSV (history)",
         "url": "https://www.mof.go.jp/english/policy/jgbs/reference/interest_rate/historical/jgbcme_all.csv",
         "items": [
-          "2Y/10Y/30Y JGB yields"
+          "2Y/10Y/30Y JGB yields long-run history"
+        ]
+      },
+      {
+        "name": "CNBC real-time JGB yields (latest daily patch)",
+        "url": "https://www.cnbc.com/bonds/",
+        "items": [
+          "JP2Y/JP5Y/JP10Y/JP30Y latest values"
         ]
       },
       {
@@ -10417,14 +10424,6 @@
           "label": "JGB 2Y",
           "points": [
             {
-              "date": "2025-06-06",
-              "value": 0.76
-            },
-            {
-              "date": "2025-06-09",
-              "value": 0.775
-            },
-            {
               "date": "2025-06-10",
               "value": 0.771
             },
@@ -11455,6 +11454,14 @@
             {
               "date": "2026-06-30",
               "value": 1.382
+            },
+            {
+              "date": "2026-07-16",
+              "value": 1.427
+            },
+            {
+              "date": "2026-07-18",
+              "value": 1.427
             }
           ]
         },
@@ -11462,14 +11469,6 @@
           "id": "JGB10",
           "label": "JGB 10Y",
           "points": [
-            {
-              "date": "2025-06-06",
-              "value": 1.477
-            },
-            {
-              "date": "2025-06-09",
-              "value": 1.491
-            },
             {
               "date": "2025-06-10",
               "value": 1.498
@@ -12501,6 +12500,14 @@
             {
               "date": "2026-06-30",
               "value": 2.69
+            },
+            {
+              "date": "2026-07-16",
+              "value": 2.692
+            },
+            {
+              "date": "2026-07-18",
+              "value": 2.692
             }
           ]
         },
@@ -12508,14 +12515,6 @@
           "id": "JGB30",
           "label": "JGB 30Y",
           "points": [
-            {
-              "date": "2025-06-06",
-              "value": 2.78
-            },
-            {
-              "date": "2025-06-09",
-              "value": 2.805
-            },
             {
               "date": "2025-06-10",
               "value": 2.809
@@ -13547,6 +13546,14 @@
             {
               "date": "2026-06-30",
               "value": 3.873
+            },
+            {
+              "date": "2026-07-16",
+              "value": 3.861
+            },
+            {
+              "date": "2026-07-18",
+              "value": 3.861
             }
           ]
         }
@@ -15229,7 +15236,7 @@
             },
             {
               "date": "2026-07-16",
-              "value": 277.80000000000007
+              "value": 273.3
             }
           ]
         },
@@ -16275,7 +16282,7 @@
             },
             {
               "date": "2026-07-16",
-              "value": 188.00000000000003
+              "value": 187.8
             }
           ]
         }

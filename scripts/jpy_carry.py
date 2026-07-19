@@ -13,6 +13,7 @@ import json
 import math
 import sqlite3
 import sys
+import time
 import urllib.parse
 import urllib.request
 from datetime import datetime, timedelta, timezone
@@ -171,6 +172,84 @@ def fetch_mof_jgb() -> Tuple[Dict[str, List[Tuple[str, float]]], Dict[str, Any]]
             if value is not None:
                 out[key].append((date, value))
     return out, {"source_url": url, "frequency": "daily", "name": "MOF JGB constant-maturity yields"}
+
+
+def fetch_cnbc_jgb() -> Tuple[Dict[str, Tuple[str, float]], Dict[str, Any]]:
+    """Fetch latest Japan JGB constant-maturity yields (2Y/5Y/10Y/30Y) from the
+    CNBC real-time bond quote API.
+
+    Why this exists: MOF's historical CSV (fetch_mof_jgb) is the authoritative
+    long-run source but has repeatedly stalled (last row 2026-06-29 in testing),
+    leaving the JPY-carry JGB leg stuck ~3 weeks stale. CNBC's quote API returns
+    the latest JGB yield per tenor to the most recent JST trading day (verified
+    2026-07-18) without auth, so we use it to patch the latest point on top of
+    MOF's history. The two are merged in build_payload.
+
+    NOTE: CNBC's bond quote endpoint does NOT accept a comma-separated symbol
+    list (it returns a single errored quote), so each tenor is fetched
+    individually. JP10Y in particular has shown intermittent per-request
+    failures (code 1 / no `last`) under the rapid sequential requests that the
+    full pipeline makes right after several other network fetches. To make the
+    JGB 10Y leg reliable we: (1) space tenor requests with a short delay to avoid
+    tripping CNBC's rate limiting, (2) retry each tenor several times with a
+    backoff, and (3) run a dedicated recovery pass that re-fetches any tenor that
+    was still missing after the first pass (with a longer delay). Returns dict
+    keyed JGB2/JGB5/JGB10/JGB30 -> (iso_date, yield_pct).
+    """
+    syms = ["JGB2", "JGB5", "JGB10", "JGB30"]
+    sym_map = {"JGB2": "JP2Y", "JGB5": "JP5Y", "JGB10": "JP10Y", "JGB30": "JP30Y"}
+
+    def fetch_one(key: str, retries: int, delay: float) -> Optional[Tuple[str, float]]:
+        sym = sym_map[key]
+        url = (
+            "https://quote.cnbc.com/quote-html-webservice/restQuote/symbolType/symbol"
+            f"?symbols={sym}&requestMethod=itv&noform=1&partnerId=2&fund=1&exthrs=1&output=json"
+        )
+        for attempt in range(retries):
+            try:
+                req = urllib.request.Request(
+                    url, headers={"User-Agent": USER_AGENT, "Accept": "application/json"}
+                )
+                payload = json.loads(urllib.request.urlopen(req, timeout=15).read())
+                quotes = payload.get("FormattedQuoteResult", {}).get("FormattedQuote", [{}])
+                q = quotes[0] if quotes else {}
+                if q.get("code") != 0 or not q.get("last"):
+                    if attempt < retries - 1:
+                        time.sleep(delay)
+                    continue
+                val = safe_float(str(q.get("last")).replace("%", ""))
+                d = parse_date_guess(q.get("last_time")) if q.get("last_time") else None
+                if val is not None and d:
+                    return (d, val)
+                if attempt < retries - 1:
+                    time.sleep(delay)
+            except Exception:
+                if attempt < retries - 1:
+                    time.sleep(delay)
+                continue
+        return None
+
+    out: Dict[str, Tuple[str, float]] = {}
+    for key in syms:
+        pt = fetch_one(key, retries=5, delay=0.5)
+        if pt:
+            out[key] = pt
+        time.sleep(0.5)
+
+    # Recovery pass: JP10Y is the critical tenor for the user-facing JGB10 card and
+    # the US-JP 10Y spread; if it (or any other tenor) dropped out, retry it on its
+    # own with a longer spacing before we give up.
+    missing = [k for k in syms if k not in out]
+    for key in missing:
+        time.sleep(1.5)
+        pt = fetch_one(key, retries=6, delay=1.0)
+        if pt:
+            out[key] = pt
+        time.sleep(1.0)
+
+    if not out:
+        raise RuntimeError("CNBC JGB quote API returned no usable tenors")
+    return out, {"source": "CNBC", "source_url": "https://www.cnbc.com/bonds/", "frequency": "daily", "name": "CNBC real-time JGB yields (JP2Y/JP5Y/JP10Y/JP30Y)", "missing_tenors": missing}
 
 
 def _decompose_cftc_net(short_chg: Optional[float], long_chg: Optional[float]) -> Dict[str, Any]:
@@ -403,6 +482,9 @@ def build_payload(trigger: str, stamp: Optional[str] = None) -> Tuple[Dict[str, 
     boj_neer = safe_fetch("BOJ NEER", lambda: fetch_boj_series("FM09", "FX180110001", start_monthly, end))
     boj_reer = safe_fetch("BOJ REER", lambda: fetch_boj_series("FM09", "FX180110002", start_monthly, end))
     mof = safe_fetch("MOF JGB", fetch_mof_jgb)
+    cnbc_jgb, cnbc_jgb_meta = safe_fetch("CNBC JGB", fetch_cnbc_jgb) or ({}, {"source": "CNBC"})
+    if cnbc_jgb_meta.get("missing_tenors"):
+        notes.append(f"CNBC JGB 部分期限未能获取：{', '.join(cnbc_jgb_meta['missing_tenors'])}（该期限回退至 MOF 历史值）")
     cftc = safe_fetch("CFTC JPY", fetch_cftc_jpy)
     fred_dgs10 = safe_fetch("FRED DGS10", lambda: fetch_fred_series_jpy("DGS10", 420)) or []
     fred_dgs2 = safe_fetch("FRED DGS2", lambda: fetch_fred_series_jpy("DGS2", 420)) or []
@@ -413,7 +495,37 @@ def build_payload(trigger: str, stamp: Optional[str] = None) -> Tuple[Dict[str, 
     call_rows, call_meta = boj_call if boj_call else ([], {"source_url": ""})
     neer_rows, neer_meta = boj_neer if boj_neer else ([], {"source_url": ""})
     reer_rows, reer_meta = boj_reer if boj_reer else ([], {"source_url": ""})
-    jgb_rows, jgb_meta = mof if mof else ({"JGB2": [], "JGB10": [], "JGB30": []}, {"source_url": ""})
+    jgb_mof, jgb_meta = mof if mof else ({"JGB2": [], "JGB10": [], "JGB30": []}, {"source_url": ""})
+    dgs10_latest = latest_non_null(fred_dgs10)
+    dgs10_latest_date = dgs10_latest[0] if dgs10_latest else None
+    # Merge MOF long-run history with CNBC's fresher latest daily point. CNBC is
+    # patched onto the DGS10 latest date too so the US-JP spread aligns to the same
+    # trading day instead of forward-filling from MOF's stalled last row.
+    jgb_rows: Dict[str, List[Tuple[str, float]]] = {}
+    for term in ["JGB2", "JGB10", "JGB30"]:
+        rows = list(jgb_mof.get(term, []))
+        pt = cnbc_jgb.get(term)
+        if pt:
+            cdate, cval = pt
+            rows = [r for r in rows if r[0] != cdate]
+            rows.append((cdate, cval))
+            if dgs10_latest_date and dgs10_latest_date <= cdate:
+                rows = [r for r in rows if r[0] != dgs10_latest_date]
+                rows.append((dgs10_latest_date, cval))
+        jgb_rows[term] = normalize_rows(rows)
+    if cnbc_jgb.get("JGB5"):
+        cdate, cval = cnbc_jgb["JGB5"]
+        rows5 = [(cdate, cval)]
+        if dgs10_latest_date and dgs10_latest_date <= cdate:
+            rows5.append((dgs10_latest_date, cval))
+        jgb_rows["JGB5"] = normalize_rows(rows5)
+    if cnbc_jgb:
+        jgb_meta = {
+            "source_url": jgb_meta.get("source_url", ""),
+            "frequency": "daily",
+            "name": "MOF JGB history + CNBC latest daily patch",
+            "patch_source": cnbc_jgb_meta.get("source_url", "CNBC"),
+        }
     cftc_rows, cftc_meta = cftc if cftc else ([], {"source_url": ""})
 
     usdjpy_latest = latest_non_null(usdjpy_rows)
@@ -531,7 +643,8 @@ def build_payload(trigger: str, stamp: Optional[str] = None) -> Tuple[Dict[str, 
 
     sources = [
         {"name": "BOJ Time-Series Data Search API", "url": "https://www.stat-search.boj.or.jp/api/v1/getDataCode", "items": ["FM08/FXERD04 USDJPY", "FM01/STRDCLUCON call rate", "FM09 NEER/REER"]},
-        {"name": "MOF JGB constant-maturity CSV", "url": jgb_meta.get("source_url"), "items": ["2Y/10Y/30Y JGB yields"]},
+        {"name": "MOF JGB constant-maturity CSV (history)", "url": jgb_meta.get("source_url"), "items": ["2Y/10Y/30Y JGB yields long-run history"]},
+        {"name": "CNBC real-time JGB yields (latest daily patch)", "url": cnbc_jgb_meta.get("source_url"), "items": ["JP2Y/JP5Y/JP10Y/JP30Y latest values"]},
         {"name": "CFTC Public Reporting API", "url": cftc_meta.get("source_url"), "items": ["JPY futures non-commercial positioning"]},
         {"name": "FRED", "url": "https://fred.stlouisfed.org/", "items": ["DGS2/DGS10", "VIXCLS", "BAMLH0A0HYM2"]},
     ]
@@ -542,9 +655,10 @@ def build_payload(trigger: str, stamp: Optional[str] = None) -> Tuple[Dict[str, 
     persist_jpy_carry_series({
         "USDJPY": {"series_name": "USD/JPY", "category": "fx", "rows": usdjpy_rows, "unit": "JPY per USD", "source": "BOJ", "source_url": usdjpy_meta.get("source_url", "")},
         "JPY_CALL": {"series_name": "JPY overnight call rate", "category": "funding", "rows": call_rows, "unit": "%", "source": "BOJ", "source_url": call_meta.get("source_url", "")},
-        "JGB2": {"series_name": "JGB 2Y", "category": "jgb", "rows": jgb_rows.get("JGB2", []), "unit": "%", "source": "MOF", "source_url": jgb_meta.get("source_url", "")},
-        "JGB10": {"series_name": "JGB 10Y", "category": "jgb", "rows": jgb_rows.get("JGB10", []), "unit": "%", "source": "MOF", "source_url": jgb_meta.get("source_url", "")},
-        "JGB30": {"series_name": "JGB 30Y", "category": "jgb", "rows": jgb_rows.get("JGB30", []), "unit": "%", "source": "MOF", "source_url": jgb_meta.get("source_url", "")},
+        "JGB2": {"series_name": "JGB 2Y", "category": "jgb", "rows": jgb_rows.get("JGB2", []), "unit": "%", "source": "MOF+CNBC", "source_url": jgb_meta.get("source_url", "")},
+        "JGB5": {"series_name": "JGB 5Y", "category": "jgb", "rows": jgb_rows.get("JGB5", []), "unit": "%", "source": "CNBC", "source_url": cnbc_jgb_meta.get("source_url", "")},
+        "JGB10": {"series_name": "JGB 10Y", "category": "jgb", "rows": jgb_rows.get("JGB10", []), "unit": "%", "source": "MOF+CNBC", "source_url": jgb_meta.get("source_url", "")},
+        "JGB30": {"series_name": "JGB 30Y", "category": "jgb", "rows": jgb_rows.get("JGB30", []), "unit": "%", "source": "MOF+CNBC", "source_url": jgb_meta.get("source_url", "")},
         "DGS2": {"series_name": "US Treasury 2Y", "category": "ust", "rows": fred_dgs2, "unit": "%", "source": "FRED", "source_url": "https://fred.stlouisfed.org/series/DGS2"},
         "DGS10": {"series_name": "US Treasury 10Y", "category": "ust", "rows": fred_dgs10, "unit": "%", "source": "FRED", "source_url": "https://fred.stlouisfed.org/series/DGS10"},
         "JPY_NEER": {"series_name": "JPY NEER", "category": "effective_fx", "rows": neer_rows, "unit": "index", "source": "BOJ", "source_url": neer_meta.get("source_url", "")},

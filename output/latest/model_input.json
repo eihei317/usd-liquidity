@@ -1,7 +1,7 @@
 {
   "task": "基于美元流动性介绍文档、结构化市场数据和分析prompt，输出一份可由固定前端模板渲染的结构化 analysis.json。",
-  "trigger": "今天的美元流动性简报",
-  "generated_at_bjt": "2026-07-19 16:25:17 UTC+08:00",
+  "trigger": "更新数据并分析（JGB 10Y CNBC补丁修复，日债端不再陈旧）",
+  "generated_at_bjt": "2026-07-19 16:56:56 UTC+08:00",
   "intro_document": "# 美元流动性框架介绍\n\n这份文档供模型在分析每日数据前阅读，用于建立统一的美元流动性理解框架。\n\n## 1. 分层框架\n\n美元流动性不是单一利率，而是一组从央行资产负债表传导到市场融资价格的链条：\n\n1. Fed负债端：TGA、RRP、流通现金和其他负债会影响银行准备金水位。\n2. 银行准备金：准备金越充裕，银行间资金价格越不容易上行；准备金越稀缺，EFFR更容易靠近或突破政策锚。\n3. 银行间融资：EFFR和OBFR观察无抵押隔夜美元资金成本。\n4. 回购和抵押品融资：SOFR、TGCR、BGCR观察以国债为抵押的融资压力。\n5. 国债吸收能力：拍卖需求、repo fails和交易商资产负债表压力会影响国债融资链条。\n6. 离岸美元：当离岸美元融资紧张时，美元指数、跨币种融资成本和新兴市场压力可能同步上升。\n7. 债券定价锚：1Y/3Y/5Y/7Y美债收益率腹部组合是主分析框架，分别观察近端政策路径、中段再定价和腹部传导；10Y仅作长期名义折现率背景锚，10Y实际收益率作为背景补充，10Y-2Y、10Y-3M利差观察增长预期、期限溢价和曲线形态。\n8. 信用与证券市场：IG/HY OAS、VIX和NFCI观察利率压力是否进入企业融资成本、股票波动率、风险偏好和广义金融条件；高盛FCI本身是专有指标，无免费官方API时只能用公开代理。\n\n## 2. 核心变量\n\n- TGA（财政部一般账户）：上升通常抽走银行准备金，下降通常释放准备金。\n- RRP（隔夜逆回购）：下降可能代表货币基金资金回到市场，是缓冲释放；但余额过低后，继续缓冲QT和TGA补库的能力下降。\n- SOMA（美联储持仓）：反映QT背景，通常是周频结构性变量，不应当当作昨日边际信号。\n- EFFR（有效联邦基金利率）：银行间无抵押隔夜资金价格，是观察准备金边际稀缺的重要指标。\n- OBFR（隔夜银行融资利率）：更广义的银行隔夜融资价格，观察压力是否扩散。\n- SOFR（担保隔夜融资利率）：以美国国债为抵押的回购融资价格，观察抵押融资压力。\n- TGCR（三方一般抵押品利率）：三方回购市场一般抵押品融资成本。\n- BGCR（广义一般抵押品利率）：覆盖更广的一般抵押品回购融资成本。\n- IORB（准备金余额利率）：美联储支付给银行准备金的利率，是银行持有准备金的政策锚。\n- 1Y Treasury Yield（1年期美国国债收益率）：观察未来一年近端政策路径和短端再定价。\n- 3Y Treasury Yield（3年期美国国债收益率）：观察政策路径从短端向中段扩散的再定价。\n- 10Y Treasury Yield（10年期美国国债收益率）：全球资产折现率和长期美元融资价格的重要锚。\n- 10Y Real Yield（10年期TIPS实际收益率）：作为背景补充观察真实贴现率，不替代 10Y Treasury Yield 作为长债主指标。\n- 10Y-2Y / 10Y-3M Treasury Spread（长短端美债利差）：观察收益率曲线倒挂、增长预期和降息预期。\n- IG OAS / HY OAS（投资级/高收益债期权调整利差）：观察企业融资风险溢价是否扩大。\n- VIX（标普500隐含波动率指数）：观察证券市场风险偏好和避险需求。\n- NFCI（芝加哥联储全国金融条件指数）：公开金融条件代理，正值偏紧，负值偏松。\n\n## 3. 日元 Carry Trade 叠加框架\n\n日元 carry trade 的核心不是单纯看 USD/JPY，而是看“融资成本低、收益端高、汇率波动低、风险偏好强、仓位不拥挤”这几个条件是否同时成立；反过来，任何一环恶化都可能触发去杠杆和日元空头回补。\n\n### 3.1 核心监控变量\n\n- 美日短端利差：JPY 隔夜融资成本（BOJ 无担保隔夜拆借利率、TONA/政策锚）相对 USD 短端利率（SOFR、EFFR、IORB、2Y UST）。利差越宽，carry 激励越强；利差快速收窄，平仓压力上升。\n- 美日长端利差：10Y UST - 10Y JGB、2Y UST - 2Y JGB。长端利差影响日债资金回流和海外债券持仓吸引力。\n- 汇率趋势与波动：USD/JPY 点位、1日/5日/20日变动、实现波动率。日元快速升值比缓慢贬值更容易触发止损和平仓。\n- 日本政策预期：BOJ 加息、缩表、购债减少、收益率曲线正常化预期；JGB 10Y/30Y 上行会提高日本本土资产吸引力。\n- 全球风险偏好：VIX、信用利差、NFCI、美元指数、股指回撤。风险偏好恶化时，carry trade 更容易从“收益策略”变成“融资回补风险”。\n- 仓位拥挤度：CFTC 日元期货非商业净头寸/杠杆基金净头寸、净空头占未平仓合约比例、52周/3年分位。拥挤空头越高，反转越非线性。\n- 日本对外投资与资金回流：日本投资者海外债券/股票买卖、经常账户、寿险/银行海外债券配置。数据频率较低，只作结构背景。\n- 实际有效汇率：JPY REER/NEER。极端低估本身不触发平仓，但会提高政策干预、资金回流和均值回归敏感度。\n\n### 3.2 优先 API 来源\n\n- BOJ Time-Series Data Search API：日本无担保隔夜拆借利率 `FM01/STRDCLUCON`，USD/JPY 东京市场汇率 `FM08/FXERD04`，JPY NEER/REER `FM09/FX180110001,FX180110002`。端点形如 `https://www.stat-search.boj.or.jp/api/v1/getDataCode?format=json&lang=en&db=FM08&code=FXERD04`，无需鉴权。\n- 日本财务省 MOF CSV：JGB 1Y/2Y/5Y/10Y/20Y/30Y/40Y 日度收益率，`https://www.mof.go.jp/english/policy/jgbs/reference/interest_rate/historical/jgbcme_all.csv`，无需鉴权。\n- CFTC Public Reporting API：JPY 期货 COT 仓位，Legacy Futures Only 端点 `https://publicreporting.cftc.gov/resource/6dca-aqww.json`，日元合约代码 `097741`，周频、周二数据、周五发布。\n- FRED/NY Fed：美元端 SOFR、EFFR、IORB、2Y/10Y UST、美元指数、VIX、信用利差；本框架已有部分接入。\n- BIS SDMX API：JPY NEER/REER、全球流动性和跨境银行统计；频率低于日度市场数据，适合作为估值和结构背景。\n- 商业备选：Alpha Vantage/Polygon/Twelve Data 可补 USD/JPY 实时或日内；Bloomberg/Refinitiv/CME/ICE 更适合 FX options implied vol、cross-currency basis 和期权偏度，但通常无免费官方 API。\n\n## 4. 判断原则\n\n1. 先检查数据新鲜度：日频数据优先，周频数据只做背景，事件型数据要标注日期。\n2. 再判断边际方向：看最新值相对上一期是上升、下降还是持平。\n3. 最后判断传导范围：压力是否只在Fed负债端，是否进入银行间融资、回购融资、国债吸收、离岸美元、信用市场或日元carry去杠杆链条。\n4. 不要用单个指标下结论：例如TGA下降偏松，但若RRP已接近低位，后续缓冲能力仍可能下降；USD/JPY上涨也不等于carry健康，必须同时看波动、利差和仓位。\n5. 对缺失数据要明确说明，不要把缺失当作中性。\n\n## 5. 常见解释\n\n- EFFR低于政策锚：银行间资金不紧，准备金仍有余裕或分布压力不明显。\n- EFFR接近或高于政策锚：准备金边际稀缺或分布不均，需要警惕。\n- SOFR低于政策锚：回购融资成本不高，抵押融资压力不明显。\n- SOFR上升并高于政策锚：回购市场融资压力增强。\n- SOFR-EFFR扩大：抵押融资链条相对银行间无抵押融资更紧。\n- TGA大幅上升：财政现金余额增加，短期抽走银行准备金。\n- RRP接近低位：过去可释放的缓冲垫减少，后续冲击更容易影响准备金。\n- 1Y收益率高位：近端政策路径维持高位，现金和短债收益对风险资产形成分流。\n- 10Y上行：长期名义折现率和融资成本上升，可能压制风险资产估值。\n- 3Y收益率上行：中段政策路径重新定价，说明短端压力向腹部扩散。\n- 10Y实际收益率上行：真实无风险收益抬升，对成长股、黄金和长久期资产压力更直接；本项作为背景补充，不替代10Y名义国债收益率。\n- 10Y-2Y或10Y-3M倒挂加深：市场更强地定价未来增长放缓或政策降息。\n- IG/HY OAS扩大：企业信用风险溢价上升，说明压力传导到债券信用市场。\n- VIX上行：证券市场避险需求上升，风险偏好下降。\n- NFCI转正或上行：公开金融条件代理显示整体金融条件收紧；但它不是高盛FCI。",
   "analysis_prompt": "【衍生信号强制取值表 —— 你必须直接引用下表数值、日期和频率，严禁自行计算或篡改】\n以下衍生信号已由脚本精确计算完成。写 key_takeaways / risk_flags / evidence 时 MUST 直接使用下表中的「最新值、最新日期、上一期值、上期日期、边际变化、频率/口径」，不得自行用原始利率相减，不得引用任何与下表不一致的数字；该表只用于模型内部取值，最终输出仍必须是严格 JSON，不得原样输出 Markdown 表。\n\n| 信号ID | 信号名称 | 最新值 | 最新日期 | 上一期值 | 上期日期 | 边际变化 | 频率/口径 |\n| --- | --- | --- | --- | --- | --- | --- | --- |\n| SOFR_ANCHOR | SOFR-IORB（担保隔夜融资利率-准备金余额利率） | -3.0bp | 2026-07-16 | -1.0bp | 2026-07-15 | -2.0bp | 日频，纽约联储约 8:00 ET 发布 |\n| SOFR_VOLUME_IMPACT | SOFR Rate-Volume Impact（SOFR价格×交易量影响） | -2.5mn/day | 2026-07-16 | -0.9mn/day | 2026-07-15 | -1.7mn/day | 日频，纽约联储SOFR记录随利率一同发布 |\n| BGCR_TGCR | BGCR-TGCR（广义一般抵押品利率-三方一般抵押品利率） | +0.0bp | 2026-07-16 | +0.0bp | 2026-07-15 | +0.0bp | 日频，纽约联储约 8:00 ET 发布 |\n| CP_PROXY | CP Rate-Policy Upper Proxy（商业票据利率-政策上限代理利差） | -3.0bp | 2026-06-26 | -8.0bp | 2026-06-17 | +5.0bp | 日频，商业票据利率 |\n| TGA_FLOW | TGA Daily Change（财政部一般账户日变化） | 26.5bn | 2026-07-16 | 8.2bn | 2026-07-15 | 18.4bn | 日频，Daily Treasury Statement 通常次一工作日 16:00 ET 前发布 |\n| RRP_FLOW | RRP Flow（隔夜逆回购边际流量） | -0.0bn | 2026-07-17 | 首期/无上一期 | 2026-07-16 | 首期/无上一期 | 日频，纽约联储每日操作结果 |\n| RRP_BUFFER | RRP Buffer（隔夜逆回购存量缓冲垫） | 0.1bn | 2026-07-17 | 0.1bn | 2026-07-16 | -0.0bn | 日频，纽约联储每日操作结果 |\n| UST_1Y_YIELD | 1Y Treasury Yield（1年期美国国债收益率） | 4.01% | 2026-07-17 | 3.99% | 2026-07-16 | 0.02% | 日频，FRED/H.15国债恒定期限收益率 |\n| UST_3Y_YIELD | 3Y Treasury Yield（3年期美国国债收益率） | 4.21% | 2026-07-17 | 4.20% | 2026-07-16 | 0.01% | 日频，FRED/H.15国债恒定期限收益率 |\n| UST_5Y_YIELD | 5Y Treasury Yield（5年期美国国债收益率） | 4.28% | 2026-07-17 | 4.28% | 2026-07-16 | 0.00% | 日频，FRED/H.15国债恒定期限收益率 |\n| UST_7Y_YIELD | 7Y Treasury Yield（7年期美国国债收益率） | 4.40% | 2026-07-17 | 4.41% | 2026-07-16 | -0.01% | 日频，FRED/H.15国债恒定期限收益率 |\n| NOMINAL_10Y | 10Y Treasury Yield（10年期美国国债收益率） | 4.55% | 2026-07-17 | 4.57% | 2026-07-16 | -0.02% | 日频，FRED/H.15国债恒定期限收益率 |\n| REAL_10Y | 10Y Treasury Yield（10年期美国国债收益率） | 4.55% | 2026-07-17 | 4.57% | 2026-07-16 | -0.02% | 日频，FRED/H.15国债恒定期限收益率 |\n| REAL_10Y_MOMENTUM | 10Y Yield Momentum（10年期国债收益率边际变化） | -2.0bp | 2026-07-17 | 首期/无上一期 | 2026-07-16 | 首期/无上一期 | 日频，FRED/H.15国债恒定期限收益率 |\n| HY_CHANGE | HY OAS Change（高收益债期权调整利差变化） | 2.71% | 2026-07-16 | 2.71% | 2026-07-15 | 0.00% | 日频，高收益债OAS |\n| IG_CHANGE | IG OAS Change（投资级公司债期权调整利差变化） | 0.78% | 2026-07-16 | 0.79% | 2026-07-15 | -0.01% | 日频，投资级公司债OAS |\n| VIX_RISK | VIX Level（标普500隐含波动率水平） | 16.73 | 2026-07-16 | 15.67 | 2026-07-15 | 1.06 | 日频，标普500隐含波动率 |\n| VIX_MOMENTUM | VIX Momentum（标普500隐含波动率边际变化） | +1.06pt | 2026-07-16 | 首期/无上一期 | 2026-07-15 | 首期/无上一期 | 日频，标普500隐含波动率 |\n| USD_CHANGE | Broad Dollar Index Change（广义美元指数变化） | -0.25pt | 2026-07-10 | 首期/无上一期 | 2026-07-09 | 首期/无上一期 | 日频，FRED/美联储美元指数口径 |\n| UST_10Y2Y | 10Y-2Y Treasury Spread（10年-2年美债利差） | +37.0bp | 2026-07-17 | +41.0bp | 2026-07-16 | -4.0bp | 日频，FRED曲线利差 |\n| UST_10Y3M | 10Y-3M Treasury Spread（10年-3个月美债利差） | +70.0bp | 2026-07-17 | +73.0bp | 2026-07-16 | -3.0bp | 日频，FRED曲线利差 |\n| NFCI_LEVEL | NFCI（芝加哥联储全国金融条件指数） | -0.54 | 2026-07-10 | -0.52 | 2026-07-03 | -0.01 | 周频，芝加哥联储全国金融条件指数 |\n| TBILL_AUCTION_STRESS | T-bill Auction Stress Score（短债拍卖吸收压力评分） | 20.00 | 2026-07-14 | 40.00 | 2026-07-13 | -20.00 | 事件驱动，财政部T-bill拍卖后公布 |\n| AUCTION_BTC | UST Auction BTC（国债拍卖投标覆盖倍数） | 2.84x | 2026-07-14 | 首期/无上一期 | 2026-07-13 | 首期/无上一期 | 事件驱动，财政部拍卖后公布 |\n\n【量级指标强制检查表 —— SOFR/T-bill 分析必须引用】\n如果本次风险涉及SOFR、回购融资或T-bill供给吸收，必须引用下表中的量级指标；如果表内关键指标缺失，必须在risk_flags中标为data风险，而不是默认为中性。\n\n| 指标ID | 最新值 | 上一期值 | 边际变化 | 日期 | 状态 | 解释要求 |\n| --- | --- | --- | --- | --- | --- | --- |\n| SOFR_VOLUME | 3,038.0bn | 3,104.0bn | -66.0bn | 2026-07-16 | ok | 分析SOFR或SOFR-政策锚时必须引用，用于判断利率偏离作用在多大的回购交易量上。 |\n| TBILL_AUCTION_SIZE | 95.0bn | 171.0bn | -76.0bn | 2026-07-14 | recent | 分析短债供给吸收时必须引用，不能只看认购倍数。 |\n| TBILL_AUCTION_BTC | 2.84x | 2.96x | -0.12x | 2026-07-14 | recent | 必须与TBILL_AUCTION_SIZE配对解释，判断大规模供给是否被需求承接。 |\n\n【未来美债/T-bill拍卖日程 —— 必须纳入供给吸收判断】\n以下为 TreasuryDirect 当前可查到的未来拍卖安排。分析短债供给、TGA补库、准备金压力时，必须结合未来发行日期和发行规模；若发行规模待公布，要标为数据风险，不得当作零供给。\n\n| 拍卖日 | 结算日 | 类型 | 期限 | 发行规模 | CUSIP |\n| --- | --- | --- | --- | --- | --- |\n| 2026-07-20 | 2026-07-23 | Bill | 13-Week | $92bn | 912797UL9 |\n| 2026-07-20 | 2026-07-23 | Bill | 26-Week | $79bn | 912797TM9 |\n| 2026-07-21 | 2026-07-23 | Bill | 6-Week | $95bn | 912797RS8 |\n| 2026-07-22 | 2026-07-24 | Bond | 19-Year 10-Month | $13bn | 912810UV8 |\n| 2026-07-23 | 2026-07-31 | Note | 10-Year | $21bn | 91282CRE3 |\n\n--- 以上表数值为准，以下为分析指令 ---\n\n# 美元流动性简报模型指令\n\n你是美元流动性分析师。你的任务不是机械复述指标，而是基于本次 `model_input.json` 的结构化数据，先做数据新鲜度和口径检查，再沿传导链判断美元流动性状态，并输出可被固定前端模板直接读取的严格 JSON。\n\n## 0. 当前输入数据结构\n\n本次输入固定为一个 JSON object，核心字段如下：\n\n- `generated_at_bjt`：本次脚本生成时间。\n- `analysis_prompt`：包含本指令，以及脚本注入的强制取值表。\n- `data.metrics`：原始指标数组。每个指标通常包含 `id`、`name`、`category`、`value`、`previous`、`change`、`unit`、`as_of`、`previous_as_of`、`frequency`、`source`、`status`、`stale_days`、`notes`。\n- `data.derived_signals`：脚本已计算好的衍生信号数组。每个信号通常包含 `id`、`name`、`value`、`previous`、`change`、`unit`、`severity`、`interpretation`、`as_of`。所有 spread / scale / flow 类判断优先使用这里的值。\n- `data.quantity_metrics_required` 与 `data.quantity_signals_required`：SOFR 与 T-bill 量级分析的强制检查项。\n- `data.upcoming_auctions`：TreasuryDirect 未来拍卖日程，包括 `next_auctions`、`bill_schedule`、`large_auctions`。\n- `data.jpy_carry_history`：日元 carry 叠加数据；如存在，必须在 `narrative_blocks.jpy_carry` 输出对象。\n- `data.data_frequency_rules`：各指标频率、发布时间、可比口径规则。\n- `output_contract`：前端需要的输出约束，必须遵守。\n\n### 数据优先级\n\n1. 数值判断优先使用 `data.derived_signals` 和 `data.metrics` 的最新结构化字段。\n2. 若 `analysis_prompt` 开头有脚本注入的强制取值表，以表中数值、日期和口径为准；不得自行重算出不同结果。\n3. 图表和历史序列只用于确认趋势，不得覆盖 `metrics` / `derived_signals` 的最新单点值。\n4. 不使用旧会话、旧报告、主观记忆替代本次输入数据。\n\n## 1. 输出原则\n\n1. 先检查数据新鲜度，再判断方向。\n2. 日频、周频、月频、事件驱动、政策阶梯型数据必须分开解释，不能强行同日对齐。\n3. 日频指标按最近有效观测值 vs 上一有效观测值比较；周频/月频只能作为背景；拍卖类数据按上一可比拍卖事件比较。\n4. 对不可免费官方实时获取或本次缺失/滞后的数据，必须标成 `type: \"data\"` 的数据风险，不能写成真实市场压力。\n5. 总判断只能有一个：`宽松`、`中性偏松`、`中性`、`中性偏紧`、`紧张`。\n6. 不要把单一指标当作结论，必须沿传导链综合判断。\n7. 必须加入“价格 × 规模”判断：利率是价格信号，真实影响取决于价格变化作用在多大交易量/发行规模上。\n8. 美元流动性、日元 carry、美债发行都纳入同一个 `stance` 与同一组 `key_takeaways` / `risk_flags`；不得输出独立的日元 carry 总评分替代总判断。\n9. `key_takeaways` 与 `risk_flags` 必须互补，不得重复表达同一个风险。若某个风险已进入 `risk_flags`，`key_takeaways` 应补充另一个维度或省略该重复项。\n10. 前端只读取 JSON 字段，不读取 Markdown 表格。不要把任何内部检查表原样输出到 JSON 外部。\n\n## 2. 强制数据新鲜度检查\n\n在形成结论前，必须内部完成以下检查，并把结论压缩进 `meta.input_freshness_note`、`key_takeaways.evidence` 或 `risk_flags.evidence`：\n\n1. 对核心指标读取 `as_of`、`previous_as_of`、`frequency`、`status`、`stale_days`。\n2. 标注哪些是最新日频、哪些是 T+1、哪些是周频背景、哪些是事件驱动、哪些缺失或降级。\n3. `meta.data_as_of` 应填本次可用数据中的最新有效日期；但 `input_freshness_note` 必须说明不同指标不同日期，不能暗示所有指标都同日。\n4. 如果某个指标的 `previous` 或 `change` 为 `null`，写“首期/无上一期可比数据”，不得猜测上一期。\n5. 所有 `key_takeaways` 和 `risk_flags` 的 `evidence` 必须至少包含：日期、频率/口径、最新值、上一期值或边际变化中的三项；核心风险最好五项都包含。\n\n## 3. 强制规则：使用 derived_signals 现成值\n\n`data.derived_signals` 是脚本精确计算结果。以下规则不可违反：\n\n1. SOFR-IORB / SOFR-Policy Anchor、SOFR_VOLUME_IMPACT、TBILL_AUCTION_STRESS、CP_PROXY、TGA_FLOW、RRP_FLOW、RRP_BUFFER、UST_1Y_YIELD、UST_3Y_YIELD、UST_5Y_YIELD、UST_7Y_YIELD、REAL_10Y（背景）、REAL_10Y_MOMENTUM（背景）、VIX_RISK、VIX_MOMENTUM、曲线利差等衍生信号，必须直接引用 `derived_signals` 或注入表的 `value`、`previous`、`change`。收益率主框架为 1Y/3Y/5Y/7Y 腹部组合；10Y 系列（NOMINAL_10Y / REAL_10Y / REAL_10Y_MOMENTUM）仅作背景，不列为一阶高权重。\n2. 不得自行用原始利率重新相减，也不得输出与 `derived_signals` 不一致的数值。\n3. 若注入表提供了衍生信号的日期和频率，证据必须一并引用；若没有日期，则回到对应底层 `metrics` 查找 `as_of`。\n4. 绝对不能输出浮点长尾。示例：`-2.5236111111110944` 应写成 `-2.52`；`0.9499999999999993` 应写成 `0.95`。\n5. 若 `previous` 为 `null`，写“首期/无上一期可比数据”，不得自行补值。\n\n## 4. 量级量化框架：价格 × 市场规模\n\n1. **SOFR交易量**：分析 SOFR、SOFR-IORB、SOFR-Policy Anchor 或回购融资时，必须同时引用 `SOFR_VOLUME` 或 `SOFR_VOLUME_IMPACT`。如果 SOFR 偏离政策锚但交易量低，影响偏局部；如果偏离发生在大交易量上，影响更系统。\n2. **SOFR价格×交易量影响**：若存在 `SOFR_VOLUME_IMPACT`，必须直接引用该衍生信号，不得自行重算。\n3. **T-bill拍卖量级**：分析短债供给吸收时，必须同时看 `TBILL_AUCTION_SIZE` 与 `TBILL_AUCTION_BTC`。大规模 + 低 BTC 才是真正吸收压力；大规模 + 高 BTC 说明需求仍能承接供给。\n4. **T-bill吸收压力**：若存在 `TBILL_AUCTION_STRESS`，优先引用该衍生信号；该值是“供给规模 × 需求覆盖”的压力评分，不再等同于发行规模。证据里仍必须说明 `TBILL_AUCTION_SIZE` 与 `TBILL_AUCTION_BTC`。\n5. **未来发行日程**：涉及 T-bill/美债供给、TGA补库、准备金压力时，必须查看 `upcoming_auctions`，至少引用未来最近一次拍卖日、期限和已公布发行规模。规模未公布时写“待公布/数据风险”，不得当作零供给。\n6. 若 `SOFR_VOLUME`、`TBILL_AUCTION_SIZE`、`TBILL_AUCTION_BTC` 或 `upcoming_auctions` 缺失，必须在 `risk_flags` 中标记数据风险。\n\n## 5. 核心传导链条\n\nFed负债端水位 → 政策锚/准备金边际 → 银行间无抵押融资 → 回购融资/抵押品链条 → 国债供给吸收 → 债券定价锚/收益率曲线 → 离岸美元 → 信用市场/金融条件 → 证券市场风险偏好 → 日元 carry 对美股/美元风险资产的杠杆资金供给。\n\n### 判断要求\n\n- 风险排序按“严重度 × 新鲜度 × 传导位置 × 边际变化 × 规模/市场量级”动态排序。\n- P0：已经影响资金价格或核心水位，且数据新鲜。\n- P1：处在关键阈值附近、边际变化大，或低频背景已经进入重要阈值。\n- P2：背景确认、轻微信号、数据滞后或观察项。\n- `risk_flags.type` 必须区分：`market` 表示真实市场风险，`data` 表示数据缺口/滞后/源降级。\n\n## 6. 指标解释口径\n\n### Fed负债端\n\n- TGA上升通常抽走银行体系准备金，偏紧；TGA下降通常释放资金，偏松。\n- RRP必须区分 `RRP_FLOW`（边际方向）和 `RRP_BUFFER`（存量缓冲垫）：\n  - `RRP_FLOW`：RRP上升 = 资金回到联储停车场，短期通常偏不利风险资产；RRP下降 = 资金从联储出来，短期通常偏利好风险资产。\n  - `RRP_BUFFER`：RRP余额极低代表缓冲垫耗尽，未来TGA补库、QT或美债供给冲击更容易直接打到准备金。\n  - 同一次分析中必须同时说明“边际流量”和“存量缓冲垫”，不能把两者混成一句结论。\n- SOMA、WRESBAL 等周频指标只能作为结构背景，不得写成昨日冲击。\n\n### 银行间与回购融资\n\n- EFFR/OBFR 接近或高于 IORB，说明准备金边际不再非常充裕或分布不均。\n- SOFR/TGCR/BGCR 高于政策锚，说明抵押融资压力上升；低于政策锚则说明回购融资并不紧。\n- BGCR-TGCR 异常扩大，说明一般抵押品融资结构可能有扰动。\n- 回购分析必须结合 SOFR_VOLUME 或 SOFR_VOLUME_IMPACT。\n\n### 国债供给与抵押品链条\n\n- 已完成拍卖：看发行规模、认购倍数、tail/利率压力。\n- 未来日程：看 `auctionDate`、`issueDate`、`securityTerm`、`offeringAmount`。\n- 供给过多可能占用交易商资产负债表；抵押品稀缺可能造成 specialness 和 repo fails。\n- 不能把“未来规模待公布”解读为没有供给。\n\n### 债券定价锚、信用与风险偏好\n\n- **国债收益率是本简报的一阶高权重分析维度**，与回购融资 / RRP / 信用并列，甚至在融资端平静、无急性信号时，收益率边际变化本身就是总判断的首要依据。主框架为 **1Y / 3Y / 5Y / 7Y 腹部组合**（1Y=近端政策路径、3Y=中段再定价、5Y/7Y=腹部传导），形成 `stance` 时必须显式纳入 1Y / 3Y / 5Y / 7Y 的边际变化，不得因融资端平稳就压低收益率权重；若收益率出现明显边际移动，总判断必须被其拉动。\n- 1Y Treasury Yield：短债/近端政策路径，重点看未来一年政策利率路径和现金收益率对风险资产的分流。\n- 3Y Treasury Yield：中段/腹部再定价，重点看短端政策预期是否向中段扩散。\n- 5Y / 7Y Treasury Yield：腹部传导段，重点看政策预期从中段向长端传递、以及腹部曲线斜率（5Y-3Y / 7Y-5Y）的再定价。\n- 10Y Treasury Yield：**仅作曲线 / 长期名义折现率背景锚，不是一阶高权重维度**；可用 DGS10 名义或 DFII10 补充，`REAL_10Y` 代表 10Y 收益率 level 背景风险、`REAL_10Y_MOMENTUM` 代表其边际方向，但不得喧宾夺主替代 1Y / 3Y / 5Y / 7Y 主框架。\n- 1Y / 3Y / 5Y / 7Y 必须形成一个短债到腹部再定价的分析框架：1Y=近端政策路径，3Y=中段再定价，5Y/7Y=腹部传导；若写收益率风险，必须同时说明四者最新值、边际变化以及腹部斜率（5Y-3Y / 7Y-5Y）含义。\n- **1Y / 3Y / 5Y / 7Y 每一个都必须拆成「水平 + 边际变化」两层**：水平看绝对位置（如 7Y 是否仍在 4.5% 高位、1Y 是否高于现金替代），边际变化看相对上一有效观测（`previous`）的 bp 变动及其对融资压力 / 折现率 / 久期资产估值的含义。边际变化必须量化到 bp 并解释方向含义，不得只写「小幅下行」之类空泛表述。\n- **重点分析收益率边际变化**：当 1Y / 3Y / 5Y / 7Y 任一项较上一期变动超过约 3bp，或腹部斜率（5Y-3Y / 7Y-5Y）发生明显移动时，必须在 `key_takeaways` 中专门给出一条「国债收益率边际变化」解读，并在 `stance.score_text` / `one_liner` 中体现其对总判断的拉动；即使无单一指标单独成风险，收益率边际组合也应作为核心 takeaway 候选。\n- 10Y-2Y、10Y-3M：曲线/增长/降息预期背景，不替代 1Y / 3Y / 5Y / 7Y 原始收益率判断。\n- IG/HY OAS 上行代表信用融资风险溢价扩大；HY 比 IG 更接近风险资产压力。\n- VIX 也必须拆成水平和边际两层。`VIX_RISK` 表示波动率水平；`VIX_MOMENTUM` 表示边际升降。VIX上行只说明股票风险偏好降温，只有信用利差同步扩大时才说明压力进入信用融资链条。\n- NFCI 是公开金融条件代理，不是高盛 FCI；正值偏紧，负值偏松。\n\n### 离岸美元\n\n- 若无免费官方 cross-currency basis，可用 DTWEXBGS 作为公开替代压力信号。\n- DTWEXBGS 上行通常代表全球美元融资条件收紧，对海外美元借款人不利。\n\n### 日元 Carry Trade 叠加判断\n\n本项目看日元 carry 的主目标是判断“借日元买美股/美元风险资产”的边际资金供给是否顺畅。\n\n分析顺序必须是：JPY融资成本/BOJ政策 → 美日利差 → USD/JPY趋势与波动 → 仓位拥挤度（多空拆解）→ 对美股/美元风险资产流动性供给的影响。\n\n- JPY融资成本低、美日利差宽、USD/JPY稳定或缓慢上行、波动率低，表示 carry 资金供给顺畅。\n- JPY融资成本上行、JGB快速上行、美日利差收窄、USD/JPY快速下跌或波动率上升，表示 carry 平仓风险上升。\n\n**CFTC 日元仓位必须做“水平 + 流量（边际）”两层分析，且必须拆分多空分项：**\n- 已有数据：`CFTC_JPY_NET_OI`（净空头占OI，水平+边际）、`CFTC_JPY_GROSS_SHORT`（非商业空头总口数，水平+边际）、`CFTC_JPY_GROSS_LONG`（非商业多头总口数，水平+边际）、`CFTC_JPY_SHORT_SHARE`（=空头/(空头+多头)，空头一侧真实强度代理，水平+边际）、`CFTC_JPY_OPEN_INTEREST`（总持仓量）。\n- **净空头 = 多头 − 空头。net/OI 上升 ≠ “空头真加仓”。必须区分两种来源：**\n  1. 空头（gross short）上升或 `short_share` 上升 → 投机盘真实卖出日元、买入美元，**carry 资金流在增强、对美元短期利好**（当下流量支撑轴）；\n  2. 多头（gross long）下降而空头未升 → 只是看多日元者平仓，**不能解读为新的 carry 建仓**，net/OI 上升是“多头离场”而非“空头进攻”。\n- 模型必须依据 `data.jpy_carry_history.jpy_carry.cftc_decomposition.driver` 判定驱动：仅当 driver 为 `short_building` 时，才可下“空头在加仓、carry 资金流支撑美元”的结论；若为 `long_unwinding` 或 `mixed`，须明确 net 上升主要来自多头平仓，不能声称 carry 在加杠杆。\n- **水平（拥挤度）与流量（边际方向）必须同时给出**：水平高（short_share 处近1年高位）说明未来反转踩踏更剧烈；流量方向说明当下是建仓还是平仓。两者不矛盾，分属不同时间轴。\n- 若 `cftc_decomposition.driver` 为 `unknown`（多空分项缺失），须标记为数据缺口，不得自行用 net/OI 推断空头方向。\n- CFTC 仓位是美元风险资产杠杆资金供给的**一阶信号**，需显式拆解，不得仅以“放大器”一笔带过。\n\n- 若缺少 FX options implied vol、risk reversal、cross-currency basis 等商业数据，应明确为数据缺口，并用 USD/JPY 实现波动率、VIX、CFTC仓位代理。\n\n## 7. 输出格式要求\n\n**只输出严格 JSON object。不要输出 HTML、Markdown、代码块围栏或任何解释性前后缀。**\n\n前端固定模板读取这些字段。模型只负责分析内容，不负责网页结构、CSS、HTML 或布局。\n\n### 顶层 JSON schema\n\n必须输出以下字段：\n\n```json\n{\n  \"meta\": {\n    \"generated_at_bjt\": \"输入数据中的 generated_at_bjt\",\n    \"data_as_of\": \"本次分析使用的最新有效数据日期\",\n    \"model\": \"模型名称或 AI Agent\",\n    \"input_freshness_note\": \"一句话说明核心数据日期差异、滞后项和数据缺口\"\n  },\n  \"stance\": {\n    \"label\": \"宽松|中性偏松|中性|中性偏紧|紧张\",\n    \"confidence\": \"高|中等|低\",\n    \"score_text\": \"规则分数或模型判断依据摘要\",\n    \"one_liner\": \"一句话总判断，必须基于本次输入数据\"\n  },\n  \"key_takeaways\": [\n    {\n      \"title\": \"动态标题\",\n      \"text\": \"解释本次最重要变化，必须说明方向和含义\",\n      \"evidence\": [\"日期+频率+最新值+上一期/变化+含义\"],\n      \"related_indicators\": [\"TGA\", \"RRPONTSYD\"]\n    }\n  ],\n  \"risk_flags\": [\n    {\n      \"priority\": \"P0|P1|P2\",\n      \"severity\": \"high|medium|low|info\",\n      \"type\": \"market|data\",\n      \"title\": \"风险标题\",\n      \"text\": \"风险解释，说明为什么是风险以及位于哪条传导链\",\n      \"evidence\": [\"日期+频率+最新值+上一期/变化+含义\"],\n      \"related_indicators\": [\"RRPONTSYD\"]\n    }\n  ],\n  \"narrative_blocks\": {\n    \"summary\": \"可选，前端摘要纯文本\",\n    \"rates\": \"可选，利率模块纯文本解释\",\n    \"balance_sheet\": \"可选，负债端纯文本解释\",\n    \"market_transmission\": \"可选，市场传导纯文本解释\",\n    \"treasury_yields\": {\n      \"label\": \"偏松|中性|偏紧\",\n      \"one_liner\": \"一句话判断1Y/3Y/5Y/7Y收益率腹部组合及其边际方向，10Y仅作背景\",\n      \"analysis\": \"必须首先量化 1Y/3Y/5Y/7Y 各自相对上一有效观测(previous)的边际变化(bp)并解释对折现率/久期资产/成长股/黄金估值的含义，再覆盖 1Y 短债、3Y 中段、5Y/7Y 腹部传导以及腹部斜率（5Y-3Y/7Y-5Y）；10Y 仅作曲线/折现率背景，不喧宾夺主。国债收益率边际变化是本简报一阶高权重信号，分析权重不低于融资端与信用端。\"\n    },\n    \"jpy_carry\": {\n      \"label\": \"偏紧|中性|偏松\",\n      \"one_liner\": \"一句话判断\",\n      \"analysis\": \"3-5句分析，覆盖利差、汇率、波动率、仓位、风险偏好\"\n    }\n  }\n}\n```\n\n### 字段规则\n\n- `stance.label` 只能使用：宽松、中性偏松、中性、中性偏紧、紧张。\n- `key_takeaways` 数量 0-5 条，动态生成，不固定为 3 条。\n- `risk_flags` 数量 0-5 条，按 P0/P1/P2 排序；超过 5 条只保留最重要 5 条。\n- `risk_flags.type` 必须是 `market` 或 `data`。\n- `key_takeaways.evidence` 和 `risk_flags.evidence` 必须是字符串数组，禁止空泛表述。\n- 边际变化不能只写 `+3bp` 或 `-2bp`，必须解释对融资压力、流动性、资产定价或风险偏好的含义。\n- 数值统一保留两位小数；bp 可保留一到两位；日期保持 `YYYY-MM-DD`。\n- 若涉及 SOFR/回购融资，证据必须包含 `SOFR_VOLUME` 或 `SOFR_VOLUME_IMPACT`。\n- 若涉及 T-bill/国债拍卖吸收，证据必须包含 `TBILL_AUCTION_STRESS`、`TBILL_AUCTION_SIZE` 与 `TBILL_AUCTION_BTC`，并补充 `upcoming_auctions` 中未来最近一次或未来大额发行的日期与规模。\n- 必须输出 `narrative_blocks.treasury_yields` 对象，专门分析 1Y / 3Y / 5Y / 7Y 美国国债收益率腹部组合（10Y 仅作曲线/折现率背景锚，可用 DGS10 名义或 DFII10 补充但不得喧宾夺主）。该对象分析必须以「边际变化(bp vs previous)」开场并量化，国债收益率是本简报一阶高权重维度，权重不低于融资端与信用端。\n- 若 `data.jpy_carry_history` 存在，必须输出 `narrative_blocks.jpy_carry` 对象，不得只输出字符串。\n\n## 8. 输出前自检\n\n输出 JSON 前，必须内部自检：\n\n1. 是否只输出一个可 JSON.parse 的 object。\n2. 是否没有 Markdown 表格、标题、代码块围栏或 JSON 外解释。\n3. 是否所有重要数值都有日期、频率/口径、最新值、上一期或边际变化。\n4. 是否没有浮点长尾。\n5. 是否 `key_takeaways` 与 `risk_flags` 没有重复同一风险。\n6. 是否数据风险和市场风险已区分。\n7. 是否 SOFR 与 T-bill 分析包含量级信息。\n8. 是否未来拍卖没有把“待公布”当作零。\n",
   "data": {
@@ -1616,7 +1616,7 @@
     "jpy_carry_history": {
       "jpy_carry": {
         "meta": {
-          "generated_at_bjt": "2026-07-19 16:24:59 UTC+08:00",
+          "generated_at_bjt": "2026-07-19 16:56:36 UTC+08:00",
           "lookback": "日频约1年，CFTC约2年，REER/NEER约3年"
         },
         "risk": {
@@ -1647,9 +1647,9 @@
           {
             "id": "JGB10",
             "label": "JGB 10Y（日本10年期国债收益率）",
-            "value_text": "2.690%",
-            "change_text": "逐日 4.6bp",
-            "as_of": "2026-06-30",
+            "value_text": "2.692%",
+            "change_text": "逐日 0.0bp",
+            "as_of": "2026-07-18",
             "why": "日本本土资产吸引力和资金回流压力"
           },
           {
@@ -1657,7 +1657,7 @@
             "label": "10Y UST-JGB利差（美日10年期国债利差）",
             "value_text": "188bp",
             "change_text": "收益端核心",
-            "as_of": "2026-06-30",
+            "as_of": "2026-07-16",
             "why": "美日长端利差越宽，carry收益端越顺风"
           },
           {
@@ -3792,14 +3792,6 @@
           ],
           "JGB10": [
             {
-              "date": "2025-06-06",
-              "value": 1.477
-            },
-            {
-              "date": "2025-06-09",
-              "value": 1.491
-            },
-            {
               "date": "2025-06-10",
               "value": 1.498
             },
@@ -4830,6 +4822,14 @@
             {
               "date": "2026-06-30",
               "value": 2.69
+            },
+            {
+              "date": "2026-07-16",
+              "value": 2.692
+            },
+            {
+              "date": "2026-07-18",
+              "value": 2.692
             }
           ],
           "US_JP_10Y": [
@@ -6087,7 +6087,7 @@
             },
             {
               "date": "2026-07-16",
-              "value": 188.00000000000003
+              "value": 187.8
             }
           ],
           "CFTC_JPY_NET_OI": [
@@ -9886,10 +9886,17 @@
             ]
           },
           {
-            "name": "MOF JGB constant-maturity CSV",
+            "name": "MOF JGB constant-maturity CSV (history)",
             "url": "https://www.mof.go.jp/english/policy/jgbs/reference/interest_rate/historical/jgbcme_all.csv",
             "items": [
-              "2Y/10Y/30Y JGB yields"
+              "2Y/10Y/30Y JGB yields long-run history"
+            ]
+          },
+          {
+            "name": "CNBC real-time JGB yields (latest daily patch)",
+            "url": "https://www.cnbc.com/bonds/",
+            "items": [
+              "JP2Y/JP5Y/JP10Y/JP30Y latest values"
             ]
           },
           {
@@ -12032,14 +12039,6 @@
               "label": "JGB 2Y",
               "points": [
                 {
-                  "date": "2025-06-06",
-                  "value": 0.76
-                },
-                {
-                  "date": "2025-06-09",
-                  "value": 0.775
-                },
-                {
                   "date": "2025-06-10",
                   "value": 0.771
                 },
@@ -13070,6 +13069,14 @@
                 {
                   "date": "2026-06-30",
                   "value": 1.382
+                },
+                {
+                  "date": "2026-07-16",
+                  "value": 1.427
+                },
+                {
+                  "date": "2026-07-18",
+                  "value": 1.427
                 }
               ]
             },
@@ -13077,14 +13084,6 @@
               "id": "JGB10",
               "label": "JGB 10Y",
               "points": [
-                {
-                  "date": "2025-06-06",
-                  "value": 1.477
-                },
-                {
-                  "date": "2025-06-09",
-                  "value": 1.491
-                },
                 {
                   "date": "2025-06-10",
                   "value": 1.498
@@ -14116,6 +14115,14 @@
                 {
                   "date": "2026-06-30",
                   "value": 2.69
+                },
+                {
+                  "date": "2026-07-16",
+                  "value": 2.692
+                },
+                {
+                  "date": "2026-07-18",
+                  "value": 2.692
                 }
               ]
             },
@@ -14123,14 +14130,6 @@
               "id": "JGB30",
               "label": "JGB 30Y",
               "points": [
-                {
-                  "date": "2025-06-06",
-                  "value": 2.78
-                },
-                {
-                  "date": "2025-06-09",
-                  "value": 2.805
-                },
                 {
                   "date": "2025-06-10",
                   "value": 2.809
@@ -15162,6 +15161,14 @@
                 {
                   "date": "2026-06-30",
                   "value": 3.873
+                },
+                {
+                  "date": "2026-07-16",
+                  "value": 3.861
+                },
+                {
+                  "date": "2026-07-18",
+                  "value": 3.861
                 }
               ]
             }
@@ -16844,7 +16851,7 @@
                 },
                 {
                   "date": "2026-07-16",
-                  "value": 277.80000000000007
+                  "value": 273.3
                 }
               ]
             },
@@ -17890,7 +17897,7 @@
                 },
                 {
                   "date": "2026-07-16",
-                  "value": 188.00000000000003
+                  "value": 187.8
                 }
               ]
             }
@@ -19638,8 +19645,8 @@
       ]
     ],
     "chart_paths": [
-      "/Users/eiheisun/WorkBuddy/2026-05-04-task-1/output/usd_liquidity_chart_7d_20260719_162459.svg",
-      "/Users/eiheisun/WorkBuddy/2026-05-04-task-1/output/usd_liquidity_chart_30d_20260719_162459.svg"
+      "/Users/eiheisun/WorkBuddy/2026-05-04-task-1/output/usd_liquidity_chart_7d_20260719_165636.svg",
+      "/Users/eiheisun/WorkBuddy/2026-05-04-task-1/output/usd_liquidity_chart_30d_20260719_165636.svg"
     ],
     "unavailable_sources": [
       {

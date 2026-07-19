@@ -1,8 +1,8 @@
 window.DASHBOARD_DATA = {
   "meta": {
     "title": "美元流动性监测",
-    "trigger": "今天的美元流动性简报",
-    "generated_at_bjt": "2026-07-19 16:25:17 UTC+08:00",
+    "trigger": "更新数据并分析（JGB 10Y CNBC补丁修复，日债端不再陈旧）",
+    "generated_at_bjt": "2026-07-19 16:56:56 UTC+08:00",
     "data_as_of": "2026-07-18",
     "timezone": "BJT",
     "theme": "warm_claude",
@@ -786,7 +786,7 @@ window.DASHBOARD_DATA = {
   },
   "jpy_carry": {
     "meta": {
-      "generated_at_bjt": "2026-07-19 16:24:59 UTC+08:00",
+      "generated_at_bjt": "2026-07-19 16:56:36 UTC+08:00",
       "lookback": "日频约1年，CFTC约2年，REER/NEER约3年"
     },
     "risk": {
@@ -817,9 +817,9 @@ window.DASHBOARD_DATA = {
       {
         "id": "JGB10",
         "label": "JGB 10Y（日本10年期国债收益率）",
-        "value_text": "2.690%",
-        "change_text": "逐日 4.6bp",
-        "as_of": "2026-06-30",
+        "value_text": "2.692%",
+        "change_text": "逐日 0.0bp",
+        "as_of": "2026-07-18",
         "why": "日本本土资产吸引力和资金回流压力"
       },
       {
@@ -827,7 +827,7 @@ window.DASHBOARD_DATA = {
         "label": "10Y UST-JGB利差（美日10年期国债利差）",
         "value_text": "188bp",
         "change_text": "收益端核心",
-        "as_of": "2026-06-30",
+        "as_of": "2026-07-16",
         "why": "美日长端利差越宽，carry收益端越顺风"
       },
       {
@@ -2962,14 +2962,6 @@ window.DASHBOARD_DATA = {
       ],
       "JGB10": [
         {
-          "date": "2025-06-06",
-          "value": 1.477
-        },
-        {
-          "date": "2025-06-09",
-          "value": 1.491
-        },
-        {
           "date": "2025-06-10",
           "value": 1.498
         },
@@ -4000,6 +3992,14 @@ window.DASHBOARD_DATA = {
         {
           "date": "2026-06-30",
           "value": 2.69
+        },
+        {
+          "date": "2026-07-16",
+          "value": 2.692
+        },
+        {
+          "date": "2026-07-18",
+          "value": 2.692
         }
       ],
       "US_JP_10Y": [
@@ -5257,7 +5257,7 @@ window.DASHBOARD_DATA = {
         },
         {
           "date": "2026-07-16",
-          "value": 188.00000000000003
+          "value": 187.8
         }
       ],
       "CFTC_JPY_NET_OI": [
@@ -9056,10 +9056,17 @@ window.DASHBOARD_DATA = {
         ]
       },
       {
-        "name": "MOF JGB constant-maturity CSV",
+        "name": "MOF JGB constant-maturity CSV (history)",
         "url": "https://www.mof.go.jp/english/policy/jgbs/reference/interest_rate/historical/jgbcme_all.csv",
         "items": [
-          "2Y/10Y/30Y JGB yields"
+          "2Y/10Y/30Y JGB yields long-run history"
+        ]
+      },
+      {
+        "name": "CNBC real-time JGB yields (latest daily patch)",
+        "url": "https://www.cnbc.com/bonds/",
+        "items": [
+          "JP2Y/JP5Y/JP10Y/JP30Y latest values"
         ]
       },
       {
@@ -14455,14 +14462,6 @@ window.DASHBOARD_DATA = {
           "label": "JGB 2Y",
           "points": [
             {
-              "date": "2025-06-06",
-              "value": 0.76
-            },
-            {
-              "date": "2025-06-09",
-              "value": 0.775
-            },
-            {
               "date": "2025-06-10",
               "value": 0.771
             },
@@ -15493,6 +15492,14 @@ window.DASHBOARD_DATA = {
             {
               "date": "2026-06-30",
               "value": 1.382
+            },
+            {
+              "date": "2026-07-16",
+              "value": 1.427
+            },
+            {
+              "date": "2026-07-18",
+              "value": 1.427
             }
           ]
         },
@@ -15500,14 +15507,6 @@ window.DASHBOARD_DATA = {
           "id": "JGB10",
           "label": "JGB 10Y",
           "points": [
-            {
-              "date": "2025-06-06",
-              "value": 1.477
-            },
-            {
-              "date": "2025-06-09",
-              "value": 1.491
-            },
             {
               "date": "2025-06-10",
               "value": 1.498
@@ -16539,6 +16538,14 @@ window.DASHBOARD_DATA = {
             {
               "date": "2026-06-30",
               "value": 2.69
+            },
+            {
+              "date": "2026-07-16",
+              "value": 2.692
+            },
+            {
+              "date": "2026-07-18",
+              "value": 2.692
             }
           ]
         },
@@ -16546,14 +16553,6 @@ window.DASHBOARD_DATA = {
           "id": "JGB30",
           "label": "JGB 30Y",
           "points": [
-            {
-              "date": "2025-06-06",
-              "value": 2.78
-            },
-            {
-              "date": "2025-06-09",
-              "value": 2.805
-            },
             {
               "date": "2025-06-10",
               "value": 2.809
@@ -17585,6 +17584,14 @@ window.DASHBOARD_DATA = {
             {
               "date": "2026-06-30",
               "value": 3.873
+            },
+            {
+              "date": "2026-07-16",
+              "value": 3.861
+            },
+            {
+              "date": "2026-07-18",
+              "value": 3.861
             }
           ]
         }
@@ -19267,7 +19274,7 @@ window.DASHBOARD_DATA = {
             },
             {
               "date": "2026-07-16",
-              "value": 277.80000000000007
+              "value": 273.3
             }
           ]
         },
@@ -20313,7 +20320,7 @@ window.DASHBOARD_DATA = {
             },
             {
               "date": "2026-07-16",
-              "value": 188.00000000000003
+              "value": 187.8
             }
           ]
         }
@@ -21653,8 +21660,8 @@ window.DASHBOARD_DATA = {
     }
   ],
   "chart_paths": [
-    "/Users/eiheisun/WorkBuddy/2026-05-04-task-1/output/usd_liquidity_chart_7d_20260719_162459.svg",
-    "/Users/eiheisun/WorkBuddy/2026-05-04-task-1/output/usd_liquidity_chart_30d_20260719_162459.svg"
+    "/Users/eiheisun/WorkBuddy/2026-05-04-task-1/output/usd_liquidity_chart_7d_20260719_165636.svg",
+    "/Users/eiheisun/WorkBuddy/2026-05-04-task-1/output/usd_liquidity_chart_30d_20260719_165636.svg"
   ],
   "data_quality": {
     "missing": [],
@@ -21702,7 +21709,7 @@ window.DASHBOARD_DATA = {
 window.ANALYSIS_DATA = {
   "meta": {
     "status": "pending_model_analysis",
-    "generated_at_bjt": "2026-07-19 16:25:17 UTC+08:00"
+    "generated_at_bjt": "2026-07-19 16:56:56 UTC+08:00"
   },
   "stance": {
     "label": "待模型分析",
