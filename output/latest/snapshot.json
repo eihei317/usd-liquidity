@@ -1,6 +1,6 @@
 {
-  "trigger": "更新数据并分析（NEER改BIS日频、REER删除）",
-  "generated_at_bjt": "2026-07-19 19:51:10 UTC+08:00",
+  "trigger": "今天的美元流动性简报",
+  "generated_at_bjt": "2026-07-20 10:42:51 UTC+08:00",
   "stance": "中性",
   "score": 0.5999999999999999,
   "metrics": [
@@ -16,10 +16,10 @@
       "previous_as_of": "2026-07-16",
       "frequency": "daily T+1",
       "source": "NY Fed Markets API",
-      "source_url": "https://markets.newyorkfed.org/api/rp/reverserepo/propositions/search.json?startDate=2026-07-05&endDate=2026-07-19",
+      "source_url": "https://markets.newyorkfed.org/api/rp/reverserepo/propositions/search.json?startDate=2026-07-06&endDate=2026-07-20",
       "status": "ok",
       "notes": "NY Fed reverse repo accepted amount; replaces FRED RRPONTSYD when FRED is slow or unavailable",
-      "stale_days": 2,
+      "stale_days": 3,
       "extra": {
         "raw_latest": {
           "operationId": "RP 071726 26",
@@ -46,7 +46,7 @@
       "source_url": "https://markets.newyorkfed.org/api/soma/summary.json",
       "status": "ok",
       "notes": "SOMA endpoint schema may change; use as weekly QT background",
-      "stale_days": 4,
+      "stale_days": 5,
       "extra": {
         "raw_latest": {
           "asOfDate": "2026-07-15",
@@ -77,7 +77,7 @@
       "source_url": "https://api.fiscaldata.treasury.gov/services/api/fiscal_service/v1/accounting/dts/operating_cash_balance?sort=-record_date&page[size]=90",
       "status": "ok",
       "notes": "",
-      "stale_days": 3,
+      "stale_days": 4,
       "extra": {
         "raw_latest": {
           "record_date": "2026-07-16",
@@ -114,9 +114,9 @@
       "source_url": "https://fred.stlouisfed.org/series/WRESBAL",
       "status": "ok",
       "notes": "",
-      "stale_days": 4,
+      "stale_days": 5,
       "extra": {
-        "fetch_url": "https://api.stlouisfed.org/fred/series/observations?series_id=WRESBAL&api_key=REDACTED&file_type=json&sort_order=desc&limit=30&observation_start=2026-01-20"
+        "fetch_url": "https://api.stlouisfed.org/fred/series/observations?series_id=WRESBAL&api_key=REDACTED&file_type=json&sort_order=desc&limit=30&observation_start=2026-01-21"
       }
     },
     {
@@ -134,9 +134,9 @@
       "source_url": "https://fred.stlouisfed.org/series/BAMLC0A0CM",
       "status": "ok",
       "notes": "",
-      "stale_days": 3,
+      "stale_days": 4,
       "extra": {
-        "fetch_url": "https://api.stlouisfed.org/fred/series/observations?series_id=BAMLC0A0CM&api_key=REDACTED&file_type=json&sort_order=desc&limit=30&observation_start=2026-01-20"
+        "fetch_url": "https://api.stlouisfed.org/fred/series/observations?series_id=BAMLC0A0CM&api_key=REDACTED&file_type=json&sort_order=desc&limit=30&observation_start=2026-01-21"
       }
     },
     {
@@ -154,9 +154,9 @@
       "source_url": "https://fred.stlouisfed.org/series/BAMLH0A0HYM2",
       "status": "ok",
       "notes": "",
-      "stale_days": 3,
+      "stale_days": 4,
       "extra": {
-        "fetch_url": "https://api.stlouisfed.org/fred/series/observations?series_id=BAMLH0A0HYM2&api_key=REDACTED&file_type=json&sort_order=desc&limit=30&observation_start=2026-01-20"
+        "fetch_url": "https://api.stlouisfed.org/fred/series/observations?series_id=BAMLH0A0HYM2&api_key=REDACTED&file_type=json&sort_order=desc&limit=30&observation_start=2026-01-21"
       }
     },
     {
@@ -174,9 +174,9 @@
       "source_url": "https://fred.stlouisfed.org/series/DCPN3M",
       "status": "ok",
       "notes": "",
-      "stale_days": 23,
+      "stale_days": 24,
       "extra": {
-        "fetch_url": "https://api.stlouisfed.org/fred/series/observations?series_id=DCPN3M&api_key=REDACTED&file_type=json&sort_order=desc&limit=30&observation_start=2026-01-20"
+        "fetch_url": "https://api.stlouisfed.org/fred/series/observations?series_id=DCPN3M&api_key=REDACTED&file_type=json&sort_order=desc&limit=30&observation_start=2026-01-21"
       }
     },
     {
@@ -194,7 +194,7 @@
       "source_url": "https://markets.newyorkfed.org/api/rates/secured/sofr/last/2.json",
       "status": "ok",
       "notes": "SOFR transaction volume reported by NY Fed in billions of dollars; use with SOFR-Policy spread to estimate price × size impact.",
-      "stale_days": 3,
+      "stale_days": 4,
       "extra": {
         "raw_latest": {
           "effectiveDate": "2026-07-16",
@@ -224,7 +224,7 @@
       "source_url": "https://data.financialresearch.gov/v1/series/timeseries?mnemonic=NYPD-PD_AFtD_T-A",
       "status": "ok",
       "notes": "Optional OFR STFM series; if unavailable, do not block the main briefing",
-      "stale_days": 11,
+      "stale_days": 12,
       "extra": {}
     },
     {
@@ -239,10 +239,10 @@
       "previous_as_of": "2026-07-13",
       "frequency": "event-based",
       "source": "TreasuryDirect",
-      "source_url": "https://www.treasurydirect.gov/TA_WS/securities/search?format=json&startDate=2026-06-28&endDate=2026-07-19",
+      "source_url": "https://www.treasurydirect.gov/TA_WS/securities/search?format=json&startDate=2026-06-29&endDate=2026-07-20",
       "status": "ok",
       "notes": "Aggregates all Treasury Bill auctions on the latest auction date; bid-to-cover is offering-amount weighted. Latest terms: 6-Week.",
-      "stale_days": 5,
+      "stale_days": 6,
       "extra": {
         "latest_auctions": [
           {
@@ -384,10 +384,10 @@
       "previous_as_of": "2026-07-13",
       "frequency": "event-based",
       "source": "TreasuryDirect",
-      "source_url": "https://www.treasurydirect.gov/TA_WS/securities/search?format=json&startDate=2026-06-28&endDate=2026-07-19",
+      "source_url": "https://www.treasurydirect.gov/TA_WS/securities/search?format=json&startDate=2026-06-29&endDate=2026-07-20",
       "status": "ok",
       "notes": "Aggregates all Treasury Bill auctions on the latest auction date; bid-to-cover is offering-amount weighted. Latest terms: 6-Week.",
-      "stale_days": 5,
+      "stale_days": 6,
       "extra": {
         "latest_auctions": [
           {
@@ -529,10 +529,10 @@
       "previous_as_of": "2026-07-13",
       "frequency": "event-based",
       "source": "TreasuryDirect",
-      "source_url": "https://www.treasurydirect.gov/TA_WS/securities/search?format=json&startDate=2026-06-28&endDate=2026-07-19",
+      "source_url": "https://www.treasurydirect.gov/TA_WS/securities/search?format=json&startDate=2026-06-29&endDate=2026-07-20",
       "status": "ok",
       "notes": "Uses bid-to-cover as free auction demand proxy; auction tail requires WI yield not available here",
-      "stale_days": 5,
+      "stale_days": 6,
       "extra": {
         "latest_auction": {
           "cusip": "912797TY3",
@@ -674,9 +674,9 @@
       "source_url": "https://fred.stlouisfed.org/series/DFII10",
       "status": "ok",
       "notes": "",
-      "stale_days": 3,
+      "stale_days": 4,
       "extra": {
-        "fetch_url": "https://api.stlouisfed.org/fred/series/observations?series_id=DFII10&api_key=REDACTED&file_type=json&sort_order=desc&limit=30&observation_start=2026-01-20"
+        "fetch_url": "https://api.stlouisfed.org/fred/series/observations?series_id=DFII10&api_key=REDACTED&file_type=json&sort_order=desc&limit=30&observation_start=2026-01-21"
       }
     },
     {
@@ -694,9 +694,9 @@
       "source_url": "https://fred.stlouisfed.org/series/DGS1",
       "status": "ok",
       "notes": "",
-      "stale_days": 3,
+      "stale_days": 4,
       "extra": {
-        "fetch_url": "https://api.stlouisfed.org/fred/series/observations?series_id=DGS1&api_key=REDACTED&file_type=json&sort_order=desc&limit=30&observation_start=2026-01-20"
+        "fetch_url": "https://api.stlouisfed.org/fred/series/observations?series_id=DGS1&api_key=REDACTED&file_type=json&sort_order=desc&limit=30&observation_start=2026-01-21"
       }
     },
     {
@@ -714,7 +714,7 @@
       "source_url": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/daily-treasury-rates.csv/2026/all?type=daily_treasury_yield_curve&field_tdr_date_value=2026&page&_format=csv",
       "status": "ok",
       "notes": "同日源：Treasury.gov 每日国债收益率曲线，约美东16:00发布，比FRED T+1快一天；FRED为兜底",
-      "stale_days": 2,
+      "stale_days": 3,
       "extra": {}
     },
     {
@@ -732,9 +732,9 @@
       "source_url": "https://fred.stlouisfed.org/series/DGS10",
       "status": "ok",
       "notes": "",
-      "stale_days": 3,
+      "stale_days": 4,
       "extra": {
-        "fetch_url": "https://api.stlouisfed.org/fred/series/observations?series_id=DGS10&api_key=REDACTED&file_type=json&sort_order=desc&limit=30&observation_start=2026-01-20"
+        "fetch_url": "https://api.stlouisfed.org/fred/series/observations?series_id=DGS10&api_key=REDACTED&file_type=json&sort_order=desc&limit=30&observation_start=2026-01-21"
       }
     },
     {
@@ -752,7 +752,7 @@
       "source_url": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/daily-treasury-rates.csv/2026/all?type=daily_treasury_yield_curve&field_tdr_date_value=2026&page&_format=csv",
       "status": "ok",
       "notes": "同日源：Treasury.gov 每日国债收益率曲线，约美东16:00发布，比FRED T+1快一天；FRED为兜底",
-      "stale_days": 2,
+      "stale_days": 3,
       "extra": {}
     },
     {
@@ -770,9 +770,9 @@
       "source_url": "https://fred.stlouisfed.org/series/DGS2",
       "status": "ok",
       "notes": "",
-      "stale_days": 3,
+      "stale_days": 4,
       "extra": {
-        "fetch_url": "https://api.stlouisfed.org/fred/series/observations?series_id=DGS2&api_key=REDACTED&file_type=json&sort_order=desc&limit=30&observation_start=2026-01-20"
+        "fetch_url": "https://api.stlouisfed.org/fred/series/observations?series_id=DGS2&api_key=REDACTED&file_type=json&sort_order=desc&limit=30&observation_start=2026-01-21"
       }
     },
     {
@@ -790,7 +790,7 @@
       "source_url": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/daily-treasury-rates.csv/2026/all?type=daily_treasury_yield_curve&field_tdr_date_value=2026&page&_format=csv",
       "status": "ok",
       "notes": "同日源：Treasury.gov 每日国债收益率曲线，约美东16:00发布，比FRED T+1快一天；FRED为兜底",
-      "stale_days": 2,
+      "stale_days": 3,
       "extra": {}
     },
     {
@@ -808,9 +808,9 @@
       "source_url": "https://fred.stlouisfed.org/series/DGS3",
       "status": "ok",
       "notes": "",
-      "stale_days": 3,
+      "stale_days": 4,
       "extra": {
-        "fetch_url": "https://api.stlouisfed.org/fred/series/observations?series_id=DGS3&api_key=REDACTED&file_type=json&sort_order=desc&limit=30&observation_start=2026-01-20"
+        "fetch_url": "https://api.stlouisfed.org/fred/series/observations?series_id=DGS3&api_key=REDACTED&file_type=json&sort_order=desc&limit=30&observation_start=2026-01-21"
       }
     },
     {
@@ -828,7 +828,7 @@
       "source_url": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/daily-treasury-rates.csv/2026/all?type=daily_treasury_yield_curve&field_tdr_date_value=2026&page&_format=csv",
       "status": "ok",
       "notes": "同日源：Treasury.gov 每日国债收益率曲线，约美东16:00发布，比FRED T+1快一天；FRED为兜底",
-      "stale_days": 2,
+      "stale_days": 3,
       "extra": {}
     },
     {
@@ -846,9 +846,9 @@
       "source_url": "https://fred.stlouisfed.org/series/DGS3MO",
       "status": "ok",
       "notes": "",
-      "stale_days": 3,
+      "stale_days": 4,
       "extra": {
-        "fetch_url": "https://api.stlouisfed.org/fred/series/observations?series_id=DGS3MO&api_key=REDACTED&file_type=json&sort_order=desc&limit=30&observation_start=2026-01-20"
+        "fetch_url": "https://api.stlouisfed.org/fred/series/observations?series_id=DGS3MO&api_key=REDACTED&file_type=json&sort_order=desc&limit=30&observation_start=2026-01-21"
       }
     },
     {
@@ -866,7 +866,7 @@
       "source_url": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/daily-treasury-rates.csv/2026/all?type=daily_treasury_yield_curve&field_tdr_date_value=2026&page&_format=csv",
       "status": "ok",
       "notes": "同日源：Treasury.gov 每日国债收益率曲线，约美东16:00发布，比FRED T+1快一天；FRED为兜底",
-      "stale_days": 2,
+      "stale_days": 3,
       "extra": {}
     },
     {
@@ -884,9 +884,9 @@
       "source_url": "https://fred.stlouisfed.org/series/DGS5",
       "status": "ok",
       "notes": "",
-      "stale_days": 3,
+      "stale_days": 4,
       "extra": {
-        "fetch_url": "https://api.stlouisfed.org/fred/series/observations?series_id=DGS5&api_key=REDACTED&file_type=json&sort_order=desc&limit=30&observation_start=2026-01-20"
+        "fetch_url": "https://api.stlouisfed.org/fred/series/observations?series_id=DGS5&api_key=REDACTED&file_type=json&sort_order=desc&limit=30&observation_start=2026-01-21"
       }
     },
     {
@@ -904,7 +904,7 @@
       "source_url": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/daily-treasury-rates.csv/2026/all?type=daily_treasury_yield_curve&field_tdr_date_value=2026&page&_format=csv",
       "status": "ok",
       "notes": "同日源：Treasury.gov 每日国债收益率曲线，约美东16:00发布，比FRED T+1快一天；FRED为兜底",
-      "stale_days": 2,
+      "stale_days": 3,
       "extra": {}
     },
     {
@@ -922,9 +922,9 @@
       "source_url": "https://fred.stlouisfed.org/series/DGS7",
       "status": "ok",
       "notes": "",
-      "stale_days": 3,
+      "stale_days": 4,
       "extra": {
-        "fetch_url": "https://api.stlouisfed.org/fred/series/observations?series_id=DGS7&api_key=REDACTED&file_type=json&sort_order=desc&limit=30&observation_start=2026-01-20"
+        "fetch_url": "https://api.stlouisfed.org/fred/series/observations?series_id=DGS7&api_key=REDACTED&file_type=json&sort_order=desc&limit=30&observation_start=2026-01-21"
       }
     },
     {
@@ -942,7 +942,7 @@
       "source_url": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/daily-treasury-rates.csv/2026/all?type=daily_treasury_yield_curve&field_tdr_date_value=2026&page&_format=csv",
       "status": "ok",
       "notes": "同日源：Treasury.gov 每日国债收益率曲线，约美东16:00发布，比FRED T+1快一天；FRED为兜底",
-      "stale_days": 2,
+      "stale_days": 3,
       "extra": {}
     },
     {
@@ -960,9 +960,9 @@
       "source_url": "https://fred.stlouisfed.org/series/DTB3",
       "status": "ok",
       "notes": "",
-      "stale_days": 3,
+      "stale_days": 4,
       "extra": {
-        "fetch_url": "https://api.stlouisfed.org/fred/series/observations?series_id=DTB3&api_key=REDACTED&file_type=json&sort_order=desc&limit=30&observation_start=2026-01-20"
+        "fetch_url": "https://api.stlouisfed.org/fred/series/observations?series_id=DTB3&api_key=REDACTED&file_type=json&sort_order=desc&limit=30&observation_start=2026-01-21"
       }
     },
     {
@@ -980,9 +980,9 @@
       "source_url": "https://fred.stlouisfed.org/series/T10Y2Y",
       "status": "ok",
       "notes": "",
-      "stale_days": 2,
+      "stale_days": 3,
       "extra": {
-        "fetch_url": "https://api.stlouisfed.org/fred/series/observations?series_id=T10Y2Y&api_key=REDACTED&file_type=json&sort_order=desc&limit=30&observation_start=2026-01-20"
+        "fetch_url": "https://api.stlouisfed.org/fred/series/observations?series_id=T10Y2Y&api_key=REDACTED&file_type=json&sort_order=desc&limit=30&observation_start=2026-01-21"
       }
     },
     {
@@ -1000,7 +1000,7 @@
       "source_url": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/daily-treasury-rates.csv/2026/all?type=daily_treasury_yield_curve&field_tdr_date_value=2026&page&_format=csv",
       "status": "ok",
       "notes": "由同日 DGS10-DGS2 计算",
-      "stale_days": 2,
+      "stale_days": 3,
       "extra": {}
     },
     {
@@ -1018,9 +1018,9 @@
       "source_url": "https://fred.stlouisfed.org/series/T10Y3M",
       "status": "ok",
       "notes": "",
-      "stale_days": 2,
+      "stale_days": 3,
       "extra": {
-        "fetch_url": "https://api.stlouisfed.org/fred/series/observations?series_id=T10Y3M&api_key=REDACTED&file_type=json&sort_order=desc&limit=30&observation_start=2026-01-20"
+        "fetch_url": "https://api.stlouisfed.org/fred/series/observations?series_id=T10Y3M&api_key=REDACTED&file_type=json&sort_order=desc&limit=30&observation_start=2026-01-21"
       }
     },
     {
@@ -1038,7 +1038,7 @@
       "source_url": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/daily-treasury-rates.csv/2026/all?type=daily_treasury_yield_curve&field_tdr_date_value=2026&page&_format=csv",
       "status": "ok",
       "notes": "由同日 DGS10-DGS3MO 计算",
-      "stale_days": 2,
+      "stale_days": 3,
       "extra": {}
     },
     {
@@ -1049,8 +1049,8 @@
       "previous": 3.75,
       "change": 0.0,
       "unit": "%",
-      "as_of": "2026-07-18",
-      "previous_as_of": "2026-07-17",
+      "as_of": "2026-07-19",
+      "previous_as_of": "2026-07-18",
       "frequency": "daily / policy step",
       "source": "FRED API",
       "source_url": "https://fred.stlouisfed.org/series/DFEDTARU",
@@ -1058,7 +1058,7 @@
       "notes": "",
       "stale_days": 1,
       "extra": {
-        "fetch_url": "https://api.stlouisfed.org/fred/series/observations?series_id=DFEDTARU&api_key=REDACTED&file_type=json&sort_order=desc&limit=30&observation_start=2026-01-20"
+        "fetch_url": "https://api.stlouisfed.org/fred/series/observations?series_id=DFEDTARU&api_key=REDACTED&file_type=json&sort_order=desc&limit=30&observation_start=2026-01-21"
       }
     },
     {
@@ -1076,9 +1076,9 @@
       "source_url": "https://fred.stlouisfed.org/series/IORB",
       "status": "ok",
       "notes": "",
-      "stale_days": -1,
+      "stale_days": 0,
       "extra": {
-        "fetch_url": "https://api.stlouisfed.org/fred/series/observations?series_id=IORB&api_key=REDACTED&file_type=json&sort_order=desc&limit=30&observation_start=2026-01-20"
+        "fetch_url": "https://api.stlouisfed.org/fred/series/observations?series_id=IORB&api_key=REDACTED&file_type=json&sort_order=desc&limit=30&observation_start=2026-01-21"
       }
     },
     {
@@ -1096,7 +1096,7 @@
       "source_url": "https://markets.newyorkfed.org/api/rates/unsecured/effr/last/2.json",
       "status": "ok",
       "notes": "Fallback policy anchor when IORB/FRED is unavailable; not identical to IORB",
-      "stale_days": 3,
+      "stale_days": 4,
       "extra": {
         "raw_latest": {
           "effectiveDate": "2026-07-16",
@@ -1129,9 +1129,9 @@
       "source_url": "https://fred.stlouisfed.org/series/DTWEXBGS",
       "status": "ok",
       "notes": "",
-      "stale_days": 9,
+      "stale_days": 10,
       "extra": {
-        "fetch_url": "https://api.stlouisfed.org/fred/series/observations?series_id=DTWEXBGS&api_key=REDACTED&file_type=json&sort_order=desc&limit=30&observation_start=2026-01-20"
+        "fetch_url": "https://api.stlouisfed.org/fred/series/observations?series_id=DTWEXBGS&api_key=REDACTED&file_type=json&sort_order=desc&limit=30&observation_start=2026-01-21"
       }
     },
     {
@@ -1149,9 +1149,9 @@
       "source_url": "https://fred.stlouisfed.org/series/VIXCLS",
       "status": "ok",
       "notes": "",
-      "stale_days": 3,
+      "stale_days": 4,
       "extra": {
-        "fetch_url": "https://api.stlouisfed.org/fred/series/observations?series_id=VIXCLS&api_key=REDACTED&file_type=json&sort_order=desc&limit=30&observation_start=2026-01-20"
+        "fetch_url": "https://api.stlouisfed.org/fred/series/observations?series_id=VIXCLS&api_key=REDACTED&file_type=json&sort_order=desc&limit=30&observation_start=2026-01-21"
       }
     },
     {
@@ -1169,9 +1169,9 @@
       "source_url": "https://fred.stlouisfed.org/series/NFCI",
       "status": "ok",
       "notes": "",
-      "stale_days": 9,
+      "stale_days": 10,
       "extra": {
-        "fetch_url": "https://api.stlouisfed.org/fred/series/observations?series_id=NFCI&api_key=REDACTED&file_type=json&sort_order=desc&limit=30&observation_start=2026-01-20"
+        "fetch_url": "https://api.stlouisfed.org/fred/series/observations?series_id=NFCI&api_key=REDACTED&file_type=json&sort_order=desc&limit=30&observation_start=2026-01-21"
       }
     },
     {
@@ -1189,7 +1189,7 @@
       "source_url": "https://markets.newyorkfed.org/api/rates/secured/bgcr/last/2.json",
       "status": "ok",
       "notes": "",
-      "stale_days": 3,
+      "stale_days": 4,
       "extra": {
         "raw_latest": {
           "effectiveDate": "2026-07-16",
@@ -1219,7 +1219,7 @@
       "source_url": "https://markets.newyorkfed.org/api/rates/unsecured/effr/last/2.json",
       "status": "ok",
       "notes": "",
-      "stale_days": 3,
+      "stale_days": 4,
       "extra": {
         "raw_latest": {
           "effectiveDate": "2026-07-16",
@@ -1251,7 +1251,7 @@
       "source_url": "https://markets.newyorkfed.org/api/rates/unsecured/obfr/last/2.json",
       "status": "ok",
       "notes": "",
-      "stale_days": 3,
+      "stale_days": 4,
       "extra": {
         "raw_latest": {
           "effectiveDate": "2026-07-16",
@@ -1281,7 +1281,7 @@
       "source_url": "https://markets.newyorkfed.org/api/rates/secured/sofr/last/2.json",
       "status": "ok",
       "notes": "",
-      "stale_days": 3,
+      "stale_days": 4,
       "extra": {
         "raw_latest": {
           "effectiveDate": "2026-07-16",
@@ -1311,7 +1311,7 @@
       "source_url": "https://markets.newyorkfed.org/api/rates/secured/tgcr/last/2.json",
       "status": "ok",
       "notes": "",
-      "stale_days": 3,
+      "stale_days": 4,
       "extra": {
         "raw_latest": {
           "effectiveDate": "2026-07-16",
@@ -1856,14 +1856,14 @@
     ]
   ],
   "chart_paths": [
-    "/Users/eiheisun/WorkBuddy/2026-05-04-task-1/output/usd_liquidity_chart_7d_20260719_195051.svg",
-    "/Users/eiheisun/WorkBuddy/2026-05-04-task-1/output/usd_liquidity_chart_30d_20260719_195051.svg"
+    "/Users/eiheisun/WorkBuddy/2026-05-04-task-1/output/usd_liquidity_chart_7d_20260720_104224.svg",
+    "/Users/eiheisun/WorkBuddy/2026-05-04-task-1/output/usd_liquidity_chart_30d_20260720_104224.svg"
   ],
   "upcoming_auctions": {
     "status": "ok",
-    "as_of": "2026-07-19",
+    "as_of": "2026-07-20",
     "lookforward_days": 60,
-    "source_url": "https://www.treasurydirect.gov/TA_WS/securities/search?format=json&startDate=2026-07-19&endDate=2026-09-17",
+    "source_url": "https://www.treasurydirect.gov/TA_WS/securities/search?format=json&startDate=2026-07-20&endDate=2026-09-18",
     "auctions": [
       {
         "auctionDate": "2026-07-20",

@@ -1,9 +1,9 @@
 {
   "meta": {
     "title": "美元流动性监测",
-    "trigger": "更新数据并分析（NEER改BIS日频、REER删除）",
-    "generated_at_bjt": "2026-07-19 19:51:10 UTC+08:00",
-    "data_as_of": "2026-07-18",
+    "trigger": "今天的美元流动性简报",
+    "generated_at_bjt": "2026-07-20 10:42:51 UTC+08:00",
+    "data_as_of": "2026-07-20",
     "timezone": "BJT",
     "theme": "warm_claude",
     "version": "1.0"
@@ -565,9 +565,9 @@
   },
   "upcoming_auctions": {
     "status": "ok",
-    "as_of": "2026-07-19",
+    "as_of": "2026-07-20",
     "lookforward_days": 60,
-    "source_url": "https://www.treasurydirect.gov/TA_WS/securities/search?format=json&startDate=2026-07-19&endDate=2026-09-17",
+    "source_url": "https://www.treasurydirect.gov/TA_WS/securities/search?format=json&startDate=2026-07-20&endDate=2026-09-18",
     "auctions": [
       {
         "auctionDate": "2026-07-20",
@@ -786,7 +786,7 @@
   },
   "jpy_carry": {
     "meta": {
-      "generated_at_bjt": "2026-07-19 19:50:51 UTC+08:00",
+      "generated_at_bjt": "2026-07-20 10:42:24 UTC+08:00",
       "lookback": "日频约1年，CFTC约2年，NEER(BIS日频)约1年"
     },
     "risk": {
@@ -8053,7 +8053,7 @@
         },
         {
           "date": "2025-07-09",
-          "value": 9.945282464713998
+          "value": 9.945282464713996
         },
         {
           "date": "2025-07-10",
@@ -8065,19 +8065,19 @@
         },
         {
           "date": "2025-07-14",
-          "value": 9.57072103924638
+          "value": 9.570721039246381
         },
         {
           "date": "2025-07-15",
-          "value": 9.57100417352176
+          "value": 9.571004173521763
         },
         {
           "date": "2025-07-16",
-          "value": 9.845002517674239
+          "value": 9.84500251767424
         },
         {
           "date": "2025-07-17",
-          "value": 9.857610974422766
+          "value": 9.857610974422764
         },
         {
           "date": "2025-07-18",
@@ -8085,7 +8085,7 @@
         },
         {
           "date": "2025-07-22",
-          "value": 9.19235128079438
+          "value": 9.192351280794378
         },
         {
           "date": "2025-07-23",
@@ -8097,7 +8097,7 @@
         },
         {
           "date": "2025-07-25",
-          "value": 7.6117233685117025
+          "value": 7.611723368511704
         },
         {
           "date": "2025-07-28",
@@ -8117,7 +8117,7 @@
         },
         {
           "date": "2025-08-01",
-          "value": 7.703191140441359
+          "value": 7.703191140441361
         },
         {
           "date": "2025-08-04",
@@ -8133,11 +8133,11 @@
         },
         {
           "date": "2025-08-07",
-          "value": 10.299479359777997
+          "value": 10.299479359778
         },
         {
           "date": "2025-08-08",
-          "value": 10.259548232048767
+          "value": 10.259548232048768
         },
         {
           "date": "2025-08-12",
@@ -8153,7 +8153,7 @@
         },
         {
           "date": "2025-08-15",
-          "value": 10.38149772498261
+          "value": 10.381497724982609
         },
         {
           "date": "2025-08-18",
@@ -8165,15 +8165,15 @@
         },
         {
           "date": "2025-08-20",
-          "value": 10.176114300243004
+          "value": 10.176114300243002
         },
         {
           "date": "2025-08-21",
-          "value": 9.872583017407754
+          "value": 9.872583017407752
         },
         {
           "date": "2025-08-22",
-          "value": 10.093891466647658
+          "value": 10.093891466647657
         },
         {
           "date": "2025-08-25",
@@ -8181,19 +8181,19 @@
         },
         {
           "date": "2025-08-26",
-          "value": 10.152136050711668
+          "value": 10.152136050711666
         },
         {
           "date": "2025-08-27",
-          "value": 10.123995770386454
+          "value": 10.123995770386456
         },
         {
           "date": "2025-08-28",
-          "value": 10.154639104301506
+          "value": 10.154639104301507
         },
         {
           "date": "2025-08-29",
-          "value": 9.575440421010585
+          "value": 9.575440421010583
         },
         {
           "date": "2025-09-01",
@@ -8209,7 +8209,7 @@
         },
         {
           "date": "2025-09-04",
-          "value": 7.578505997118345
+          "value": 7.578505997118344
         },
         {
           "date": "2025-09-05",
@@ -8221,7 +8221,7 @@
         },
         {
           "date": "2025-09-09",
-          "value": 7.098004420884707
+          "value": 7.098004420884709
         },
         {
           "date": "2025-09-10",
@@ -8233,7 +8233,7 @@
         },
         {
           "date": "2025-09-12",
-          "value": 6.4695807145304585
+          "value": 6.469580714530457
         },
         {
           "date": "2025-09-16",
@@ -8257,7 +8257,7 @@
         },
         {
           "date": "2025-09-24",
-          "value": 5.647144244575187
+          "value": 5.647144244575186
         },
         {
           "date": "2025-09-25",
@@ -8269,7 +8269,7 @@
         },
         {
           "date": "2025-09-29",
-          "value": 6.922138407461423
+          "value": 6.922138407461421
         },
         {
           "date": "2025-09-30",
@@ -8277,7 +8277,7 @@
         },
         {
           "date": "2025-10-01",
-          "value": 7.438599030207538
+          "value": 7.438599030207536
         },
         {
           "date": "2025-10-02",
@@ -8329,7 +8329,7 @@
         },
         {
           "date": "2025-10-21",
-          "value": 10.913712675704057
+          "value": 10.913712675704058
         },
         {
           "date": "2025-10-22",
@@ -8353,11 +8353,11 @@
         },
         {
           "date": "2025-10-29",
-          "value": 10.333259311155674
+          "value": 10.333259311155675
         },
         {
           "date": "2025-10-30",
-          "value": 10.250050713605772
+          "value": 10.250050713605775
         },
         {
           "date": "2025-10-31",
@@ -8381,7 +8381,7 @@
         },
         {
           "date": "2025-11-10",
-          "value": 7.818918368337184
+          "value": 7.818918368337183
         },
         {
           "date": "2025-11-11",
@@ -8405,7 +8405,7 @@
         },
         {
           "date": "2025-11-18",
-          "value": 5.5038163179800526
+          "value": 5.503816317980052
         },
         {
           "date": "2025-11-19",
@@ -8445,7 +8445,7 @@
         },
         {
           "date": "2025-12-03",
-          "value": 6.0216247122716755
+          "value": 6.021624712271675
         },
         {
           "date": "2025-12-04",
@@ -8465,19 +8465,19 @@
         },
         {
           "date": "2025-12-10",
-          "value": 6.519707983197534
+          "value": 6.519707983197533
         },
         {
           "date": "2025-12-11",
-          "value": 6.679040490127866
+          "value": 6.679040490127868
         },
         {
           "date": "2025-12-12",
-          "value": 6.76399881178735
+          "value": 6.763998811787351
         },
         {
           "date": "2025-12-15",
-          "value": 6.835412262089763
+          "value": 6.835412262089761
         },
         {
           "date": "2025-12-16",
@@ -8485,15 +8485,15 @@
         },
         {
           "date": "2025-12-17",
-          "value": 6.998898235013263
+          "value": 6.998898235013264
         },
         {
           "date": "2025-12-18",
-          "value": 6.966421271783528
+          "value": 6.966421271783527
         },
         {
           "date": "2025-12-19",
-          "value": 5.622651892570745
+          "value": 5.622651892570746
         },
         {
           "date": "2025-12-22",
@@ -8557,7 +8557,7 @@
         },
         {
           "date": "2026-01-16",
-          "value": 6.9545873515796055
+          "value": 6.954587351579606
         },
         {
           "date": "2026-01-19",
@@ -8573,7 +8573,7 @@
         },
         {
           "date": "2026-01-22",
-          "value": 6.905359635530453
+          "value": 6.905359635530452
         },
         {
           "date": "2026-01-23",
@@ -8621,7 +8621,7 @@
         },
         {
           "date": "2026-02-09",
-          "value": 12.630300123839493
+          "value": 12.630300123839492
         },
         {
           "date": "2026-02-10",
@@ -8637,7 +8637,7 @@
         },
         {
           "date": "2026-02-16",
-          "value": 13.49880442944171
+          "value": 13.498804429441712
         },
         {
           "date": "2026-02-17",
@@ -8645,11 +8645,11 @@
         },
         {
           "date": "2026-02-18",
-          "value": 13.579049812405477
+          "value": 13.579049812405481
         },
         {
           "date": "2026-02-19",
-          "value": 14.007817440671289
+          "value": 14.00781744067129
         },
         {
           "date": "2026-02-20",
@@ -8657,7 +8657,7 @@
         },
         {
           "date": "2026-02-24",
-          "value": 14.001703488671094
+          "value": 14.001703488671097
         },
         {
           "date": "2026-02-25",
@@ -8673,11 +8673,11 @@
         },
         {
           "date": "2026-03-02",
-          "value": 8.812981798471483
+          "value": 8.812981798471485
         },
         {
           "date": "2026-03-03",
-          "value": 8.804524692668725
+          "value": 8.804524692668727
         },
         {
           "date": "2026-03-04",
@@ -8685,7 +8685,7 @@
         },
         {
           "date": "2026-03-05",
-          "value": 8.50284085687188
+          "value": 8.502840856871881
         },
         {
           "date": "2026-03-06",
@@ -8693,7 +8693,7 @@
         },
         {
           "date": "2026-03-09",
-          "value": 8.331870061264699
+          "value": 8.331870061264697
         },
         {
           "date": "2026-03-10",
@@ -8701,7 +8701,7 @@
         },
         {
           "date": "2026-03-11",
-          "value": 8.931695914941388
+          "value": 8.93169591494139
         },
         {
           "date": "2026-03-12",
@@ -8721,7 +8721,7 @@
         },
         {
           "date": "2026-03-18",
-          "value": 5.758842970294824
+          "value": 5.758842970294823
         },
         {
           "date": "2026-03-19",
@@ -8729,7 +8729,7 @@
         },
         {
           "date": "2026-03-23",
-          "value": 5.175900181582896
+          "value": 5.175900181582895
         },
         {
           "date": "2026-03-24",
@@ -8737,15 +8737,15 @@
         },
         {
           "date": "2026-03-25",
-          "value": 5.904789818584628
+          "value": 5.904789818584629
         },
         {
           "date": "2026-03-26",
-          "value": 5.863464433704303
+          "value": 5.863464433704301
         },
         {
           "date": "2026-03-27",
-          "value": 5.891521559678016
+          "value": 5.891521559678017
         },
         {
           "date": "2026-03-30",
@@ -8753,7 +8753,7 @@
         },
         {
           "date": "2026-03-31",
-          "value": 5.726854894418104
+          "value": 5.726854894418105
         },
         {
           "date": "2026-04-01",
@@ -8765,7 +8765,7 @@
         },
         {
           "date": "2026-04-03",
-          "value": 6.220267035095591
+          "value": 6.22026703509559
         },
         {
           "date": "2026-04-06",
@@ -8785,7 +8785,7 @@
         },
         {
           "date": "2026-04-10",
-          "value": 6.469537053498047
+          "value": 6.469537053498048
         },
         {
           "date": "2026-04-13",
@@ -8793,11 +8793,11 @@
         },
         {
           "date": "2026-04-14",
-          "value": 6.4510249091318235
+          "value": 6.451024909131825
         },
         {
           "date": "2026-04-15",
-          "value": 6.455709440153481
+          "value": 6.455709440153483
         },
         {
           "date": "2026-04-16",
@@ -8805,7 +8805,7 @@
         },
         {
           "date": "2026-04-17",
-          "value": 6.355266657335283
+          "value": 6.355266657335282
         },
         {
           "date": "2026-04-20",
@@ -8821,11 +8821,11 @@
         },
         {
           "date": "2026-04-23",
-          "value": 5.66216138742934
+          "value": 5.6621613874293395
         },
         {
           "date": "2026-04-24",
-          "value": 5.569946358687419
+          "value": 5.569946358687421
         },
         {
           "date": "2026-04-27",
@@ -8833,7 +8833,7 @@
         },
         {
           "date": "2026-04-28",
-          "value": 5.676491896222666
+          "value": 5.676491896222667
         },
         {
           "date": "2026-04-30",
@@ -8913,7 +8913,7 @@
         },
         {
           "date": "2026-06-01",
-          "value": 8.692615975356542
+          "value": 8.69261597535654
         },
         {
           "date": "2026-06-02",
@@ -8925,11 +8925,11 @@
         },
         {
           "date": "2026-06-04",
-          "value": 2.0958462243692515
+          "value": 2.095846224369252
         },
         {
           "date": "2026-06-05",
-          "value": 1.894087603629379
+          "value": 1.8940876036293792
         },
         {
           "date": "2026-06-08",
@@ -8973,11 +8973,11 @@
         },
         {
           "date": "2026-06-22",
-          "value": 2.2146506681351728
+          "value": 2.2146506681351723
         },
         {
           "date": "2026-06-23",
-          "value": 2.3682712631720784
+          "value": 2.368271263172079
         },
         {
           "date": "2026-06-24",
@@ -9037,7 +9037,7 @@
         },
         {
           "date": "2026-07-14",
-          "value": 5.462520598664995
+          "value": 5.462520598664996
         },
         {
           "date": "2026-07-15",
@@ -9337,7 +9337,7 @@
           "importance": "high",
           "interpretation_hint": "",
           "source": "NY Fed Markets API",
-          "source_url": "https://markets.newyorkfed.org/api/rp/reverserepo/propositions/search.json?startDate=2026-07-05&endDate=2026-07-19",
+          "source_url": "https://markets.newyorkfed.org/api/rp/reverserepo/propositions/search.json?startDate=2026-07-06&endDate=2026-07-20",
           "status": "ok",
           "notes": "NY Fed reverse repo accepted amount; replaces FRED RRPONTSYD when FRED is slow or unavailable"
         },
@@ -9726,7 +9726,7 @@
           "importance": "medium_high",
           "interpretation_hint": "",
           "source": "TreasuryDirect",
-          "source_url": "https://www.treasurydirect.gov/TA_WS/securities/search?format=json&startDate=2026-06-28&endDate=2026-07-19",
+          "source_url": "https://www.treasurydirect.gov/TA_WS/securities/search?format=json&startDate=2026-06-29&endDate=2026-07-20",
           "status": "ok",
           "notes": "Aggregates all Treasury Bill auctions on the latest auction date; bid-to-cover is offering-amount weighted. Latest terms: 6-Week."
         },
@@ -9751,7 +9751,7 @@
           "importance": "medium_high",
           "interpretation_hint": "",
           "source": "TreasuryDirect",
-          "source_url": "https://www.treasurydirect.gov/TA_WS/securities/search?format=json&startDate=2026-06-28&endDate=2026-07-19",
+          "source_url": "https://www.treasurydirect.gov/TA_WS/securities/search?format=json&startDate=2026-06-29&endDate=2026-07-20",
           "status": "ok",
           "notes": "Aggregates all Treasury Bill auctions on the latest auction date; bid-to-cover is offering-amount weighted. Latest terms: 6-Week."
         },
@@ -9776,7 +9776,7 @@
           "importance": "medium_high",
           "interpretation_hint": "",
           "source": "TreasuryDirect",
-          "source_url": "https://www.treasurydirect.gov/TA_WS/securities/search?format=json&startDate=2026-06-28&endDate=2026-07-19",
+          "source_url": "https://www.treasurydirect.gov/TA_WS/securities/search?format=json&startDate=2026-06-29&endDate=2026-07-20",
           "status": "ok",
           "notes": "Uses bid-to-cover as free auction demand proxy; auction tail requires WI yield not available here"
         },
@@ -10384,10 +10384,6 @@
           "label": "EFFR（有效联邦基金利率）",
           "points": [
             {
-              "date": "2026-07-09",
-              "value": 3.62
-            },
-            {
               "date": "2026-07-10",
               "value": 3.62
             },
@@ -10406,10 +10402,6 @@
           "id": "SOFR",
           "label": "SOFR（担保隔夜融资利率）",
           "points": [
-            {
-              "date": "2026-07-09",
-              "value": 3.53
-            },
             {
               "date": "2026-07-10",
               "value": 3.55
@@ -10434,10 +10426,6 @@
           "label": "TGCR（三方一般抵押品利率）",
           "points": [
             {
-              "date": "2026-07-09",
-              "value": 3.51
-            },
-            {
               "date": "2026-07-10",
               "value": 3.52
             },
@@ -10460,10 +10448,6 @@
           "id": "BGCR",
           "label": "BGCR（广义一般抵押品利率）",
           "points": [
-            {
-              "date": "2026-07-09",
-              "value": 3.51
-            },
             {
               "date": "2026-07-10",
               "value": 3.52
@@ -10832,10 +10816,6 @@
           "label": "SOFR-IORB（担保隔夜融资利率-准备金余额利率）",
           "points": [
             {
-              "date": "2026-07-09",
-              "value": -12.00000000000001
-            },
-            {
               "date": "2026-07-10",
               "value": -10.000000000000009
             },
@@ -10858,10 +10838,6 @@
           "id": "BGCR_TGCR",
           "label": "BGCR-TGCR（广义一般抵押品利率-三方一般抵押品利率）",
           "points": [
-            {
-              "date": "2026-07-09",
-              "value": 0.0
-            },
             {
               "date": "2026-07-10",
               "value": 0.0
@@ -11159,10 +11135,6 @@
           "label": "T-bill Auction Size（短期国债拍卖规模）",
           "points": [
             {
-              "date": "2026-06-04",
-              "value": 150.0
-            },
-            {
               "date": "2026-06-09",
               "value": 115.0
             },
@@ -11221,10 +11193,6 @@
           "id": "TBILL_AUCTION_BTC",
           "label": "T-bill Auction BTC（短期国债拍卖投标覆盖倍数）",
           "points": [
-            {
-              "date": "2026-06-04",
-              "value": 3.135
-            },
             {
               "date": "2026-06-09",
               "value": 3.2891304347826087
@@ -22652,8 +22620,8 @@
     }
   ],
   "chart_paths": [
-    "/Users/eiheisun/WorkBuddy/2026-05-04-task-1/output/usd_liquidity_chart_7d_20260719_195051.svg",
-    "/Users/eiheisun/WorkBuddy/2026-05-04-task-1/output/usd_liquidity_chart_30d_20260719_195051.svg"
+    "/Users/eiheisun/WorkBuddy/2026-05-04-task-1/output/usd_liquidity_chart_7d_20260720_104224.svg",
+    "/Users/eiheisun/WorkBuddy/2026-05-04-task-1/output/usd_liquidity_chart_30d_20260720_104224.svg"
   ],
   "data_quality": {
     "missing": [],
@@ -22661,12 +22629,12 @@
       {
         "id": "DCPN3M",
         "label": "CP Rate（90天AA非金融商业票据利率）",
-        "stale_days": 23
+        "stale_days": 24
       },
       {
         "id": "DTWEXBGS",
         "label": "DTWEXBGS（广义美元指数）",
-        "stale_days": 9
+        "stale_days": 10
       }
     ],
     "degraded_sources": [
