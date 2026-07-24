@@ -1,6 +1,6 @@
 {
   "meta": {
-    "generated_at_bjt": "2026-07-24 12:56:59 UTC+08:00",
+    "generated_at_bjt": "2026-07-24 14:14:20 UTC+08:00",
     "data_as_of": "2026-07-24",
     "model": "WorkBuddy AI Agent",
     "input_freshness_note": "政策锚 IORB 与 JGB10 更新至 7/24，美债曲线与 RRP 至 7/23，SOFR/EFFR/TGA、信用和 VIX 至 7/22；WRESBAL/NFCI 为周频背景，DTWEXBGS 截至 7/17、repo fails 截至 7/8，仅作陈旧数据风险。"
@@ -67,11 +67,10 @@
         "metric:IORB"
       ],
       "title": "资金价格仍稳定，未形成融资紧张",
-      "text": "SOFR 相对 IORB 为 -3.00bp，较上一期收窄 1.00bp 但仍在政策锚下方；SOFR 交易量为 3026.00bn，价格×规模影响仍为 -2.52mn/day。EFFR 3.63% 也低于 IORB 3.65%。",
+      "text": "SOFR-IORB -3.00bp（2026-07-22，+1.00bp）、SOFR_VOLUME 3026.00bn（2026-07-22，+51.00bn）、SOFR_VOLUME_IMPACT -2.52mn/day（2026-07-22，+0.78mn/day） 与 EFFR 3.63%（2026-07-22，持平） 共同显示资金价格仍未脱锚。",
       "evidence": [
-        "2026-07-22 日频：SOFR-IORB 为 -3.00bp，上一期 -4.00bp，边际变化 +1.00bp，仍未突破政策锚。",
-        "2026-07-22 日频：SOFR_VOLUME 为 3026.00bn，上一期 2975.00bn；SOFR_VOLUME_IMPACT 为 -2.52mn/day。",
-        "2026-07-22 日频与 2026-07-24 政策锚：EFFR 3.63%，IORB 3.65%。"
+        "SOFR-IORB -3.00bp（2026-07-22，+1.00bp）；SOFR_VOLUME 3026.00bn（2026-07-22，+51.00bn）。",
+        "SOFR_VOLUME_IMPACT -2.52mn/day（2026-07-22，+0.78mn/day）；EFFR 3.63%（2026-07-22，持平）；IORB 3.65%（2026-07-24，持平）。"
       ],
       "related_indicators": [
         "SOFR",
@@ -97,11 +96,11 @@
         "derived:UST_7Y5Y_SLOPE_BP"
       ],
       "title": "美债腹部同步上行，中段再定价最明显",
-      "text": "腹部收益率平均上行 5.00bp，其中 3Y 上行 6.00bp；5Y-3Y 斜率由 7.00bp 降至 6.00bp，7Y-5Y 维持 12.00bp，显示曲线形态变化不大但整体水位抬升。",
+      "text": "1Y 4.15%（2026-07-23，+4.00bp）、3Y 4.40%（2026-07-23，+6.00bp）、5Y 4.46%（2026-07-23，+5.00bp）、7Y 4.58%（2026-07-23，+5.00bp） 显示腹部同步上行，其中 3Y 重定价最明显；5Y-3Y 6.00bp（2026-07-23，-1.00bp）、7Y-5Y 12.00bp（2026-07-23，持平） 说明曲线形态变化小于整体水位抬升。",
       "evidence": [
-        "2026-07-23 同日 Treasury：1Y 4.15%，上一期 4.11%，变化 +4.00bp；3Y 4.40%，上一期 4.34%，变化 +6.00bp。",
-        "2026-07-23 同日 Treasury：5Y 4.46%，上一期 4.41%，变化 +5.00bp；7Y 4.58%，上一期 4.53%，变化 +5.00bp。",
-        "2026-07-23：5Y-3Y 为 6.00bp，上一期 7.00bp，变化 -1.00bp；7Y-5Y 为 12.00bp，上一期 12.00bp。"
+        "1Y 4.15%（2026-07-23，+4.00bp）；3Y 4.40%（2026-07-23，+6.00bp）。",
+        "5Y 4.46%（2026-07-23，+5.00bp）；7Y 4.58%（2026-07-23，+5.00bp）。",
+        "5Y-3Y 6.00bp（2026-07-23，-1.00bp）；7Y-5Y 12.00bp（2026-07-23，持平）。"
       ],
       "related_indicators": [
         "DGS1",
@@ -118,10 +117,10 @@
         "metric:TGA"
       ],
       "title": "TGA 下降带来短期流动性释放",
-      "text": "TGA 由 874.98bn 降至 835.42bn，单日变化 -39.56bn，对银行体系准备金的当期方向偏友好。",
+      "text": "TGA 835.42bn（2026-07-22，-39.56bn） 与 TGA_FLOW -39.56bn（2026-07-22，-86.35bn） 显示财政现金余额下降，对银行体系准备金的当期方向偏友好。",
       "evidence": [
-        "2026-07-22 日频：TGA 为 835.42bn，上一期 874.98bn，变化 -39.56bn。",
-        "TGA_FLOW 为 -39.56bn；该变化代表当期财政现金余额下降，不代表后续补库路径。"
+        "TGA 835.42bn（2026-07-22，-39.56bn）。",
+        "TGA_FLOW -39.56bn（2026-07-22，-86.35bn）。"
       ],
       "related_indicators": [
         "TGA",
@@ -138,10 +137,10 @@
         "derived:VIX_MOMENTUM"
       ],
       "title": "信用与波动率未确认压力外溢",
-      "text": "IG OAS 为 0.78% 且与上一期持平，HY OAS 为 2.68% 而上一期为 2.69%；VIX 为 16.64，边际变化 -0.41pt，跨市场传导仍平静。",
+      "text": "IG OAS 0.78%（2026-07-22，持平）、HY OAS 2.68%（2026-07-22，-0.01%） 与 VIX 16.64pt（2026-07-22，-0.41pt） 显示跨市场传导仍平静。",
       "evidence": [
-        "2026-07-22 日频：IG OAS 0.78%，上一期 0.78%；HY OAS 2.68%，上一期 2.69%。",
-        "2026-07-22 日频：VIX 16.64，上一期 17.05，变化 -0.41pt。"
+        "IG OAS 0.78%（2026-07-22，持平）；HY OAS 2.68%（2026-07-22，-0.01%）。",
+        "VIX 16.64pt（2026-07-22，-0.41pt）。"
       ],
       "related_indicators": [
         "BAMLC0A0CM",
@@ -159,10 +158,10 @@
         "jpy:CFTC_JPY_SHORT_SHARE"
       ],
       "title": "日元期货双边增仓但多头主导",
-      "text": "CFTC 日元空头增加 2603.00口，多头增加 3718.00口，空头占比变化 -0.47%；driver 为 two_sided_building_long_dominant，不构成空头强化或新增 carry 美元支撑。",
+      "text": "CFTC_JPY_GROSS_SHORT 238628.00口（2026-07-14，+2603.00口）、CFTC_JPY_GROSS_LONG 115965.00口（2026-07-14，+3718.00口）、CFTC_JPY_SHORT_SHARE 0.67（2026-07-14，-0.47） 共同指向 two_sided_building_long_dominant，不构成空头强化或新增 carry 美元支撑。",
       "evidence": [
-        "2026-07-14 周频：gross short 238628.00口，周变化 +2603.00口；gross long 115965.00口，周变化 +3718.00口。",
-        "2026-07-14 周频：short share 为 67.30%，周变化 -0.47%，净头寸变化 +1115.00口。"
+        "CFTC_JPY_GROSS_SHORT 238628.00口（2026-07-14，+2603.00口）；CFTC_JPY_GROSS_LONG 115965.00口（2026-07-14，+3718.00口）。",
+        "CFTC_JPY_SHORT_SHARE 0.67（2026-07-14，-0.47）；driver 为 two_sided_building_long_dominant。"
       ],
       "related_indicators": [
         "CFTC_JPY_GROSS_SHORT",
@@ -184,10 +183,10 @@
         "metric:RRPONTSYD"
       ],
       "title": "RRP 缓冲接近耗尽，结构脆弱性偏高",
-      "text": "RRP 余额仅 0.90bn，上一期 0.38bn，边际上升 0.53bn 的规模很小；这不是已实现融资压力，但意味着新增冲击更难由 RRP 存量吸收。",
+      "text": "RRP_BUFFER 0.90bn（2026-07-23，+0.53bn） 与 RRP_FLOW 0.53bn（2026-07-23，环比未知） 表明缓冲垫极薄；这不是已实现融资压力，但新增冲击更难由 RRP 存量吸收。",
       "evidence": [
-        "2026-07-23 日频：RRP_BUFFER 0.90bn，上一期 0.38bn，边际变化 +0.53bn。",
-        "RRP_FLOW 为 +0.53bn，日变化有限；资金价格轴仍未出现 P0 交叉确认。"
+        "RRP_BUFFER 0.90bn（2026-07-23，+0.53bn）；RRP_FLOW 0.53bn（2026-07-23，环比未知）。",
+        "当前资金价格未出现 P0 级交叉确认。"
       ],
       "related_indicators": [
         "RRPONTSYD",
@@ -210,10 +209,10 @@
         "derived:SOFR_ANCHOR"
       ],
       "title": "已公告毛发行需按条件观察，而非直接视作抽水",
-      "text": "已公告拍卖毛规模为 479.00bn，但到期量、净现金影响和准备金影响均未知；只有触发条件同时出现，才能升级为已实现流动性压力。",
+      "text": "已公告毛发行 479.00bn（2026-07-24，环比未知）只代表日程信息；只有在 TGA、准备金和资金价格同步确认时，才能升级为已实现流动性压力。",
       "evidence": [
-        "TreasuryDirect 已公告毛发行合计 479.00bn；maturities、net cash impact 与 reserve impact 当前均为未知。",
-        "2026-07-23 RRP_BUFFER 为 0.90bn；2026-07-22 SOFR-IORB 为 -3.00bp，当前尚无资金价格压力确认。"
+        "已公告毛发行 479.00bn（2026-07-24，环比未知）；net cash impact 当前未知。",
+        "RRP_BUFFER 0.90bn（2026-07-23，+0.53bn）；SOFR-IORB -3.00bp（2026-07-22，+1.00bp）。"
       ],
       "related_indicators": [
         "upcoming_auctions",
@@ -236,10 +235,10 @@
         "metric:REPO_FAILS_UST"
       ],
       "title": "离岸美元与 repo fails 数据陈旧",
-      "text": "DTWEXBGS 截至 7/17，repo fails 截至 7/8，不能用于确认 7/22-23 的最新市场传导。",
+      "text": "DTWEXBGS 120.53（2026-07-17，+0.20） 与 REPO_FAILS_UST 109.10bn（2026-07-08，+3.91bn） 均明显陈旧，不能用于确认 2026-07-22 至 2026-07-23 的最新市场传导。",
       "evidence": [
-        "DTWEXBGS：2026-07-17，stale_days 7，最新值 120.53。",
-        "REPO_FAILS_UST：2026-07-08 周频，stale_days 16，最新值 109.10bn。"
+        "DTWEXBGS 120.53（2026-07-17，+0.20，已滞后 7 日）；",
+        "REPO_FAILS_UST 109.10bn（2026-07-08，+3.91bn，已滞后 16 日）；"
       ],
       "related_indicators": [
         "DTWEXBGS",
@@ -257,10 +256,10 @@
         "derived:CP_PROXY"
       ],
       "title": "商业票据代理的上一期比较不连续",
-      "text": "DCPN3M 最新值为 3.68%，上一期 3.72% 但上一期日期为 6/26；CP_PROXY 为 -7.00bp，方向可观察但不宜当作连续日频变化。",
+      "text": "DCPN3M 3.68%（2026-07-21，-0.04%） 与 CP_PROXY -7.00bp（2026-07-21，-4.00bp） 的方向可观察，但上一期窗口跨到 2026-06-26，不宜当作连续日频变化。",
       "evidence": [
-        "DCPN3M：2026-07-21 为 3.68%，previous_as_of 2026-06-26 为 3.72%。",
-        "CP_PROXY：2026-07-21 为 -7.00bp，上一期 -3.00bp；比较窗口不连续。"
+        "DCPN3M 3.68%（2026-07-21，-0.04%）；上期为 2026-06-26。",
+        "CP_PROXY -7.00bp（2026-07-21，-4.00bp）；比较窗口不连续。"
       ],
       "related_indicators": [
         "DCPN3M",
@@ -275,13 +274,13 @@
     "market_transmission": "IG/HY 利差稳定、VIX 回落，尚无信用和波动率共振。离岸美元与 repo fails 数据陈旧，不能据此确认最新传导。",
     "treasury_yields": {
       "label": "偏紧",
-      "one_liner": "腹部收益率平均上行 5.00bp，3Y 上行 6.00bp最明显，曲线形态变化小于整体水位变化。",
-      "analysis": "1Y 为 4.15%并上行 4.00bp，3Y 为 4.40%并上行 6.00bp，5Y 为 4.46%并上行 5.00bp，7Y 为 4.58%并上行 5.00bp。5Y-3Y 由 7.00bp降至 6.00bp，7Y-5Y 维持 12.00bp。10Y 名义收益率 4.71%仅作折现率背景；DFII10 实际收益率 2.39%与名义收益率分开解释。"
+      "one_liner": "腹部收益率整体上行，3Y 重定价最明显，曲线形态变化小于整体水位抬升。",
+      "analysis": "1Y 4.15%（2026-07-23，+4.00bp）、3Y 4.40%（2026-07-23，+6.00bp）、5Y 4.46%（2026-07-23，+5.00bp）、7Y 4.58%（2026-07-23，+5.00bp） 显示腹部整体抬升；5Y-3Y 6.00bp（2026-07-23，-1.00bp）、7Y-5Y 12.00bp（2026-07-23，持平） 说明曲线形态变化小于水位抬升。10Y 仅作长期折现率背景。"
     },
     "jpy_carry": {
       "label": "中性",
-      "one_liner": "USD/JPY 仍处高位且实现波动率较低，但 CFTC 双边增仓由多头主导，不构成新的日元空头 carry 支撑。",
-      "analysis": "JPY 隔夜融资成本为 0.98%，10Y UST-JGB 利差为 186.90bp；USD/JPY 为 162.94，20日实现波动率为 5.21%。CFTC 空头和多头分别增加 2603.00口与 3718.00口，short share 下降 0.47%，driver 为 two_sided_building_long_dominant。当前没有仓位流量证据支持空头强化，但高位汇率、JGB 上行和仓位存量仍需持续观察。"
+      "one_liner": "日元相关仓位仍偏拥挤，但本期仓位流量并不支持新增空头主导 carry。",
+      "analysis": "US_JP_10Y 185.80bp（2026-07-22，-8.20bp）、JGB10 2.81（2026-07-24，+0.04）、CFTC_JPY_GROSS_SHORT 238628.00口（2026-07-14，+2603.00口）、CFTC_JPY_GROSS_LONG 115965.00口（2026-07-14，+3718.00口） 与 CFTC_JPY_SHORT_SHARE 0.67（2026-07-14，-0.47） 共同表明 driver 为 two_sided_building_long_dominant，当前没有仓位流量证据支持空头强化。"
     }
   }
 }

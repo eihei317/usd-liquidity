@@ -1,8 +1,8 @@
 {
   "meta": {
     "title": "美元流动性监测",
-    "trigger": "全部修正最终验收",
-    "generated_at_bjt": "2026-07-24 12:56:59 UTC+08:00",
+    "trigger": "指标格式修正回放",
+    "generated_at_bjt": "2026-07-24 14:14:20 UTC+08:00",
     "data_as_of": "2026-07-24",
     "timezone": "BJT",
     "theme": "warm_claude",
@@ -806,7 +806,7 @@
   },
   "jpy_carry": {
     "meta": {
-      "generated_at_bjt": "2026-07-24 12:56:39 UTC+08:00",
+      "generated_at_bjt": "2026-07-24 14:13:59 UTC+08:00",
       "lookback": "日频约1年，CFTC约2年，NEER(BIS日频)约1年"
     },
     "risk": {
@@ -837,7 +837,7 @@
       {
         "id": "JGB10",
         "label": "JGB 10Y（日本10年期国债收益率）",
-        "value_text": "2.806%",
+        "value_text": "2.812%",
         "change_text": "逐日 0.0bp",
         "as_of": "2026-07-24",
         "why": "日本本土资产吸引力和资金回流压力"
@@ -4016,7 +4016,7 @@
         },
         {
           "date": "2026-07-22",
-          "value": 2.806
+          "value": 2.812
         },
         {
           "date": "2026-07-23",
@@ -4024,7 +4024,7 @@
         },
         {
           "date": "2026-07-24",
-          "value": 2.806
+          "value": 2.812
         }
       ],
       "US_JP_10Y": [
@@ -5298,7 +5298,7 @@
         },
         {
           "date": "2026-07-22",
-          "value": 186.39999999999998
+          "value": 185.8
         }
       ],
       "CFTC_JPY_NET_OI": [
@@ -15813,7 +15813,7 @@
             },
             {
               "date": "2026-07-22",
-              "value": 1.52
+              "value": 1.526
             },
             {
               "date": "2026-07-23",
@@ -15821,7 +15821,7 @@
             },
             {
               "date": "2026-07-24",
-              "value": 1.52
+              "value": 1.526
             }
           ]
         },
@@ -16859,7 +16859,7 @@
             },
             {
               "date": "2026-07-22",
-              "value": 2.806
+              "value": 2.812
             },
             {
               "date": "2026-07-23",
@@ -16867,7 +16867,7 @@
             },
             {
               "date": "2026-07-24",
-              "value": 2.806
+              "value": 2.812
             }
           ]
         },
@@ -17905,7 +17905,7 @@
             },
             {
               "date": "2026-07-22",
-              "value": 3.971
+              "value": 3.985
             },
             {
               "date": "2026-07-23",
@@ -17913,7 +17913,7 @@
             },
             {
               "date": "2026-07-24",
-              "value": 3.971
+              "value": 3.985
             }
           ]
         }
@@ -20582,7 +20582,7 @@
             },
             {
               "date": "2026-07-22",
-              "value": 278.99999999999994
+              "value": 278.4
             }
           ]
         },
@@ -21628,7 +21628,7 @@
             },
             {
               "date": "2026-07-22",
-              "value": 186.39999999999998
+              "value": 185.8
             }
           ]
         }
@@ -22964,8 +22964,8 @@
     }
   ],
   "chart_paths": [
-    "/Users/eiheisun/WorkBuddy/2026-05-04-task-1/output/usd_liquidity_chart_7d_20260724_125639.svg",
-    "/Users/eiheisun/WorkBuddy/2026-05-04-task-1/output/usd_liquidity_chart_30d_20260724_125639.svg"
+    "/Users/eiheisun/WorkBuddy/2026-05-04-task-1/output/usd_liquidity_chart_7d_20260724_141359.svg",
+    "/Users/eiheisun/WorkBuddy/2026-05-04-task-1/output/usd_liquidity_chart_30d_20260724_141359.svg"
   ],
   "data_quality": {
     "missing": [],

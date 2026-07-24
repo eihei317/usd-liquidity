@@ -77,6 +77,11 @@
 - `dedupe_key`：稳定、简短、语义唯一。`key_takeaways` 与 `risk_flags` 两个数组合并后不得重复。
 - `fact_ids`：非空数组，只能引用本次 facts 中存在的 ID。
 - `evidence`：字符串数组，至少覆盖日期、频率/口径、最新值、上一期或边际变化中的三项；P0 应尽量覆盖全部并说明交叉确认。
+- 所有叙述性文字（`text`、`evidence`、`narrative_blocks`，含 `stance.score_text/one_liner` 与 `axis_assessment.*.summary`）中任何带数字的地方必须彻底统一：
+  - 凡提到带市场单位的指标数值（%、bp、bps、bn、口、pt、x、mn/day 等），统一写成 `数量（更新时间，环比变化）`。例如：`3.62%（2026-07-22，+1.00bp）`、`3026.00bn（2026-07-22，+51.00bn）`、`0.90bn（2026-07-23，+0.53bn）`。多指标并列时，每个指标都分别使用该格式；若环比未知，写 `环比未知`。
+  - 日期必须写完整 ISO：`2026-07-22`，区间写 `2026-07-22 至 2026-07-23`；禁止 `7/22-23`、`7/22` 这类简写。
+  - 数据滞后天数必须附着在对应指标后面写成 `已滞后 N 日`，不得裸写 `stale_days 7`。
+  - 优先级用 `P0 级 / P1 级 / P2 级` 表述；纯计数、期限标签（如 `1Y`、`DGS1`）与枚举字段不属于指标数值，不受上述格式约束。
 
 同一个风险不得同时出现在 takeaway 和 risk。标题换词但 `dedupe_key` 相同仍算重复。
 
@@ -168,8 +173,8 @@
   "key_takeaways": [
     {
       "title": "动态标题",
-      "text": "方向、含义和传导位置",
-      "evidence": ["日期+频率+最新值+上一期/变化+含义"],
+      "text": "方向、含义和传导位置；凡提到指标必须写成 数量（更新时间，环比变化）",
+      "evidence": ["SOFR 3.62%（2026-07-22，+1.00bp）；SOFR_VOLUME 3026.00bn（2026-07-22，+51.00bn）"],
       "related_indicators": ["SOFR"],
       "claim_type": "observed",
       "dedupe_key": "funding-sofr-anchor",
@@ -182,8 +187,8 @@
       "severity": "high|medium|low|info",
       "type": "market|data",
       "title": "风险标题",
-      "text": "风险、传导位置和触发条件",
-      "evidence": ["日期+频率+最新值+上一期/变化+含义"],
+      "text": "风险、传导位置和触发条件；凡提到指标必须写成 数量（更新时间，环比变化）",
+      "evidence": ["RRP_BUFFER 0.90bn（2026-07-23，+0.53bn）；SOFR_ANCHOR -3.00bp（2026-07-22，+1.00bp）"],
       "related_indicators": ["RRPONTSYD"],
       "claim_type": "observed|inference|scenario",
       "condition": "仅 scenario 必填；写清触发条件",
@@ -223,4 +228,4 @@
 9. 是否 takeaway 与 risk 没有重复主题。
 10. 是否保持 1Y/3Y/5Y/7Y 主框架，并仅把 10Y 当背景。
 11. 是否 SOFR 与已完成 T-bill 拍卖分析包含量级事实。
-12. 是否没有浮点长尾、Markdown 表、代码围栏或 JSON 外说明。
+12. 是否所有叙述性文字中的指标数值都写成 数量（更新时间，环比变化），日期用完整 ISO，滞后天数写成 已滞后 N 日，没有浮点长尾、Markdown 表、代码围栏或 JSON 外说明。

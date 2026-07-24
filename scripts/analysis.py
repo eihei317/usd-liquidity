@@ -50,6 +50,25 @@ def _format_signal_value(v: Optional[float], unit: str) -> str:
     return f"{v:.2f}{unit}"
 
 
+def _normalize_parenthetical_change(change_text: Optional[str]) -> str:
+    text = (change_text or "").strip()
+    if not text or text == "N/A":
+        return "环比未知"
+    return text
+
+
+def _format_indicator_mention(value: Optional[float], unit: str, as_of: Optional[str], change_text: Optional[str]) -> str:
+    return f"{format_number(value, unit)}（{as_of or '更新时间未知'}，{_normalize_parenthetical_change(change_text)}）"
+
+
+def _format_signal_mention(signal: DerivedSignal) -> str:
+    return _format_indicator_mention(signal.value, signal.unit, signal.as_of, format_signal_change(signal.change, signal.unit))
+
+
+def _format_metric_mention(metric: Metric) -> str:
+    return _format_indicator_mention(metric.value, metric.unit, metric.as_of, format_change(metric.change, metric.unit))
+
+
 _SIGNAL_BASE_METRICS = {
     "SOFR_ANCHOR": "SOFR",
     "SOFR_VOLUME_IMPACT": "SOFR_VOLUME",
@@ -560,7 +579,8 @@ def build_model_input_package(trigger: str, generated: str, metrics: List[Metric
         "必须按资金价格、流动性数量与缓冲、美债供给与资产定价、跨市场传导与杠杆四轴独立判断后再合成 stance。"
         "P0 market 必须是已实现压力，至少引用两个独立且新鲜的 fact_id 交叉确认；其中融资压力 P0 至少包含一个核心资金价格事实及一个同层或下游确认。"
         "低 RRP 单独只能是 P1 结构脆弱性；未来拍卖 offeringAmount 是 gross announced issuance，不是净融资或确定性准备金消耗。\n"
-        "每条 key_takeaway/risk_flag 必须给出 claim_type、跨两数组唯一的 dedupe_key、以及只指向本次事实包的 fact_ids；key_takeaways 只允许 observed，inference/scenario 只进入 risk_flags。\n\n"
+        "每条 key_takeaway/risk_flag 必须给出 claim_type、跨两数组唯一的 dedupe_key、以及只指向本次事实包的 fact_ids；key_takeaways 只允许 observed，inference/scenario 只进入 risk_flags。\n"
+        "所有叙述性文字（text、evidence、narrative_blocks，含 stance 与 axis summary）里任何带数字的地方都必须彻底统一：带市场单位的指标数值一律写成 数量（更新时间，环比变化）；日期用完整 ISO（如 2026-07-22，区间写 2026-07-22 至 2026-07-23），禁止 M/D 简写；滞后天数写成 已滞后 N 日，不得裸写 stale_days N；多指标并列时每个指标分别使用该格式，环比未知时写环比未知。\n\n"
         + load_prompt()
     )
     return {
@@ -604,13 +624,14 @@ def build_model_input_package(trigger: str, generated: str, metrics: List[Metric
             "p0_confirmation_rule": "P0 market仅用于已实现压力，至少两个独立且新鲜的fact_id交叉确认；融资压力P0必须含一个核心资金价格事实和一个同层或下游确认。低RRP、未来gross拍卖或单一情景不得单独列P0。",
             "claim_rule": "每条key_takeaway和risk_flag必须包含claim_type、跨两个数组唯一的dedupe_key、非空fact_ids；fact_ids必须存在于本次facts。key_takeaways只允许observed；inference和scenario只能进入risk_flags，scenario必须有非空condition。",
             "marginal_change_rule": "边际变化不能只写数值，必须说明上升/下降对融资压力、流动性或资产定价的含义。",
-            "freshness_evidence_rule": "所有key_takeaways.evidence和risk_flags.evidence必须包含日期、频率/口径、最新值、上一期值或边际变化中的至少三项；P0引用的事实必须新鲜。",
+            "freshness_evidence_rule": "所有key_takeaways.evidence和risk_flags.evidence必须包含日期、频率/口径、最新值、上一期值或边际变化中的至少三项；P0引用的事实必须新鲜。凡提到带市场单位的指标数值，统一写成数量（更新时间，环比变化）；日期用完整ISO，滞后天数写成已滞后 N 日，禁止 M/D 简写与裸写 stale_days。",
             "scale_rule": "利率是价格信号，必须结合SOFR_VOLUME、TBILL_AUCTION_SIZE、TBILL_AUCTION_BTC、SOFR_VOLUME_IMPACT、TBILL_AUCTION_STRESS判断价格×规模影响。",
             "required_scale_mentions_rule": "若涉及SOFR/回购融资，fact_ids必须包含metric:SOFR_VOLUME或derived:SOFR_VOLUME_IMPACT；若涉及已完成T-bill拍卖吸收，必须同时引用derived:TBILL_AUCTION_STRESS、metric:TBILL_AUCTION_SIZE和metric:TBILL_AUCTION_BTC。",
             "gross_auction_rule": "event_facts中的offeringAmount与gross totals仅为已公告毛发行，不等于净融资、净现金筹集或确定性准备金消耗；maturities/net_cash_impact缺失时必须保持未知。所有合计直接引用gross_totals_by_auction_date、gross_totals_by_issue_date、gross_totals_by_security_type或gross_total_announced，禁止手工求和。只有结算/到期净额、TGA变化、准备金或资金价格等事实确认后，才可把供给写成已实现流动性冲击；否则只能写scenario。",
             "dynamic_sections_rule": "key_takeaways和risk_flags各0-5条，动态生成；两数组dedupe_key全局唯一，不得重复同一风险。",
             "risk_type_rule": "risk_flags.type必须区分market与data；数据缺口不能写成真实市场压力。",
-            "number_format_rule": "所有输出文本中的数值统一保留两位小数；不得输出浮点长尾。",
+            "indicator_mention_rule": "text、evidence、narrative_blocks、stance、axis summary 等所有叙述性文字里任何带数字的地方都必须彻底统一：带市场单位的指标数值必须写成 数量（更新时间，环比变化）；日期用完整ISO（如 2026-07-22，区间写至连接），禁止 M/D 简写；滞后天数写成 已滞后 N 日；多指标并列时每个指标分别使用该格式，环比未知时写环比未知。",
+            "number_format_rule": "所有输出文本中的数值统一保留两位小数；不得输出浮点长尾。凡提到带市场单位的指标数值，一律写成数量（更新时间，环比变化）；日期用完整ISO，滞后天数写成已滞后 N 日。",
             "rrp_rule": "必须用RRP_FLOW说明边际流量方向，用RRP_BUFFER说明存量缓冲垫厚度；RRP下降短期可释放流动性，但极低RRP_BUFFER仅代表结构脆弱性，单独最高为P1。",
             "treasury_yields_rule": "国债收益率主框架固定为1Y/3Y/5Y/7Y：1Y近端政策路径、3Y中段再定价、5Y/7Y腹部传导。四个期限都必须拆成水平+边际变化，并直接引用canonical/derived facts；腹部斜率使用脚本预计算事实。10Y仅作曲线/长期名义折现率背景，不替代1Y/3Y/5Y/7Y。",
             "jpy_carry_rule": "JPY Carry按融资成本、美日利差、USD/JPY趋势与波动、CFTC多空拆解、风险资产传导分析。只有cftc_decomposition.driver为short_building或two_sided_building_short_dominant时，才能称空头主导加仓并边际支撑美元；long_unwinding、two_sided_building_long_dominant、two_sided_reduction、mixed或unknown均不得声称carry在加杠杆。水平拥挤与当下流量必须分开。",
@@ -626,10 +647,7 @@ def build_model_input_package(trigger: str, generated: str, metrics: List[Metric
 
 
 def signal_takeaway(signal: DerivedSignal, idx: int) -> Dict[str, Any]:
-    value_text = format_number(signal.value, signal.unit)
-    previous_text = format_number(signal.previous, signal.unit)
-    change_text = format_signal_change(signal.change, signal.unit)
-    compare_text = f"当前为 {value_text}，上一期为 {previous_text}，边际变化 {change_text}。"
+    value_mention = _format_signal_mention(signal)
     titles = {
         "SOFR_ANCHOR": "回购融资相对政策锚的位置",
         "SOFR_VOLUME_IMPACT": "SOFR价格×交易量的资金成本量级",
@@ -644,11 +662,10 @@ def signal_takeaway(signal: DerivedSignal, idx: int) -> Dict[str, Any]:
     }
     return {
         "title": titles.get(signal.id, f"关键变化 {idx + 1}"),
-        "text": f"{signal.name} {compare_text}状态为{signal.severity}。{signal.interpretation}",
+        "text": f"{signal.name} 为 {value_mention}，状态为{signal.severity}。{signal.interpretation}",
         "evidence": [
-            f"最新值：{value_text}",
-            f"上一期：{previous_text}",
-            f"边际变化：{change_text}",
+            f"{signal.name} {value_mention}",
+            f"频率/口径：{comparison_rule(signal.id)}",
         ],
         "related_indicators": [signal.id],
         "claim_type": "observed",
@@ -671,11 +688,10 @@ def build_fallback_risk_flags(signals: List[DerivedSignal], metrics: List[Metric
             "severity": severity,
             "type": risk_type,
             "title": signal.name,
-            "text": signal.interpretation,
+            "text": f"{signal.name} 为 {_format_signal_mention(signal)}。{signal.interpretation}",
             "evidence": [
-                f"最新值：{format_number(signal.value, signal.unit)}",
-                f"上一期：{format_number(signal.previous, signal.unit)}",
-                f"边际变化：{format_signal_change(signal.change, signal.unit)}",
+                f"{signal.name} {_format_signal_mention(signal)}",
+                f"频率/口径：{comparison_rule(signal.id)}",
             ],
             "related_indicators": [signal.id],
             "claim_type": "observed",
@@ -690,8 +706,11 @@ def build_fallback_risk_flags(signals: List[DerivedSignal], metrics: List[Metric
                 "severity": "info",
                 "type": "data",
                 "title": f"{rate_label(metric.id)} 数据滞后或降级",
-                "text": metric.notes or "该指标本次不能作为最新市场压力判断，只能作为数据风险处理。",
-                "evidence": [f"as_of：{metric.as_of or 'NA'}", f"stale_days：{metric.stale_days if metric.stale_days is not None else 'NA'}"],
+                "text": f"{rate_label(metric.id)} 为 {_format_metric_mention(metric)}。{metric.notes or '该指标本次不能作为最新市场压力判断，只能作为数据风险处理。'}",
+                "evidence": [
+                    f"{rate_label(metric.id)} {_format_metric_mention(metric)}",
+                    f"数据状态：{metric.status}，stale_days：{metric.stale_days if metric.stale_days is not None else 'NA'}",
+                ],
                 "related_indicators": [metric.id],
                 "claim_type": "observed",
                 "dedupe_key": f"risk:data:{metric.id.lower()}",

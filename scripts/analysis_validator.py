@@ -487,9 +487,10 @@ def _claim_text(claim: Mapping[str, Any]) -> str:
 
 
 _UNIT_NUMBER_PATTERN = re.compile(
-    r"(?P<number>[-+]?\d[\d,]*(?:\.\d+)?)\s*(?P<unit>%|bp|bps|bn|x|口|pt)(?![A-Za-z0-9])",
+    r"(?P<number>[-+]?\d[\d,]*(?:\.\d+)?)\s*(?P<unit>%|bp|bps|bn|x|口|pt|mn/day)(?![A-Za-z0-9])",
     re.IGNORECASE,
 )
+_SLASH_DATE_PATTERN = re.compile(r"(?<!\d)\d{1,2}/\d{1,2}(?:[-~—至到]\d{1,2})?(?!\d)")
 
 
 def _iter_numeric_values(value: Any) -> Iterable[float]:
@@ -542,6 +543,88 @@ def _validate_claim_numbers(
             errors.append(
                 f"{path}: 数值 {match.group(0)!r} 无法在所引用 fact_ids 的数值字段中追溯"
             )
+
+
+def _iter_narrative_text_fields(candidate: Mapping[str, Any]) -> Iterable[Tuple[str, str]]:
+    """Yield (path, text) for prose strings that must obey the strict numeric-format rule.
+
+    Excludes enum-like fields (priority/severity/type/label/confidence), fact_ids,
+    related_indicators, dedupe_key and metric identifiers.
+    """
+    stance = candidate.get("stance")
+    if isinstance(stance, dict):
+        for key in ("score_text", "one_liner"):
+            value = stance.get(key)
+            if isinstance(value, str):
+                yield f"$.stance.{key}", value
+    axes = candidate.get("axis_assessment")
+    if isinstance(axes, dict):
+        for axis_name, axis in axes.items():
+            if isinstance(axis, dict):
+                summary = axis.get("summary")
+                if isinstance(summary, str):
+                    yield f"$.axis_assessment.{axis_name}.summary", summary
+    for section in ("key_takeaways", "risk_flags"):
+        items = candidate.get(section)
+        if not isinstance(items, list):
+            continue
+        for index, item in enumerate(items):
+            if not isinstance(item, dict):
+                continue
+            for key in ("title", "text", "condition"):
+                value = item.get(key)
+                if isinstance(value, str):
+                    yield f"$.{section}[{index}].{key}", value
+            evidence = item.get("evidence")
+            if isinstance(evidence, list):
+                for j, ev in enumerate(evidence):
+                    if isinstance(ev, str):
+                        yield f"$.{section}[{index}].evidence[{j}]", ev
+    narratives = candidate.get("narrative_blocks")
+    if isinstance(narratives, dict):
+        for key in ("summary", "rates", "balance_sheet", "market_transmission"):
+            value = narratives.get(key)
+            if isinstance(value, str):
+                yield f"$.narrative_blocks.{key}", value
+        for module_key in ("treasury_yields", "jpy_carry"):
+            module = narratives.get(module_key)
+            if isinstance(module, dict):
+                for key in ("one_liner", "analysis"):
+                    value = module.get(key)
+                    if isinstance(value, str):
+                        yield f"$.narrative_blocks.{module_key}.{key}", value
+
+
+def _number_has_indicator_context(text: str, start: int, end: int) -> bool:
+    after = text[end:].lstrip()
+    if after.startswith(("（", "(")):
+        return True
+    segment = text[:start]
+    if re.search(r"[（(]\d{4}-\d{2}-\d{2}\s*[，,]\s*[^）)]*$", segment):
+        return True
+    return False
+
+
+def _validate_narrative_numeric_format(candidate: Mapping[str, Any], errors: List[str]) -> None:
+    """Enforce the strict numeric-format rule across all narrative prose fields.
+
+    Rules:
+    1. Any number carrying a market unit (%, bp, bps, bn, 口, pt, mn/day, x) must be
+       written as 数量（更新时间，环比变化）, either as the level value immediately
+       followed by the context paren or as the change value inside （date，change）.
+    2. Dates must use full ISO (YYYY-MM-DD) and may not use slash shorthand (M/D or M/D-D).
+    Exempt: bare counts/durations (e.g. 已滞后 N 日), priority labels (P0/P1/P2),
+    metric identifiers and enum fields.
+    """
+    for path, text in _iter_narrative_text_fields(candidate):
+        for match in _UNIT_NUMBER_PATTERN.finditer(text):
+            if not _number_has_indicator_context(text, match.start(), match.end()):
+                errors.append(
+                    f"{path}: 提到带单位数值 {match.group(0)!r} 时必须使用 数量（更新时间，环比变化） 格式"
+                )
+                break
+        if _SLASH_DATE_PATTERN.search(text):
+            errors.append(f"{path}: 日期必须使用完整 ISO（YYYY-MM-DD），不得用 M/D 或 M/D-D 简写")
 
 
 def _prediction_is_supported(claim: Mapping[str, Any], facts: Mapping[str, Mapping[str, Any]]) -> bool:
@@ -740,6 +823,7 @@ def validate_analysis(candidate: Any, model_input: Any) -> List[str]:
         errors.append(f"model_input: fact_id 重复 {fact_id!r}")
     _validate_dates(candidate, model_input, errors)
     _validate_claims(candidate, facts, errors)
+    _validate_narrative_numeric_format(candidate, errors)
     _validate_p0(candidate, facts, errors)
     _validate_required_modules(candidate, model_input, errors)
     _validate_uncited_predictions(candidate, errors)
