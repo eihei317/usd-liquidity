@@ -144,68 +144,152 @@ def derive_signals(metrics: List[Metric]) -> Tuple[List[DerivedSignal], float, L
         else:
             add_signal("RRP_BUFFER", "RRP Buffer（隔夜逆回购存量缓冲垫）", rrp.value, "bn", "RRP仍可作为非银现金缓冲垫观察。", "中性", 0.0, previous=rrp.previous, as_of=rrp.as_of)
 
-    dgs1 = mm.get("DGS1")
-    if dgs1 and dgs1.value is not None:
-        if dgs1.value >= 4.5:
-            add_signal("UST_1Y_YIELD", "1Y Treasury Yield（1年期美国国债收益率）", dgs1.value, "%", "近端政策路径收益率较高，现金和短债收益对风险资产形成分流", "偏紧", 0.4, previous=dgs1.previous, as_of=dgs1.as_of)
-        elif dgs1.value <= 2.0:
-            add_signal("UST_1Y_YIELD", "1Y Treasury Yield（1年期美国国债收益率）", dgs1.value, "%", "近端政策路径收益率偏低，风险资产资金分流压力较小", "偏松", -0.2, previous=dgs1.previous, as_of=dgs1.as_of)
+    yield_tenors = [
+        ("1Y", "DGS1", "UST_1Y_YIELD", 2.0),
+        ("3Y", "DGS3", "UST_3Y_YIELD", 3.0),
+        ("5Y", "DGS5", "UST_5Y_YIELD", 3.0),
+        ("7Y", "DGS7", "UST_7Y_YIELD", 3.0),
+    ]
+    belly_changes: List[float] = []
+    belly_as_of: Optional[str] = None
+    for tenor, metric_id, level_signal_id, low_level in yield_tenors:
+        metric = mm.get(metric_id)
+        if not metric or metric.value is None:
+            continue
+        if metric.value >= 4.5:
+            level_severity = "偏紧"
+            level_text = f"{tenor}收益率处于高位，现金回报和折现率对风险资产形成压力。"
+        elif metric.value <= low_level:
+            level_severity = "偏松"
+            level_text = f"{tenor}收益率处于较低区间，风险资产面临的利率分流和折现压力较小。"
         else:
-            add_signal("UST_1Y_YIELD", "1Y Treasury Yield（1年期美国国债收益率）", dgs1.value, "%", "1年期收益率处于中间区间，需结合3年期和10年期确认曲线重定价", "中性", 0.0, previous=dgs1.previous, as_of=dgs1.as_of)
+            level_severity = "中性"
+            level_text = f"{tenor}收益率处于中间区间，需结合腹部组合的边际变化与斜率判断。"
+        # 兼容原有 level 信号，但不让四个高度相关期限机械重复计分。
+        add_signal(level_signal_id, f"{tenor} Treasury Yield（{tenor}美国国债收益率）", metric.value, "%", level_text, level_severity, 0.0, previous=metric.previous, as_of=metric.as_of)
+
+        change_bp = metric.change * 100.0 if metric.change is not None else None
+        if change_bp is None:
+            continue
+        belly_changes.append(change_bp)
+        belly_as_of = metric.as_of or belly_as_of
+        if change_bp > 5.0:
+            change_severity = "偏紧"
+            change_text = f"{tenor}收益率较上一期显著上行，折现率压力边际增强。"
+        elif change_bp < -5.0:
+            change_severity = "偏松"
+            change_text = f"{tenor}收益率较上一期显著下行，折现率压力边际缓和。"
+        else:
+            change_severity = "中性"
+            change_text = f"{tenor}收益率较上一期变化有限。"
+        add_signal(f"UST_{tenor}_CHANGE_BP", f"{tenor} Treasury Yield Change（{tenor}美国国债收益率变化）", change_bp, "bp", change_text, change_severity, 0.0, as_of=metric.as_of)
+
+    if belly_changes:
+        average_change_bp = sum(belly_changes) / len(belly_changes)
+        up_count = sum(change > 5.0 for change in belly_changes)
+        down_count = sum(change < -5.0 for change in belly_changes)
+        broad_count = max(2, (2 * len(belly_changes) + 2) // 3)
+        if up_count >= broad_count and average_change_bp > 5.0:
+            belly_severity = "偏紧"
+            belly_score = 1.0
+            belly_text = f"{up_count}/{len(belly_changes)}个可用期限显著上行，腹部收益率出现广泛同向重定价；组合边际评分封顶为+1.0，避免逐期限重复加总。"
+        elif up_count >= 2 and average_change_bp > 3.0:
+            belly_severity = "偏紧"
+            belly_score = 0.6
+            belly_text = f"{up_count}/{len(belly_changes)}个可用期限显著上行，腹部收益率边际偏紧但广度尚未完全确认。"
+        elif down_count >= broad_count and average_change_bp < -5.0:
+            belly_severity = "偏松"
+            belly_score = -0.7
+            belly_text = f"{down_count}/{len(belly_changes)}个可用期限显著下行，腹部收益率广泛回落；组合边际评分下限为-0.7，避免逐期限重复加总。"
+        elif down_count >= 2 and average_change_bp < -3.0:
+            belly_severity = "偏松"
+            belly_score = -0.4
+            belly_text = f"{down_count}/{len(belly_changes)}个可用期限显著下行，腹部收益率边际缓和但广度尚未完全确认。"
+        else:
+            belly_severity = "中性"
+            belly_score = 0.0
+            belly_text = f"可用期限中显著上行{up_count}个、显著下行{down_count}个，尚未形成足够广泛的同向边际重定价。"
+        add_signal("UST_BELLY_MOMENTUM", "1Y/3Y/5Y/7Y Treasury Yield Momentum（国债收益率腹部组合边际变化）", average_change_bp, "bp avg", belly_text, belly_severity, belly_score, as_of=belly_as_of)
+
+    def add_belly_slope(signal_id: str, name: str, longer: Optional[Metric], shorter: Optional[Metric]) -> None:
+        current_bp = spread_value(longer, shorter)
+        previous_bp = previous_spread_value(longer, shorter)
+        if current_bp is None:
+            return
+        slope_change_bp = current_bp - previous_bp if previous_bp is not None else None
+        shape = "正斜率" if current_bp > 0 else "倒挂" if current_bp < 0 else "平坦"
+        if slope_change_bp is None:
+            change_text = "上一期斜率缺失，无法判断边际变化"
+        elif slope_change_bp > 3.0:
+            change_text = f"较上一期陡峭化{slope_change_bp:.1f}bp"
+        elif slope_change_bp < -3.0:
+            change_text = f"较上一期趋平{slope_change_bp:.1f}bp"
+        else:
+            change_text = f"较上一期变化{slope_change_bp:+.1f}bp，结构基本稳定"
+        add_signal(signal_id, name, current_bp, "bp", f"当前为{shape}，{change_text}；该信号描述腹部曲线形态，不单独等同于流动性松紧。", "中性", 0.0, previous=previous_bp, as_of=longer.as_of if longer else None)
 
     dgs3 = mm.get("DGS3")
-    if dgs3 and dgs3.value is not None:
-        if dgs3.value >= 4.5:
-            add_signal("UST_3Y_YIELD", "3Y Treasury Yield（3年期美国国债收益率）", dgs3.value, "%", "3年期收益率处于高位，说明政策路径压力向中段扩散。", "偏紧", 0.3, previous=dgs3.previous, as_of=dgs3.as_of)
-        elif dgs3.value <= 3.0:
-            add_signal("UST_3Y_YIELD", "3Y Treasury Yield（3年期美国国债收益率）", dgs3.value, "%", "3年期收益率处于较低区间，中段再定价压力较小。", "偏松", -0.2, previous=dgs3.previous, as_of=dgs3.as_of)
-        else:
-            add_signal("UST_3Y_YIELD", "3Y Treasury Yield（3年期美国国债收益率）", dgs3.value, "%", "3年期收益率处于中间区间，观察其相对1年和10年的斜率变化。", "中性", 0.0, previous=dgs3.previous, as_of=dgs3.as_of)
-
     dgs5 = mm.get("DGS5")
-    if dgs5 and dgs5.value is not None:
-        if dgs5.value >= 4.5:
-            add_signal("UST_5Y_YIELD", "5Y Treasury Yield（5年期美国国债收益率）", dgs5.value, "%", "5年期收益率处于高位，腹部再定价压力向长端传导。", "偏紧", 0.3, previous=dgs5.previous, as_of=dgs5.as_of)
-        elif dgs5.value <= 3.0:
-            add_signal("UST_5Y_YIELD", "5Y Treasury Yield（5年期美国国债收益率）", dgs5.value, "%", "5年期收益率处于较低区间，腹部再定价压力较小。", "偏松", -0.2, previous=dgs5.previous, as_of=dgs5.as_of)
-        else:
-            add_signal("UST_5Y_YIELD", "5Y Treasury Yield（5年期美国国债收益率）", dgs5.value, "%", "5年期收益率处于中间区间，观察其相对3年和7年的斜率变化。", "中性", 0.0, previous=dgs5.previous, as_of=dgs5.as_of)
-
     dgs7 = mm.get("DGS7")
-    if dgs7 and dgs7.value is not None:
-        if dgs7.value >= 4.5:
-            add_signal("UST_7Y_YIELD", "7Y Treasury Yield（7年期美国国债收益率）", dgs7.value, "%", "7年期收益率处于高位，腹部偏长端再定价压力较大。", "偏紧", 0.3, previous=dgs7.previous, as_of=dgs7.as_of)
-        elif dgs7.value <= 3.0:
-            add_signal("UST_7Y_YIELD", "7Y Treasury Yield（7年期美国国债收益率）", dgs7.value, "%", "7年期收益率处于较低区间，腹部偏长端再定价压力较小。", "偏松", -0.2, previous=dgs7.previous, as_of=dgs7.as_of)
-        else:
-            add_signal("UST_7Y_YIELD", "7Y Treasury Yield（7年期美国国债收益率）", dgs7.value, "%", "7年期收益率处于中间区间，观察其相对5年和10年的斜率变化。", "中性", 0.0, previous=dgs7.previous, as_of=dgs7.as_of)
+    add_belly_slope("UST_5Y3Y_SLOPE_BP", "5Y-3Y Treasury Slope（5年-3年美债斜率）", dgs5, dgs3)
+    add_belly_slope("UST_7Y5Y_SLOPE_BP", "7Y-5Y Treasury Slope（7年-5年美债斜率）", dgs7, dgs5)
 
     dgs10 = mm.get("DGS10")
-    if dgs10 and dgs10.change is not None:
-        dgs10_chg_bp = dgs10.change * 100.0
-        if dgs10_chg_bp > 6:
-            add_signal("NOMINAL_10Y", "10Y Treasury Yield（10年期美国国债收益率）", dgs10.value, "%", "长期名义折现率上行，债券久期和股票估值承压", "偏紧", 0.6, previous=dgs10.previous, as_of=dgs10.as_of)
-        elif dgs10_chg_bp < -6:
-            add_signal("NOMINAL_10Y", "10Y Treasury Yield（10年期美国国债收益率）", dgs10.value, "%", "长期名义折现率下行，久期资产估值压力缓和", "偏松", -0.3, previous=dgs10.previous, as_of=dgs10.as_of)
+    if dgs10 and dgs10.value is not None:
+        nominal_change_bp = dgs10.change * 100.0 if dgs10.change is not None else None
+        if nominal_change_bp is not None and nominal_change_bp > 6.0:
+            nominal_severity = "偏紧"
+            nominal_score = 0.6
+            nominal_text = "10年期名义收益率显著上行，长期名义折现率压力增强。"
+        elif nominal_change_bp is not None and nominal_change_bp < -6.0:
+            nominal_severity = "偏松"
+            nominal_score = -0.3
+            nominal_text = "10年期名义收益率显著下行，长期名义折现率压力缓和。"
         else:
-            add_signal("NOMINAL_10Y", "10Y Treasury Yield（10年期美国国债收益率）", dgs10.value, "%", "长期名义折现率边际变化有限", "中性", 0.0, previous=dgs10.previous, as_of=dgs10.as_of)
+            nominal_severity = "中性"
+            nominal_score = 0.0
+            nominal_text = "10年期名义收益率边际变化有限或缺少可比上期。"
+        add_signal("UST_10Y_NOMINAL_LEVEL", "10Y Nominal Treasury Yield（10年期名义美国国债收益率）", dgs10.value, "%", "DGS10名义收益率水平，用作长期名义折现率背景锚。", nominal_severity, 0.0, previous=dgs10.previous, as_of=dgs10.as_of)
+        if nominal_change_bp is not None:
+            add_signal("UST_10Y_NOMINAL_CHANGE_BP", "10Y Nominal Treasury Yield Change（10年期名义美国国债收益率变化）", nominal_change_bp, "bp", nominal_text, nominal_severity, nominal_score, as_of=dgs10.as_of)
+        # 兼容旧 ID；明确保持名义收益率语义，计分只由规范 change-bp 信号承担。
+        add_signal("NOMINAL_10Y", "10Y Nominal Treasury Yield（兼容：10年期名义美国国债收益率）", dgs10.value, "%", nominal_text, nominal_severity, 0.0, previous=dgs10.previous, as_of=dgs10.as_of)
 
-    real_10y = mm.get("DGS10")
+    real_10y = mm.get("DFII10")
     if real_10y and real_10y.value is not None:
-        real_chg_bp = real_10y.change * 100.0 if real_10y.change is not None else None
-        if real_10y.value >= 4.5:
-            add_signal("REAL_10Y", "10Y Treasury Yield（10年期美国国债收益率）", real_10y.value, "%", "10年期国债收益率处于高位，对长期资产估值有压力；这描述的是level风险，不代表边际继续恶化。", "偏紧", 0.5, previous=real_10y.previous, as_of=real_10y.as_of)
-        elif real_10y.value <= 3.5:
-            add_signal("REAL_10Y", "10Y Treasury Yield（10年期美国国债收益率）", real_10y.value, "%", "10年期国债收益率处于较低区间，长期资产估值压力较小。", "偏松", -0.2, previous=real_10y.previous, as_of=real_10y.as_of)
+        real_change_bp = real_10y.change * 100.0 if real_10y.change is not None else None
+        if real_10y.value >= 2.0:
+            real_level_severity = "偏紧"
+            real_level_score = 0.5
+            real_level_text = "DFII10实际收益率处于高位，真实无风险回报对成长股、黄金和长期资产估值形成压力。"
+        elif real_10y.value <= 1.0:
+            real_level_severity = "偏松"
+            real_level_score = -0.2
+            real_level_text = "DFII10实际收益率处于较低区间，真实贴现率压力较小。"
         else:
-            add_signal("REAL_10Y", "10Y Treasury Yield（10年期美国国债收益率）", real_10y.value, "%", "10年期国债收益率处于中间区间。", "中性", 0.0, previous=real_10y.previous, as_of=real_10y.as_of)
-        if real_chg_bp is not None:
-            if real_chg_bp > 5:
-                add_signal("REAL_10Y_MOMENTUM", "10Y Yield Momentum（10年期国债收益率边际变化）", real_chg_bp, "bp", "10年期国债收益率边际上行，长期资产估值压力正在增强。", "偏紧", 0.4, previous=None, as_of=real_10y.as_of)
-            elif real_chg_bp < -5:
-                add_signal("REAL_10Y_MOMENTUM", "10Y Yield Momentum（10年期国债收益率边际变化）", real_chg_bp, "bp", "10年期国债收益率边际下行，长期资产估值压力正在缓和。", "偏松", -0.4, previous=None, as_of=real_10y.as_of)
-            else:
-                add_signal("REAL_10Y_MOMENTUM", "10Y Yield Momentum（10年期国债收益率边际变化）", real_chg_bp, "bp", "10年期国债收益率边际变化有限。", "中性", 0.0, previous=None, as_of=real_10y.as_of)
+            real_level_severity = "中性"
+            real_level_score = 0.0
+            real_level_text = "DFII10实际收益率处于中间区间。"
+        add_signal("UST_10Y_REAL_LEVEL", "10Y Real Treasury Yield（10年期TIPS实际收益率）", real_10y.value, "%", real_level_text, real_level_severity, real_level_score, previous=real_10y.previous, as_of=real_10y.as_of)
+
+        if real_change_bp is not None and real_change_bp > 5.0:
+            real_change_severity = "偏紧"
+            real_change_score = 0.4
+            real_change_text = "DFII10实际收益率边际上行，真实贴现率压力正在增强。"
+        elif real_change_bp is not None and real_change_bp < -5.0:
+            real_change_severity = "偏松"
+            real_change_score = -0.4
+            real_change_text = "DFII10实际收益率边际下行，真实贴现率压力正在缓和。"
+        else:
+            real_change_severity = "中性"
+            real_change_score = 0.0
+            real_change_text = "DFII10实际收益率边际变化有限或缺少可比上期。"
+        if real_change_bp is not None:
+            add_signal("UST_10Y_REAL_CHANGE_BP", "10Y Real Treasury Yield Change（10年期TIPS实际收益率变化）", real_change_bp, "bp", real_change_text, real_change_severity, real_change_score, as_of=real_10y.as_of)
+        # 兼容旧 ID；二者现在均明确来自 DFII10，且不重复计分。
+        add_signal("REAL_10Y", "10Y Real Treasury Yield（兼容：10年期TIPS实际收益率）", real_10y.value, "%", real_level_text, real_level_severity, 0.0, previous=real_10y.previous, as_of=real_10y.as_of)
+        if real_change_bp is not None:
+            add_signal("REAL_10Y_MOMENTUM", "10Y Real Yield Momentum（兼容：10年期TIPS实际收益率变化）", real_change_bp, "bp", real_change_text, real_change_severity, 0.0, as_of=real_10y.as_of)
 
     hy = mm.get("BAMLH0A0HYM2")
     if hy and hy.change is not None:

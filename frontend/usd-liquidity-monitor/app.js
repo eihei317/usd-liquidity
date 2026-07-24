@@ -179,13 +179,9 @@ function renderTradingRadar(radar) {
   const confirm = radar?.confirm || [];
   const background = radar?.background || [];
 
-  // 只显示 P0/P1 核心指标
+  // CORE/CONFIRM/BACKGROUND 是监控层级，不是风险优先级；P0/P1/P2 只属于模型 risk_flags。
   const grid = el("div", "radar-grid");
-  core.forEach(item => {
-    if (item.priority === "P0" || item.priority === "P1") {
-      grid.appendChild(renderRadarItem(item));
-    }
-  });
+  core.forEach(item => grid.appendChild(renderRadarItem(item)));
   root.appendChild(grid);
 
   // 其他指标折叠

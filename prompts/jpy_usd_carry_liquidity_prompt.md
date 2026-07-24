@@ -60,10 +60,10 @@
 | `JPY call rate` | 日元隔夜融资成本 | carry 融资端成本 |
 | `JGB 2Y/10Y/30Y` | 日本国债收益率 | BOJ政策预期、本土收益率吸引力和资金回流压力 |
 | `UST-JGB spread` | 美日利差 | carry 收益端核心变量 |
-| `CFTC JPY net/OI` | 日元期货非商业净头寸占未平仓合约比例 | 仓位拥挤度，**但不是单独方向预测**，且 net/OI 上升 ≠ 空头真加仓（可能只是多头平仓） |
+| `CFTC JPY net/OI` | 日元期货非商业净头寸占未平仓合约比例 | 仓位拥挤度，**但不是单独方向预测**；净空头增加可能来自空头加仓或多头平仓 |
 | `CFTC JPY gross short/long` | 非商业空头/多头总口数 | 拆多空：必须区分「净空头变多」来自空头进攻还是多头离场 |
-| `CFTC JPY short share` | 空头/(空头+多头) | 空头一侧真实强度代理；`short_share` 上升才是「空头真变多」 |
-| `cftc_decomposition.driver` | short_building / long_unwinding / mixed / both / unknown | 净变化归因：仅 `short_building` 才代表空头主动加仓、carry 资金流支撑美元 |
+| `CFTC JPY short share` | 空头/(空头+多头) | 空头一侧相对强度确认轴；必须与 gross short、gross long 和 net 同向验证，不能单独归因 |
+| `cftc_decomposition.driver` | short_building / two_sided_building_short_dominant / two_sided_building_long_dominant / long_unwinding / short_covering / long_building / two_sided_reduction / unchanged / mixed / unknown | 多状态净变化归因；仅 `short_building` 与 `two_sided_building_short_dominant` 代表空头强化和 carry 资金流对美元的边际支撑 |
 | `JPY REER/NEER` | 日元实际/名义有效汇率 | 估值和政策敏感度背景 |
 
 ---
@@ -185,13 +185,14 @@
 | 趋势确认 | 市场正在做空日元，carry trade 顺风 |
 | 拥挤风险 | 如果空头极端，后续反转时需要买回日元，unwind 会更剧烈 |
 
-**但「空头多」本身必须区分来源**：净空头 = 多头 − 空头。`CFTC_JPY_SHORT_SHARE`（空头/(空头+多头)）才是「空头真变多」的代理；只有 `cftc_decomposition.driver = short_building`（即 gross 空头或 short_share 上升）才是投机盘真实卖出日元、买入美元，即 carry 资金流在增强、对美元短期利好（当下流量支撑轴）。若 net/OI 上升只是因为 `gross_long` 下降（多头平仓，driver = `long_unwinding` 或 `mixed`），则**不是新 carry 建仓**，不能解读为「空头在加仓、支撑美元」。
+**但「空头多」本身必须区分来源**：净头寸 = 多头 − 空头。driver 必须同时结合 `gross_short` 周变化、`gross_long` 周变化、`short_share` 周变化与净头寸周变化；任何单一字段都不足以完成归因。只有 `short_building`（空头加仓主导）与 `two_sided_building_short_dominant`（多空都增仓但空头主导），且净头寸下降、`short_share` 上升时，才可认定空头强化、carry 资金流增强并对美元形成边际支撑。若净空头增加主要来自 `gross_long` 下降（`long_unwinding`），或 driver 为其他状态，则**不是新增空头强化**，不能解读为「空头在加仓、支撑美元」。
 
 因此：
 
-- 空头多（short_building）+ 利差宽 + 波动低 + USD/JPY稳步上行 = carry 顺风（且是真实建仓支撑美元）；
+- driver 为 `short_building` 或 `two_sided_building_short_dominant` + 利差宽 + 波动低 + USD/JPY稳步上行 = carry 顺风（且是真实空头强化、边际支撑美元）；
 - 空头极端 + 利差收窄 + JGB上行 + USD/JPY下跌 + VIX上行 = unwind 风险上升；
-- 净空头高但 driver = long_unwinding = 水平拥挤、边际退潮，风险在存量而非增量。
+- 净空头高但 driver = `long_unwinding` = 水平拥挤、边际变化来自多头离场，风险在存量而非新增空头；
+- `short_covering`、`long_building`、`two_sided_reduction`、`unchanged`、`mixed`、`unknown` 均不得声称空头强化或 carry 资金流支撑美元。
 
 ### 5.2 日元 carry 传导链
 
@@ -228,11 +229,12 @@
 
 **必须做「水平 + 流量（边际）」两层分析，且必须拆分多空分项**（与 `usd_liquidity_prompt.md` 一致）：
 
-- 净空头 = 多头 − 空头；**net/OI 上升 ≠ 「空头真加仓」**。
-- 只有 `CFTC_JPY_GROSS_SHORT` 上升或 `CFTC_JPY_SHORT_SHARE` 上升（即 `cftc_decomposition.driver = short_building`），才能下「空头在加仓、carry 资金流支撑美元」的结论；
-- 若 net/OI 上升只是因为 `CFTC_JPY_GROSS_LONG` 下降（多头平仓，driver = `long_unwinding` 或 `mixed`），**不能声称 carry 在加杠杆**，只能说明看多日元者离场；
+- 净头寸 = 多头 − 空头；**净空头增加 ≠ 「空头真加仓」**。
+- driver 必须同时使用 `gross_short`、`gross_long`、`short_share` 与净头寸的周变化；若四者方向矛盾，应归为 `mixed`，不得择取单项下结论；
+- 只有 `cftc_decomposition.driver = short_building` 或 `two_sided_building_short_dominant` 时，才能下「空头强化、carry 资金流对美元形成边际支撑」的结论；这两种状态都要求 gross short 增加、净头寸下降且 `short_share` 上升；
+- `two_sided_building_long_dominant` 表示多空都增仓但多头主导；`long_unwinding` 表示多头平仓主导；`short_covering` 表示空头回补；`long_building` 表示多头加仓；`two_sided_reduction` 表示多空同步减仓；`unchanged` 表示方向指标无变化；这些状态以及 `mixed`、`unknown` 均**不能声称空头强化或 carry 在加杠杆**；
 - **水平**（short_share 处近1年高位）说明未来反转踩踏更剧烈；**流量方向**（建仓 vs 平仓）说明当下是支撑还是退潮；两者分属不同时间轴，必须同时给出；
-- 若 `cftc_decomposition.driver = unknown`（多空分项缺失），须标记为数据缺口，不得自行用 net/OI 推断空头方向；
+- 若 `cftc_decomposition.driver = unknown`（任一必要分项缺失），须标记为数据缺口，不得自行用 net/OI 推断空头方向；
 - CFTC 是周频数据，不能当作日内信号。
 
 #### 估值端：JPY REER/NEER
@@ -319,7 +321,7 @@
 | USD/JPY波动率 | 上升 |
 | CFTC JPY净空头/OI | 极端负值或快速回补 |
 | CFTC JPY short share | 极端高位（空头一侧占比过高） |
-| cftc_decomposition.driver | short_building=加仓支撑美元；long_unwinding=仅多头平仓，非新 carry 建仓 |
+| cftc_decomposition.driver | 仅 short_building / two_sided_building_short_dominant = 空头强化、边际支撑美元；其余状态均不得作此解释 |
 | VIX/HY OAS/NFCI | 上行 |
 | JPY REER/NEER | 极端低位只作背景，需结合触发因素 |
 
@@ -407,7 +409,7 @@ JPY融资成本/BOJ政策 → 美日利差 → USD/JPY趋势与波动 → 仓位
 示例：
 
 1. `USD/JPY 20日实现波动率`：若继续上行，carry降杠杆风险上升；
-2. `CFTC JPY short_share` 与 `cftc_decomposition.driver`：只看 net/OI 不够——需确认空头是主动加仓（short_building，支撑美元）还是多头平仓（long_unwinding，非新建仓）；
+2. `CFTC JPY short_share` 与 `cftc_decomposition.driver`：只看 net/OI 不够——仅 `short_building` / `two_sided_building_short_dominant` 可解释为空头强化和边际支撑美元；其余状态需按多头增仓/平仓、空头回补、双边减仓、混合或缺失分别表述；
 3. `CFTC JPY gross short/long`：拆分多空，区分净空头变多的真实来源；
 3. `10Y UST - 10Y JGB`：若继续收窄，carry收益端恶化；
 4. `SOFR-IORB`：若转正并扩大，美元回购融资压力上升；

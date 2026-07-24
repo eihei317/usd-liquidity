@@ -1,8 +1,8 @@
 window.DASHBOARD_DATA = {
   "meta": {
     "title": "美元流动性监测",
-    "trigger": "今天的美元流动性简报",
-    "generated_at_bjt": "2026-07-24 11:39:02 UTC+08:00",
+    "trigger": "全部修正最终验收",
+    "generated_at_bjt": "2026-07-24 12:56:59 UTC+08:00",
     "data_as_of": "2026-07-24",
     "timezone": "BJT",
     "theme": "warm_claude",
@@ -17,7 +17,7 @@ window.DASHBOARD_DATA = {
       "紧张"
     ],
     "current_from_rule": "中性",
-    "score_from_rule": 1.2
+    "score_from_rule": 0.8999999999999999
   },
   "trading_dashboard": {
     "core": [
@@ -25,7 +25,7 @@ window.DASHBOARD_DATA = {
         "type": "signal",
         "id": "SOFR_ANCHOR",
         "label": "SOFR-IORB（担保隔夜融资利率-准备金余额利率）",
-        "priority": "P0",
+        "priority": "CORE",
         "value_text": "-3.0bp",
         "previous_text": "-4.0bp",
         "change_text": "+1.0bp",
@@ -39,7 +39,7 @@ window.DASHBOARD_DATA = {
         "type": "signal",
         "id": "SOFR_VOLUME_IMPACT",
         "label": "SOFR Rate-Volume Impact（SOFR价格×交易量影响）",
-        "priority": "P0",
+        "priority": "CORE",
         "value_text": "-2.5mn/day",
         "previous_text": "-3.3mn/day",
         "change_text": "+0.8mn/day",
@@ -53,7 +53,7 @@ window.DASHBOARD_DATA = {
         "type": "metric",
         "id": "TGA",
         "label": "TGA（财政部一般账户）",
-        "priority": "P0",
+        "priority": "CORE",
         "value_text": "835.4bn",
         "previous_text": "875.0bn",
         "change_text": "-39.6bn",
@@ -67,7 +67,7 @@ window.DASHBOARD_DATA = {
         "type": "signal",
         "id": "RRP_FLOW",
         "label": "RRP Flow（隔夜逆回购边际流量）",
-        "priority": "P0",
+        "priority": "CORE",
         "value_text": "0.53bn",
         "previous_text": "NA",
         "change_text": "NA",
@@ -81,7 +81,7 @@ window.DASHBOARD_DATA = {
         "type": "signal",
         "id": "RRP_BUFFER",
         "label": "RRP Buffer（隔夜逆回购存量缓冲垫）",
-        "priority": "P0",
+        "priority": "CORE",
         "value_text": "0.90bn",
         "previous_text": "0.38bn",
         "change_text": "+0.5bn",
@@ -95,7 +95,7 @@ window.DASHBOARD_DATA = {
         "type": "metric",
         "id": "WRESBAL",
         "label": "WRESBAL（银行准备金余额）",
-        "priority": "P1",
+        "priority": "CORE",
         "value_text": "3,062.1bn",
         "previous_text": "3,142.7bn",
         "change_text": "-80.6bn",
@@ -108,56 +108,56 @@ window.DASHBOARD_DATA = {
       {
         "type": "signal",
         "id": "UST_1Y_YIELD",
-        "label": "1Y Treasury Yield（1年期美国国债收益率）",
-        "priority": "P1",
+        "label": "1Y Treasury Yield（1Y美国国债收益率）",
+        "priority": "CORE",
         "value_text": "4.150%",
         "previous_text": "4.110%",
         "change_text": "+0.04%",
         "severity": "中性",
         "why": "短债近端政策路径",
-        "interpretation": "1年期收益率处于中间区间，需结合3年期和10年期确认曲线重定价",
+        "interpretation": "1Y收益率处于中间区间，需结合腹部组合的边际变化与斜率判断。",
         "as_of": "2026-07-23",
         "frequency": "日频，FRED/H.15国债恒定期限收益率"
       },
       {
         "type": "signal",
         "id": "UST_3Y_YIELD",
-        "label": "3Y Treasury Yield（3年期美国国债收益率）",
-        "priority": "P1",
+        "label": "3Y Treasury Yield（3Y美国国债收益率）",
+        "priority": "CORE",
         "value_text": "4.400%",
         "previous_text": "4.340%",
         "change_text": "+0.06%",
         "severity": "中性",
         "why": "中段政策路径再定价",
-        "interpretation": "3年期收益率处于中间区间，观察其相对1年和10年的斜率变化。",
+        "interpretation": "3Y收益率处于中间区间，需结合腹部组合的边际变化与斜率判断。",
         "as_of": "2026-07-23",
         "frequency": "日频，FRED/H.15国债恒定期限收益率"
       },
       {
         "type": "signal",
         "id": "UST_5Y_YIELD",
-        "label": "5Y Treasury Yield（5年期美国国债收益率）",
-        "priority": "P1",
+        "label": "5Y Treasury Yield（5Y美国国债收益率）",
+        "priority": "CORE",
         "value_text": "4.460%",
         "previous_text": "4.410%",
         "change_text": "+0.05%",
         "severity": "中性",
         "why": "腹部5年期再定价",
-        "interpretation": "5年期收益率处于中间区间，观察其相对3年和7年的斜率变化。",
+        "interpretation": "5Y收益率处于中间区间，需结合腹部组合的边际变化与斜率判断。",
         "as_of": "2026-07-23",
         "frequency": "日频，FRED/H.15国债恒定期限收益率"
       },
       {
         "type": "signal",
         "id": "UST_7Y_YIELD",
-        "label": "7Y Treasury Yield（7年期美国国债收益率）",
-        "priority": "P1",
+        "label": "7Y Treasury Yield（7Y美国国债收益率）",
+        "priority": "CORE",
         "value_text": "4.580%",
         "previous_text": "4.530%",
         "change_text": "+0.05%",
         "severity": "偏紧",
         "why": "腹部7年期再定价",
-        "interpretation": "7年期收益率处于高位，腹部偏长端再定价压力较大。",
+        "interpretation": "7Y收益率处于高位，现金回报和折现率对风险资产形成压力。",
         "as_of": "2026-07-23",
         "frequency": "日频，FRED/H.15国债恒定期限收益率"
       },
@@ -165,7 +165,7 @@ window.DASHBOARD_DATA = {
         "type": "signal",
         "id": "HY_CHANGE",
         "label": "HY OAS Change（高收益债期权调整利差变化）",
-        "priority": "P1",
+        "priority": "CORE",
         "value_text": "2.680%",
         "previous_text": "2.690%",
         "change_text": "-0.01%",
@@ -181,7 +181,7 @@ window.DASHBOARD_DATA = {
         "type": "metric",
         "id": "OBFR",
         "label": "OBFR（隔夜银行融资利率）",
-        "priority": "P2",
+        "priority": "CONFIRM",
         "value_text": "3.630%",
         "previous_text": "3.630%",
         "change_text": "0.0bp",
@@ -195,7 +195,7 @@ window.DASHBOARD_DATA = {
         "type": "metric",
         "id": "TGCR",
         "label": "TGCR（三方一般抵押品利率）",
-        "priority": "P2",
+        "priority": "CONFIRM",
         "value_text": "3.600%",
         "previous_text": "3.580%",
         "change_text": "+2.0bp",
@@ -209,7 +209,7 @@ window.DASHBOARD_DATA = {
         "type": "metric",
         "id": "BGCR",
         "label": "BGCR（广义一般抵押品利率）",
-        "priority": "P2",
+        "priority": "CONFIRM",
         "value_text": "3.600%",
         "previous_text": "3.580%",
         "change_text": "+2.0bp",
@@ -223,7 +223,7 @@ window.DASHBOARD_DATA = {
         "type": "signal",
         "id": "BGCR_TGCR",
         "label": "BGCR-TGCR（广义一般抵押品利率-三方一般抵押品利率）",
-        "priority": "P2",
+        "priority": "CONFIRM",
         "value_text": "0.0bp",
         "previous_text": "0.0bp",
         "change_text": "0.0bp",
@@ -237,7 +237,7 @@ window.DASHBOARD_DATA = {
         "type": "signal",
         "id": "IG_CHANGE",
         "label": "IG OAS Change（投资级公司债期权调整利差变化）",
-        "priority": "P2",
+        "priority": "CONFIRM",
         "value_text": "0.780%",
         "previous_text": "0.780%",
         "change_text": "0.00%",
@@ -251,7 +251,7 @@ window.DASHBOARD_DATA = {
         "type": "signal",
         "id": "VIX_RISK",
         "label": "VIX Level（标普500隐含波动率水平）",
-        "priority": "P2",
+        "priority": "CONFIRM",
         "value_text": "16.64",
         "previous_text": "17.05",
         "change_text": "-0.41",
@@ -265,7 +265,7 @@ window.DASHBOARD_DATA = {
         "type": "signal",
         "id": "VIX_MOMENTUM",
         "label": "VIX Momentum（标普500隐含波动率边际变化）",
-        "priority": "P2",
+        "priority": "CONFIRM",
         "value_text": "-0.41pt",
         "previous_text": "NA",
         "change_text": "NA",
@@ -279,7 +279,7 @@ window.DASHBOARD_DATA = {
         "type": "metric",
         "id": "SOFR_VOLUME",
         "label": "SOFR Volume（SOFR交易量）",
-        "priority": "P2",
+        "priority": "CONFIRM",
         "value_text": "3,026.0bn",
         "previous_text": "2,975.0bn",
         "change_text": "+51.0bn",
@@ -293,7 +293,7 @@ window.DASHBOARD_DATA = {
         "type": "signal",
         "id": "TBILL_AUCTION_STRESS",
         "label": "T-bill Auction Stress Score（短债拍卖吸收压力评分）",
-        "priority": "P2",
+        "priority": "CONFIRM",
         "value_text": "20.00",
         "previous_text": "40.00",
         "change_text": "-20.00index",
@@ -307,7 +307,7 @@ window.DASHBOARD_DATA = {
         "type": "metric",
         "id": "TBILL_AUCTION_BTC",
         "label": "T-bill Auction BTC（短期国债拍卖投标覆盖倍数）",
-        "priority": "P2",
+        "priority": "CONFIRM",
         "value_text": "2.79x",
         "previous_text": "2.97x",
         "change_text": "-0.18x",
@@ -321,7 +321,7 @@ window.DASHBOARD_DATA = {
         "type": "metric",
         "id": "UST_AUCTION_BTC",
         "label": "UST Auction BTC（国债拍卖投标覆盖倍数）",
-        "priority": "P2",
+        "priority": "CONFIRM",
         "value_text": "2.64x",
         "previous_text": "2.79x",
         "change_text": "-0.15x",
@@ -335,7 +335,7 @@ window.DASHBOARD_DATA = {
         "type": "metric",
         "id": "REPO_FAILS_UST",
         "label": "Repo Fails（美国国债回购交割失败）",
-        "priority": "P2",
+        "priority": "CONFIRM",
         "value_text": "109.1bn",
         "previous_text": "105.2bn",
         "change_text": "+3.9bn",
@@ -349,7 +349,7 @@ window.DASHBOARD_DATA = {
         "type": "metric",
         "id": "DTWEXBGS",
         "label": "DTWEXBGS（广义美元指数）",
-        "priority": "P2",
+        "priority": "CONFIRM",
         "value_text": "120.53",
         "previous_text": "120.33",
         "change_text": "+0.20",
@@ -363,7 +363,7 @@ window.DASHBOARD_DATA = {
         "type": "signal",
         "id": "CP_PROXY",
         "label": "CP Rate-Policy Upper Proxy（商业票据利率-政策上限代理利差）",
-        "priority": "P2",
+        "priority": "CONFIRM",
         "value_text": "-7.0bp",
         "previous_text": "-3.0bp",
         "change_text": "-4.0bp",
@@ -379,7 +379,7 @@ window.DASHBOARD_DATA = {
         "type": "metric",
         "id": "SOMA",
         "label": "SOMA（系统公开市场账户持仓）",
-        "priority": "B",
+        "priority": "BACKGROUND",
         "value_text": "6,356.1bn",
         "previous_text": "6,354.5bn",
         "change_text": "+1.6bn",
@@ -390,94 +390,66 @@ window.DASHBOARD_DATA = {
         "frequency": "周频，纽约联储/Fed资产负债表背景数据"
       },
       {
-        "type": "metric",
-        "id": "DGS5",
-        "label": "5Y Treasury Yield（5年期美国国债收益率）",
-        "priority": "B",
-        "value_text": "4.460%",
-        "previous_text": "4.410%",
-        "change_text": "+5.0bp",
-        "severity": "中性",
-        "why": "腹部5年期再定价",
-        "interpretation": "5年期美国国债收益率，处于曲线腹部，观察短端政策预期向长端传导的中段再定价。",
-        "as_of": "2026-07-23",
-        "frequency": "日频，FRED/H.15国债恒定期限收益率"
-      },
-      {
-        "type": "metric",
-        "id": "DGS7",
-        "label": "7Y Treasury Yield（7年期美国国债收益率）",
-        "priority": "B",
-        "value_text": "4.580%",
-        "previous_text": "4.530%",
-        "change_text": "+5.0bp",
-        "severity": "中性",
-        "why": "腹部7年期再定价",
-        "interpretation": "7年期美国国债收益率，处于曲线腹部偏长端，衔接腹部再定价与长端折现率。",
-        "as_of": "2026-07-23",
-        "frequency": "日频，FRED/H.15国债恒定期限收益率"
-      },
-      {
-        "type": "metric",
-        "id": "DGS10",
-        "label": "10Y Treasury Yield（10年期美国国债收益率）",
-        "priority": "B",
-        "value_text": "4.710%",
-        "previous_text": "4.670%",
-        "change_text": "+4.0bp",
-        "severity": "中性",
-        "why": "长端折现率背景",
-        "interpretation": "10年期美国国债收益率，是全球资产折现率和长期美元资金价格的重要锚，本简报仅作曲线/折现率背景观察。",
-        "as_of": "2026-07-23",
-        "frequency": "日频，FRED/H.15国债恒定期限收益率"
-      },
-      {
         "type": "signal",
-        "id": "NOMINAL_10Y",
-        "label": "10Y Treasury Yield（10年期美国国债收益率）",
-        "priority": "B",
+        "id": "UST_10Y_NOMINAL_LEVEL",
+        "label": "10Y Nominal Treasury Yield（10年期名义美国国债收益率）",
+        "priority": "BACKGROUND",
         "value_text": "4.710%",
         "previous_text": "4.670%",
         "change_text": "+0.04%",
         "severity": "中性",
-        "why": "10Y名义收益率边际",
-        "interpretation": "长期名义折现率边际变化有限",
+        "why": "10Y名义收益率水平背景",
+        "interpretation": "DGS10名义收益率水平，用作长期名义折现率背景锚。",
         "as_of": "2026-07-23",
-        "frequency": "日频，FRED/H.15国债恒定期限收益率"
+        "frequency": "派生信号"
       },
       {
         "type": "signal",
-        "id": "REAL_10Y",
-        "label": "10Y Treasury Yield（10年期美国国债收益率）",
-        "priority": "B",
-        "value_text": "4.710%",
-        "previous_text": "4.670%",
-        "change_text": "+0.04%",
-        "severity": "偏紧",
-        "why": "10Y收益率水平背景",
-        "interpretation": "10年期国债收益率处于高位，对长期资产估值有压力；这描述的是level风险，不代表边际继续恶化。",
-        "as_of": "2026-07-23",
-        "frequency": "日频，FRED/H.15国债恒定期限收益率"
-      },
-      {
-        "type": "signal",
-        "id": "REAL_10Y_MOMENTUM",
-        "label": "10Y Yield Momentum（10年期国债收益率边际变化）",
-        "priority": "B",
+        "id": "UST_10Y_NOMINAL_CHANGE_BP",
+        "label": "10Y Nominal Treasury Yield Change（10年期名义美国国债收益率变化）",
+        "priority": "BACKGROUND",
         "value_text": "4.0bp",
         "previous_text": "NA",
         "change_text": "NA",
         "severity": "中性",
-        "why": "10Y收益率边际变化",
-        "interpretation": "10年期国债收益率边际变化有限。",
+        "why": "10Y名义收益率边际变化",
+        "interpretation": "10年期名义收益率边际变化有限或缺少可比上期。",
         "as_of": "2026-07-23",
-        "frequency": "日频，FRED/H.15国债恒定期限收益率"
+        "frequency": "派生信号"
+      },
+      {
+        "type": "signal",
+        "id": "UST_10Y_REAL_LEVEL",
+        "label": "10Y Real Treasury Yield（10年期TIPS实际收益率）",
+        "priority": "BACKGROUND",
+        "value_text": "2.390%",
+        "previous_text": "2.370%",
+        "change_text": "+0.02%",
+        "severity": "偏紧",
+        "why": "10Y实际收益率水平背景",
+        "interpretation": "DFII10实际收益率处于高位，真实无风险回报对成长股、黄金和长期资产估值形成压力。",
+        "as_of": "2026-07-22",
+        "frequency": "派生信号"
+      },
+      {
+        "type": "signal",
+        "id": "UST_10Y_REAL_CHANGE_BP",
+        "label": "10Y Real Treasury Yield Change（10年期TIPS实际收益率变化）",
+        "priority": "BACKGROUND",
+        "value_text": "2.0bp",
+        "previous_text": "NA",
+        "change_text": "NA",
+        "severity": "中性",
+        "why": "10Y实际收益率边际变化",
+        "interpretation": "DFII10实际收益率边际变化有限或缺少可比上期。",
+        "as_of": "2026-07-22",
+        "frequency": "派生信号"
       },
       {
         "type": "signal",
         "id": "UST_10Y2Y",
         "label": "10Y-2Y Treasury Spread（10年-2年美债利差）",
-        "priority": "B",
+        "priority": "BACKGROUND",
         "value_text": "34.0bp",
         "previous_text": "36.0bp",
         "change_text": "-2.0bp",
@@ -491,7 +463,7 @@ window.DASHBOARD_DATA = {
         "type": "signal",
         "id": "UST_10Y3M",
         "label": "10Y-3M Treasury Spread（10年-3个月美债利差）",
-        "priority": "B",
+        "priority": "BACKGROUND",
         "value_text": "76.0bp",
         "previous_text": "78.0bp",
         "change_text": "-2.0bp",
@@ -505,7 +477,7 @@ window.DASHBOARD_DATA = {
         "type": "signal",
         "id": "NFCI_LEVEL",
         "label": "NFCI（芝加哥联储全国金融条件指数）",
-        "priority": "B",
+        "priority": "BACKGROUND",
         "value_text": "-0.55",
         "previous_text": "-0.54",
         "change_text": "-0.01",
@@ -834,7 +806,7 @@ window.DASHBOARD_DATA = {
   },
   "jpy_carry": {
     "meta": {
-      "generated_at_bjt": "2026-07-24 11:38:40 UTC+08:00",
+      "generated_at_bjt": "2026-07-24 12:56:39 UTC+08:00",
       "lookback": "日频约1年，CFTC约2年，NEER(BIS日频)约1年"
     },
     "risk": {
@@ -865,7 +837,7 @@ window.DASHBOARD_DATA = {
       {
         "id": "JGB10",
         "label": "JGB 10Y（日本10年期国债收益率）",
-        "value_text": "2.814%",
+        "value_text": "2.806%",
         "change_text": "逐日 0.0bp",
         "as_of": "2026-07-24",
         "why": "日本本土资产吸引力和资金回流压力"
@@ -884,7 +856,7 @@ window.DASHBOARD_DATA = {
         "value_text": "-30.9%",
         "change_text": "净周变化 1,115 口",
         "as_of": "2026-07-14",
-        "why": "净空头边际变化需拆分：净空头变化中空头主动加仓（空头周变化 +2,603.0 口、多头 +3,718.0 口）：投机盘真实卖出日元、买入美元，carry 资金流在增强，对美元短期利好。"
+        "why": "净空头边际变化需拆分：双边增仓但多头主导（空头 +2,603.0 口、多头 +3,718.0 口、空头占比 -0.47%、净头寸 +1,115.0 口）：净空头与空头占比下降，不构成空头强化，也不能解读为 carry 资金流支撑美元。"
       },
       {
         "id": "CFTC_JPY_GROSS_SHORT",
@@ -920,8 +892,13 @@ window.DASHBOARD_DATA = {
       }
     ],
     "cftc_decomposition": {
-      "driver": "short_building",
-      "text": "净空头变化中空头主动加仓（空头周变化 +2,603.0 口、多头 +3,718.0 口）：投机盘真实卖出日元、买入美元，carry 资金流在增强，对美元短期利好。"
+      "driver": "two_sided_building_long_dominant",
+      "carry_usd_support": false,
+      "text": "双边增仓但多头主导（空头 +2,603.0 口、多头 +3,718.0 口、空头占比 -0.47%、净头寸 +1,115.0 口）：净空头与空头占比下降，不构成空头强化，也不能解读为 carry 资金流支撑美元。",
+      "gross_short_change": 2603.0,
+      "gross_long_change": 3718.0,
+      "short_share_change": -0.004739972419707805,
+      "net_change": 1115.0
     },
     "history": {
       "USDJPY": [
@@ -4039,7 +4016,7 @@ window.DASHBOARD_DATA = {
         },
         {
           "date": "2026-07-22",
-          "value": 2.814
+          "value": 2.806
         },
         {
           "date": "2026-07-23",
@@ -4047,7 +4024,7 @@ window.DASHBOARD_DATA = {
         },
         {
           "date": "2026-07-24",
-          "value": 2.814
+          "value": 2.806
         }
       ],
       "US_JP_10Y": [
@@ -5321,7 +5298,7 @@ window.DASHBOARD_DATA = {
         },
         {
           "date": "2026-07-22",
-          "value": 185.6
+          "value": 186.39999999999998
         }
       ],
       "CFTC_JPY_NET_OI": [
@@ -10153,7 +10130,7 @@ window.DASHBOARD_DATA = {
     },
     {
       "id": "UST_1Y_YIELD",
-      "label": "1Y Treasury Yield（1年期美国国债收益率）",
+      "label": "1Y Treasury Yield（1Y美国国债收益率）",
       "value": 4.15,
       "value_text": "4.150%",
       "previous": 4.11,
@@ -10162,82 +10139,12 @@ window.DASHBOARD_DATA = {
       "change_text": "+0.04%",
       "unit": "%",
       "severity": "中性",
-      "meaning": "1年期收益率处于中间区间，需结合3年期和10年期确认曲线重定价",
+      "meaning": "1Y收益率处于中间区间，需结合腹部组合的边际变化与斜率判断。",
       "as_of": "2026-07-23"
     },
     {
-      "id": "UST_3Y_YIELD",
-      "label": "3Y Treasury Yield（3年期美国国债收益率）",
-      "value": 4.4,
-      "value_text": "4.400%",
-      "previous": 4.34,
-      "previous_text": "4.340%",
-      "change": 0.0600000000000005,
-      "change_text": "+0.06%",
-      "unit": "%",
-      "severity": "中性",
-      "meaning": "3年期收益率处于中间区间，观察其相对1年和10年的斜率变化。",
-      "as_of": "2026-07-23"
-    },
-    {
-      "id": "UST_5Y_YIELD",
-      "label": "5Y Treasury Yield（5年期美国国债收益率）",
-      "value": 4.46,
-      "value_text": "4.460%",
-      "previous": 4.41,
-      "previous_text": "4.410%",
-      "change": 0.04999999999999982,
-      "change_text": "+0.05%",
-      "unit": "%",
-      "severity": "中性",
-      "meaning": "5年期收益率处于中间区间，观察其相对3年和7年的斜率变化。",
-      "as_of": "2026-07-23"
-    },
-    {
-      "id": "UST_7Y_YIELD",
-      "label": "7Y Treasury Yield（7年期美国国债收益率）",
-      "value": 4.58,
-      "value_text": "4.580%",
-      "previous": 4.53,
-      "previous_text": "4.530%",
-      "change": 0.04999999999999982,
-      "change_text": "+0.05%",
-      "unit": "%",
-      "severity": "偏紧",
-      "meaning": "7年期收益率处于高位，腹部偏长端再定价压力较大。",
-      "as_of": "2026-07-23"
-    },
-    {
-      "id": "NOMINAL_10Y",
-      "label": "10Y Treasury Yield（10年期美国国债收益率）",
-      "value": 4.71,
-      "value_text": "4.710%",
-      "previous": 4.67,
-      "previous_text": "4.670%",
-      "change": 0.040000000000000036,
-      "change_text": "+0.04%",
-      "unit": "%",
-      "severity": "中性",
-      "meaning": "长期名义折现率边际变化有限",
-      "as_of": "2026-07-23"
-    },
-    {
-      "id": "REAL_10Y",
-      "label": "10Y Treasury Yield（10年期美国国债收益率）",
-      "value": 4.71,
-      "value_text": "4.710%",
-      "previous": 4.67,
-      "previous_text": "4.670%",
-      "change": 0.040000000000000036,
-      "change_text": "+0.04%",
-      "unit": "%",
-      "severity": "偏紧",
-      "meaning": "10年期国债收益率处于高位，对长期资产估值有压力；这描述的是level风险，不代表边际继续恶化。",
-      "as_of": "2026-07-23"
-    },
-    {
-      "id": "REAL_10Y_MOMENTUM",
-      "label": "10Y Yield Momentum（10年期国债收益率边际变化）",
+      "id": "UST_1Y_CHANGE_BP",
+      "label": "1Y Treasury Yield Change（1Y美国国债收益率变化）",
       "value": 4.0000000000000036,
       "value_text": "4.0bp",
       "previous": null,
@@ -10246,8 +10153,232 @@ window.DASHBOARD_DATA = {
       "change_text": "NA",
       "unit": "bp",
       "severity": "中性",
-      "meaning": "10年期国债收益率边际变化有限。",
+      "meaning": "1Y收益率较上一期变化有限。",
       "as_of": "2026-07-23"
+    },
+    {
+      "id": "UST_3Y_YIELD",
+      "label": "3Y Treasury Yield（3Y美国国债收益率）",
+      "value": 4.4,
+      "value_text": "4.400%",
+      "previous": 4.34,
+      "previous_text": "4.340%",
+      "change": 0.0600000000000005,
+      "change_text": "+0.06%",
+      "unit": "%",
+      "severity": "中性",
+      "meaning": "3Y收益率处于中间区间，需结合腹部组合的边际变化与斜率判断。",
+      "as_of": "2026-07-23"
+    },
+    {
+      "id": "UST_3Y_CHANGE_BP",
+      "label": "3Y Treasury Yield Change（3Y美国国债收益率变化）",
+      "value": 6.00000000000005,
+      "value_text": "6.0bp",
+      "previous": null,
+      "previous_text": "NA",
+      "change": null,
+      "change_text": "NA",
+      "unit": "bp",
+      "severity": "偏紧",
+      "meaning": "3Y收益率较上一期显著上行，折现率压力边际增强。",
+      "as_of": "2026-07-23"
+    },
+    {
+      "id": "UST_5Y_YIELD",
+      "label": "5Y Treasury Yield（5Y美国国债收益率）",
+      "value": 4.46,
+      "value_text": "4.460%",
+      "previous": 4.41,
+      "previous_text": "4.410%",
+      "change": 0.04999999999999982,
+      "change_text": "+0.05%",
+      "unit": "%",
+      "severity": "中性",
+      "meaning": "5Y收益率处于中间区间，需结合腹部组合的边际变化与斜率判断。",
+      "as_of": "2026-07-23"
+    },
+    {
+      "id": "UST_5Y_CHANGE_BP",
+      "label": "5Y Treasury Yield Change（5Y美国国债收益率变化）",
+      "value": 4.999999999999982,
+      "value_text": "5.0bp",
+      "previous": null,
+      "previous_text": "NA",
+      "change": null,
+      "change_text": "NA",
+      "unit": "bp",
+      "severity": "中性",
+      "meaning": "5Y收益率较上一期变化有限。",
+      "as_of": "2026-07-23"
+    },
+    {
+      "id": "UST_7Y_YIELD",
+      "label": "7Y Treasury Yield（7Y美国国债收益率）",
+      "value": 4.58,
+      "value_text": "4.580%",
+      "previous": 4.53,
+      "previous_text": "4.530%",
+      "change": 0.04999999999999982,
+      "change_text": "+0.05%",
+      "unit": "%",
+      "severity": "偏紧",
+      "meaning": "7Y收益率处于高位，现金回报和折现率对风险资产形成压力。",
+      "as_of": "2026-07-23"
+    },
+    {
+      "id": "UST_7Y_CHANGE_BP",
+      "label": "7Y Treasury Yield Change（7Y美国国债收益率变化）",
+      "value": 4.999999999999982,
+      "value_text": "5.0bp",
+      "previous": null,
+      "previous_text": "NA",
+      "change": null,
+      "change_text": "NA",
+      "unit": "bp",
+      "severity": "中性",
+      "meaning": "7Y收益率较上一期变化有限。",
+      "as_of": "2026-07-23"
+    },
+    {
+      "id": "UST_BELLY_MOMENTUM",
+      "label": "1Y/3Y/5Y/7Y Treasury Yield Momentum（国债收益率腹部组合边际变化）",
+      "value": 5.000000000000004,
+      "value_text": "5.00bp avg",
+      "previous": null,
+      "previous_text": "NA",
+      "change": null,
+      "change_text": "NA",
+      "unit": "bp avg",
+      "severity": "中性",
+      "meaning": "可用期限中显著上行1个、显著下行0个，尚未形成足够广泛的同向边际重定价。",
+      "as_of": "2026-07-23"
+    },
+    {
+      "id": "UST_5Y3Y_SLOPE_BP",
+      "label": "5Y-3Y Treasury Slope（5年-3年美债斜率）",
+      "value": 5.999999999999961,
+      "value_text": "6.0bp",
+      "previous": 7.000000000000028,
+      "previous_text": "7.0bp",
+      "change": -1.0000000000000675,
+      "change_text": "-1.0bp",
+      "unit": "bp",
+      "severity": "中性",
+      "meaning": "当前为正斜率，较上一期变化-1.0bp，结构基本稳定；该信号描述腹部曲线形态，不单独等同于流动性松紧。",
+      "as_of": "2026-07-23"
+    },
+    {
+      "id": "UST_7Y5Y_SLOPE_BP",
+      "label": "7Y-5Y Treasury Slope（7年-5年美债斜率）",
+      "value": 12.00000000000001,
+      "value_text": "12.0bp",
+      "previous": 12.00000000000001,
+      "previous_text": "12.0bp",
+      "change": 0.0,
+      "change_text": "0.0bp",
+      "unit": "bp",
+      "severity": "中性",
+      "meaning": "当前为正斜率，较上一期变化+0.0bp，结构基本稳定；该信号描述腹部曲线形态，不单独等同于流动性松紧。",
+      "as_of": "2026-07-23"
+    },
+    {
+      "id": "UST_10Y_NOMINAL_LEVEL",
+      "label": "10Y Nominal Treasury Yield（10年期名义美国国债收益率）",
+      "value": 4.71,
+      "value_text": "4.710%",
+      "previous": 4.67,
+      "previous_text": "4.670%",
+      "change": 0.040000000000000036,
+      "change_text": "+0.04%",
+      "unit": "%",
+      "severity": "中性",
+      "meaning": "DGS10名义收益率水平，用作长期名义折现率背景锚。",
+      "as_of": "2026-07-23"
+    },
+    {
+      "id": "UST_10Y_NOMINAL_CHANGE_BP",
+      "label": "10Y Nominal Treasury Yield Change（10年期名义美国国债收益率变化）",
+      "value": 4.0000000000000036,
+      "value_text": "4.0bp",
+      "previous": null,
+      "previous_text": "NA",
+      "change": null,
+      "change_text": "NA",
+      "unit": "bp",
+      "severity": "中性",
+      "meaning": "10年期名义收益率边际变化有限或缺少可比上期。",
+      "as_of": "2026-07-23"
+    },
+    {
+      "id": "NOMINAL_10Y",
+      "label": "10Y Nominal Treasury Yield（兼容：10年期名义美国国债收益率）",
+      "value": 4.71,
+      "value_text": "4.710%",
+      "previous": 4.67,
+      "previous_text": "4.670%",
+      "change": 0.040000000000000036,
+      "change_text": "+0.04%",
+      "unit": "%",
+      "severity": "中性",
+      "meaning": "10年期名义收益率边际变化有限或缺少可比上期。",
+      "as_of": "2026-07-23"
+    },
+    {
+      "id": "UST_10Y_REAL_LEVEL",
+      "label": "10Y Real Treasury Yield（10年期TIPS实际收益率）",
+      "value": 2.39,
+      "value_text": "2.390%",
+      "previous": 2.37,
+      "previous_text": "2.370%",
+      "change": 0.020000000000000018,
+      "change_text": "+0.02%",
+      "unit": "%",
+      "severity": "偏紧",
+      "meaning": "DFII10实际收益率处于高位，真实无风险回报对成长股、黄金和长期资产估值形成压力。",
+      "as_of": "2026-07-22"
+    },
+    {
+      "id": "UST_10Y_REAL_CHANGE_BP",
+      "label": "10Y Real Treasury Yield Change（10年期TIPS实际收益率变化）",
+      "value": 2.0000000000000018,
+      "value_text": "2.0bp",
+      "previous": null,
+      "previous_text": "NA",
+      "change": null,
+      "change_text": "NA",
+      "unit": "bp",
+      "severity": "中性",
+      "meaning": "DFII10实际收益率边际变化有限或缺少可比上期。",
+      "as_of": "2026-07-22"
+    },
+    {
+      "id": "REAL_10Y",
+      "label": "10Y Real Treasury Yield（兼容：10年期TIPS实际收益率）",
+      "value": 2.39,
+      "value_text": "2.390%",
+      "previous": 2.37,
+      "previous_text": "2.370%",
+      "change": 0.020000000000000018,
+      "change_text": "+0.02%",
+      "unit": "%",
+      "severity": "偏紧",
+      "meaning": "DFII10实际收益率处于高位，真实无风险回报对成长股、黄金和长期资产估值形成压力。",
+      "as_of": "2026-07-22"
+    },
+    {
+      "id": "REAL_10Y_MOMENTUM",
+      "label": "10Y Real Yield Momentum（兼容：10年期TIPS实际收益率变化）",
+      "value": 2.0000000000000018,
+      "value_text": "2.0bp",
+      "previous": null,
+      "previous_text": "NA",
+      "change": null,
+      "change_text": "NA",
+      "unit": "bp",
+      "severity": "中性",
+      "meaning": "DFII10实际收益率边际变化有限或缺少可比上期。",
+      "as_of": "2026-07-22"
     },
     {
       "id": "HY_CHANGE",
@@ -10432,9 +10563,9 @@ window.DASHBOARD_DATA = {
       "reason": "1年期看近端政策路径，3年期看中段再定价，5Y/7Y看腹部传导，10年期仅作折现率背景锚。"
     },
     {
-      "indicator": "10Y实际收益率",
-      "importance": "高",
-      "reason": "真实无风险回报直接影响成长股、黄金和长期资产估值，是证券市场贴现率压力的核心代理。"
+      "indicator": "10Y名义/实际收益率",
+      "importance": "背景",
+      "reason": "DGS10名义收益率和DFII10实际收益率仅补充长期折现率背景，不替代1Y/3Y/5Y/7Y腹部主框架，且两者必须分开命名和解释。"
     },
     {
       "indicator": "美元指数 / CP利差 / IG OAS / HY OAS",
@@ -15682,7 +15813,7 @@ window.DASHBOARD_DATA = {
             },
             {
               "date": "2026-07-22",
-              "value": 1.515
+              "value": 1.52
             },
             {
               "date": "2026-07-23",
@@ -15690,7 +15821,7 @@ window.DASHBOARD_DATA = {
             },
             {
               "date": "2026-07-24",
-              "value": 1.515
+              "value": 1.52
             }
           ]
         },
@@ -16728,7 +16859,7 @@ window.DASHBOARD_DATA = {
             },
             {
               "date": "2026-07-22",
-              "value": 2.814
+              "value": 2.806
             },
             {
               "date": "2026-07-23",
@@ -16736,7 +16867,7 @@ window.DASHBOARD_DATA = {
             },
             {
               "date": "2026-07-24",
-              "value": 2.814
+              "value": 2.806
             }
           ]
         },
@@ -17774,7 +17905,7 @@ window.DASHBOARD_DATA = {
             },
             {
               "date": "2026-07-22",
-              "value": 3.988
+              "value": 3.971
             },
             {
               "date": "2026-07-23",
@@ -17782,7 +17913,7 @@ window.DASHBOARD_DATA = {
             },
             {
               "date": "2026-07-24",
-              "value": 3.988
+              "value": 3.971
             }
           ]
         }
@@ -20451,7 +20582,7 @@ window.DASHBOARD_DATA = {
             },
             {
               "date": "2026-07-22",
-              "value": 279.5
+              "value": 278.99999999999994
             }
           ]
         },
@@ -21497,7 +21628,7 @@ window.DASHBOARD_DATA = {
             },
             {
               "date": "2026-07-22",
-              "value": 185.6
+              "value": 186.39999999999998
             }
           ]
         }
@@ -22833,8 +22964,8 @@ window.DASHBOARD_DATA = {
     }
   ],
   "chart_paths": [
-    "/Users/eiheisun/WorkBuddy/2026-05-04-task-1/output/usd_liquidity_chart_7d_20260724_113839.svg",
-    "/Users/eiheisun/WorkBuddy/2026-05-04-task-1/output/usd_liquidity_chart_30d_20260724_113839.svg"
+    "/Users/eiheisun/WorkBuddy/2026-05-04-task-1/output/usd_liquidity_chart_7d_20260724_125639.svg",
+    "/Users/eiheisun/WorkBuddy/2026-05-04-task-1/output/usd_liquidity_chart_30d_20260724_125639.svg"
   ],
   "data_quality": {
     "missing": [],
@@ -22882,7 +23013,7 @@ window.DASHBOARD_DATA = {
 window.ANALYSIS_DATA = {
   "meta": {
     "status": "pending_model_analysis",
-    "generated_at_bjt": "2026-07-24 11:39:02 UTC+08:00"
+    "generated_at_bjt": "2026-07-24 12:56:59 UTC+08:00"
   },
   "stance": {
     "label": "待模型分析",

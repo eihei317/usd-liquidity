@@ -21,8 +21,6 @@ from scripts.utils import (
     OUTPUT_DIR,
     ROOT,
     now_bjt,
-    safe_float,
-    format_number,
     load_jpy_carry_history_payload,
 )
 from scripts.fetchers import fetch_all_metrics, fetch_upcoming_auctions
@@ -95,12 +93,13 @@ def write_outputs(
         "risk_flags": [],
         "narrative_blocks": {}
     }
-    paths["analysis_path"] = OUTPUT_DIR / f"usd_liquidity_analysis_{stamp}.json"
+    # analysis.json is intentionally a latest-only model artifact. A timestamped copy written
+    # here would remain as a pending placeholder after the model publishes the validated result,
+    # making the CLI-reported analysis path misleading.
+    paths["analysis_path"] = LATEST_DIR / "analysis.json"
 
     for filename, payload in latest_map.items():
         (LATEST_DIR / filename).write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
-    if "analysis.json" in latest_map:
-        paths["analysis_path"].write_text(json.dumps(latest_map["analysis.json"], ensure_ascii=False, indent=2), encoding="utf-8")
 
     # Generate data.js for inline data (avoids fetch/CORS issues in preview panel)
     frontend_dir = ROOT / "frontend" / "usd-liquidity-monitor"
@@ -142,12 +141,10 @@ def cleanup_old_outputs(current_stamp: str) -> int:
 def load_snapshot(path: Path) -> Tuple[List[Metric], List[DerivedSignal], float, List[str]]:
     payload = json.loads(path.read_text(encoding="utf-8"))
     metrics = [Metric(**item) for item in payload.get("metrics", [])]
-    if payload.get("derived_signals"):
-        signals = [DerivedSignal(**item) for item in payload.get("derived_signals", [])]
-        score = safe_float(payload.get("score")) or 0.0
-        highlights = [f"{s.name}: {format_number(s.value, s.unit)}，{s.interpretation}" for s in signals if s.severity in {"偏紧", "紧张", "偏松"}]
-    else:
-        signals, score, highlights = derive_signals(metrics)
+    # A reused snapshot is a raw-data replay, not a replay of old analysis logic. Always rebuild
+    # derived signals so prompt/signal fixes are exercised and stale serialized conclusions cannot
+    # silently survive a code update.
+    signals, score, highlights = derive_signals(metrics)
     return metrics, signals, score, highlights
 
 

@@ -299,20 +299,128 @@ def fetch_bis_neer(keep: int = 900) -> Tuple[List[Tuple[str, float]], Dict[str, 
     }
 
 
-def _decompose_cftc_net(short_chg: Optional[float], long_chg: Optional[float]) -> Dict[str, Any]:
-    """把 CFTC 日元净空头的变化归因到：空头主动加仓 vs 多头平仓。
+_CFTC_DASHBOARD_STATUS = {
+    "short_building": "空头强化",
+    "two_sided_building_short_dominant": "空头强化",
+    "two_sided_building_long_dominant": "多头主导增仓",
+    "long_unwinding": "多头平仓",
+    "short_covering": "空头回补",
+    "long_building": "多头加仓",
+    "two_sided_reduction": "双边减仓",
+    "unchanged": "持仓稳定",
+    "mixed": "信号混合",
+    "unknown": "数据缺口",
+}
 
-    决定性变量是 gross short 的边际方向：只有空头上升（short_building）才代表投机盘
-    真实卖出日元、买入美元，即 carry 资金流在增强、对美元短期利好；若净空头变化并非
-    来自新空头（多头平仓、或整体持仓缩减），则不能解读为 carry 在加杠杆。
-    """
-    if short_chg is None or long_chg is None:
-        return {"driver": "unknown", "text": "CFTC 多/空分项周度变化不可用，无法区分净空头变多来自空头加仓还是多头平仓，应标记为数据缺口。"}
-    if short_chg > 0:
-        return {"driver": "short_building", "text": f"净空头变化中空头主动加仓（空头周变化 {short_chg:+,} 口、多头 {long_chg:+,} 口）：投机盘真实卖出日元、买入美元，carry 资金流在增强，对美元短期利好。"}
-    if long_chg < 0:
-        return {"driver": "long_unwinding", "text": f"净空头变化并非来自新空头，而是多头平仓主导（多头周变化 {long_chg:+,} 口、空头 {short_chg:+,} 口）：看多日元者离场，不能解读为 carry 资金流增强；若空头也同步下降，则整体持仓在缩减。"}
-    return {"driver": "mixed", "text": f"净空头变化由空头 {short_chg:+,} 口、多头 {long_chg:+,} 口共同构成，方向不单一，需结合 short_share 判断。"}
+
+def _decompose_cftc_net(
+    short_chg: Optional[float],
+    long_chg: Optional[float],
+    short_share_change: Optional[float],
+    net_change: Optional[float],
+) -> Dict[str, Any]:
+    """结合多空分项、空头占比和净头寸方向拆解 CFTC 周度仓位变化。"""
+    if any(value is None for value in (short_chg, long_chg, short_share_change, net_change)):
+        return {
+            "driver": "unknown",
+            "carry_usd_support": False,
+            "text": "CFTC 多/空分项、空头占比或净头寸周度变化不可用，无法可靠归因，应标记为数据缺口。",
+        }
+
+    assert short_chg is not None
+    assert long_chg is not None
+    assert short_share_change is not None
+    assert net_change is not None
+    short_side_stronger = net_change < 0 and short_share_change > 0
+    long_side_stronger = net_change > 0 and short_share_change < 0
+    direction_unchanged = net_change == 0 and short_share_change == 0
+    changes = (
+        f"空头 {short_chg:+,} 口、多头 {long_chg:+,} 口、"
+        f"空头占比 {short_share_change:+.2%}、净头寸 {net_change:+,} 口"
+    )
+    if not math.isclose(net_change, long_chg - short_chg, abs_tol=1e-9):
+        return {
+            "driver": "mixed",
+            "carry_usd_support": False,
+            "text": f"多空分项与净头寸变化不一致（{changes}），不得解读为 carry 资金流支撑美元。",
+        }
+
+    if short_chg > 0 and long_chg > 0:
+        if short_side_stronger:
+            return {
+                "driver": "two_sided_building_short_dominant",
+                "carry_usd_support": True,
+                "text": f"双边增仓但空头主导（{changes}）：净空头与空头占比同步增加，构成 carry 资金流对美元的边际支撑。",
+            }
+        if long_side_stronger:
+            return {
+                "driver": "two_sided_building_long_dominant",
+                "carry_usd_support": False,
+                "text": f"双边增仓但多头主导（{changes}）：净空头与空头占比下降，不构成空头强化，也不能解读为 carry 资金流支撑美元。",
+            }
+
+    if short_chg < 0 and long_chg < 0 and (short_side_stronger or long_side_stronger or direction_unchanged):
+        direction = "净空头增加" if short_side_stronger else "净空头减少" if long_side_stronger else "净头寸不变"
+        return {
+            "driver": "two_sided_reduction",
+            "carry_usd_support": False,
+            "text": f"多空双方同步减仓（{changes}，{direction}）：这是总持仓收缩，不构成新增空头或 carry 资金流支撑美元。",
+        }
+
+    if short_chg > 0 and long_chg <= 0 and short_side_stronger:
+        if long_chg == 0 or short_chg > abs(long_chg):
+            return {
+                "driver": "short_building",
+                "carry_usd_support": True,
+                "text": f"空头主动加仓主导（{changes}）：净空头与空头占比同步增加，构成 carry 资金流对美元的边际支撑。",
+            }
+        if abs(long_chg) > short_chg:
+            return {
+                "driver": "long_unwinding",
+                "carry_usd_support": False,
+                "text": f"多头平仓主导（{changes}）：虽有少量空头增加，但净空头扩张主要来自多头离场，不能解读为 carry 资金流支撑美元。",
+            }
+
+    if short_chg == 0 and long_chg < 0 and short_side_stronger:
+        return {
+            "driver": "long_unwinding",
+            "carry_usd_support": False,
+            "text": f"多头平仓（{changes}）：没有新增空头，不能解读为 carry 资金流支撑美元。",
+        }
+
+    if short_chg < 0 and long_chg >= 0 and long_side_stronger:
+        if long_chg == 0 or abs(short_chg) > long_chg:
+            return {
+                "driver": "short_covering",
+                "carry_usd_support": False,
+                "text": f"空头回补主导（{changes}）：净空头与空头占比同步下降，carry 空头资金流正在退潮。",
+            }
+        if long_chg > abs(short_chg):
+            return {
+                "driver": "long_building",
+                "carry_usd_support": False,
+                "text": f"多头主动加仓主导（{changes}）：净空头与空头占比同步下降，不构成空头强化或 carry 资金流支撑美元。",
+            }
+
+    if short_chg == 0 and long_chg > 0 and long_side_stronger:
+        return {
+            "driver": "long_building",
+            "carry_usd_support": False,
+            "text": f"多头主动加仓（{changes}）：净空头与空头占比同步下降，不构成空头强化或 carry 资金流支撑美元。",
+        }
+
+    if short_chg == 0 and long_chg == 0 and direction_unchanged:
+        return {
+            "driver": "unchanged",
+            "carry_usd_support": False,
+            "text": f"多空仓位及方向指标均无变化（{changes}），不构成新的 carry 资金流信号。",
+        }
+
+    return {
+        "driver": "mixed",
+        "carry_usd_support": False,
+        "text": f"多空分项、空头占比与净头寸方向未形成一致且可归因的信号（{changes}），不得解读为 carry 资金流支撑美元。",
+    }
 
 
 def fetch_cftc_jpy(limit: int = 130) -> Tuple[List[Dict[str, Any]], Dict[str, Any]]:
@@ -654,7 +762,20 @@ def build_payload(trigger: str, stamp: Optional[str] = None) -> Tuple[Dict[str, 
     cftc_short_share_pctile = None
     if cftc_short_share is not None and len(cftc_short_share_series_all) >= 52:
         cftc_short_share_pctile = sum(1 for x in cftc_short_share_series_all[-52:] if x <= cftc_short_share) / len(cftc_short_share_series_all[-52:])
-    cftc_decomposition = _decompose_cftc_net(cftc_short_chg, cftc_long_chg)
+    cftc_decomposition = _decompose_cftc_net(
+        cftc_short_chg,
+        cftc_long_chg,
+        cftc_short_share_chg,
+        cftc_change,
+    )
+    # Keep the raw decomposition inputs beside the semantic driver so downstream model facts
+    # never need to reconstruct the attribution from cards or history arrays.
+    cftc_decomposition.update({
+        "gross_short_change": cftc_short_chg,
+        "gross_long_change": cftc_long_chg,
+        "short_share_change": cftc_short_share_chg,
+        "net_change": cftc_change,
+    })
 
     cftc_gross_short_series = [(r["date"], r["short"]) for r in cftc_rows if r.get("date") and r.get("short") is not None]
     cftc_gross_long_series = [(r["date"], r["long"]) for r in cftc_rows if r.get("date") and r.get("long") is not None]
@@ -828,7 +949,7 @@ def build_payload(trigger: str, stamp: Optional[str] = None) -> Tuple[Dict[str, 
             {"module": "美日利差", "status": "仍有carry收益", "evidence": cb["US_JP_10Y"]["value_text"], "explanation": cb["US_JP_10Y"]["why"]},
             {"module": "汇率与波动", "status": "未触发unwind", "evidence": f"{cb['USDJPY']['value_text']} / vol {cb['USDJPY_VOL20']['value_text']}", "explanation": "快速日元升值和波动率上升才是核心触发。"},
             {"module": "仓位拥挤度(净)", "status": "拥挤" if cftc_net_oi is not None and cftc_net_oi <= -0.2 else "中性", "evidence": cb["CFTC_JPY"]["value_text"], "explanation": cb["CFTC_JPY"]["why"]},
-            {"module": "空头真实强度", "status": ("加仓" if cftc_decomposition["driver"] == "short_building" else "中性" if cftc_decomposition["driver"] in ("mixed", "unknown") else "平仓主导"), "evidence": cb["CFTC_JPY_SHORT_SHARE"]["value_text"], "explanation": cftc_decomposition["text"]},
+            {"module": "空头真实强度", "status": _CFTC_DASHBOARD_STATUS.get(cftc_decomposition["driver"], "信号混合"), "evidence": cb["CFTC_JPY_SHORT_SHARE"]["value_text"], "explanation": cftc_decomposition["text"]},
         ])({c["id"]: c for c in cards}),
         "watchlist": ["USD/JPY 20日实现波动率", "CFTC JPY净仓位/OI", "CFTC JPY空头占比(空头/(空头+多头))", "10Y UST-JGB利差", "VIX/HY OAS"],
     }
