@@ -1,6 +1,6 @@
 {
   "meta": {
-    "generated_at_bjt": "2026-07-24 14:13:59 UTC+08:00",
+    "generated_at_bjt": "2026-07-26 16:38:05 UTC+08:00",
     "model": "rule_summary",
     "prompt_file": "/Users/eiheisun/WorkBuddy/2026-05-04-task-1/prompts/jpy_usd_carry_liquidity_prompt.md",
     "note": "模型分析可基于 jpy_carry_model_input.json 覆盖本文件。"
@@ -24,7 +24,7 @@
     {
       "module": "美日利差",
       "status": "仍有carry收益",
-      "evidence": "186bp",
+      "evidence": "191bp",
       "explanation": "美日长端利差越宽，carry收益端越顺风"
     },
     {
@@ -36,14 +36,14 @@
     {
       "module": "仓位拥挤度(净)",
       "status": "拥挤",
-      "evidence": "-30.9%",
-      "explanation": "净空头边际变化需拆分：双边增仓但多头主导（空头 +2,603.0 口、多头 +3,718.0 口、空头占比 -0.47%、净头寸 +1,115.0 口）：净空头与空头占比下降，不构成空头强化，也不能解读为 carry 资金流支撑美元。"
+      "evidence": "-35.9%",
+      "explanation": "净空头边际变化需拆分：空头主动加仓主导（空头 +21,087.0 口、多头 -8,375.0 口、空头占比 +3.41%、净头寸 -29,462.0 口）：净空头与空头占比同步增加，构成 carry 资金流对美元的边际支撑。"
     },
     {
       "module": "空头真实强度",
-      "status": "多头主导增仓",
-      "evidence": "67.3%",
-      "explanation": "双边增仓但多头主导（空头 +2,603.0 口、多头 +3,718.0 口、空头占比 -0.47%、净头寸 +1,115.0 口）：净空头与空头占比下降，不构成空头强化，也不能解读为 carry 资金流支撑美元。"
+      "status": "空头强化",
+      "evidence": "70.7%",
+      "explanation": "空头主动加仓主导（空头 +21,087.0 口、多头 -8,375.0 口、空头占比 +3.41%、净头寸 -29,462.0 口）：净空头与空头占比同步增加，构成 carry 资金流对美元的边际支撑。"
     }
   ],
   "watchlist": [
