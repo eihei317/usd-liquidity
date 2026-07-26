@@ -1,6 +1,6 @@
 {
   "meta": {
-    "generated_at_bjt": "2026-07-26 16:38:31 UTC+08:00",
+    "generated_at_bjt": "2026-07-26 18:20:00 UTC+08:00",
     "data_as_of": "2026-07-24",
     "model": "AI Agent (USD Liquidity Pipeline)",
     "input_freshness_note": "核心日频资金与收益率事实截至 2026-07-23 至 2026-07-24；IORB 政策锚为 2026-07-27（前瞻）；准备金 WRESBAL 与 SOMA 为周频截至 2026-07-22（已滞后 4 日）；NFCI 与 DTWEXBGS 已滞后 9 日、REPO_FAILS_UST 已滞后 11 日，仅作背景；JPY carry CFTC 截至 2026-07-21、USD/JPY 与 JGB10 截至 2026-07-22/25；未来美债与 T-bill 毛发行已公告至 2026-07-29，净额与准备金影响为 null（数据风险）。"
@@ -64,6 +64,44 @@
         "jpy:CFTC_DECOMPOSITION",
         "jpy:CFTC_JPY_SHORT_SHARE",
         "jpy:USDJPY"
+      ]
+    }
+  },
+  "horizon_assessment": {
+    "immediate": {
+      "label": "中性",
+      "window": "1—3个交易日",
+      "summary": "核心资金价格仍稳定锚定，TGA回升与RRP继续下降带来边际抽离，但尚未形成回购或银行间融资异常。",
+      "fact_ids": [
+        "derived:SOFR_ANCHOR",
+        "derived:SOFR_VOLUME_IMPACT",
+        "derived:TGA_FLOW",
+        "derived:RRP_FLOW",
+        "derived:VIX_MOMENTUM"
+      ]
+    },
+    "tactical": {
+      "label": "偏紧",
+      "window": "1—4周",
+      "summary": "信用与波动率同步转弱，JPY carry拥挤增加去杠杆敏感度；美债腹部尚未形成广泛同向重定价，因此战术压力仍需后续多期事实确认。",
+      "fact_ids": [
+        "derived:HY_CHANGE",
+        "derived:VIX_MOMENTUM",
+        "derived:UST_BELLY_MOMENTUM",
+        "jpy:CFTC_DECOMPOSITION",
+        "jpy:CFTC_JPY_SHORT_SHARE"
+      ]
+    },
+    "structural": {
+      "label": "偏紧",
+      "window": "1—3个月",
+      "summary": "RRP存量缓冲接近耗尽，准备金周度回落且QT背景延续，使后续财政现金重建更容易直接作用于准备金；宽松的金融条件只能提供部分对冲。",
+      "fact_ids": [
+        "derived:RRP_BUFFER",
+        "metric:WRESBAL",
+        "metric:SOMA",
+        "derived:NFCI_LEVEL",
+        "derived:UST_10Y_REAL_LEVEL"
       ]
     }
   },

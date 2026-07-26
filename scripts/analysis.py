@@ -577,10 +577,11 @@ def build_model_input_package(trigger: str, generated: str, metrics: List[Metric
         "只能使用 data.facts 中的 canonical_metrics、derived_facts、event_facts、jpy_carry 与 quality_flags；"
         "每个 metric ID 已去重，禁止回到来源列表自行二选一，禁止使用旧报告、fallback stance/score/highlights 或图表路径锚定结论。\n"
         "必须按资金价格、流动性数量与缓冲、美债供给与资产定价、跨市场传导与杠杆四轴独立判断后再合成 stance。"
+        "必须另按即时（1—3个交易日）、战术（1—4周）、结构（1—3个月）输出 horizon_assessment；数据频率、信号期限和传导滞后不得混用，单日变化不得机械外推为战术趋势。"
         "P0 market 必须是已实现压力，至少引用两个独立且新鲜的 fact_id 交叉确认；其中融资压力 P0 至少包含一个核心资金价格事实及一个同层或下游确认。"
         "低 RRP 单独只能是 P1 结构脆弱性；未来拍卖 offeringAmount 是 gross announced issuance，不是净融资或确定性准备金消耗。\n"
         "每条 key_takeaway/risk_flag 必须给出 claim_type、跨两数组唯一的 dedupe_key、以及只指向本次事实包的 fact_ids；key_takeaways 只允许 observed，inference/scenario 只进入 risk_flags。\n"
-        "所有叙述性文字（text、evidence、narrative_blocks，含 stance 与 axis summary）里任何带数字的地方都必须彻底统一：带市场单位的指标数值一律写成 数量（更新时间，环比变化）；日期用完整 ISO（如 2026-07-22，区间写 2026-07-22 至 2026-07-23），禁止 M/D 简写；滞后天数写成 已滞后 N 日，不得裸写 stale_days N；多指标并列时每个指标分别使用该格式，环比未知时写环比未知。\n\n"
+        "所有叙述性文字（text、evidence、narrative_blocks，含 stance、axis summary 与 horizon summary）里任何带数字的地方都必须彻底统一：带市场单位的指标数值一律写成 数量（更新时间，环比变化）；日期用完整 ISO（如 2026-07-22，区间写 2026-07-22 至 2026-07-23），禁止 M/D 简写；滞后天数写成 已滞后 N 日，不得裸写 stale_days N；多指标并列时每个指标分别使用该格式，环比未知时写环比未知。\n\n"
         + load_prompt()
     )
     return {
@@ -617,10 +618,11 @@ def build_model_input_package(trigger: str, generated: str, metrics: List[Metric
             "language": "中文",
             "style": "结论先行、事实可追溯、字段稳定、由前端固定模板渲染",
             "forbidden_outputs": ["html", "markdown", "code_fence", "free_text_before_or_after_json"],
-            "required_top_level_fields": ["meta", "stance", "axis_assessment", "key_takeaways", "risk_flags", "narrative_blocks"],
+            "required_top_level_fields": ["meta", "stance", "axis_assessment", "horizon_assessment", "key_takeaways", "risk_flags", "narrative_blocks"],
             "fact_scope_rule": "只能使用data.facts中的canonical_metrics、derived_facts、event_facts、jpy_carry、quality_flags；禁止使用旧报告、fallback结论、图表路径或模型自行重算值。",
             "canonical_metrics_rule": "每个metric ID只能引用唯一canonical row；source_selection记录选中来源、优先级、原因和备选来源。",
             "four_axis_rule": "先独立评估四轴：funding_price资金价格、liquidity_buffer数量与缓冲、treasury_pricing美债供给与资产定价、cross_market_transmission跨市场传导与杠杆；再综合形成stance，不得用单一总分替代。",
+            "horizon_rule": "另按immediate即时1—3个交易日、tactical战术1—4周、structural结构1—3个月输出horizon_assessment。frequency是发布频率，horizon是机制作用期限，transmission_lag是下游传导滞后，三者不得混用。单日变化不得机械外推为战术趋势；同一底层指标只有机制已拆分时才可跨期限使用，例如RRP_FLOW用于即时、RRP_BUFFER用于结构。每个期限必须引用存在的fact_ids。",
             "p0_confirmation_rule": "P0 market仅用于已实现压力，至少两个独立且新鲜的fact_id交叉确认；融资压力P0必须含一个核心资金价格事实和一个同层或下游确认。低RRP、未来gross拍卖或单一情景不得单独列P0。",
             "claim_rule": "每条key_takeaway和risk_flag必须包含claim_type、跨两个数组唯一的dedupe_key、非空fact_ids；fact_ids必须存在于本次facts。key_takeaways只允许observed；inference和scenario只能进入risk_flags，scenario必须有非空condition。",
             "marginal_change_rule": "边际变化不能只写数值，必须说明上升/下降对融资压力、流动性或资产定价的含义。",
@@ -630,7 +632,7 @@ def build_model_input_package(trigger: str, generated: str, metrics: List[Metric
             "gross_auction_rule": "event_facts中的offeringAmount与gross totals仅为已公告毛发行，不等于净融资、净现金筹集或确定性准备金消耗；maturities/net_cash_impact缺失时必须保持未知。所有合计直接引用gross_totals_by_auction_date、gross_totals_by_issue_date、gross_totals_by_security_type或gross_total_announced，禁止手工求和。只有结算/到期净额、TGA变化、准备金或资金价格等事实确认后，才可把供给写成已实现流动性冲击；否则只能写scenario。",
             "dynamic_sections_rule": "key_takeaways和risk_flags各0-5条，动态生成；两数组dedupe_key全局唯一，不得重复同一风险。",
             "risk_type_rule": "risk_flags.type必须区分market与data；数据缺口不能写成真实市场压力。",
-            "indicator_mention_rule": "text、evidence、narrative_blocks、stance、axis summary 等所有叙述性文字里任何带数字的地方都必须彻底统一：带市场单位的指标数值必须写成 数量（更新时间，环比变化）；日期用完整ISO（如 2026-07-22，区间写至连接），禁止 M/D 简写；滞后天数写成 已滞后 N 日；多指标并列时每个指标分别使用该格式，环比未知时写环比未知。",
+            "indicator_mention_rule": "text、evidence、narrative_blocks、stance、axis summary、horizon summary 等所有叙述性文字里任何带数字的地方都必须彻底统一：带市场单位的指标数值必须写成 数量（更新时间，环比变化）；日期用完整ISO（如 2026-07-22，区间写至连接），禁止 M/D 简写；滞后天数写成 已滞后 N 日；多指标并列时每个指标分别使用该格式，环比未知时写环比未知。",
             "number_format_rule": "所有输出文本中的数值统一保留两位小数；不得输出浮点长尾。凡提到带市场单位的指标数值，一律写成数量（更新时间，环比变化）；日期用完整ISO，滞后天数写成已滞后 N 日。",
             "rrp_rule": "必须用RRP_FLOW说明边际流量方向，用RRP_BUFFER说明存量缓冲垫厚度；RRP下降短期可释放流动性，但极低RRP_BUFFER仅代表结构脆弱性，单独最高为P1。",
             "treasury_yields_rule": "国债收益率主框架固定为1Y/3Y/5Y/7Y：1Y近端政策路径、3Y中段再定价、5Y/7Y腹部传导。四个期限都必须拆成水平+边际变化，并直接引用canonical/derived facts；腹部斜率使用脚本预计算事实。10Y仅作曲线/长期名义折现率背景，不替代1Y/3Y/5Y/7Y。",
@@ -638,6 +640,7 @@ def build_model_input_package(trigger: str, generated: str, metrics: List[Metric
             "json_schema_summary": {
                 "stance": ["label", "confidence", "score_text", "one_liner"],
                 "axis_item": ["label", "summary", "fact_ids"],
+                "horizon_item": ["label", "window", "summary", "fact_ids"],
                 "key_takeaway_item": ["title", "text", "evidence", "related_indicators", "claim_type", "dedupe_key", "fact_ids"],
                 "risk_flag_item": ["priority", "severity", "type", "title", "text", "evidence", "related_indicators", "claim_type", "dedupe_key", "fact_ids"],
                 "narrative_blocks.treasury_yields": ["label", "one_liner", "analysis"],
@@ -740,6 +743,46 @@ def _fallback_axis_assessment(signals: List[DerivedSignal]) -> Dict[str, Any]:
     return result
 
 
+def _fallback_horizon_assessment(signals: List[DerivedSignal], metrics: List[Metric]) -> Dict[str, Any]:
+    signal_map = {signal.id: signal for signal in signals}
+    metric_ids = {metric.id.upper() for metric in metrics}
+
+    def available_fact_ids(signal_ids: List[str], raw_metric_ids: List[str]) -> List[str]:
+        facts = [f"derived:{signal_id}" for signal_id in signal_ids if signal_id in signal_map]
+        facts.extend(f"metric:{metric_id}" for metric_id in raw_metric_ids if metric_id in metric_ids)
+        return facts
+
+    return {
+        "immediate": {
+            "label": "中性",
+            "window": "1—3个交易日",
+            "summary": "规则摘要仅识别当前资金价格与当期流量，正式期限判断等待模型复核。",
+            "fact_ids": available_fact_ids(
+                ["SOFR_ANCHOR", "SOFR_VOLUME_IMPACT", "RRP_FLOW", "TGA_FLOW", "VIX_MOMENTUM"],
+                ["SOFR", "SOFR_VOLUME"],
+            )[:6],
+        },
+        "tactical": {
+            "label": "数据不足",
+            "window": "1—4周",
+            "summary": "规则摘要不从单日变化外推战术趋势；需要多期方向、美债腹部、信用与杠杆事实。",
+            "fact_ids": available_fact_ids(
+                ["UST_BELLY_MOMENTUM", "HY_CHANGE", "IG_CHANGE", "VIX_RISK"],
+                [],
+            )[:6],
+        },
+        "structural": {
+            "label": signal_map.get("RRP_BUFFER").severity if signal_map.get("RRP_BUFFER") else "数据不足",
+            "window": "1—3个月",
+            "summary": "结构期限关注RRP存量缓冲、准备金、QT背景与低频金融条件，不把低频数据写成当日冲击。",
+            "fact_ids": available_fact_ids(
+                ["RRP_BUFFER", "NFCI_LEVEL", "REAL_10Y"],
+                ["WRESBAL", "SOMA"],
+            )[:6],
+        },
+    }
+
+
 def build_fallback_analysis(generated: str, context: Dict[str, Any], signals: List[DerivedSignal], highlights: List[str]) -> Dict[str, Any]:
     stance = context.get("stance", "中性")
     metrics = [Metric(**m) for m in context.get("metrics", [])]
@@ -781,6 +824,7 @@ def build_fallback_analysis(generated: str, context: Dict[str, Any], signals: Li
             "confidence": "低",
         },
         "axis_assessment": _fallback_axis_assessment(signals),
+        "horizon_assessment": _fallback_horizon_assessment(signals, metrics),
         "key_takeaways": takeaways,
         "risk_flags": risk_flags,
         "narrative_blocks": {

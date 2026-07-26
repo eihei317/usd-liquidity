@@ -1,8 +1,8 @@
 window.DASHBOARD_DATA = {
   "meta": {
     "title": "美元流动性监测",
-    "trigger": "更新数据并分析",
-    "generated_at_bjt": "2026-07-26 16:38:31 UTC+08:00",
+    "trigger": "验证期限分层",
+    "generated_at_bjt": "2026-07-26 18:20:00 UTC+08:00",
     "data_as_of": "2026-07-25",
     "timezone": "BJT",
     "theme": "warm_claude",
@@ -806,7 +806,7 @@ window.DASHBOARD_DATA = {
   },
   "jpy_carry": {
     "meta": {
-      "generated_at_bjt": "2026-07-26 16:38:05 UTC+08:00",
+      "generated_at_bjt": "2026-07-26 18:19:40 UTC+08:00",
       "lookback": "日频约1年，CFTC约2年，NEER(BIS日频)约1年"
     },
     "risk": {
@@ -9173,9 +9173,7 @@ window.DASHBOARD_DATA = {
         ]
       }
     ],
-    "notes": [
-      "CNBC JGB 部分期限未能获取：JGB10（该期限回退至 MOF 历史值）"
-    ],
+    "notes": [],
     "chart_ids": [
       "jpy_usdjpy_funding_1y",
       "jpy_jgb_curve_1y",
@@ -23021,8 +23019,8 @@ window.DASHBOARD_DATA = {
     }
   ],
   "chart_paths": [
-    "/Users/eiheisun/WorkBuddy/2026-05-04-task-1/output/usd_liquidity_chart_7d_20260726_163804.svg",
-    "/Users/eiheisun/WorkBuddy/2026-05-04-task-1/output/usd_liquidity_chart_30d_20260726_163804.svg"
+    "/Users/eiheisun/WorkBuddy/2026-05-04-task-1/output/usd_liquidity_chart_7d_20260726_181940.svg",
+    "/Users/eiheisun/WorkBuddy/2026-05-04-task-1/output/usd_liquidity_chart_30d_20260726_181940.svg"
   ],
   "data_quality": {
     "missing": [],
@@ -23065,13 +23063,15 @@ window.DASHBOARD_DATA = {
 window.ANALYSIS_DATA = {
   "meta": {
     "status": "pending_model_analysis",
-    "generated_at_bjt": "2026-07-26 16:38:31 UTC+08:00"
+    "generated_at_bjt": "2026-07-26 18:20:00 UTC+08:00"
   },
   "stance": {
     "label": "待模型分析",
     "score_text": "",
     "one_liner": ""
   },
+  "axis_assessment": {},
+  "horizon_assessment": {},
   "key_takeaways": [],
   "risk_flags": [],
   "narrative_blocks": {}

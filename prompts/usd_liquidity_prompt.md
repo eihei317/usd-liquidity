@@ -45,6 +45,22 @@
 
 不得用单一规则总分替代四轴；`stance.score_text` 应概括四轴中哪些已实现压力、哪些只是结构脆弱性或情景风险。
 
+### 1.3 三期限分析
+
+四轴回答“压力在哪里”，`horizon_assessment` 回答“信号主要作用在哪个时间尺度”。必须分别输出三个期限对象：
+
+1. `immediate`（即时，1—3个交易日）：核心资金价格、SOFR交易量与价格×规模、RRP_FLOW、TGA_FLOW、最新可比拍卖结果、VIX/信用的当期边际变化。只判断当前或刚发生的状态，不把单日变化外推成持续趋势。
+2. `tactical`（战术，1—4周）：5D/20D变化、连续多期方向、美债腹部组合、信用利差趋势、JPY carry去杠杆、已公告供给与结算窗口。若事实包只有单期变化而没有多期事实，必须降低置信度或写数据不足，不得自行从1D推导1—4周趋势。
+3. `structural`（结构，1—3个月）：RRP_BUFFER、准备金水位与分布、SOMA/QT、NFCI、CFTC拥挤度、真实利率和长期缓冲能力。低频数据可以属于结构期限，但必须明确其滞后性。
+
+必须区分：
+
+- `frequency` 是数据多久发布一次；
+- `horizon` 是该机制主要影响的时间尺度；
+- `transmission_lag` 是压力传到下游市场可能需要的时间。
+
+三者不得混用。同一底层指标只有在机制不同且事实已拆分时才可跨期限使用，例如 `RRP_FLOW` 用于即时、`RRP_BUFFER` 用于结构；不得把同一个单日事实机械复制到三个期限。每个期限必须引用本次实际存在的 `fact_ids`。
+
 ## 2. P0/P1/P2 门槛
 
 风险按严重度、新鲜度、传导位置、边际变化和市场规模排序。
@@ -77,7 +93,7 @@
 - `dedupe_key`：稳定、简短、语义唯一。`key_takeaways` 与 `risk_flags` 两个数组合并后不得重复。
 - `fact_ids`：非空数组，只能引用本次 facts 中存在的 ID。
 - `evidence`：字符串数组，至少覆盖日期、频率/口径、最新值、上一期或边际变化中的三项；P0 应尽量覆盖全部并说明交叉确认。
-- 所有叙述性文字（`text`、`evidence`、`narrative_blocks`，含 `stance.score_text/one_liner` 与 `axis_assessment.*.summary`）中任何带数字的地方必须彻底统一：
+- 所有叙述性文字（`text`、`evidence`、`narrative_blocks`，含 `stance.score_text/one_liner`、`axis_assessment.*.summary` 与 `horizon_assessment.*.summary`）中任何带数字的地方必须彻底统一：
   - 凡提到带市场单位的指标数值（%、bp、bps、bn、口、pt、x、mn/day 等），统一写成 `数量（更新时间，环比变化）`。例如：`3.62%（2026-07-22，+1.00bp）`、`3026.00bn（2026-07-22，+51.00bn）`、`0.90bn（2026-07-23，+0.53bn）`。多指标并列时，每个指标都分别使用该格式；若环比未知，写 `环比未知`。
   - 日期必须写完整 ISO：`2026-07-22`，区间写 `2026-07-22 至 2026-07-23`；禁止 `7/22-23`、`7/22` 这类简写。
   - 数据滞后天数必须附着在对应指标后面写成 `已滞后 N 日`，不得裸写 `stale_days 7`。
@@ -170,6 +186,11 @@
     "treasury_pricing": {"label": "偏松|中性|偏紧|紧张|数据不足", "summary": "轴判断", "fact_ids": ["derived:UST_1Y_YIELD"]},
     "cross_market_transmission": {"label": "偏松|中性|偏紧|紧张|数据不足", "summary": "轴判断", "fact_ids": ["derived:HY_CHANGE"]}
   },
+  "horizon_assessment": {
+    "immediate": {"label": "偏松|中性|偏紧|紧张|数据不足", "window": "1—3个交易日", "summary": "即时资金价格、流量和当期市场反应", "fact_ids": ["derived:SOFR_ANCHOR", "derived:RRP_FLOW"]},
+    "tactical": {"label": "偏松|中性|偏紧|紧张|数据不足", "window": "1—4周", "summary": "多期趋势、美债腹部、信用与杠杆传导；多期事实不足时明确降置信度", "fact_ids": ["derived:UST_BELLY_MOMENTUM", "derived:HY_CHANGE"]},
+    "structural": {"label": "偏松|中性|偏紧|紧张|数据不足", "window": "1—3个月", "summary": "缓冲垫、准备金、QT和拥挤度等结构环境", "fact_ids": ["derived:RRP_BUFFER", "metric:WRESBAL"]}
+  },
   "key_takeaways": [
     {
       "title": "动态标题",
@@ -221,11 +242,12 @@
 2. 是否只用了本次 `data.facts`，且每个 `fact_id` 实际存在。
 3. 是否每个 metric ID 只引用 canonical row，没有拿 alternative source 当第二证据。
 4. 是否输出完整四轴并据此合成 stance。
-5. 是否所有 P0 market 都有至少两个独立、新鲜事实，融资 P0 是否含资金价格 + 同层/下游确认。
-6. 是否低 RRP 或 gross auction 被错误单独列为 P0。
-7. 是否 gross offering 被错误写成净融资或确定性准备金消耗。
-8. 是否每条 takeaway/risk 都有合法 `claim_type`、唯一 `dedupe_key`、非空 `fact_ids`。
-9. 是否 takeaway 与 risk 没有重复主题。
-10. 是否保持 1Y/3Y/5Y/7Y 主框架，并仅把 10Y 当背景。
-11. 是否 SOFR 与已完成 T-bill 拍卖分析包含量级事实。
-12. 是否所有叙述性文字中的指标数值都写成 数量（更新时间，环比变化），日期用完整 ISO，滞后天数写成 已滞后 N 日，没有浮点长尾、Markdown 表、代码围栏或 JSON 外说明。
+5. 是否输出即时、战术、结构三个期限，并区分数据频率、信号期限与传导滞后；是否避免把单日变化机械外推到1—4周。
+6. 是否所有 P0 market 都有至少两个独立、新鲜事实，融资 P0 是否含资金价格 + 同层/下游确认。
+7. 是否低 RRP 或 gross auction 被错误单独列为 P0。
+8. 是否 gross offering 被错误写成净融资或确定性准备金消耗。
+9. 是否每条 takeaway/risk 都有合法 `claim_type`、唯一 `dedupe_key`、非空 `fact_ids`。
+10. 是否 takeaway 与 risk 没有重复主题。
+11. 是否保持 1Y/3Y/5Y/7Y 主框架，并仅把 10Y 当背景。
+12. 是否 SOFR 与已完成 T-bill 拍卖分析包含量级事实。
+13. 是否所有叙述性文字中的指标数值都写成 数量（更新时间，环比变化），日期用完整 ISO，滞后天数写成 已滞后 N 日，没有浮点长尾、Markdown 表、代码围栏或 JSON 外说明。

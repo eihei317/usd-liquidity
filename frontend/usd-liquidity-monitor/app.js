@@ -35,6 +35,19 @@ function renderMeta(dashboard) {
   document.getElementById("page-subtitle").textContent = dashboard.meta?.trigger ? `触发语：${dashboard.meta.trigger}` : "触发脚本 → 模型分析 → 稳定前端渲染";
 }
 
+const AXIS_META = {
+  funding_price: { label: "资金价格", horizon: "即时" },
+  liquidity_buffer: { label: "数量与缓冲", horizon: "结构" },
+  treasury_pricing: { label: "美债供给与定价", horizon: "战术" },
+  cross_market_transmission: { label: "跨市场传导", horizon: "即时 / 战术" }
+};
+
+const HORIZON_META = {
+  immediate: { label: "即时状态", fallbackWindow: "1—3个交易日" },
+  tactical: { label: "战术趋势", fallbackWindow: "1—4周" },
+  structural: { label: "结构环境", fallbackWindow: "1—3个月" }
+};
+
 function renderStance(dashboard, analysis) {
   const stance = analysis.stance || {};
   const label = stance.label || dashboard.status_scale?.current_from_rule || "--";
@@ -54,6 +67,42 @@ function renderStance(dashboard, analysis) {
   (dashboard.status_scale?.values || []).forEach(item => {
     const chip = el("span", item === label ? "active" : "", item);
     scale.appendChild(chip);
+  });
+
+  renderAxisAssessment(analysis.axis_assessment || {});
+}
+
+function renderAxisAssessment(axes) {
+  const root = document.getElementById("axis-assessment");
+  if (!root) return;
+  root.innerHTML = "";
+  Object.entries(AXIS_META).forEach(([key, meta]) => {
+    const item = axes[key] || {};
+    const card = el("article", `axis-item ${severityClass(item.label)}`);
+    const top = el("div", "axis-top");
+    top.appendChild(el("span", "axis-name", meta.label));
+    top.appendChild(el("span", "axis-horizon", meta.horizon));
+    card.appendChild(top);
+    card.appendChild(el("strong", "axis-label", item.label || "待分析"));
+    card.appendChild(el("p", "axis-summary", item.summary || "暂无轴判断。"));
+    root.appendChild(card);
+  });
+}
+
+function renderHorizonAssessment(horizons) {
+  const root = document.getElementById("horizon-assessment");
+  if (!root) return;
+  root.innerHTML = "";
+  Object.entries(HORIZON_META).forEach(([key, meta]) => {
+    const item = horizons?.[key] || {};
+    const card = el("article", `horizon-card card ${severityClass(item.label)}`);
+    const top = el("div", "horizon-top");
+    top.appendChild(el("span", "horizon-name", meta.label));
+    top.appendChild(el("span", "horizon-window", item.window || meta.fallbackWindow));
+    card.appendChild(top);
+    card.appendChild(el("strong", "horizon-label", item.label || "待分析"));
+    card.appendChild(el("p", "horizon-summary", item.summary || "当前 analysis.json 尚未提供该期限判断。"));
+    root.appendChild(card);
   });
 }
 
@@ -126,31 +175,25 @@ function renderKeySignals(analysis) {
   }
   
   signals.forEach(sig => {
-    const card = el("div", `signal-card ${getPriorityClass(sig.priority)}`);
-    
-    // 优先级标签
-    const priorityTag = el("span", `signal-priority ${getPriorityClass(sig.priority)}`, sig.priority);
-    card.appendChild(priorityTag);
-    
-    // 标题
-    const title = el("h4", "signal-title", sig.title);
-    card.appendChild(title);
-    
-    // 正文
+    const card = el("article", `signal-card ${getPriorityClass(sig.priority)}`);
+    const head = el("div", "signal-head");
+    head.appendChild(el("span", `signal-priority ${getPriorityClass(sig.priority)}`, sig.priority));
+    head.appendChild(el("h4", "signal-title", sig.title));
+    card.appendChild(head);
+
     if (sig.text) {
-      const text = el("p", "signal-text", sig.text);
-      card.appendChild(text);
+      card.appendChild(el("p", "signal-text", sig.text));
     }
-    
-    // 证据列表
+
     if (sig.evidence && sig.evidence.length) {
+      const details = el("details", "signal-details");
+      details.appendChild(el("summary", "", `查看证据（${sig.evidence.length}项）`));
       const evidenceList = el("ul", "signal-evidence");
-      sig.evidence.forEach(e => {
-        evidenceList.appendChild(el("li", "", e));
-      });
-      card.appendChild(evidenceList);
+      sig.evidence.forEach(e => evidenceList.appendChild(el("li", "", e)));
+      details.appendChild(evidenceList);
+      card.appendChild(details);
     }
-    
+
     container.appendChild(card);
   });
 }
@@ -427,10 +470,43 @@ function limitChartToRecentMonth(chart) {
   return cloned;
 }
 
+function formatChartNumber(value, unit) {
+  if (value === null || value === undefined || Number.isNaN(Number(value))) return "NA";
+  const number = Number(value);
+  if (unit === "%") return `${number.toFixed(2)}%`;
+  if (unit === "bp") return `${number.toFixed(1)}bp`;
+  if (unit === "USD bn") return `${number.toFixed(1)}bn`;
+  if (unit === "ratio") return `${number.toFixed(2)}x`;
+  return `${number.toFixed(2)}${unit || ""}`;
+}
+
+function renderChartStats(chart) {
+  const root = el("div", "chart-stats");
+  (chart.series || []).slice(0, 4).forEach(series => {
+    const points = (series.points || []).filter(point => point.value !== null && point.value !== undefined);
+    if (!points.length) return;
+    const latest = points[points.length - 1];
+    const previous = points.length > 1 ? points[points.length - 2] : null;
+    const delta = previous ? Number(latest.value) - Number(previous.value) : null;
+    const stat = el("div", "chart-stat");
+    stat.appendChild(el("span", "chart-stat-label", series.label));
+    const valueRow = el("div", "chart-stat-value");
+    valueRow.appendChild(document.createTextNode(formatChartNumber(latest.value, chart.unit)));
+    if (delta !== null && !Number.isNaN(delta)) {
+      valueRow.appendChild(el("small", delta > 0 ? "up" : delta < 0 ? "down" : "flat", `${delta > 0 ? "+" : ""}${formatChartNumber(delta, chart.unit)}`));
+    }
+    stat.appendChild(valueRow);
+    stat.appendChild(el("span", "chart-stat-date", latest.date || "--"));
+    root.appendChild(stat);
+  });
+  return root;
+}
+
 function renderChartCard(rawChart) {
   const chart = limitChartToRecentMonth(rawChart);
   const card = el("article", "card chart-card");
   card.appendChild(el("h3", "", chart.title));
+  card.appendChild(renderChartStats(chart));
   if (!chart.series || !chart.series.length) {
     card.appendChild(el("p", "empty", "暂无可绘制数据"));
   } else {
@@ -584,6 +660,7 @@ async function init() {
     
     renderMeta(dashboard);
     renderStance(dashboard, analysis);
+    renderHorizonAssessment(analysis.horizon_assessment);
     renderKeySignals(analysis);
     renderTradingRadar(dashboard.trading_dashboard);
     renderUpcomingAuctions(dashboard.upcoming_auctions);

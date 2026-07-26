@@ -7,7 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./styles.css?v=20260618-yields">
+  <link rel="stylesheet" href="./styles.css?v=20260726-horizons">
   <script src="./chart.min.js?v=20260515"></script>
 </head>
 <body>
@@ -41,10 +41,23 @@
           </div>
           <p class="stance-text" id="stance-one-liner">等待 analysis.json...</p>
           <div class="scale" id="status-scale"></div>
+          <div class="axis-grid" id="axis-assessment" aria-label="四轴状态"></div>
         </article>
       </section>
 
-      <!-- 区块2：关键变化与风险信号（合并） -->
+      <!-- 区块2：时间尺度 -->
+      <section class="section horizon-section" aria-labelledby="horizon-title">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">SIGNAL HORIZONS</p>
+            <h2 id="horizon-title">即时 · 战术 · 结构</h2>
+          </div>
+          <p class="section-note">区分数据发布频率、信号作用期限与下游传导滞后。</p>
+        </div>
+        <div class="horizon-grid" id="horizon-assessment"><p class="empty">等待期限分析...</p></div>
+      </section>
+
+      <!-- 区块3：关键变化与风险信号（合并） -->
       <section class="section" aria-labelledby="takeaways-title">
         <div class="section-head">
           <div>
@@ -130,6 +143,6 @@
   </div>
 
   <script src="./data.js?v=20260618-yields"></script>
-  <script src="./app.js?v=20260724-analysis-contract"></script>
+  <script src="./app.js?v=20260726-horizons"></script>
 </body>
 </html>

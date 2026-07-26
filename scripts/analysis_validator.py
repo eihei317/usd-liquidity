@@ -61,7 +61,7 @@ ANALYSIS_JSON_SCHEMA: Dict[str, Any] = {
     "title": "USD Liquidity Analysis",
     "type": "object",
     "additionalProperties": False,
-    "required": ["meta", "stance", "axis_assessment", "key_takeaways", "risk_flags", "narrative_blocks"],
+    "required": ["meta", "stance", "axis_assessment", "horizon_assessment", "key_takeaways", "risk_flags", "narrative_blocks"],
     "properties": {
         "meta": {
             "type": "object",
@@ -113,6 +113,29 @@ ANALYSIS_JSON_SCHEMA: Dict[str, Any] = {
                     "liquidity_buffer",
                     "treasury_pricing",
                     "cross_market_transmission",
+                )
+            },
+        },
+        "horizon_assessment": {
+            "type": "object",
+            "additionalProperties": False,
+            "required": ["immediate", "tactical", "structural"],
+            "properties": {
+                horizon: {
+                    "type": "object",
+                    "additionalProperties": False,
+                    "required": ["label", "window", "summary", "fact_ids"],
+                    "properties": {
+                        "label": {"type": "string", "enum": AXIS_LABELS},
+                        "window": {"type": "string", "const": window},
+                        "summary": _TEXT_SCHEMA,
+                        "fact_ids": _STRING_ARRAY_SCHEMA,
+                    },
+                }
+                for horizon, window in (
+                    ("immediate", "1—3个交易日"),
+                    ("tactical", "1—4周"),
+                    ("structural", "1—3个月"),
                 )
             },
         },
@@ -454,24 +477,25 @@ def _iter_claims(candidate: Mapping[str, Any]) -> Iterable[Tuple[str, Mapping[st
                 yield f"$.{section}[{index}]", item
 
 
-def _validate_axis_fact_ids(
+def _validate_assessment_fact_ids(
     candidate: Mapping[str, Any], facts: Mapping[str, Mapping[str, Any]], errors: List[str]
 ) -> None:
-    axes = candidate.get("axis_assessment")
-    if not isinstance(axes, dict):
-        return
-    for axis_name, axis in axes.items():
-        if not isinstance(axis, dict):
+    for section_name in ("axis_assessment", "horizon_assessment"):
+        section = candidate.get(section_name)
+        if not isinstance(section, dict):
             continue
-        fact_ids = axis.get("fact_ids")
-        if not isinstance(fact_ids, list):
-            continue
-        for index, fact_id in enumerate(fact_ids):
-            if isinstance(fact_id, str) and fact_id not in facts:
-                errors.append(
-                    f"$.axis_assessment.{axis_name}.fact_ids[{index}]: "
-                    f"未在 model_input 事实包中找到 {fact_id!r}"
-                )
+        for item_name, item in section.items():
+            if not isinstance(item, dict):
+                continue
+            fact_ids = item.get("fact_ids")
+            if not isinstance(fact_ids, list):
+                continue
+            for index, fact_id in enumerate(fact_ids):
+                if isinstance(fact_id, str) and fact_id not in facts:
+                    errors.append(
+                        f"$.{section_name}.{item_name}.fact_ids[{index}]: "
+                        f"未在 model_input 事实包中找到 {fact_id!r}"
+                    )
 
 
 def _claim_text(claim: Mapping[str, Any]) -> str:
@@ -564,6 +588,13 @@ def _iter_narrative_text_fields(candidate: Mapping[str, Any]) -> Iterable[Tuple[
                 summary = axis.get("summary")
                 if isinstance(summary, str):
                     yield f"$.axis_assessment.{axis_name}.summary", summary
+    horizons = candidate.get("horizon_assessment")
+    if isinstance(horizons, dict):
+        for horizon_name, horizon in horizons.items():
+            if isinstance(horizon, dict):
+                summary = horizon.get("summary")
+                if isinstance(summary, str):
+                    yield f"$.horizon_assessment.{horizon_name}.summary", summary
     for section in ("key_takeaways", "risk_flags"):
         items = candidate.get(section)
         if not isinstance(items, list):
@@ -822,6 +853,7 @@ def validate_analysis(candidate: Any, model_input: Any) -> List[str]:
     for fact_id in sorted(duplicates):
         errors.append(f"model_input: fact_id 重复 {fact_id!r}")
     _validate_dates(candidate, model_input, errors)
+    _validate_assessment_fact_ids(candidate, facts, errors)
     _validate_claims(candidate, facts, errors)
     _validate_narrative_numeric_format(candidate, errors)
     _validate_p0(candidate, facts, errors)

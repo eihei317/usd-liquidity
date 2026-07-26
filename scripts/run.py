@@ -89,6 +89,8 @@ def write_outputs(
     latest_map["analysis.json"] = {
         "meta": {"status": "pending_model_analysis", "generated_at_bjt": context.get("generated_at_bjt", "")},
         "stance": {"label": "待模型分析", "score_text": "", "one_liner": ""},
+        "axis_assessment": {},
+        "horizon_assessment": {},
         "key_takeaways": [],
         "risk_flags": [],
         "narrative_blocks": {}
