@@ -1,6 +1,6 @@
 {
-  "trigger": "更新市场预期与真实收益率分解",
-  "generated_at_bjt": "2026-07-26 19:08:12 UTC+08:00",
+  "trigger": "今天的美元流动性简报",
+  "generated_at_bjt": "2026-07-26 19:31:57 UTC+08:00",
   "stance": "中性",
   "score": 2.3,
   "metrics": [
@@ -9068,8 +9068,8 @@
     ]
   ],
   "chart_paths": [
-    "/Users/eiheisun/WorkBuddy/2026-05-04-task-1/output/usd_liquidity_chart_7d_20260726_190752.svg",
-    "/Users/eiheisun/WorkBuddy/2026-05-04-task-1/output/usd_liquidity_chart_30d_20260726_190752.svg"
+    "/Users/eiheisun/WorkBuddy/2026-05-04-task-1/output/usd_liquidity_chart_7d_20260726_193142.svg",
+    "/Users/eiheisun/WorkBuddy/2026-05-04-task-1/output/usd_liquidity_chart_30d_20260726_193142.svg"
   ],
   "upcoming_auctions": {
     "status": "ok",

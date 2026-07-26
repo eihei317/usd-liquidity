@@ -1,8 +1,8 @@
 window.DASHBOARD_DATA = {
   "meta": {
     "title": "美元流动性监测",
-    "trigger": "更新市场预期与真实收益率分解",
-    "generated_at_bjt": "2026-07-26 19:08:12 UTC+08:00",
+    "trigger": "今天的美元流动性简报",
+    "generated_at_bjt": "2026-07-26 19:31:57 UTC+08:00",
     "data_as_of": "2026-07-25",
     "timezone": "BJT",
     "theme": "warm_claude",
@@ -923,7 +923,7 @@ window.DASHBOARD_DATA = {
   },
   "jpy_carry": {
     "meta": {
-      "generated_at_bjt": "2026-07-26 19:07:53 UTC+08:00",
+      "generated_at_bjt": "2026-07-26 19:31:42 UTC+08:00",
       "lookback": "日频约1年，CFTC约2年，NEER(BIS日频)约1年"
     },
     "risk": {
@@ -24443,8 +24443,8 @@ window.DASHBOARD_DATA = {
     }
   ],
   "chart_paths": [
-    "/Users/eiheisun/WorkBuddy/2026-05-04-task-1/output/usd_liquidity_chart_7d_20260726_190752.svg",
-    "/Users/eiheisun/WorkBuddy/2026-05-04-task-1/output/usd_liquidity_chart_30d_20260726_190752.svg"
+    "/Users/eiheisun/WorkBuddy/2026-05-04-task-1/output/usd_liquidity_chart_7d_20260726_193142.svg",
+    "/Users/eiheisun/WorkBuddy/2026-05-04-task-1/output/usd_liquidity_chart_30d_20260726_193142.svg"
   ],
   "data_quality": {
     "missing": [],
@@ -24492,7 +24492,7 @@ window.DASHBOARD_DATA = {
 window.ANALYSIS_DATA = {
   "meta": {
     "status": "pending_model_analysis",
-    "generated_at_bjt": "2026-07-26 19:08:12 UTC+08:00"
+    "generated_at_bjt": "2026-07-26 19:31:57 UTC+08:00"
   },
   "stance": {
     "label": "待模型分析",
