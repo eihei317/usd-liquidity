@@ -59,6 +59,11 @@ UNAVAILABLE_SOURCES = [
         "reason": "Goldman Sachs FCI is proprietary; no free official public API found",
         "proxy": "Use Chicago Fed NFCI plus rates, credit spreads, dollar index and equity/credit proxies",
     },
+    {
+        "name": "Direct SOFR futures/options probability distribution",
+        "reason": "No stable free official API with durable automated access and redistribution terms is configured",
+        "proxy": "Use FRBSF model-implied expected short rates plus 1Y/3Y nominal Treasury repricing; label these as model/proxy measures, not futures consensus",
+    },
 ]
 
 RATE_LABELS = {
@@ -91,7 +96,13 @@ RATE_LABELS = {
     "DGS5": "5Y Treasury Yield（5年期美国国债收益率）",
     "DGS7": "7Y Treasury Yield（7年期美国国债收益率）",
     "DGS10": "10Y Treasury Yield（10年期美国国债收益率）",
+    "DFII5": "5Y Real Yield（5年期TIPS实际收益率）",
+    "DFII7": "7Y Real Yield（7年期TIPS实际收益率）",
     "DFII10": "10Y Real Yield（10年期TIPS实际收益率）",
+    "FRBSF_EXPECTED_SHORT_2Y": "FRBSF 2Y Expected Short Rate（未来2年平均预期隔夜利率）",
+    "FRBSF_TERM_PREMIUM_2Y": "FRBSF 2Y Term Premium（2年期期限溢价）",
+    "FRBSF_EXPECTED_SHORT_10Y": "FRBSF 10Y Expected Short Rate（未来10年平均预期隔夜利率）",
+    "FRBSF_TERM_PREMIUM_10Y": "FRBSF 10Y Term Premium（10年期期限溢价）",
     "T10Y2Y": "10Y-2Y Treasury Spread（10年-2年美债利差）",
     "T10Y3M": "10Y-3M Treasury Spread（10年-3个月美债利差）",
     "VIXCLS": "VIX（标普500隐含波动率指数）",
@@ -128,7 +139,13 @@ RATE_MEANINGS = {
     "DGS5": "5年期美国国债收益率，处于曲线腹部，观察短端政策预期向长端传导的中段再定价。",
     "DGS7": "7年期美国国债收益率，处于曲线腹部偏长端，衔接腹部再定价与长端折现率。",
     "DGS10": "10年期美国国债收益率，是全球资产折现率和长期美元资金价格的重要锚，本简报仅作曲线/折现率背景观察。",
+    "DFII5": "5年期官方TIPS实际收益率，观察曲线腹部的真实贴现率；与同期限名义收益率配对可得到通胀补偿。",
+    "DFII7": "7年期官方TIPS实际收益率，观察腹部偏长端的真实贴现率；与同期限名义收益率配对可得到通胀补偿。",
     "DFII10": "10年期TIPS实际收益率，剔除通胀补偿后观察真实无风险回报，对成长股、黄金和长期资产估值更敏感。",
+    "FRBSF_EXPECTED_SHORT_2Y": "FRBSF期限结构模型隐含的未来2年平均预期隔夜利率，用于分离政策路径与期限溢价；不是调查共识或期货直接报价。",
+    "FRBSF_TERM_PREMIUM_2Y": "FRBSF期限结构模型估计的2年期期限溢价，表示持有期限风险所需补偿；属于模型分解。",
+    "FRBSF_EXPECTED_SHORT_10Y": "FRBSF期限结构模型隐含的未来10年平均预期隔夜利率，用于观察长期政策路径分量；不是调查共识。",
+    "FRBSF_TERM_PREMIUM_10Y": "FRBSF期限结构模型估计的10年期期限溢价，用于识别长端上行是否由风险补偿推动。",
     "T10Y2Y": "10年减2年美债利差，观察收益率曲线是否倒挂以及增长/降息预期。",
     "T10Y3M": "10年减3个月美债利差，观察政策短端与长期增长预期的差异。",
     "VIXCLS": "标普500隐含波动率指数，作为证券市场风险偏好和避险需求的确认指标。",
@@ -176,7 +193,13 @@ DATA_FREQUENCY_RULES = {
     "DGS5": ("日频，FRED/H.15国债恒定期限收益率", "通常随H.15数据发布滞后更新", "与上一条有效观测比较，主要看腹部中段再定价。"),
     "DGS7": ("日频，FRED/H.15国债恒定期限收益率", "通常随H.15数据发布滞后更新", "与上一条有效观测比较，主要看腹部偏长端再定价。"),
     "DGS10": ("日频，FRED/H.15国债恒定期限收益率", "通常随H.15数据发布滞后更新", "与上一条有效观测比较，本简报仅作曲线/折现率背景观察。"),
-    "DFII10": ("日频，FRED/H.15 10年期TIPS实际收益率", "通常随H.15数据发布滞后更新", "与上一条有效观测比较，主要看真实贴现率。"),
+    "DFII5": ("日频，Treasury官方5年期TIPS实际恒定期限收益率", "Treasury约美东16:00发布，FRED/H.15为兜底", "与上一条有效观测比较，并与同日DGS5配对分析5Y通胀补偿。"),
+    "DFII7": ("日频，Treasury官方7年期TIPS实际恒定期限收益率", "Treasury约美东16:00发布，FRED/H.15为兜底", "与上一条有效观测比较，并与同日DGS7配对分析7Y通胀补偿。"),
+    "DFII10": ("日频，Treasury官方10年期TIPS实际恒定期限收益率", "Treasury约美东16:00发布，FRED/H.15为兜底", "与上一条有效观测比较，主要看真实贴现率。"),
+    "FRBSF_EXPECTED_SHORT_2Y": ("日频模型估计", "FRBSF Christensen-Rudebusch期限结构模型", "与上一模型估计比较；属于模型隐含平均预期短率，不是调查或期货共识。"),
+    "FRBSF_TERM_PREMIUM_2Y": ("日频模型估计", "FRBSF Christensen-Rudebusch期限结构模型", "与上一模型估计比较，识别2Y收益率中的期限风险补偿。"),
+    "FRBSF_EXPECTED_SHORT_10Y": ("日频模型估计", "FRBSF Christensen-Rudebusch期限结构模型", "与上一模型估计比较；属于长期平均预期短率分量。"),
+    "FRBSF_TERM_PREMIUM_10Y": ("日频模型估计", "FRBSF Christensen-Rudebusch期限结构模型", "与上一模型估计比较，识别10Y收益率中的期限风险补偿。"),
     "T10Y2Y": ("日频，FRED曲线利差", "由10年和2年国债收益率差计算", "与上一条有效观测比较；倒挂或加深倒挂反映增长/降息预期。"),
     "T10Y3M": ("日频，FRED曲线利差", "由10年和3个月国债收益率差计算", "与上一条有效观测比较；常用于观察衰退预期。"),
     "VIXCLS": ("日频，标普500隐含波动率", "通常随CBOE/FRED数据更新", "与上一条有效观测比较，作为证券市场风险偏好确认。"),
@@ -195,6 +218,8 @@ CORE_INDICATOR_IMPACTS = [
     ("TGCR/BGCR", "中高", "帮助确认SOFR变化是否是广泛回购市场压力，而非单点噪音。"),
     ("T-bill拍卖规模 / bid-to-cover / repo fails", "中高", "观察短债供给吸收、货币基金现金分流和抵押品链条压力；拍卖倍数必须和发行规模一起看。"),
     ("1Y / 3Y / 5Y / 7Y国债收益率（腹部组合）", "中高", "1年期看近端政策路径，3年期看中段再定价，5Y/7Y看腹部传导，10年期仅作折现率背景锚。"),
+    ("5Y / 7Y实际收益率与通胀补偿", "中高", "用同期限名义收益率减官方实际收益率，把腹部变化拆成真实贴现率与通胀补偿；通胀补偿不等于纯通胀预期。"),
+    ("FRBSF预期短率 / 期限溢价", "中高", "用期限结构模型区分预期政策路径分量和期限风险补偿；属于模型分解，不是期货或调查共识。"),
     ("10Y名义/实际收益率", "背景", "DGS10名义收益率和DFII10实际收益率仅补充长期折现率背景，不替代1Y/3Y/5Y/7Y腹部主框架，且两者必须分开命名和解释。"),
     ("美元指数 / CP利差 / IG OAS / HY OAS", "中高", "观察压力是否向离岸美元和信用市场扩散，属于传导确认指标。"),
     ("10Y-2Y / 10Y-3M曲线利差", "中高", "长短端利差观察当前政策短端与增长、降息和衰退预期的相对关系。"),
@@ -278,6 +303,31 @@ def http_get_text(url: str, timeout: int = 10, retries: int = 0) -> str:
                     raw = r.read()
                     charset = r.headers.get_content_charset() or "utf-8"
                     return raw.decode(charset, errors="replace")
+            except Exception:
+                pass
+            if attempt < retries:
+                time.sleep(1.0 + attempt)
+    raise RuntimeError(f"GET failed: {url} | {last_error}")
+
+
+def http_get_bytes(url: str, timeout: int = 10, retries: int = 0) -> bytes:
+    last_error: Optional[Exception] = None
+    for attempt in range(retries + 1):
+        try:
+            resp = requests.get(
+                url,
+                headers={"User-Agent": USER_AGENT, "Accept": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,*/*"},
+                timeout=timeout,
+                verify=True,
+            )
+            resp.raise_for_status()
+            return resp.content
+        except Exception as exc:
+            last_error = exc
+            try:
+                req = urllib.request.Request(url, headers={"User-Agent": USER_AGENT, "Accept": "*/*"})
+                with urllib.request.urlopen(req, timeout=timeout) as response:
+                    return response.read()
             except Exception:
                 pass
             if attempt < retries:

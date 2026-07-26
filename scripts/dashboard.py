@@ -96,7 +96,10 @@ def build_charts_payload(series_bundle: Dict[str, List[Tuple[str, float]]], upco
         ("cp_proxy_30d", "企业短融代理利差：最近一月", 35, "bp", [("CP_PROXY", "CP Rate-Policy Upper Proxy（商业票据利率-政策上限代理利差）")]),
         ("credit_oas_30d", "信用利差：最近一月", 35, "%", [("BAMLH0A0HYM2", "HY OAS（高收益债期权调整利差）"), ("BAMLC0A0CM", "IG OAS（投资级公司债期权调整利差）")]),
         ("treasury_yields_30d", "美国国债收益率：1Y / 3Y / 5Y / 7Y 最近一月", 35, "%", [("DGS1", "1Y Treasury Yield（1年期美国国债收益率）"), ("DGS3", "3Y Treasury Yield（3年期美国国债收益率）"), ("DGS5", "5Y Treasury Yield（5年期美国国债收益率）"), ("DGS7", "7Y Treasury Yield（7年期美国国债收益率）"), ("DGS10", "10Y Treasury Yield（10年期美国国债收益率，背景）")]),
-        ("real_yields_30d", "真实贴现率：最近一月", 35, "%", [("DFII10", "10Y Real Yield（10年期TIPS实际收益率）")]),
+        ("real_yields_30d", "官方实际收益率：5Y / 7Y / 10Y 最近一月", 35, "%", [("DFII5", "5Y Real Yield（5年期TIPS实际收益率）"), ("DFII7", "7Y Real Yield（7年期TIPS实际收益率）"), ("DFII10", "10Y Real Yield（10年期TIPS实际收益率）")]),
+        ("inflation_compensation_30d", "腹部通胀补偿：5Y / 7Y 最近一月", 35, "%", [("UST_5Y_BREAKEVEN", "5Y Inflation Compensation（5年期通胀补偿）"), ("UST_7Y_BREAKEVEN", "7Y Inflation Compensation（7年期通胀补偿）")]),
+        ("policy_expectations_30d", "FRBSF模型隐含平均预期短率：最近一月", 35, "%", [("FRBSF_EXPECTED_SHORT_2Y", "2Y Average Expected Short Rate（未来2年平均预期隔夜利率）"), ("FRBSF_EXPECTED_SHORT_10Y", "10Y Average Expected Short Rate（未来10年平均预期隔夜利率）")]),
+        ("term_premium_30d", "FRBSF期限溢价：最近一月", 35, "%", [("FRBSF_TERM_PREMIUM_2Y", "2Y Term Premium（2年期期限溢价）"), ("FRBSF_TERM_PREMIUM_10Y", "10Y Term Premium（10年期期限溢价）")]),
         ("treasury_curve_30d", "美债长短端利差：最近一月", 35, "%", [("T10Y2Y", "10Y-2Y Treasury Spread（10年-2年美债利差）"), ("T10Y3M", "10Y-3M Treasury Spread（10年-3个月美债利差）")]),
         ("risk_appetite_30d", "证券市场风险偏好：最近一月", 35, "index", [("VIXCLS", "VIX（标普500隐含波动率指数）")]),
         ("financial_conditions_30d", "公开金融条件代理：最近一月", 35, "index", [("NFCI", "NFCI（芝加哥联储全国金融条件指数）")]),
@@ -306,7 +309,8 @@ def group_indicators(metrics: List[Metric]) -> List[Dict[str, Any]]:
     group_defs = [
         ("front_end_rates", "短端资金利率", "观察银行间与回购市场资金价格是否偏离政策锚。", ["EFFR", "SOFR", "OBFR", "TGCR", "BGCR", "IORB", "POLICY_UPPER_NYFED"]),
         ("fed_liability", "Fed负债端水位", "观察TGA、RRP、SOMA与准备金水位对银行体系流动性的影响。", ["TGA", "RRPONTSYD", "SOMA", "WRESBAL"]),
-        ("treasury_curve", "国债收益率与曲线", "观察1Y、3Y、5Y、7Y收益率腹部组合、10Y背景折现率和曲线利差的变化。", ["DGS1", "DGS3", "DGS5", "DGS7", "DGS10", "DFII10", "T10Y2Y", "T10Y3M", "DTB3", "DGS3MO", "DGS2"]),
+        ("treasury_curve", "国债收益率与曲线", "观察1Y、3Y、5Y、7Y名义收益率腹部组合、5Y/7Y/10Y官方实际收益率、10Y背景折现率和曲线利差。", ["DGS1", "DGS3", "DGS5", "DGS7", "DFII5", "DFII7", "DGS10", "DFII10", "T10Y2Y", "T10Y3M", "DTB3", "DGS3MO", "DGS2"]),
+        ("market_expectations", "市场预期与期限溢价", "区分FRBSF模型隐含预期短率与期限风险补偿；这些是模型分解，不是期货或调查共识。", ["FRBSF_EXPECTED_SHORT_2Y", "FRBSF_TERM_PREMIUM_2Y", "FRBSF_EXPECTED_SHORT_10Y", "FRBSF_TERM_PREMIUM_10Y"]),
         ("collateral_treasury", "抵押品与国债吸收", "观察SOFR交易量、T-bill拍卖量级/认购倍数、回购抵押品链条和交割压力。", ["SOFR_VOLUME", "TBILL_AUCTION_SIZE", "TBILL_AUCTION_BTC", "UST_AUCTION_BTC", "REPO_FAILS_UST"]),
         ("offshore_credit", "离岸美元、信用与金融条件", "观察压力是否外溢到离岸美元、信用市场和综合金融条件。", ["DTWEXBGS", "DCPN3M", "BAMLC0A0CM", "BAMLH0A0HYM2", "NFCI"]),
         ("securities_risk", "证券市场风险偏好", "观察利率和信用条件是否进一步反映到股票波动率和风险偏好。", ["VIXCLS"]),
@@ -338,8 +342,18 @@ def build_trading_dashboard(metrics: List[Metric], signals: List[DerivedSignal])
         "UST_5Y_YIELD": "DGS5",
         "UST_7Y_YIELD": "DGS7",
         "NOMINAL_10Y": "DGS10",
-        "REAL_10Y": "DGS10",
-        "REAL_10Y_MOMENTUM": "DGS10",
+        "UST_5Y_REAL_LEVEL": "DFII5",
+        "UST_5Y_REAL_CHANGE_BP": "DFII5",
+        "UST_7Y_REAL_LEVEL": "DFII7",
+        "UST_7Y_REAL_CHANGE_BP": "DFII7",
+        "UST_5Y_BREAKEVEN": "DGS5",
+        "UST_7Y_BREAKEVEN": "DGS7",
+        "REAL_10Y": "DFII10",
+        "REAL_10Y_MOMENTUM": "DFII10",
+        "FRBSF_EXPECTED_SHORT_2Y_CHANGE": "FRBSF_EXPECTED_SHORT_2Y",
+        "FRBSF_TERM_PREMIUM_2Y_CHANGE": "FRBSF_TERM_PREMIUM_2Y",
+        "FRBSF_EXPECTED_SHORT_10Y_CHANGE": "FRBSF_EXPECTED_SHORT_10Y",
+        "FRBSF_TERM_PREMIUM_10Y_CHANGE": "FRBSF_TERM_PREMIUM_10Y",
         "HY_CHANGE": "BAMLH0A0HYM2",
         "IG_CHANGE": "BAMLC0A0CM",
         "VIX_RISK": "VIXCLS",
@@ -427,6 +441,12 @@ def build_trading_dashboard(metrics: List[Metric], signals: List[DerivedSignal])
             metric_item("REPO_FAILS_UST", "CONFIRM", "抵押品交割链条"),
             metric_item("DTWEXBGS", "CONFIRM", "离岸美元压力"),
             signal_item("CP_PROXY", "CONFIRM", "企业短融压力代理"),
+            signal_item("UST_5Y_REAL_CHANGE_BP", "CONFIRM", "5Y真实贴现率边际变化"),
+            signal_item("UST_7Y_REAL_CHANGE_BP", "CONFIRM", "7Y真实贴现率边际变化"),
+            signal_item("UST_5Y_BREAKEVEN", "CONFIRM", "5Y通胀补偿，不等同纯通胀预期"),
+            signal_item("UST_7Y_BREAKEVEN", "CONFIRM", "7Y通胀补偿，不等同纯通胀预期"),
+            signal_item("FRBSF_EXPECTED_SHORT_2Y_CHANGE", "CONFIRM", "模型隐含未来2年平均预期短率"),
+            signal_item("FRBSF_TERM_PREMIUM_10Y_CHANGE", "CONFIRM", "长端期限风险补偿"),
         ]),
         "background": compact([
             metric_item("SOMA", "BACKGROUND", "QT结构背景"),
@@ -434,14 +454,16 @@ def build_trading_dashboard(metrics: List[Metric], signals: List[DerivedSignal])
             signal_item("UST_10Y_NOMINAL_CHANGE_BP", "BACKGROUND", "10Y名义收益率边际变化"),
             signal_item("UST_10Y_REAL_LEVEL", "BACKGROUND", "10Y实际收益率水平背景"),
             signal_item("UST_10Y_REAL_CHANGE_BP", "BACKGROUND", "10Y实际收益率边际变化"),
+            signal_item("FRBSF_TERM_PREMIUM_2Y_CHANGE", "BACKGROUND", "2年期期限溢价模型分解"),
+            signal_item("FRBSF_EXPECTED_SHORT_10Y_CHANGE", "BACKGROUND", "未来10年平均预期短率模型分解"),
             signal_item("UST_10Y2Y", "BACKGROUND", "收益率曲线斜率"),
             signal_item("UST_10Y3M", "BACKGROUND", "衰退/降息预期"),
             signal_item("NFCI_LEVEL", "BACKGROUND", "公开金融条件代理"),
         ]),
-        "core_chart_ids": ["anchor_spreads_30d", "fed_liability_30d", "treasury_combined_supply_30d", "us_jp_spread", "treasury_yields_30d", "jpy_usdjpy_funding_1y"],
+        "core_chart_ids": ["anchor_spreads_30d", "fed_liability_30d", "treasury_combined_supply_30d", "treasury_yields_30d", "real_yields_30d", "inflation_compensation_30d", "policy_expectations_30d", "us_jp_spread"],
         "chart_groups": [
-            {"id": "core_monthly", "title": "核心图表", "description": "最近一月核心视图：资金利差、Fed负债端、美债发行、利差、收益率与JPY carry。", "chart_ids": ["anchor_spreads_30d", "fed_liability_30d", "treasury_combined_supply_30d", "us_jp_spread", "treasury_yields_30d", "jpy_usdjpy_funding_1y"], "default_open": True},
-            {"id": "review_background", "title": "背景复盘", "description": "复盘时再看，不占用日常交易主视图。", "chart_ids": ["short_rates_30d", "sofr_volume_30d", "real_yields_30d", "treasury_curve_30d", "cp_proxy_30d", "credit_oas_30d", "risk_appetite_30d", "financial_conditions_30d", "tbill_auction_size_45d", "tbill_auction_btc_45d", "upcoming_tbill_supply_60d", "jpy_jgb_curve_1y", "jpy_cftc_position_2y", "jpy_effective_fx_3y"], "default_open": False},
+            {"id": "core_monthly", "title": "核心图表", "description": "最近一月核心视图：资金利差、Fed负债端、美债供给、名义/实际收益率、通胀补偿与模型隐含政策路径。", "chart_ids": ["anchor_spreads_30d", "fed_liability_30d", "treasury_combined_supply_30d", "treasury_yields_30d", "real_yields_30d", "inflation_compensation_30d", "policy_expectations_30d", "us_jp_spread"], "default_open": True},
+            {"id": "review_background", "title": "背景复盘", "description": "复盘时再看，不占用日常交易主视图。", "chart_ids": ["short_rates_30d", "sofr_volume_30d", "term_premium_30d", "treasury_curve_30d", "cp_proxy_30d", "credit_oas_30d", "risk_appetite_30d", "financial_conditions_30d", "tbill_auction_size_45d", "tbill_auction_btc_45d", "upcoming_tbill_supply_60d", "jpy_usdjpy_funding_1y", "jpy_jgb_curve_1y", "jpy_cftc_position_2y", "jpy_effective_fx_3y"], "default_open": False},
         ],
     }
 
@@ -628,7 +650,7 @@ def build_transmission_chain(context: Dict[str, Any], signals: List[DerivedSigna
     dgs5 = metrics_dict.get("DGS5")
     dgs7 = metrics_dict.get("DGS7")
     dgs10 = metrics_dict.get("DGS10")
-    real_10y = metrics_dict.get("DGS10")
+    real_10y = metrics_dict.get("DFII10")
     curve_10y2y = metrics_dict.get("T10Y2Y")
     curve_10y3m = metrics_dict.get("T10Y3M")
     vix = metrics_dict.get("VIXCLS")

@@ -90,8 +90,18 @@ _SIGNAL_BASE_METRICS = {
     "UST_7Y5Y_SLOPE_BP": "DGS7",
     "UST_10Y_NOMINAL_LEVEL": "DGS10",
     "UST_10Y_NOMINAL_CHANGE_BP": "DGS10",
+    "UST_5Y_REAL_LEVEL": "DFII5",
+    "UST_5Y_REAL_CHANGE_BP": "DFII5",
+    "UST_7Y_REAL_LEVEL": "DFII7",
+    "UST_7Y_REAL_CHANGE_BP": "DFII7",
+    "UST_5Y_BREAKEVEN": "DGS5",
+    "UST_7Y_BREAKEVEN": "DGS7",
     "UST_10Y_REAL_LEVEL": "DFII10",
     "UST_10Y_REAL_CHANGE_BP": "DFII10",
+    "FRBSF_EXPECTED_SHORT_2Y_CHANGE": "FRBSF_EXPECTED_SHORT_2Y",
+    "FRBSF_TERM_PREMIUM_2Y_CHANGE": "FRBSF_TERM_PREMIUM_2Y",
+    "FRBSF_EXPECTED_SHORT_10Y_CHANGE": "FRBSF_EXPECTED_SHORT_10Y",
+    "FRBSF_TERM_PREMIUM_10Y_CHANGE": "FRBSF_TERM_PREMIUM_10Y",
     "NOMINAL_10Y": "DGS10",
     "REAL_10Y": "DFII10",
     "REAL_10Y_MOMENTUM": "DFII10",
@@ -107,12 +117,20 @@ _SIGNAL_BASE_METRICS = {
     "AUCTION_BTC": "UST_AUCTION_BTC",
 }
 
+_SIGNAL_BASE_FACTS = {
+    "UST_5Y_BREAKEVEN": ["DGS5", "DFII5"],
+    "UST_7Y_BREAKEVEN": ["DGS7", "DFII7"],
+}
+
 _TREASURY_CURVE_IDS = {
     "DGS1", "DGS2", "DGS3", "DGS3MO", "DGS5", "DGS7", "DGS10", "T10Y2Y", "T10Y3M",
 }
+_TREASURY_REAL_YIELD_IDS = {"DFII5", "DFII7", "DFII10"}
 
 _SOURCE_PRECEDENCE = {
     "Treasury.gov Daily Par Yield Curve": 600,
+    "Treasury.gov Daily Par Real Yield Curve": 600,
+    "FRBSF Christensen-Rudebusch Model": 575,
     "NY Fed Markets API": 550,
     "Treasury FiscalData": 550,
     "TreasuryDirect": 550,
@@ -140,6 +158,8 @@ _JPY_SOURCE_BY_ID = {
 def _source_rank(metric: Metric) -> int:
     rank = _SOURCE_PRECEDENCE.get(metric.source, 300)
     if metric.id.upper() in _TREASURY_CURVE_IDS and metric.source == "Treasury.gov Daily Par Yield Curve":
+        return 700
+    if metric.id.upper() in _TREASURY_REAL_YIELD_IDS and metric.source == "Treasury.gov Daily Par Real Yield Curve":
         return 700
     return rank
 
@@ -245,6 +265,7 @@ def _build_derived_facts(signals: List[DerivedSignal], metrics: List[Metric]) ->
         candidates = grouped[signal_id]
         selected = max(candidates, key=lambda item: (int(item.value is not None), parse_date_guess(item.as_of) or "", int(item.previous is not None)))
         base_metric_id = _SIGNAL_BASE_METRICS.get(signal_id)
+        base_metric_ids = _SIGNAL_BASE_FACTS.get(signal_id, [base_metric_id] if base_metric_id else [])
         base_metric = mm.get(base_metric_id or "")
         facts.append({
             "fact_id": f"derived:{signal_id}",
@@ -259,7 +280,7 @@ def _build_derived_facts(signals: List[DerivedSignal], metrics: List[Metric]) ->
             "as_of": selected.as_of or (base_metric.as_of if base_metric else None),
             "previous_as_of": base_metric.previous_as_of if base_metric else None,
             "frequency": DATA_FREQUENCY_RULES.get(base_metric_id or signal_id, (base_metric.frequency if base_metric else "derived", "", ""))[0],
-            "base_fact_ids": [f"metric:{base_metric_id}"] if base_metric_id else [],
+            "base_fact_ids": [f"metric:{metric_id}" for metric_id in base_metric_ids],
         })
         if len(candidates) > 1:
             quality_flags.append({
@@ -578,6 +599,7 @@ def build_model_input_package(trigger: str, generated: str, metrics: List[Metric
         "每个 metric ID 已去重，禁止回到来源列表自行二选一，禁止使用旧报告、fallback stance/score/highlights 或图表路径锚定结论。\n"
         "必须按资金价格、流动性数量与缓冲、美债供给与资产定价、跨市场传导与杠杆四轴独立判断后再合成 stance。"
         "必须另按即时（1—3个交易日）、战术（1—4周）、结构（1—3个月）输出 horizon_assessment；数据频率、信号期限和传导滞后不得混用，单日变化不得机械外推为战术趋势。"
+        "美债腹部必须保留1Y/3Y/5Y/7Y名义主框架，并用5Y/7Y官方实际收益率、通胀补偿及FRBSF预期短率/期限溢价分解解释驱动；通胀补偿不是纯通胀预期，FRBSF是模型分解而非期货或调查共识。"
         "P0 market 必须是已实现压力，至少引用两个独立且新鲜的 fact_id 交叉确认；其中融资压力 P0 至少包含一个核心资金价格事实及一个同层或下游确认。"
         "低 RRP 单独只能是 P1 结构脆弱性；未来拍卖 offeringAmount 是 gross announced issuance，不是净融资或确定性准备金消耗。\n"
         "每条 key_takeaway/risk_flag 必须给出 claim_type、跨两数组唯一的 dedupe_key、以及只指向本次事实包的 fact_ids；key_takeaways 只允许 observed，inference/scenario 只进入 risk_flags。\n"
@@ -600,7 +622,7 @@ def build_model_input_package(trigger: str, generated: str, metrics: List[Metric
                 "source_selection_policy": {
                     "dedupe_key": "upper(metric.id)",
                     "selection_order": ["usable status/value", "latest as_of", "explicit source precedence", "previous-value completeness"],
-                    "treasury_curve_precedence": ["Treasury.gov Daily Par Yield Curve", "FRED API", "FRED CSV"],
+                    "treasury_curve_precedence": ["Treasury.gov Daily Par Yield Curve", "Treasury.gov Daily Par Real Yield Curve", "FRBSF Christensen-Rudebusch Model", "FRED API", "FRED CSV"],
                     "rule": "snapshot/SQLite 可保留多来源；模型事实包每个 metric ID 只暴露一个 canonical row，并记录选中原因与备选来源。",
                 },
             },
@@ -608,6 +630,8 @@ def build_model_input_package(trigger: str, generated: str, metrics: List[Metric
                 "quantity_metrics": ["metric:SOFR_VOLUME", "metric:TBILL_AUCTION_SIZE", "metric:TBILL_AUCTION_BTC"],
                 "quantity_signals": ["derived:SOFR_VOLUME_IMPACT", "derived:TBILL_AUCTION_STRESS"],
                 "treasury_belly": ["metric:DGS1", "metric:DGS3", "metric:DGS5", "metric:DGS7"],
+                "real_yield_inflation_decomposition": ["metric:DFII5", "metric:DFII7", "derived:UST_5Y_BREAKEVEN", "derived:UST_7Y_BREAKEVEN"],
+                "expectations_term_premium_model": ["metric:FRBSF_EXPECTED_SHORT_2Y", "metric:FRBSF_TERM_PREMIUM_2Y", "metric:FRBSF_EXPECTED_SHORT_10Y", "metric:FRBSF_TERM_PREMIUM_10Y"],
             },
             "data_frequency_rules": DATA_FREQUENCY_RULES,
             "core_indicator_impacts": CORE_INDICATOR_IMPACTS,
@@ -635,7 +659,8 @@ def build_model_input_package(trigger: str, generated: str, metrics: List[Metric
             "indicator_mention_rule": "text、evidence、narrative_blocks、stance、axis summary、horizon summary 等所有叙述性文字里任何带数字的地方都必须彻底统一：带市场单位的指标数值必须写成 数量（更新时间，环比变化）；日期用完整ISO（如 2026-07-22，区间写至连接），禁止 M/D 简写；滞后天数写成 已滞后 N 日；多指标并列时每个指标分别使用该格式，环比未知时写环比未知。",
             "number_format_rule": "所有输出文本中的数值统一保留两位小数；不得输出浮点长尾。凡提到带市场单位的指标数值，一律写成数量（更新时间，环比变化）；日期用完整ISO，滞后天数写成已滞后 N 日。",
             "rrp_rule": "必须用RRP_FLOW说明边际流量方向，用RRP_BUFFER说明存量缓冲垫厚度；RRP下降短期可释放流动性，但极低RRP_BUFFER仅代表结构脆弱性，单独最高为P1。",
-            "treasury_yields_rule": "国债收益率主框架固定为1Y/3Y/5Y/7Y：1Y近端政策路径、3Y中段再定价、5Y/7Y腹部传导。四个期限都必须拆成水平+边际变化，并直接引用canonical/derived facts；腹部斜率使用脚本预计算事实。10Y仅作曲线/长期名义折现率背景，不替代1Y/3Y/5Y/7Y。",
+            "treasury_yields_rule": "国债收益率名义主框架固定为1Y/3Y/5Y/7Y：1Y近端政策路径、3Y中段再定价、5Y/7Y腹部传导。四个期限都必须拆成水平+边际变化，并直接引用canonical/derived facts；腹部斜率使用脚本预计算事实。10Y仅作曲线/长期名义折现率背景，不替代1Y/3Y/5Y/7Y。",
+            "expectations_decomposition_rule": "1Y/3Y保留名义政策路径口径；官方同口径日频实际收益率从5Y开始。5Y/7Y必须结合DFII5/DFII7与脚本预计算UST_5Y_BREAKEVEN/UST_7Y_BREAKEVEN拆分真实贴现率和通胀补偿。通胀补偿包含预期通胀、风险溢价与TIPS流动性影响，不得称纯通胀预期。FRBSF_EXPECTED_SHORT_2Y/10Y和FRBSF_TERM_PREMIUM_2Y/10Y属于期限结构模型分解，不是SOFR期货直接定价、调查共识或唯一因果结论。归因使用与某驱动一致/候选驱动/置信度表述，不得依赖新闻标题断言唯一原因。",
             "jpy_carry_rule": "JPY Carry按融资成本、美日利差、USD/JPY趋势与波动、CFTC多空拆解、风险资产传导分析。只有cftc_decomposition.driver为short_building或two_sided_building_short_dominant时，才能称空头主导加仓并边际支撑美元；long_unwinding、two_sided_building_long_dominant、two_sided_reduction、mixed或unknown均不得声称carry在加杠杆。水平拥挤与当下流量必须分开。",
             "json_schema_summary": {
                 "stance": ["label", "confidence", "score_text", "one_liner"],
@@ -726,7 +751,7 @@ def _fallback_axis_assessment(signals: List[DerivedSignal]) -> Dict[str, Any]:
     axis_signal_ids = {
         "funding_price": {"SOFR_ANCHOR", "SOFR_VOLUME_IMPACT", "BGCR_TGCR", "CP_PROXY"},
         "liquidity_buffer": {"TGA_FLOW", "RRP_FLOW", "RRP_BUFFER"},
-        "treasury_pricing": {"TBILL_AUCTION_STRESS", "UST_1Y_YIELD", "UST_3Y_YIELD", "UST_5Y_YIELD", "UST_7Y_YIELD"},
+        "treasury_pricing": {"TBILL_AUCTION_STRESS", "UST_1Y_YIELD", "UST_3Y_YIELD", "UST_5Y_YIELD", "UST_7Y_YIELD", "UST_5Y_REAL_CHANGE_BP", "UST_7Y_REAL_CHANGE_BP", "UST_5Y_BREAKEVEN", "UST_7Y_BREAKEVEN", "FRBSF_EXPECTED_SHORT_2Y_CHANGE", "FRBSF_TERM_PREMIUM_10Y_CHANGE"},
         "cross_market_transmission": {"HY_CHANGE", "IG_CHANGE", "VIX_RISK", "VIX_MOMENTUM", "USD_CHANGE", "NFCI_LEVEL"},
     }
     labels = {"紧张": 4, "偏紧": 3, "中性": 2, "偏松": 1, "缺失": 0}
@@ -767,7 +792,7 @@ def _fallback_horizon_assessment(signals: List[DerivedSignal], metrics: List[Met
             "window": "1—4周",
             "summary": "规则摘要不从单日变化外推战术趋势；需要多期方向、美债腹部、信用与杠杆事实。",
             "fact_ids": available_fact_ids(
-                ["UST_BELLY_MOMENTUM", "HY_CHANGE", "IG_CHANGE", "VIX_RISK"],
+                ["UST_BELLY_MOMENTUM", "UST_5Y_REAL_CHANGE_BP", "UST_7Y_REAL_CHANGE_BP", "UST_5Y_BREAKEVEN", "UST_7Y_BREAKEVEN", "FRBSF_EXPECTED_SHORT_2Y_CHANGE", "FRBSF_TERM_PREMIUM_10Y_CHANGE", "HY_CHANGE", "IG_CHANGE", "VIX_RISK"],
                 [],
             )[:6],
         },
@@ -834,8 +859,8 @@ def build_fallback_analysis(generated: str, context: Dict[str, Any], signals: Li
             "market_transmission": "信用、离岸美元、10年期国债收益率和VIX用于确认压力是否外溢到证券市场。",
             "treasury_yields": {
                 "label": "中性",
-                "one_liner": "1Y/3Y/5Y/7Y腹部组合用于拆分近端政策路径、中段再定价与腹部传导，10Y仅作折现率背景。",
-                "analysis": "1Y看近端政策路径，3Y看中段再定价，5Y/7Y看腹部传导，10Y仅作长期名义折现率背景；正式模型分析会结合1Y/3Y/5Y/7Y最新值、边际变化和腹部斜率输出判断，10Y斜率用于衰退/降息预期观察。",
+                "one_liner": "1Y/3Y/5Y/7Y名义腹部组合用于拆分政策路径与腹部传导，5Y/7Y实际收益率、通胀补偿和FRBSF模型用于解释驱动。",
+                "analysis": "1Y看近端政策路径，3Y看中段再定价，5Y/7Y看腹部传导；5Y/7Y官方实际收益率与通胀补偿用于拆分真实贴现率和通胀补偿，FRBSF平均预期短率与期限溢价用于模型分解。所有分解都不是期货或调查共识，10Y仅作长期背景。",
             },
         },
     }

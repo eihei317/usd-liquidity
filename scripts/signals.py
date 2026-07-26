@@ -234,6 +234,139 @@ def derive_signals(metrics: List[Metric]) -> Tuple[List[DerivedSignal], float, L
     add_belly_slope("UST_5Y3Y_SLOPE_BP", "5Y-3Y Treasury Slope（5年-3年美债斜率）", dgs5, dgs3)
     add_belly_slope("UST_7Y5Y_SLOPE_BP", "7Y-5Y Treasury Slope（7年-5年美债斜率）", dgs7, dgs5)
 
+    def add_real_yield_decomposition(tenor: str, nominal_id: str, real_id: str) -> None:
+        nominal = mm.get(nominal_id)
+        real = mm.get(real_id)
+        if not nominal or not real or nominal.value is None or real.value is None:
+            return
+        real_change_bp = real.change * 100.0 if real.change is not None else None
+        if real_change_bp is not None and real_change_bp > 5.0:
+            real_severity = "偏紧"
+            real_text = f"{tenor}官方实际收益率显著上行，腹部真实贴现率压力增强。"
+        elif real_change_bp is not None and real_change_bp < -5.0:
+            real_severity = "偏松"
+            real_text = f"{tenor}官方实际收益率显著下行，腹部真实贴现率压力缓和。"
+        else:
+            real_severity = "中性"
+            real_text = f"{tenor}官方实际收益率边际变化有限。"
+        add_signal(
+            f"UST_{tenor}_REAL_LEVEL",
+            f"{tenor} Real Treasury Yield（{tenor}美国TIPS实际收益率）",
+            real.value,
+            "%",
+            real_text,
+            real_severity,
+            0.0,
+            previous=real.previous,
+            as_of=real.as_of,
+        )
+        if real_change_bp is not None:
+            add_signal(
+                f"UST_{tenor}_REAL_CHANGE_BP",
+                f"{tenor} Real Treasury Yield Change（{tenor}美国TIPS实际收益率变化）",
+                real_change_bp,
+                "bp",
+                real_text,
+                real_severity,
+                0.0,
+                as_of=real.as_of,
+            )
+
+        # Inflation compensation must use matched dates. It contains expected inflation plus risk/liquidity premia.
+        if nominal.as_of != real.as_of:
+            return
+        breakeven = nominal.value - real.value
+        breakeven_previous = None
+        if (
+            nominal.previous is not None
+            and real.previous is not None
+            and nominal.previous_as_of == real.previous_as_of
+        ):
+            breakeven_previous = nominal.previous - real.previous
+        breakeven_change_bp = (
+            (breakeven - breakeven_previous) * 100.0
+            if breakeven_previous is not None
+            else None
+        )
+        if breakeven_change_bp is not None and breakeven_change_bp > 5.0:
+            breakeven_severity = "偏紧"
+            breakeven_text = f"{tenor}通胀补偿显著上升，名义收益率上行中通胀补偿贡献增强；该指标不是纯通胀预期。"
+        elif breakeven_change_bp is not None and breakeven_change_bp < -5.0:
+            breakeven_severity = "偏松"
+            breakeven_text = f"{tenor}通胀补偿显著回落，名义收益率中的通胀补偿压力缓和；该指标不是纯通胀预期。"
+        else:
+            breakeven_severity = "中性"
+            breakeven_text = f"{tenor}通胀补偿边际变化有限；它包含通胀预期、通胀风险溢价与TIPS流动性影响。"
+        add_signal(
+            f"UST_{tenor}_BREAKEVEN",
+            f"{tenor} Breakeven Inflation Compensation（{tenor}通胀补偿）",
+            breakeven,
+            "%",
+            breakeven_text,
+            breakeven_severity,
+            0.0,
+            previous=breakeven_previous,
+            as_of=nominal.as_of,
+        )
+
+    add_real_yield_decomposition("5Y", "DGS5", "DFII5")
+    add_real_yield_decomposition("7Y", "DGS7", "DFII7")
+
+    def add_frbsf_model_signal(metric_id: str, signal_id: str, name: str, component: str) -> None:
+        metric = mm.get(metric_id)
+        if not metric or metric.value is None:
+            return
+        change_bp = metric.change * 100.0 if metric.change is not None else None
+        if change_bp is not None and change_bp > 5.0:
+            severity = "偏紧"
+            direction = "显著上行"
+        elif change_bp is not None and change_bp < -5.0:
+            severity = "偏松"
+            direction = "显著下行"
+        else:
+            severity = "中性"
+            direction = "边际变化有限"
+        interpretation = (
+            f"FRBSF期限结构模型的{component}{direction}。这是模型隐含分解，"
+            "不是SOFR期货直接定价、调查共识或可验证的单一因果解释。"
+        )
+        add_signal(
+            signal_id,
+            name,
+            metric.value,
+            "%",
+            interpretation,
+            severity,
+            0.0,
+            previous=metric.previous,
+            as_of=metric.as_of,
+        )
+
+    add_frbsf_model_signal(
+        "FRBSF_EXPECTED_SHORT_2Y",
+        "FRBSF_EXPECTED_SHORT_2Y_CHANGE",
+        "FRBSF 2Y Average Expected Short Rate（FRBSF未来2年平均预期隔夜利率）",
+        "未来2年平均预期隔夜利率",
+    )
+    add_frbsf_model_signal(
+        "FRBSF_TERM_PREMIUM_2Y",
+        "FRBSF_TERM_PREMIUM_2Y_CHANGE",
+        "FRBSF 2Y Term Premium（FRBSF 2年期期限溢价）",
+        "2年期期限溢价",
+    )
+    add_frbsf_model_signal(
+        "FRBSF_EXPECTED_SHORT_10Y",
+        "FRBSF_EXPECTED_SHORT_10Y_CHANGE",
+        "FRBSF 10Y Average Expected Short Rate（FRBSF未来10年平均预期隔夜利率）",
+        "未来10年平均预期隔夜利率",
+    )
+    add_frbsf_model_signal(
+        "FRBSF_TERM_PREMIUM_10Y",
+        "FRBSF_TERM_PREMIUM_10Y_CHANGE",
+        "FRBSF 10Y Term Premium（FRBSF 10年期期限溢价）",
+        "10年期期限溢价",
+    )
+
     dgs10 = mm.get("DGS10")
     if dgs10 and dgs10.value is not None:
         nominal_change_bp = dgs10.change * 100.0 if dgs10.change is not None else None

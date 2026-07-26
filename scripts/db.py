@@ -452,6 +452,49 @@ def ingest_snapshot(snapshot_path: str, db_conn: Optional[sqlite3.Connection] = 
         except Exception as e:
             print(f'  [WARN] skip {metric_id}@{as_of}: {e}')
             skipped_m += 1
+            continue
+
+        # Optional official/model history seed. It is fetched during the snapshot stage,
+        # stored inside metric.extra, then ingested here so charts still read SQLite only.
+        history = (m.get('extra') or {}).get('history') if isinstance(m.get('extra'), dict) else None
+        if isinstance(history, list):
+            ordered = sorted(
+                [row for row in history if isinstance(row, dict) and row.get('date') and row.get('value') is not None],
+                key=lambda row: str(row.get('date')),
+            )
+            for index, row in enumerate(ordered):
+                history_date = str(row.get('date'))
+                history_value = row.get('value')
+                prior_value = ordered[index - 1].get('value') if index > 0 else None
+                history_change = (
+                    history_value - prior_value
+                    if isinstance(history_value, (int, float)) and isinstance(prior_value, (int, float))
+                    else None
+                )
+                try:
+                    c.execute(
+                        '''INSERT INTO metrics_ts
+                            (metric_id, metric_name, category, as_of, value, previous, change,
+                             unit, frequency, source, source_url, status, stale_days,
+                             snapshot_file, ingested_at)
+                        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+                        ON CONFLICT(metric_id, as_of) DO UPDATE SET
+                            value         = excluded.value,
+                            previous      = excluded.previous,
+                            change        = excluded.change,
+                            unit          = excluded.unit,
+                            frequency     = excluded.frequency,
+                            source        = excluded.source,
+                            source_url    = excluded.source_url,
+                            status        = excluded.status,
+                            snapshot_file = excluded.snapshot_file,
+                            ingested_at   = excluded.ingested_at''',
+                        (metric_id, metric_name, category, history_date, history_value, prior_value,
+                         history_change, unit, frequency, source, source_url, 'ok', None,
+                         snapshot_file, ingested_at)
+                    )
+                except Exception as e:
+                    print(f'  [WARN] skip history {metric_id}@{history_date}: {e}')
 
     derived = snap.get('derived_signals', [])
     inserted_d = 0

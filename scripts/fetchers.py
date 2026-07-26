@@ -7,8 +7,11 @@ import csv
 import io
 import json
 import math
+import re
 import time
 import urllib.parse
+import xml.etree.ElementTree as ET
+import zipfile
 from datetime import datetime, timedelta
 from typing import Any, Dict, List, Optional, Tuple
 
@@ -21,6 +24,7 @@ from .utils import (
     error_metric,
     fiscal_amount_to_bn,
     get_fred_api_key,
+    http_get_bytes,
     http_get_json,
     http_get_text,
     make_metric,
@@ -179,6 +183,11 @@ def fetch_treasury_par_yield_curve() -> Dict[str, Any]:
 
         latest = parse_row(rows[1])          # most recent (CSV is date-descending)
         previous = parse_row(rows[2]) if len(rows) > 2 else {}
+        history_by_mid: Dict[str, List[Tuple[str, float]]] = {metric_id: [] for metric_id in col_map.values()}
+        for raw_row in rows[1:]:
+            parsed_row = parse_row(raw_row)
+            for metric_id, point in parsed_row.items():
+                history_by_mid.setdefault(metric_id, []).append(point)
         result: Dict[str, Any] = {}
         for name in col_to_mid:
             mid = col_to_mid[name]
@@ -189,6 +198,12 @@ def fetch_treasury_par_yield_curve() -> Dict[str, Any]:
                     "daily / same-day (Treasury 4pm ET)",
                     "Treasury.gov Daily Par Yield Curve", url,
                     notes="同日源：Treasury.gov 每日国债收益率曲线，约美东16:00发布，比FRED T+1快一天；FRED为兜底",
+                    extra={
+                        "history": [
+                            {"date": date, "value": value}
+                            for date, value in sorted(history_by_mid.get(mid, []), key=lambda item: item[0])[-120:]
+                        ]
+                    },
                 )
         # curve spreads computed from same-day levels
         d10, d2, d3m = result.get("DGS10"), result.get("DGS2"), result.get("DGS3MO")
@@ -217,6 +232,189 @@ def fetch_treasury_par_yield_curve() -> Dict[str, Any]:
         return result
     except Exception:
         return {}
+
+
+def fetch_treasury_par_real_yield_curve() -> Dict[str, Metric]:
+    """Fetch same-day Treasury par real yields for the official 5Y/7Y/10Y tenors."""
+    year = datetime.now(UTC).year
+    url = (
+        f"https://home.treasury.gov/resource-center/data-chart-center/interest-rates/"
+        f"daily-treasury-rates.csv/{year}/all?type=daily_treasury_real_yield_curve"
+        f"&field_tdr_date_value={year}&page&_format=csv"
+    )
+    try:
+        text = http_get_text(url, timeout=15, retries=2)
+        reader = csv.DictReader(io.StringIO(text))
+        parsed: Dict[str, List[Tuple[str, float]]] = {"DFII5": [], "DFII7": [], "DFII10": []}
+        column_map = {"DFII5": "5 YR", "DFII7": "7 YR", "DFII10": "10 YR"}
+        for row in reader:
+            date = parse_date_guess(row.get("Date") or row.get("DATE"))
+            if not date:
+                continue
+            for metric_id, column in column_map.items():
+                value = safe_float(row.get(column))
+                if value is not None:
+                    parsed[metric_id].append((date, value))
+        names = {
+            "DFII5": "5-year Treasury inflation-indexed security real yield",
+            "DFII7": "7-year Treasury inflation-indexed security real yield",
+            "DFII10": "10-year Treasury inflation-indexed security real yield",
+        }
+        result: Dict[str, Metric] = {}
+        for metric_id, rows in parsed.items():
+            rows = sorted(rows, key=lambda item: item[0])
+            if not rows:
+                continue
+            result[metric_id] = make_metric(
+                metric_id,
+                names[metric_id],
+                "国债实际收益率/通胀补偿",
+                rows[-1],
+                rows[-2] if len(rows) >= 2 else None,
+                "%",
+                "daily / same-day (Treasury 4pm ET)",
+                "Treasury.gov Daily Par Real Yield Curve",
+                url,
+                notes=(
+                    "Treasury official par real constant-maturity yield. Official daily real tenors start at 5Y; "
+                    "there are no same-method official 1Y/3Y real constant-maturity rates."
+                ),
+                extra={"history": [{"date": date, "value": value} for date, value in rows[-120:]]},
+            )
+        return result
+    except Exception:
+        return {}
+
+
+def _xlsx_sheet_rows(content: bytes, sheet_name: str) -> List[List[str]]:
+    """Read primitive cell values from one XLSX sheet using only the standard library."""
+    spreadsheet_ns = "http://schemas.openxmlformats.org/spreadsheetml/2006/main"
+    relationship_ns = "http://schemas.openxmlformats.org/officeDocument/2006/relationships"
+    ns = {"m": spreadsheet_ns}
+    with zipfile.ZipFile(io.BytesIO(content)) as archive:
+        shared_strings: List[str] = []
+        if "xl/sharedStrings.xml" in archive.namelist():
+            root = ET.fromstring(archive.read("xl/sharedStrings.xml"))
+            for item in root.findall("m:si", ns):
+                shared_strings.append("".join(node.text or "" for node in item.iter(f"{{{spreadsheet_ns}}}t")))
+        workbook = ET.fromstring(archive.read("xl/workbook.xml"))
+        relationships = ET.fromstring(archive.read("xl/_rels/workbook.xml.rels"))
+        targets = {item.attrib["Id"]: item.attrib["Target"] for item in relationships}
+        target = None
+        sheets = workbook.find("m:sheets", ns)
+        if sheets is not None:
+            for sheet in sheets:
+                if sheet.attrib.get("name") == sheet_name:
+                    rel_id = sheet.attrib.get(f"{{{relationship_ns}}}id")
+                    target = targets.get(rel_id or "")
+                    break
+        if not target:
+            raise ValueError(f"XLSX sheet missing: {sheet_name}")
+        sheet_path = target.lstrip("/")
+        if not sheet_path.startswith("xl/"):
+            sheet_path = f"xl/{sheet_path}"
+        sheet_root = ET.fromstring(archive.read(sheet_path))
+        output: List[List[str]] = []
+        for row in sheet_root.findall(".//m:sheetData/m:row", ns):
+            values: Dict[int, str] = {}
+            for cell in row.findall("m:c", ns):
+                reference = cell.attrib.get("r", "A1")
+                match = re.match(r"([A-Z]+)", reference)
+                if not match:
+                    continue
+                column = 0
+                for letter in match.group(1):
+                    column = column * 26 + (ord(letter) - 64)
+                value_node = cell.find("m:v", ns)
+                value = value_node.text if value_node is not None and value_node.text is not None else ""
+                if cell.attrib.get("t") == "s" and value:
+                    value = shared_strings[int(value)]
+                elif cell.attrib.get("t") == "inlineStr":
+                    value = "".join(node.text or "" for node in cell.iter(f"{{{spreadsheet_ns}}}t"))
+                values[column - 1] = value
+            if values:
+                output.append([values.get(index, "") for index in range(max(values) + 1)])
+        return output
+
+
+def _excel_serial_date(value: Any) -> Optional[str]:
+    serial = safe_float(value)
+    if serial is None:
+        return parse_date_guess(value)
+    try:
+        return (datetime(1899, 12, 30) + timedelta(days=serial)).date().isoformat()
+    except (OverflowError, ValueError):
+        return None
+
+
+def fetch_frbsf_term_premium_metrics() -> List[Metric]:
+    """Fetch FRBSF CR-model expected short-rate and term-premium decompositions."""
+    source_page = "https://www.frbsf.org/research-and-insights/data-and-indicators/treasury-yield-premiums/"
+    fetch_url = "https://www.frbsf.org/wp-content/uploads/FRBSF_Term_Web_Chart_Data.xlsx"
+    specs = [
+        ("Two_year_decomposition", "FRBSF_EXPECTED_SHORT_2Y", "FRBSF average expected overnight rate over next 2 years", 2),
+        ("Two_year_decomposition", "FRBSF_TERM_PREMIUM_2Y", "FRBSF 2-year Treasury term premium", 3),
+        ("Ten_year_decomposition", "FRBSF_EXPECTED_SHORT_10Y", "FRBSF average expected overnight rate over next 10 years", 2),
+        ("Ten_year_decomposition", "FRBSF_TERM_PREMIUM_10Y", "FRBSF 10-year Treasury term premium", 3),
+    ]
+    try:
+        content = http_get_bytes(fetch_url, timeout=30, retries=2)
+        rows_by_sheet = {
+            sheet_name: _xlsx_sheet_rows(content, sheet_name)
+            for sheet_name in {spec[0] for spec in specs}
+        }
+        metrics: List[Metric] = []
+        for sheet_name, metric_id, name, column_index in specs:
+            parsed: List[Tuple[str, float]] = []
+            for row in rows_by_sheet.get(sheet_name, [])[1:]:
+                if len(row) <= column_index:
+                    continue
+                date = _excel_serial_date(row[0])
+                value = safe_float(row[column_index])
+                if date and value is not None:
+                    parsed.append((date, value))
+            parsed = sorted(parsed, key=lambda item: item[0])
+            latest = parsed[-1] if parsed else None
+            previous = parsed[-2] if len(parsed) >= 2 else None
+            notes = (
+                "FRBSF Christensen-Rudebusch affine term-structure model estimate. "
+                "This is a model-implied risk-neutral decomposition, not a survey consensus or directly traded futures price."
+            )
+            metrics.append(
+                make_metric(
+                    metric_id,
+                    name,
+                    "市场预期/期限溢价",
+                    latest,
+                    previous,
+                    "%",
+                    "daily / model estimate",
+                    "FRBSF Christensen-Rudebusch Model",
+                    source_page,
+                    status="ok" if latest else "unavailable",
+                    notes=notes,
+                    extra={
+                        "fetch_url": fetch_url,
+                        "sheet": sheet_name,
+                        "history": [{"date": date, "value": value} for date, value in parsed[-120:]],
+                    },
+                )
+            )
+        return metrics
+    except Exception as exc:
+        return [
+            error_metric(
+                metric_id,
+                name,
+                "市场预期/期限溢价",
+                "%",
+                "daily / model estimate",
+                "FRBSF Christensen-Rudebusch Model",
+                source_page,
+                exc,
+            )
+            for _, metric_id, name, _ in specs
+        ]
 
 
 def fetch_tga() -> Metric:
@@ -595,7 +793,9 @@ def fetch_all_metrics(auction_lookback_days: int) -> List[Metric]:
         lambda: fetch_fred_series("DGS5", "5-year Treasury constant maturity yield", "国债收益率/曲线", "%", "daily T+1"),
         lambda: fetch_fred_series("DGS7", "7-year Treasury constant maturity yield", "国债收益率/曲线", "%", "daily T+1"),
         lambda: fetch_fred_series("DGS10", "10-year Treasury constant maturity yield", "国债收益率/曲线", "%", "daily T+1"),
-        lambda: fetch_fred_series("DFII10", "10-year Treasury inflation-indexed security real yield", "国债收益率/曲线", "%", "daily T+1"),
+        lambda: fetch_fred_series("DFII5", "5-year Treasury inflation-indexed security real yield", "国债实际收益率/通胀补偿", "%", "daily T+1"),
+        lambda: fetch_fred_series("DFII7", "7-year Treasury inflation-indexed security real yield", "国债实际收益率/通胀补偿", "%", "daily T+1"),
+        lambda: fetch_fred_series("DFII10", "10-year Treasury inflation-indexed security real yield", "国债实际收益率/通胀补偿", "%", "daily T+1"),
         lambda: fetch_fred_series("T10Y2Y", "10-year minus 2-year Treasury spread", "国债收益率/曲线", "%", "daily T+1"),
         lambda: fetch_fred_series("T10Y3M", "10-year minus 3-month Treasury spread", "国债收益率/曲线", "%", "daily T+1"),
         lambda: fetch_fred_series("VIXCLS", "CBOE Volatility Index: VIX", "证券市场风险偏好", "index", "daily T+1"),
@@ -611,6 +811,7 @@ def fetch_all_metrics(auction_lookback_days: int) -> List[Metric]:
                 index = future_to_index[future]
                 metrics.append(error_metric(f"JOB_{index}", "Uncaught fetch job error", "系统", "", "unknown", "internal", "", exc))
     metrics.extend(fetch_tbill_auction_metrics(auction_lookback_days))
+    metrics.extend(fetch_frbsf_term_premium_metrics())
     for job in fred_jobs:
         metrics.append(job())
         time.sleep(0.15)
@@ -620,6 +821,9 @@ def fetch_all_metrics(auction_lookback_days: int) -> List[Metric]:
     ty = fetch_treasury_par_yield_curve()
     if ty:
         metrics.extend(ty.values())
+    real_yields = fetch_treasury_par_real_yield_curve()
+    if real_yields:
+        metrics.extend(real_yields.values())
     add_synthetic_policy_anchor(metrics)
     metrics.sort(key=lambda m: (m.category, m.id))
     return metrics

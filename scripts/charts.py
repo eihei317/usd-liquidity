@@ -394,7 +394,8 @@ def fetch_chart_series(days: int = 40) -> Dict[str, List[Tuple[str, float]]]:
         "EFFR", "SOFR", "TGCR", "BGCR", "OBFR", "IORB", "POLICY_UPPER_NYFED",
         "SOFR_VOLUME", "TBILL_AUCTION_SIZE", "TBILL_AUCTION_BTC",
         "RRPONTSYD", "TGA", "DCPN3M", "DTB3", "DGS3MO", "DGS1", "DGS2",
-        "DGS3", "DGS5", "DGS7", "DGS10", "DFII10", "T10Y2Y", "T10Y3M",
+        "DGS3", "DGS5", "DGS7", "DGS10", "DFII5", "DFII7", "DFII10", "T10Y2Y", "T10Y3M",
+        "FRBSF_EXPECTED_SHORT_2Y", "FRBSF_TERM_PREMIUM_2Y", "FRBSF_EXPECTED_SHORT_10Y", "FRBSF_TERM_PREMIUM_10Y",
         "BAMLH0A0HYM2", "BAMLC0A0CM", "VIXCLS", "NFCI", "DTWEXBGS",
     ]
     for metric_id in metric_ids:
@@ -411,7 +412,10 @@ def fetch_chart_series(days: int = 40) -> Dict[str, List[Tuple[str, float]]]:
         series["POLICY"] = series["POLICY_UPPER_NYFED"]
 
     # Prefer stored derived signals so chart values match the model input.
-    for signal_id in ("SOFR_ANCHOR", "BGCR_TGCR", "CP_PROXY"):
+    for signal_id in (
+        "SOFR_ANCHOR", "BGCR_TGCR", "CP_PROXY",
+        "UST_5Y_BREAKEVEN", "UST_7Y_BREAKEVEN",
+    ):
         rows = db_derived_series(signal_id, days)
         if rows:
             series[signal_id] = rows
@@ -421,6 +425,10 @@ def fetch_chart_series(days: int = 40) -> Dict[str, List[Tuple[str, float]]]:
         series["SOFR_ANCHOR"] = align_spread(series["SOFR"], series["POLICY"])
     if not series.get("BGCR_TGCR") and series.get("BGCR") and series.get("TGCR"):
         series["BGCR_TGCR"] = align_spread(series["BGCR"], series["TGCR"])
+    if series.get("DGS5") and series.get("DFII5"):
+        series["UST_5Y_BREAKEVEN"] = align_spread(series["DGS5"], series["DFII5"], multiplier=1.0)
+    if series.get("DGS7") and series.get("DFII7"):
+        series["UST_7Y_BREAKEVEN"] = align_spread(series["DGS7"], series["DFII7"], multiplier=1.0)
 
     return series
 

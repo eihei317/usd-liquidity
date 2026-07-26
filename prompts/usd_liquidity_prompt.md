@@ -103,7 +103,7 @@
 
 ## 4. 强制使用脚本预计算事实
 
-1. SOFR-policy spread、SOFR_VOLUME_IMPACT、TBILL_AUCTION_STRESS、TGA_FLOW、RRP_FLOW、RRP_BUFFER、1Y/3Y/5Y/7Y 收益率 bp 变化、5Y-3Y 与 7Y-5Y 斜率、信用/VIX 变化等，必须直接引用 `derived_facts`。
+1. SOFR-policy spread、SOFR_VOLUME_IMPACT、TBILL_AUCTION_STRESS、TGA_FLOW、RRP_FLOW、RRP_BUFFER、1Y/3Y/5Y/7Y 收益率 bp 变化、5Y-3Y 与 7Y-5Y 斜率、5Y/7Y实际收益率变化与通胀补偿、FRBSF预期短率与期限溢价变化、信用/VIX 变化等，必须直接引用 `derived_facts`。
 2. 禁止自行用原始利率相减或从图表估值。所需衍生事实缺失时标为数据风险，不得自行补算。
 3. 数值统一保留两位小数；不得输出浮点长尾。
 4. 每条主张的 `fact_ids` 必须与 evidence 中的数值一致。
@@ -145,14 +145,31 @@
 - 10Y 仅作曲线和长期名义折现率背景；DFII10 是实际收益率背景。不得把 DGS10 名义收益率称为 TIPS 实际收益率。
 - 10Y-2Y、10Y-3M 只作增长/降息预期背景，不能替代 1Y/3Y/5Y/7Y。
 
-### 7.3 信用、波动与离岸美元
+### 7.3 真实收益率、通胀补偿与市场预期
+
+1. 1Y/3Y仍使用名义收益率观察近端政策路径。官方同口径日频TIPS实际恒定期限从5Y开始，没有官方1Y/3Y序列；不得用合成1Y/3Y真实收益率替代名义主框架。
+2. 5Y/7Y必须同时观察：
+   - 名义收益率 `DGS5/DGS7`；
+   - 官方实际收益率 `DFII5/DFII7`；
+   - 脚本预计算的 `UST_5Y_BREAKEVEN/UST_7Y_BREAKEVEN`。
+3. 通胀补偿是同期限名义收益率减实际收益率，包含预期通胀、通胀风险溢价和TIPS流动性影响；只能称“通胀补偿”，不得直接称纯通胀预期。
+4. `FRBSF_EXPECTED_SHORT_2Y/10Y` 与 `FRBSF_TERM_PREMIUM_2Y/10Y` 来自Christensen-Rudebusch期限结构模型，用于把收益率拆为平均预期短率与期限溢价。它们是模型隐含分解，不是SOFR期货直接定价、��查共识，也不是唯一因果真相。
+5. 市场预期叙述必须标明测量类型：
+   - `direct_market_pricing`：期货/期权直接定价；本次事实包若缺失，不得假装存在。
+   - `survey`：调查共识；本次事实包若缺失，不得用模型值冒充。
+   - `model_decomposition`：FRBSF等期限结构模型。
+   - `inflation_compensation`：名义减实际的通胀补偿。
+   - `proxy_or_confirmation`：1Y/3Y重定价、曲线形态或跨市场反应代理。
+6. 归因只能写成“与政策路径上修/期限溢价上升/通胀补偿变化一致”。当多个分量同向或数据不完整时，写主导候选、次要候选和置信度，不得根据新闻标题断言唯一原因。
+
+### 7.4 信用、波动与离岸美元
 
 - IG/HY OAS 上行才表示信用风险溢价扩大；HY 更接近风险资产压力。
 - VIX 必须拆成水平和边际变化。VIX 上行只有在信用或融资事实同步确认时，才说明压力进入融资链条。
 - NFCI 是公开金融条件代理，不是高盛 FCI。
 - 无免费官方 cross-currency basis 时，可用 DTWEXBGS 作为公开替代，但必须标明代理属性。
 
-### 7.4 JPY carry
+### 7.5 JPY carry
 
 按 JPY 融资成本 → 美日利差 → USD/JPY 趋势与波动 → CFTC 多空拆解 → 风险资产传导分析。
 
@@ -224,8 +241,8 @@
     "market_transmission": "跨市场传导轴解释",
     "treasury_yields": {
       "label": "偏松|中性|偏紧",
-      "one_liner": "1Y/3Y/5Y/7Y 腹部组合判断，10Y仅作背景",
-      "analysis": "引用脚本预计算事实，覆盖四期限水平、bp变化及5Y-3Y/7Y-5Y斜率"
+      "one_liner": "1Y/3Y/5Y/7Y 名义腹部组合判断，并用5Y/7Y实际收益率、通胀补偿及FRBSF模型分解解释驱动",
+      "analysis": "引用脚本预计算事实，覆盖名义收益率水平与bp变化、5Y-3Y/7Y-5Y斜率、5Y/7Y真实贴现率与通胀补偿、FRBSF平均预期短率与期限溢价；明确测量类型与归因置信度"
     },
     "jpy_carry": {
       "label": "偏紧|中性|偏松|数据不足",
@@ -248,6 +265,8 @@
 8. 是否 gross offering 被错误写成净融资或确定性准备金消耗。
 9. 是否每条 takeaway/risk 都有合法 `claim_type`、唯一 `dedupe_key`、非空 `fact_ids`。
 10. 是否 takeaway 与 risk 没有重复主题。
-11. 是否保持 1Y/3Y/5Y/7Y 主框架，并仅把 10Y 当背景。
-12. 是否 SOFR 与已完成 T-bill 拍卖分析包含量级事实。
-13. 是否所有叙述性文字中的指标数值都写成 数量（更新时间，环比变化），日期用完整 ISO，滞后天数写成 已滞后 N 日，没有浮点长尾、Markdown 表、代码围栏或 JSON 外说明。
+11. 是否保持 1Y/3Y/5Y/7Y 名义主框架，并仅把 10Y 当背景。
+12. 是否用5Y/7Y实际收益率与通胀补偿解释腹部驱动，并避免把通胀补偿称为纯通胀预期。
+13. 是否把FRBSF预期短率/期限溢价明确称为模型分解，而非期货直接定价、调查共识或唯一因果结论。
+14. 是否 SOFR 与已完成 T-bill 拍卖分析包含量级事实。
+15. 是否所有叙述性文字中的指标数值都写成 数量（更新时间，环比变化），日期用完整 ISO，滞后天数写成 已滞后 N 日，没有浮点长尾、Markdown 表、代码围栏或 JSON 外说明。
