@@ -1,6 +1,6 @@
 {
   "meta": {
-    "generated_at_bjt": "2026-07-31 15:15:26 UTC+08:00",
+    "generated_at_bjt": "2026-08-05 20:33:38 UTC+08:00",
     "model": "rule_summary",
     "prompt_file": "/Users/eiheisun/WorkBuddy/2026-05-04-task-1/prompts/jpy_usd_carry_liquidity_prompt.md",
     "note": "模型分析可基于 jpy_carry_model_input.json 覆盖本文件。"
@@ -10,11 +10,11 @@
     "score": 3.0,
     "reasons": [
       "CFTC日元非商业净空头占未平仓合约比例偏高",
-      "VIX上行，全球风险偏好转弱",
+      "USD/JPY近20日下跌，日元升值会触发carry回补",
       "美日10Y利差处于相对较窄区域，收益端安全垫下降"
     ]
   },
-  "one_liner": "日元 carry unwind 风险为中性偏高；CFTC日元非商业净空头占未平仓合约比例偏高；VIX上行，全球风险偏好转弱",
+  "one_liner": "日元 carry unwind 风险为中性偏高；CFTC日元非商业净空头占未平仓合约比例偏高；USD/JPY近20日下跌，日元升值会触发carry回补",
   "dashboard_modules": [
     {
       "module": "日元融资端",
@@ -25,26 +25,26 @@
     {
       "module": "美日利差",
       "status": "仍有carry收益",
-      "evidence": "187bp",
+      "evidence": "189bp",
       "explanation": "美日长端利差越宽，carry收益端越顺风"
     },
     {
       "module": "汇率与波动",
       "status": "未触发unwind",
-      "evidence": "163.69 / vol 5.28%",
+      "evidence": "156.77 / vol 11.78%",
       "explanation": "快速日元升值和波动率上升才是核心触发。"
     },
     {
       "module": "仓位拥挤度(净)",
       "status": "拥挤",
-      "evidence": "-35.9%",
-      "explanation": "净空头边际变化需拆分：空头主动加仓主导（空头 +21,087.0 口、多头 -8,375.0 口、空头占比 +3.41%、净头寸 -29,462.0 口）：净空头与空头占比同步增加，构成 carry 资金流对美元的边际支撑。"
+      "evidence": "-37.8%",
+      "explanation": "净空头边际变化需拆分：多头平仓主导（空头 +4,968.0 口、多头 -6,319.0 口、空头占比 +1.62%、净头寸 -11,287.0 口）：虽有少量空头增加，但净空头扩张主要来自多头离场，不能解读为 carry 资金流支撑美元。"
     },
     {
       "module": "空头真实强度",
-      "status": "空头强化",
-      "evidence": "70.7%",
-      "explanation": "空头主动加仓主导（空头 +21,087.0 口、多头 -8,375.0 口、空头占比 +3.41%、净头寸 -29,462.0 口）：净空头与空头占比同步增加，构成 carry 资金流对美元的边际支撑。"
+      "status": "多头平仓",
+      "evidence": "72.3%",
+      "explanation": "多头平仓主导（空头 +4,968.0 口、多头 -6,319.0 口、空头占比 +1.62%、净头寸 -11,287.0 口）：虽有少量空头增加，但净空头扩张主要来自多头离场，不能解读为 carry 资金流支撑美元。"
     }
   ],
   "watchlist": [
