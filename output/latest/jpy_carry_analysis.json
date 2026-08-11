@@ -1,50 +1,49 @@
 {
   "meta": {
-    "generated_at_bjt": "2026-08-05 20:33:38 UTC+08:00",
+    "generated_at_bjt": "2026-08-11 10:53:58 UTC+08:00",
     "model": "rule_summary",
     "prompt_file": "/Users/eiheisun/WorkBuddy/2026-05-04-task-1/prompts/jpy_usd_carry_liquidity_prompt.md",
     "note": "模型分析可基于 jpy_carry_model_input.json 覆盖本文件。"
   },
   "risk": {
-    "label": "中性偏高",
-    "score": 3.0,
+    "label": "中性",
+    "score": 1.5,
     "reasons": [
-      "CFTC日元非商业净空头占未平仓合约比例偏高",
       "USD/JPY近20日下跌，日元升值会触发carry回补",
       "美日10Y利差处于相对较窄区域，收益端安全垫下降"
     ]
   },
-  "one_liner": "日元 carry unwind 风险为中性偏高；CFTC日元非商业净空头占未平仓合约比例偏高；USD/JPY近20日下跌，日元升值会触发carry回补",
+  "one_liner": "日元 carry unwind 风险为中性；USD/JPY近20日下跌，日元升值会触发carry回补；美日10Y利差处于相对较窄区域，收益端安全垫下降",
   "dashboard_modules": [
     {
       "module": "日元融资端",
       "status": "低位但需观察",
-      "evidence": "0.977%",
+      "evidence": "0.980%",
       "explanation": "carry trade 的融资端"
     },
     {
       "module": "美日利差",
       "status": "仍有carry收益",
-      "evidence": "189bp",
+      "evidence": "183bp",
       "explanation": "美日长端利差越宽，carry收益端越顺风"
     },
     {
       "module": "汇率与波动",
       "status": "未触发unwind",
-      "evidence": "156.77 / vol 11.78%",
+      "evidence": "157.87 / vol 11.56%",
       "explanation": "快速日元升值和波动率上升才是核心触发。"
     },
     {
       "module": "仓位拥挤度(净)",
-      "status": "拥挤",
-      "evidence": "-37.8%",
-      "explanation": "净空头边际变化需拆分：多头平仓主导（空头 +4,968.0 口、多头 -6,319.0 口、空头占比 +1.62%、净头寸 -11,287.0 口）：虽有少量空头增加，但净空头扩张主要来自多头离场，不能解读为 carry 资金流支撑美元。"
+      "status": "中性",
+      "evidence": "-10.8%",
+      "explanation": "净空头边际变化需拆分：空头回补主导（空头 -71,982.0 口、多头 +45,957.0 口、空头占比 -15.64%、净头寸 +117,939.0 口）：净空头与空头占比同步下降，carry 空头资金流正在退潮。"
     },
     {
       "module": "空头真实强度",
-      "status": "多头平仓",
-      "evidence": "72.3%",
-      "explanation": "多头平仓主导（空头 +4,968.0 口、多头 -6,319.0 口、空头占比 +1.62%、净头寸 -11,287.0 口）：虽有少量空头增加，但净空头扩张主要来自多头离场，不能解读为 carry 资金流支撑美元。"
+      "status": "空头回补",
+      "evidence": "56.7%",
+      "explanation": "空头回补主导（空头 -71,982.0 口、多头 +45,957.0 口、空头占比 -15.64%、净头寸 +117,939.0 口）：净空头与空头占比同步下降，carry 空头资金流正在退潮。"
     }
   ],
   "watchlist": [
