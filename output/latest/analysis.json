@@ -1,80 +1,62 @@
 {
   "meta": {
-    "generated_at_bjt": "2026-08-11 10:54:19 UTC+08:00",
+    "generated_at_bjt": "2026-08-12 19:44:39 UTC+08:00",
     "data_as_of": "2026-08-11",
-    "model": "WorkBuddy AI Agent",
-    "input_freshness_note": "资金价格(T+1)、信用、VIX、美元指数为 2026-08-07 已滞后 4 日；RRP 为 2026-08-10 已滞后 1 日；国债收益率与 TIPS 实际收益率为 2026-08-10 已滞后 1 日；FRBSF 模型分解为 2026-08-05 已滞后 6 日，仅作背景与低置信度归因；未来拍卖为 2026-08-11 至 2026-08-13 已公告毛发行，净融资与准备金影响未知。"
+    "model": "AI Agent（自主分析）",
+    "input_freshness_note": "日频资金与收益率数据最新有效日为 2026-08-10 至 2026-08-11（T+1 滞后 1—2 日，属正常）；周频 SOMA/准备金/Repo fails/NFCI 分别滞后 7/7/14/12 日，仅作背景；JPY CFTC 为 2026-08-04、FX 为 2026-08-07；DCPN3M 已滞后 6 日，仅作背景或数据风险。分析仅使用本次 model_input 的 canonical facts，未引用旧报告或 fallback 结论。"
   },
   "stance": {
     "label": "中性",
     "confidence": "中等",
-    "score_text": "四轴中资金价格轴偏松：SOFR 3.62%（2026-08-07，-3.00bp）低于政策锚 IORB 3.65%（2026-08-11，0.00bp），偏离 -3.00bp（2026-08-07，-3.00bp），回购市场现金充裕；跨市场传导轴偏松：HY OAS 2.70%（2026-08-07，-0.10bp）、VIX 14.90（2026-08-07，-0.25pt）低位。但数量与缓冲轴呈结构性脆弱：RRP 余额 0.975bn（2026-08-10，-0.475bn）已逼近耗尽；美债腹部组合 1Y/3Y/5Y/7Y 收益率上行区间 3.00bp（2026-08-10，+3.00bp）至 7.00bp（2026-08-10，+7.00bp），UST_BELLY_MOMENTUM 5.50bp（2026-08-10，环比未知），叠加 2026-08-11 至 2026-08-13 已公告 220.00bn（2026-08-11 至 2026-08-13，毛发行待结算）供给，构成温和偏紧压力。无 P0 级已确认融资压力，综合判中性。",
-    "one_liner": "短端流动性偏松但 RRP 缓冲逼近耗尽、腹部收益率上行且日元 carry 温和去杠杆，综合中性、结构性脆弱偏高。"
+    "score_text": "四轴综合：资金价格轴中性（SOFR 3.63%（2026-08-10，+0.01%）、SOFR-IORB -2.00bp（2026-08-10，+1.00bp）、交易量 2964.00bn（2026-08-10，-13.00bn），无融资压力）；数量缓冲轴中性偏结构脆弱（准备金 2993.35bn（2026-08-05，+8.78bn，已滞后 7 日）、RRP 1.25bn（2026-08-11，+0.28bn）缓冲极薄）；美债定价轴中性（3Y 4.27%（2026-08-11，-0.04%）领跌、7Y 4.54%（2026-08-11，-0.02%）、10Y 名义 4.70%（2026-08-11，-0.02%）作背景，但 T-bill 发行 210.00bn（2026-08-06，+138.00bn）、认购倍数 2.71x（2026-08-06，-0.48x）走弱）；跨市场轴中性偏松（IG 0.78%（2026-08-10，+0.00%）、HY 2.70%（2026-08-10，+0.00%）、VIX 15.46（2026-08-10，+0.56），美元指数 119.06（2026-08-07，-0.45），JPY carry 空头回补主导）。无 P0 级已实现双证据压力。",
+    "one_liner": "资金面锚定平稳、腹部收益率小幅回落，但 RRP 存量缓冲极薄且美债短端供给放量，整体呈中性；JPY carry 空头回补主导，不构成美元支撑。"
   },
   "axis_assessment": {
     "funding_price": {
-      "label": "偏松",
-      "summary": "SOFR 3.62%（2026-08-07，-3.00bp）低于 IORB 3.65%（2026-08-11，0.00bp）约 -3.00bp（derived:SOFR_ANCHOR -3.00bp（2026-08-07，-3.00bp）），TGCR/BGCR 均 3.60%（2026-08-07，-3.00bp）且 BGCR_TGCR 利差 0.00bp（2026-08-07，0.00bp）无分散，回购市场现金充裕、无单点压力；EFFR 3.63%（2026-08-07，0.00bp）、OBFR 3.63%（2026-08-07，0.00bp）持平；SOFR_VOLUME 2977.00bn（2026-08-07，-78.00bn），SOFR_VOLUME_IMPACT -2.48 mn/day（2026-08-07，-2.48 mn/day）量级影响轻微。",
+      "label": "中性",
+      "summary": "SOFR 3.63%（2026-08-10，+0.01%）、SOFR-IORB -2.00bp（2026-08-10，+1.00bp），EFFR/OBFR 3.63%（2026-08-10，+0.00%），交易量 2964.00bn（2026-08-10，-13.00bn）；资金价格贴近政策锚、规模正常，无融资压力。",
       "fact_ids": [
-        "derived:SOFR_ANCHOR",
         "metric:SOFR",
-        "metric:IORB",
-        "metric:TGCR",
-        "metric:BGCR",
-        "derived:BGCR_TGCR",
-        "metric:EFFR",
-        "metric:OBFR",
+        "derived:SOFR_ANCHOR",
         "metric:SOFR_VOLUME",
-        "derived:SOFR_VOLUME_IMPACT"
+        "metric:EFFR",
+        "metric:OBFR"
       ]
     },
     "liquidity_buffer": {
       "label": "中性",
-      "summary": "短端流量偏松但存量脆弱：TGA 954.113bn（2026-08-07，-7.613bn）、RRP 0.975bn（2026-08-10，-0.475bn）双降，释放准备金（derived:TGA_FLOW -7.613bn（2026-08-07，-40.014bn）、derived:RRP_FLOW -0.475bn（2026-08-10，环比未知））；但 RRP_BUFFER 0.975bn（2026-08-10，-0.475bn）已逼近耗尽，缓冲垫极薄，未来 TGA 补库/QT 冲击将更直接落到准备金。准备金 WRESBAL 2993.349bn（2026-08-05，+8.779bn，已滞后 6 日）、SOMA 6356.005bn（2026-08-05，+10.358bn，已滞后 6 日）略升。",
+      "summary": "准备金 2993.35bn（2026-08-05，+8.78bn，已滞后 7 日）充裕，RRP 1.25bn（2026-08-11，+0.28bn）缓冲极薄（结构脆弱性），TGA 966.85bn（2026-08-10，+12.74bn）偏高；RRP 流量回升短期偏紧，但存量缓冲脆弱才是主要风险。",
       "fact_ids": [
-        "derived:RRP_BUFFER",
-        "derived:RRP_FLOW",
-        "derived:TGA_FLOW",
-        "metric:RRPONTSYD",
-        "metric:TGA",
         "metric:WRESBAL",
+        "metric:RRPONTSYD",
+        "derived:RRP_BUFFER",
+        "metric:TGA",
         "metric:SOMA"
       ]
     },
     "treasury_pricing": {
-      "label": "偏紧",
-      "summary": "腹部组合上行：DGS1 4.04%（2026-08-10，+3.00bp）、DGS3 4.31%（2026-08-10，+6.00bp）、DGS5 4.41%（2026-08-10，+6.00bp）、DGS7 4.56%（2026-08-10，+7.00bp），UST_BELLY_MOMENTUM 5.50bp（2026-08-10，环比未知）；5Y-3Y 斜率 10.00bp（2026-08-10，0.00bp）、7Y-5Y 斜率 15.00bp（2026-08-10，+1.00bp）轻微陡化。5Y/7Y 实际收益率 DFII5 2.16%（2026-08-10，+3.00bp）、DFII7 2.28%（2026-08-10，+3.00bp），5Y/7Y 通胀补偿 UST_5Y_BREAKEVEN 2.25%（2026-08-10，+3.00bp）、UST_7Y_BREAKEVEN 2.28%（2026-08-10，+4.00bp）；FRBSF 模型分解（2026-08-05，已滞后 6 日）显示预期短率 2Y 3.90%（2026-08-05，-0.54bp）、期限溢价 10Y 1.29%（2026-08-05，+0.22bp），腹部上行更多由期限溢价与通胀补偿驱动（model_decomposition，置信度中低）。已完成 T-bill 拍卖 210.00bn（2026-08-06，+138.00bn）、BTC 2.708571（2026-08-06，-0.481428），TBILL_AUCTION_STRESS 50.00（2026-08-06，+50.00）偏高。未来 2026-08-11 至 2026-08-13 已公告 220.00bn（2026-08-11 至 2026-08-13，毛发行待结算）供给为情景风险。10Y 仅作背景：DGS10 4.72%（2026-08-10，+7.00bp）、DFII10 2.43%（2026-08-10，+3.00bp）。",
+      "label": "中性",
+      "summary": "1Y/3Y/5Y/7Y 腹部收益率普遍回落（2026-08-11，环比未知），3Y 4.27%（2026-08-11，-0.04%）领跌、5Y 4.39%（2026-08-11，-0.02%）、7Y 4.54%（2026-08-11，-0.02%）；10Y 名义 4.70%（2026-08-11，-0.02%）仅作背景；但 T-bill 发行 210.00bn（2026-08-06，+138.00bn）、认购倍数 2.71x（2026-08-06，-0.48x）走弱，供给吸收压力上升。",
       "fact_ids": [
-        "derived:UST_1Y_YIELD",
-        "derived:UST_3Y_YIELD",
-        "derived:UST_5Y_YIELD",
-        "derived:UST_7Y_YIELD",
-        "derived:UST_BELLY_MOMENTUM",
-        "derived:UST_5Y3Y_SLOPE_BP",
-        "derived:UST_7Y5Y_SLOPE_BP",
-        "metric:DFII5",
-        "metric:DFII7",
-        "derived:UST_5Y_BREAKEVEN",
-        "derived:UST_7Y_BREAKEVEN",
-        "metric:FRBSF_EXPECTED_SHORT_2Y",
-        "metric:FRBSF_TERM_PREMIUM_10Y",
-        "metric:TBILL_AUCTION_SIZE",
-        "metric:TBILL_AUCTION_BTC",
-        "derived:TBILL_AUCTION_STRESS",
+        "metric:DGS3",
+        "metric:DGS5",
+        "metric:DGS7",
+        "metric:DGS1",
         "metric:DGS10",
-        "metric:DFII10"
+        "metric:TBILL_AUCTION_SIZE",
+        "metric:TBILL_AUCTION_BTC"
       ]
     },
     "cross_market_transmission": {
-      "label": "偏松",
-      "summary": "信用与波动平静：IG OAS 0.78%（2026-08-07，0.00bp）、HY OAS 2.70%（2026-08-07，-0.10bp）基本持平；VIX 14.90（2026-08-07，-0.25pt）低位；NFCI -0.529（2026-07-31，+0.001，已滞后 11 日）接近宽松；美元指数 DTWEXBGS 119.0649（2026-08-07，-0.4464pt）走弱；回购失败 REPO_FAILS_UST 72.522bn（2026-07-29，-28.633bn，已滞后 13 日）下降。离岸美元代理无免费官方 basis，以 DTWEXBGS 替代。",
+      "label": "中性",
+      "summary": "IG OAS 0.78%（2026-08-10，+0.00%）、HY OAS 2.70%（2026-08-10，+0.00%）平稳，VIX 15.46（2026-08-10，+0.56）低位，美元指数 119.06（2026-08-07，-0.45）走弱；JPY carry 空头回补主导（CFTC driver=short_covering），不构成美元支撑。NFCI -0.53（2026-07-31，+0.00，已滞后 12 日）仍显示宽松金融条件。",
       "fact_ids": [
-        "derived:HY_CHANGE",
-        "derived:IG_CHANGE",
-        "derived:VIX_RISK",
-        "metric:NFCI",
+        "metric:BAMLC0A0CM",
+        "metric:BAMLH0A0HYM2",
+        "metric:VIXCLS",
         "metric:DTWEXBGS",
-        "metric:REPO_FAILS_UST"
+        "jpy:CFTC_DECOMPOSITION",
+        "metric:NFCI"
       ]
     }
   },
@@ -82,94 +64,74 @@
     "immediate": {
       "label": "中性",
       "window": "1—3个交易日",
-      "summary": "即时资金价格偏松（SOFR 3.62%（2026-08-07，-3.00bp）低于 IORB 约 -3.00bp（2026-08-07，-3.00bp）），RRP_FLOW -0.475bn（2026-08-10，环比未知）与 TGA_FLOW -7.613bn（2026-08-07，-40.014bn）释放现金，VIX 14.90（2026-08-07，-0.25pt）低位；但 2026-08-11 至 2026-08-13 有 220.00bn（2026-08-11 至 2026-08-13，毛发行待结算）已公告国债/T-bill 供给结算，可能对当日资金面构成边际扰动。仅判断当前状态，不把单日变化外推为趋势。",
+      "summary": "即时资金价格锚定：SOFR 3.63%（2026-08-10，+0.01%）、SOFR-IORB -2.00bp（2026-08-10，+1.00bp），交易量 2964.00bn（2026-08-10，-13.00bn）；RRP 1.25bn（2026-08-11，+0.28bn）流量回升、TGA 966.85bn（2026-08-10，+12.74bn）偏高；VIX 15.46（2026-08-10，+0.56）低位。即期无融资压力，但 RRP 缓冲薄使任何 TGA/QT 冲击更敏感。",
       "fact_ids": [
         "derived:SOFR_ANCHOR",
-        "derived:RRP_FLOW",
-        "derived:TGA_FLOW",
-        "derived:VIX_RISK",
-        "event:gross_total_announced"
+        "metric:SOFR_VOLUME",
+        "metric:RRPONTSYD",
+        "metric:TGA",
+        "metric:VIXCLS"
       ]
     },
     "tactical": {
-      "label": "偏紧",
+      "label": "中性",
       "window": "1—4周",
-      "summary": "腹部组合上行 UST_BELLY_MOMENTUM 5.50bp（2026-08-10，环比未知），5Y/7Y 实际收益率与通胀补偿同步走阔（DFII5 2.16%（2026-08-10，+3.00bp）、UST_5Y_BREAKEVEN 2.25%（2026-08-10，+3.00bp）），2026-08-11 至 2026-08-13 已公告 220.00bn（2026-08-11 至 2026-08-13，毛发行待结算）毛供给结算窗口临近，日元 carry 去杠杆（USDJPY 157.87（2026-08-06，5 日 -2.34）、US_JP_10Y 182.80bp（2026-08-07，5 日 -12.10bp））构成温和压力。事实包以单期变化为主、FRBSF 分解已滞后 6 日，跨 1—4 周趋势置信度中等偏低，不机械外推。",
+      "summary": "战术窗口看腹部重定价与供给：1Y/3Y/5Y/7Y 收益率回落（2026-08-11，环比未知）指向宽松预期，但 T-bill 发行 210.00bn（2026-08-06，+138.00bn）、认购倍数 2.71x（2026-08-06，-0.48x）与未来已公告毛供给 349.00bn（2026-08-13，环比未知）构成吸收压力；IG 0.78%（2026-08-10，+0.00%）、HY 2.70%（2026-08-10，+0.00%）平稳，JPY carry 空头回补。多期事实有限，置信度中等。",
       "fact_ids": [
-        "derived:UST_BELLY_MOMENTUM",
-        "metric:DFII5",
-        "derived:UST_5Y_BREAKEVEN",
-        "event:gross_total_announced",
-        "jpy:USDJPY",
-        "jpy:US_JP_10Y"
+        "metric:DGS5",
+        "metric:DGS3",
+        "metric:TBILL_AUCTION_SIZE",
+        "metric:TBILL_AUCTION_BTC",
+        "metric:BAMLH0A0HYM2",
+        "jpy:CFTC_DECOMPOSITION",
+        "event:gross_total_announced"
       ]
     },
     "structural": {
-      "label": "中性",
+      "label": "偏紧",
       "window": "1—3个月",
-      "summary": "RRP_BUFFER 0.975bn（2026-08-10，-0.475bn）已逼近耗尽，缓冲垫极薄；QT 持续（SOMA 6356.005bn（2026-08-05，+10.358bn，已滞后 6 日），但趋势受月度赎回上限约束）；准备金 WRESBAL 2993.349bn（2026-08-05，+8.779bn，已滞后 6 日）；NFCI -0.529（2026-07-31，已滞后 11 日）宽松；CFTC 日元空头占比 0.566886（2026-08-04，-0.156382）且 driver 为 short_covering（jpy:CFTC_DECOMPOSITION），carry 去杠杆而非加杠杆。结构脆弱性高但无急性压力。",
+      "summary": "结构环境：RRP 1.25bn（2026-08-11，+0.28bn）缓冲极薄，准备金 2993.35bn（2026-08-05，+8.78bn，已滞后 7 日）虽充裕但承接能力依赖 RRP 耗尽后的补充；SOMA 6356.01bn（2026-08-05，+10.36bn，已滞后 7 日）仍在 QT 路径；NFCI -0.53（2026-07-31，+0.00，已滞后 12 日）宽松；JPY CFTC short share 0.57（2026-08-04，环比未知）仍高，去杠杆若加速将放大波动。",
       "fact_ids": [
         "derived:RRP_BUFFER",
-        "metric:SOMA",
         "metric:WRESBAL",
+        "metric:SOMA",
         "metric:NFCI",
-        "jpy:CFTC_DECOMPOSITION",
         "jpy:CFTC_JPY_SHORT_SHARE"
       ]
     }
   },
   "key_takeaways": [
     {
-      "title": "SOFR 低于政策锚，回购市场现金充裕",
-      "text": "SOFR 3.62%（2026-08-07，-3.00bp）低于 IORB 3.65%（2026-08-11，0.00bp）约 -3.00bp（derived:SOFR_ANCHOR -3.00bp（2026-08-07，-3.00bp）），TGCR/BGCR 均 3.60%（2026-08-07，-3.00bp）且 BGCR_TGCR 利差 0.00bp（2026-08-07，0.00bp）无分散，回购端无单点压力。",
+      "title": "资金价格锚定平稳，SOFR 贴近政策锚",
+      "text": "SOFR 3.63%（2026-08-10，+0.01%），SOFR-IORB -2.00bp（2026-08-10，+1.00bp），EFFR 3.63%（2026-08-10，+0.00%）；交易量 2964.00bn（2026-08-10，-13.00bn），SOFR_VOLUME_IMPACT -1.65mn/day（2026-08-10，+0.83），融资价格与规模均未见压力。",
       "evidence": [
-        "SOFR 3.62%（2026-08-07，-3.00bp）",
-        "SOFR_ANCHOR -3.00bp（2026-08-07，-3.00bp）",
-        "IORB 3.65%（2026-08-11，0.00bp）"
+        "SOFR 3.63%（2026-08-10，+0.01%），SOFR-IORB -2.00bp（2026-08-10，+1.00bp）",
+        "EFFR 3.63%（2026-08-10，+0.00%），OBFR 3.63%（2026-08-10，+0.00%）",
+        "SOFR 交易量 2964.00bn（2026-08-10，-13.00bn），价格×规模影响 -1.65mn/day（2026-08-10，+0.83）"
       ],
       "related_indicators": [
         "SOFR",
-        "IORB",
-        "TGCR",
-        "BGCR"
+        "EFFR",
+        "OBFR"
       ],
       "claim_type": "observed",
-      "dedupe_key": "funding-sofr-below-anchor",
+      "dedupe_key": "funding-sofr-anchor",
       "fact_ids": [
-        "derived:SOFR_ANCHOR",
         "metric:SOFR",
-        "metric:IORB",
-        "metric:TGCR",
-        "metric:BGCR",
-        "derived:BGCR_TGCR"
+        "derived:SOFR_ANCHOR",
+        "metric:SOFR_VOLUME",
+        "derived:SOFR_VOLUME_IMPACT",
+        "metric:EFFR",
+        "metric:OBFR"
       ]
     },
     {
-      "title": "RRP 余额逼近耗尽，缓冲垫极薄",
-      "text": "RRPONTSYD 0.975bn（2026-08-10，-0.475bn），RRP_BUFFER 0.975bn（2026-08-10，-0.475bn），余额已降至极低水平，未来 TGA 补库或 QT 冲击将更直接落到准备金。",
+      "title": "美债腹部收益率普遍回落，宽松重定价",
+      "text": "1Y 4.03%（2026-08-11，-0.01%）、3Y 4.27%（2026-08-11，-0.04%）、5Y 4.39%（2026-08-11，-0.02%）、7Y 4.54%（2026-08-11，-0.02%）；腹部平均动量 -2.25bp（2026-08-11，环比未知），5Y-3Y 斜率 12.00bp（2026-08-11，+2.00bp）、7Y-5Y 15.00bp（2026-08-11，+0.00bp），曲线腹部基本平稳。",
       "evidence": [
-        "RRP 0.975bn（2026-08-10，-0.475bn）",
-        "RRP_BUFFER 0.975bn（2026-08-10，-0.475bn）"
-      ],
-      "related_indicators": [
-        "RRPONTSYD"
-      ],
-      "claim_type": "observed",
-      "dedupe_key": "buffer-rrp-near-exhausted",
-      "fact_ids": [
-        "derived:RRP_BUFFER",
-        "metric:RRPONTSYD"
-      ]
-    },
-    {
-      "title": "美债腹部组合收益率上行",
-      "text": "1Y/3Y/5Y/7Y 名义收益率分别 4.04%（2026-08-10，+3.00bp）、4.31%（2026-08-10，+6.00bp）、4.41%（2026-08-10，+6.00bp）、4.56%（2026-08-10，+7.00bp），UST_BELLY_MOMENTUM 5.50bp（2026-08-10，环比未知），腹部整体重定价。",
-      "evidence": [
-        "DGS1 4.04%（2026-08-10，+3.00bp）",
-        "DGS3 4.31%（2026-08-10，+6.00bp）",
-        "DGS5 4.41%（2026-08-10，+6.00bp）",
-        "DGS7 4.56%（2026-08-10，+7.00bp）",
-        "UST_BELLY_MOMENTUM 5.50bp（2026-08-10，环比未知）"
+        "1Y 4.03%（2026-08-11，-0.01%）、3Y 4.27%（2026-08-11，-0.04%）",
+        "5Y 4.39%（2026-08-11，-0.02%）、7Y 4.54%（2026-08-11，-0.02%）",
+        "5Y-3Y 斜率 12.00bp（2026-08-11，+2.00bp）、7Y-5Y 15.00bp（2026-08-11，+0.00bp）"
       ],
       "related_indicators": [
         "DGS1",
@@ -178,203 +140,214 @@
         "DGS7"
       ],
       "claim_type": "observed",
-      "dedupe_key": "belly-yields-rising",
+      "dedupe_key": "treasury-belly-easing",
       "fact_ids": [
-        "derived:UST_1Y_YIELD",
-        "derived:UST_3Y_YIELD",
-        "derived:UST_5Y_YIELD",
-        "derived:UST_7Y_YIELD",
-        "derived:UST_BELLY_MOMENTUM",
-        "derived:UST_1Y_CHANGE_BP",
-        "derived:UST_3Y_CHANGE_BP",
-        "derived:UST_5Y_CHANGE_BP",
-        "derived:UST_7Y_CHANGE_BP"
+        "metric:DGS1",
+        "metric:DGS3",
+        "metric:DGS5",
+        "metric:DGS7",
+        "derived:UST_5Y3Y_SLOPE_BP",
+        "derived:UST_7Y5Y_SLOPE_BP",
+        "derived:UST_BELLY_MOMENTUM"
       ]
     },
     {
-      "title": "TGA 与 RRP 双降释放准备金",
-      "text": "TGA 954.113bn（2026-08-07，-7.613bn）、RRP 0.975bn（2026-08-10，-0.475bn）双降，TGA_FLOW -7.613bn（2026-08-07，-40.014bn）、RRP_FLOW -0.475bn（2026-08-10，环比未知），短端流动性释放。",
+      "title": "准备金充裕但 RRP 缓冲极薄",
+      "text": "准备金 WRESBAL 2993.35bn（2026-08-05，+8.78bn，已滞后 7 日），SOMA 6356.01bn（2026-08-05，+10.36bn，已滞后 7 日）；RRP 1.25bn（2026-08-11，+0.28bn）处于极低水平，缓冲垫薄。",
       "evidence": [
-        "TGA 954.113bn（2026-08-07，-7.613bn）",
-        "RRP 0.975bn（2026-08-10，-0.475bn）"
+        "WRESBAL 2993.35bn（2026-08-05，+8.78bn，已滞后 7 日）",
+        "SOMA 6356.01bn（2026-08-05，+10.36bn，已滞后 7 日）",
+        "RRP 1.25bn（2026-08-11，+0.28bn）缓冲极薄"
       ],
       "related_indicators": [
-        "TGA",
+        "WRESBAL",
+        "SOMA",
         "RRPONTSYD"
       ],
       "claim_type": "observed",
-      "dedupe_key": "tga-rrp-draining",
+      "dedupe_key": "buffer-reserves-ample-rrp-thin",
       "fact_ids": [
-        "metric:TGA",
+        "metric:WRESBAL",
+        "metric:SOMA",
         "metric:RRPONTSYD",
-        "derived:TGA_FLOW",
-        "derived:RRP_FLOW"
+        "derived:RRP_BUFFER"
       ]
     },
     {
-      "title": "日元 carry 温和去杠杆（空头回补）",
-      "text": "CFTC 日元空头占比 0.566886（2026-08-04，-0.156382），driver 为 short_covering（jpy:CFTC_DECOMPOSITION），空头 -71,982.00 口（2026-08-04，-27.20%）、多头 +45,957.00 口（2026-08-04，+45.38%）、净头寸 +117,939.00 口（2026-08-04，环比未知），carry 未加杠杆；USDJPY 157.87（2026-08-06，5 日 -2.34、20 日 -4.42），US_JP_10Y 182.80bp（2026-08-07，5 日 -12.10bp），日元升值与利差收窄压制 carry 收益。",
+      "title": "T-bill 供给放量、需求走弱",
+      "text": "2026-08-06 T-bill 发行 210.00bn（2026-08-06，+138.00bn），认购倍数 2.71x（2026-08-06，-0.48x），TBILL_AUCTION_STRESS 50.00（2026-08-06，+50.00）；同期国债认购倍数 2.74x（2026-08-06，+0.06x）。",
       "evidence": [
-        "JPY 空头占比 0.566886（2026-08-04，-0.156382）",
-        "USDJPY 157.87（2026-08-06，5 日 -2.34）",
-        "US_JP_10Y 182.80bp（2026-08-07，5 日 -12.10bp）"
+        "T-bill 发行 210.00bn（2026-08-06，+138.00bn）",
+        "T-bill 认购倍数 2.71x（2026-08-06，-0.48x）",
+        "TBILL_AUCTION_STRESS 50.00（2026-08-06，+50.00）；国债认购倍数 2.74x（2026-08-06，+0.06x）"
       ],
       "related_indicators": [
-        "USDJPY",
-        "US_JP_10Y",
-        "CFTC_JPY_SHORT_SHARE"
+        "TBILL_AUCTION_SIZE",
+        "TBILL_AUCTION_BTC"
       ],
       "claim_type": "observed",
-      "dedupe_key": "jpy-carry-unwind",
+      "dedupe_key": "treasury-tbill-supply-soft",
       "fact_ids": [
-        "jpy:CFTC_DECOMPOSITION",
-        "jpy:CFTC_JPY_SHORT_SHARE",
-        "jpy:CFTC_JPY_GROSS_SHORT",
-        "jpy:CFTC_JPY_GROSS_LONG",
-        "jpy:USDJPY",
-        "jpy:US_JP_10Y"
+        "metric:TBILL_AUCTION_SIZE",
+        "metric:TBILL_AUCTION_BTC",
+        "derived:TBILL_AUCTION_STRESS",
+        "metric:UST_AUCTION_BTC"
+      ]
+    },
+    {
+      "title": "信用利差平稳、波动率低位、美元走弱",
+      "text": "IG OAS 0.78%（2026-08-10，+0.00%）、HY OAS 2.70%（2026-08-10，+0.00%），信用压力未现；VIX 15.46（2026-08-10，+0.56）处低位；美元指数 DTWEXBGS 119.06（2026-08-07，-0.45）走弱。",
+      "evidence": [
+        "IG OAS 0.78%（2026-08-10，+0.00%）、HY OAS 2.70%（2026-08-10，+0.00%）",
+        "VIX 15.46（2026-08-10，+0.56）",
+        "DTWEXBGS 119.06（2026-08-07，-0.45）已滞后 5 日"
+      ],
+      "related_indicators": [
+        "BAMLC0A0CM",
+        "BAMLH0A0HYM2",
+        "VIXCLS",
+        "DTWEXBGS"
+      ],
+      "claim_type": "observed",
+      "dedupe_key": "crossmarket-credit-calm",
+      "fact_ids": [
+        "metric:BAMLC0A0CM",
+        "metric:BAMLH0A0HYM2",
+        "metric:VIXCLS",
+        "metric:DTWEXBGS"
       ]
     }
   ],
   "risk_flags": [
     {
       "priority": "P1",
-      "severity": "high",
+      "severity": "medium",
       "type": "market",
-      "title": "RRP 缓冲耗尽的结构性脆弱",
-      "text": "RRP_BUFFER 0.975bn（2026-08-10，-0.475bn）已逼近耗尽，缓冲垫极薄；当 RRP 降至极低后继续下降不再是持续利好，而是代表未来 TGA 补库/QT 冲击更容易直接打到准备金。此为结构脆弱性，非当下已实现的融资压力。",
+      "title": "RRP 存量缓冲接近耗尽，结构脆弱性高",
+      "text": "RRP 余额 1.25bn（2026-08-11，+0.28bn），处于历史极低水平，未来 TGA 补库或 QT 冲击将更直接落到准备金；本次流量回升（RRP_FLOW 0.28bn（2026-08-11，环比未知））仅代表资金阶段性回流联储停车场，短期偏紧，不改变缓冲垫薄的结构脆弱性。",
       "evidence": [
-        "RRP_BUFFER 0.975bn（2026-08-10，-0.475bn）",
-        "RRP 0.975bn（2026-08-10，-0.475bn）"
+        "RRP 余额 1.25bn（2026-08-11，+0.28bn），已滞后 1 日",
+        "RRP_BUFFER 1.25bn（2026-08-11，+0.28bn），缓冲垫极薄",
+        "WRESBAL 2993.35bn（2026-08-05，+8.78bn，已滞后 7 日），准备金尚可但承接依赖 RRP 耗尽后的补充"
       ],
       "related_indicators": [
-        "RRPONTSYD"
+        "RRPONTSYD",
+        "WRESBAL"
       ],
-      "claim_type": "inference",
-      "dedupe_key": "buffer-rrp-depletion-structural",
+      "claim_type": "observed",
+      "dedupe_key": "buffer-rrp-low",
       "fact_ids": [
         "derived:RRP_BUFFER",
-        "metric:RRPONTSYD"
-      ]
-    },
-    {
-      "priority": "P1",
-      "severity": "high",
-      "type": "market",
-      "title": "T-bill 大供给与覆盖转弱",
-      "text": "已完成 T-bill 拍卖规模 210.00bn（2026-08-06，+138.00bn）、BTC 2.708571（2026-08-06，-0.481428），TBILL_AUCTION_STRESS 50.00（2026-08-06，+50.00）偏高；2026-08-11 至 2026-08-13 已公告毛发行 220.00bn（2026-08-11 至 2026-08-13，毛发行待结算），净融资与准备金影响未知。若结算导致 TGA 补库且资金价格同步上行，则短端压力可能增强。",
-      "evidence": [
-        "TBILL_AUCTION_SIZE 210.00bn（2026-08-06，+138.00bn）",
-        "TBILL_AUCTION_BTC 2.708571（2026-08-06，-0.481428）",
-        "TBILL_AUCTION_STRESS 50.00（2026-08-06，+50.00）",
-        "未来毛发行 220.00bn（2026-08-11 至 2026-08-13，毛发行待结算）"
-      ],
-      "related_indicators": [
-        "TBILL_AUCTION_SIZE",
-        "TBILL_AUCTION_BTC"
-      ],
-      "claim_type": "scenario",
-      "condition": "若结算导致 TGA 补库且 SOFR/TGCR 同步上行，则短端压力可能增强",
-      "dedupe_key": "tbill-supply-absorption",
-      "fact_ids": [
-        "metric:TBILL_AUCTION_SIZE",
-        "metric:TBILL_AUCTION_BTC",
-        "derived:TBILL_AUCTION_STRESS",
-        "event:gross_total_announced"
+        "metric:RRPONTSYD",
+        "metric:WRESBAL"
       ]
     },
     {
       "priority": "P1",
       "severity": "medium",
       "type": "market",
-      "title": "日元 carry 脆弱性（去杠杆中）",
-      "text": "USDJPY 157.87（2026-08-06，5 日 -2.34、20 日 -4.42），USDJPY 20 日实现波动率 11.56%（2026-08-06，5 日 +2.49%、20 日 +6.31%），US_JP_10Y 182.80bp（2026-08-07，5 日 -12.10bp、8.2 分位）利差压缩至历史低位；JPY_CALL 0.98%（2026-08-06，20 日 +0.003000pt）融资端缓慢抬升，JGB10 2.822%（2026-08-11，20 日 +0.077000pt）高位吸引回流。CFTC driver 为 short_covering（jpy:CFTC_DECOMPOSITION），carry 当前为去杠杆而非加杠杆，不构成美元/风险资产的边际支撑；若日元继续升值且波动率放大，存在踩踏式回补风险。",
+      "title": "T-bill 发行放量、认购倍数走弱，吸收压力上升",
+      "text": "2026-08-06 T-bill 发行规模 210.00bn（2026-08-06，+138.00bn），认购倍数 2.71x（2026-08-06，-0.48x），TBILL_AUCTION_STRESS 50.00（2026-08-06，+50.00）；供给规模放大叠加需求覆盖走弱，吸收压力高于前次，属价格×规模信号确认的中等压力。",
       "evidence": [
-        "USDJPY 157.87（2026-08-06，5 日 -2.34）",
-        "USDJPY_VOL20 11.56%（2026-08-06，5 日 +2.49%）",
-        "US_JP_10Y 182.80bp（2026-08-07，5 日 -12.10bp）",
-        "JPY_CALL 0.98%（2026-08-06，20 日 +0.003000pt）",
-        "JGB10 2.822%（2026-08-11，20 日 +0.077000pt）"
+        "T-bill 发行 210.00bn（2026-08-06，+138.00bn）",
+        "认购倍数 2.71x（2026-08-06，-0.48x），前次约 3.19x（2026-08-05，环比未知）",
+        "TBILL_AUCTION_STRESS 50.00（2026-08-06，+50.00）"
+      ],
+      "related_indicators": [
+        "TBILL_AUCTION_SIZE",
+        "TBILL_AUCTION_BTC"
+      ],
+      "claim_type": "inference",
+      "dedupe_key": "tbill-supply-absorption",
+      "fact_ids": [
+        "derived:TBILL_AUCTION_STRESS",
+        "metric:TBILL_AUCTION_SIZE",
+        "metric:TBILL_AUCTION_BTC"
+      ]
+    },
+    {
+      "priority": "P2",
+      "severity": "low",
+      "type": "market",
+      "title": "JPY carry 空头回补主导，不构成美元支撑",
+      "text": "CFTC 拆解 driver=short_covering，gross short -71982.0（2026-08-04，1日 -71982.0）、gross long +45957.0（2026-08-04，1日 +45957.0）、short share 0.57（2026-08-04，环比未知），carry_usd_support=false；USDJPY 158.41（2026-08-07，5日 -1.80、20日 -3.88）温和回落，USDJPY_VOL20 11.66（2026-08-07，20日 +6.41）上行。当前为去杠杆/回补而非加杠杆，属 P2 级情景观察。",
+      "evidence": [
+        "CFTC driver=short_covering，carry_usd_support=false",
+        "USDJPY 158.41（2026-08-07，5日 -1.80、20日 -3.88）",
+        "USDJPY_VOL20 11.66（2026-08-07，20日 +6.41）上行"
       ],
       "related_indicators": [
         "USDJPY",
-        "USDJPY_VOL20",
-        "US_JP_10Y",
-        "JPY_CALL",
-        "JGB10"
+        "JPY"
       ],
-      "claim_type": "scenario",
-      "condition": "若日元继续升值且 USDJPY 波动率放大，则 carry 回补可能放大美元与风险资产波动",
-      "dedupe_key": "jpy-carry-vulnerability",
+      "claim_type": "inference",
+      "dedupe_key": "jpy-carry-unwind-watch",
       "fact_ids": [
+        "jpy:CFTC_DECOMPOSITION",
         "jpy:USDJPY",
         "jpy:USDJPY_VOL20",
-        "jpy:US_JP_10Y",
-        "jpy:JPY_CALL",
-        "jpy:JGB10",
-        "jpy:CFTC_DECOMPOSITION"
+        "jpy:CFTC_JPY_SHORT_SHARE"
       ]
     },
     {
       "priority": "P2",
       "severity": "info",
       "type": "data",
-      "title": "FRBSF 模型分解数据滞后",
-      "text": "FRBSF_EXPECTED_SHORT_2Y 3.90%（2026-08-05，已滞后 6 日）、FRBSF_TERM_PREMIUM_10Y 1.29%（2026-08-05，已滞后 6 日）等模型分解已滞后 6 日（2026-08-05），只能作为背景与低置信度归因，不得当作实时市场共识或唯一因果。",
+      "title": "DCPN3M 数据已滞后，仅作背景",
+      "text": "3个月美元掉期点 DCPN3M 3.76%（2026-08-06，-0.01%）已滞后 6 日，质量标记 warning，只能作为背景或数据风险，不得据此判断当日融资边际。",
       "evidence": [
-        "FRBSF_EXPECTED_SHORT_2Y 3.90%（2026-08-05，已滞后 6 日）",
-        "FRBSF_TERM_PREMIUM_10Y 1.29%（2026-08-05，已滞后 6 日）"
+        "DCPN3M 3.76%（2026-08-06，-0.01%）已滞后 6 日",
+        "quality:stale_metric:DCPN3M 已标记 stale warning"
       ],
       "related_indicators": [
-        "FRBSF_EXPECTED_SHORT_2Y",
-        "FRBSF_TERM_PREMIUM_10Y"
+        "DCPN3M"
       ],
       "claim_type": "observed",
-      "dedupe_key": "stale-frbsf-decomposition",
+      "dedupe_key": "data-dcpn3m-stale",
       "fact_ids": [
-        "metric:FRBSF_EXPECTED_SHORT_2Y",
-        "metric:FRBSF_TERM_PREMIUM_10Y"
+        "metric:DCPN3M"
       ]
     },
     {
       "priority": "P2",
-      "severity": "info",
-      "type": "data",
-      "title": "资金与信用数据滞后 4 日",
-      "text": "EFFR/SOFR/OBFR/TGCR/BGCR/信用 OAS/VIX/美元指数均为 2026-08-07（已滞后 4 日），NFCI 为 2026-07-31（已滞后 11 日），REPO_FAILS_UST 为 2026-07-29（已滞后 13 日）；周末与 T+1 发布导致时效缺口，即时判断需叠加 2026-08-11 至 2026-08-13 供给结算观察。",
+      "severity": "low",
+      "type": "market",
+      "title": "未来已公告毛供给放量（非净融资）",
+      "text": "TreasuryDirect 已公告 2026-08-12 至 2026-08-13 毛发行合计 349.00bn（2026-08-13，环比未知），其中 Bill 282.00bn（2026-08-18，环比未知）、Note 42.00bn（2026-08-17，环比未知）、Bond 25.00bn（2026-08-17，环比未知）；均为毛发行，maturities 与 net cash impact 为 null，不得视为净融资或确定性准备金消耗。",
       "evidence": [
-        "SOFR 3.62%（2026-08-07，已滞后 4 日）",
-        "NFCI -0.529（2026-07-31，已滞后 11 日）",
-        "REPO_FAILS_UST 72.522bn（2026-07-29，已滞后 13 日）"
+        "已公告毛发行合计 349.00bn（2026-08-13，环比未知）",
+        "Bill 282.00bn（2026-08-18，环比未知）、Note 42.00bn（2026-08-17，环比未知）、Bond 25.00bn（2026-08-17，环比未知）",
+        "maturities_usd_bn 与 net_cash_impact_usd_bn 均为 null"
       ],
       "related_indicators": [
-        "SOFR",
-        "NFCI",
-        "REPO_FAILS_UST"
+        "TBILL_AUCTION_SIZE",
+        "UST_AUCTION_BTC"
       ],
-      "claim_type": "observed",
-      "dedupe_key": "stale-funding-credit-data",
+      "claim_type": "scenario",
+      "condition": "若结算导致 TGA 补库且 SOFR 等资金价格同步上行，则流动性压力可能增强；当前仅为已公告毛供给，非净融资或确定性准备金消耗。",
+      "dedupe_key": "event-upcoming-gross-supply",
       "fact_ids": [
-        "metric:SOFR",
-        "metric:NFCI",
-        "metric:REPO_FAILS_UST"
+        "event:gross_total_announced",
+        "event:gross_total_by_security_type:Bill",
+        "event:gross_total_by_security_type:Note",
+        "event:gross_total_by_security_type:Bond"
       ]
     }
   ],
   "narrative_blocks": {
-    "summary": "短端资金面偏松（SOFR 低于政策锚、回购无分散、信用/波动率低位），但数量缓冲轴结构性脆弱：RRP 余额 0.975bn（2026-08-10，-0.475bn）逼近耗尽，腹部收益率上行且近期 T-bill 大供给（210.00bn（2026-08-06，+138.00bn）已完成、未来 220.00bn（2026-08-11 至 2026-08-13，毛发行待结算）已公告）构成温和偏紧压力。日元 carry 处于去杠杆（short_covering）而非加杠杆状态。无 P0 级已确认融资压力，综合中性、置信度中等。",
-    "rates": "资金价格轴偏松。SOFR 3.62%（2026-08-07，-3.00bp）低于 IORB 3.65%（2026-08-11，0.00bp）约 -3.00bp（derived:SOFR_ANCHOR -3.00bp（2026-08-07，-3.00bp）），说明回购市场现金充裕、利率低于走廊上限；TGCR/BGCR 均 3.60%（2026-08-07，-3.00bp）且 BGCR_TGCR 利差 0.00bp（2026-08-07，0.00bp）无分散，排除单点压力；EFFR 3.63%（2026-08-07，0.00bp）、OBFR 3.63%（2026-08-07，0.00bp）持平；SOFR_VOLUME 2977.00bn（2026-08-07，-78.00bn），SOFR_VOLUME_IMPACT -2.48 mn/day（2026-08-07，-2.48 mn/day）量级影响轻微。资金面无压力。",
-    "balance_sheet": "数量与缓冲轴：短端流量偏松但存量脆弱。TGA 954.113bn（2026-08-07，-7.613bn）与 RRP 0.975bn（2026-08-10，-0.475bn）双降，TGA_FLOW -7.613bn（2026-08-07，-40.014bn）、RRP_FLOW -0.475bn（2026-08-10，环比未知）释放现金；但 RRP_BUFFER 0.975bn（2026-08-10，-0.475bn）已逼近耗尽，缓冲垫极薄，未来 TGA 补库/QT 冲击将更直接落到准备金。准备金 WRESBAL 2993.349bn（2026-08-05，+8.779bn，已滞后 6 日）、SOMA 6356.005bn（2026-08-05，+10.358bn，已滞后 6 日）略升。低 RRP 单独不构成 P0，仅为 P1 结构脆弱性。",
-    "market_transmission": "跨市场传导轴偏松。IG OAS 0.78%（2026-08-07，0.00bp）、HY OAS 2.70%（2026-08-07，-0.10bp）基本持平，VIX 14.90（2026-08-07，-0.25pt）低位，NFCI -0.529（2026-07-31，+0.001，已滞后 11 日）接近宽松，美元指数 DTWEXBGS 119.0649（2026-08-07，-0.4464pt）走弱，REPO_FAILS_UST 72.522bn（2026-07-29，-28.633bn，已滞后 13 日）下降。无风险传导至融资链条。日元 carry 维度：CFTC driver 为 short_covering（jpy:CFTC_DECOMPOSITION），carry 去杠杆而非加杠杆；USDJPY 157.87（2026-08-06，5 日 -2.34）、US_JP_10Y 182.80bp（2026-08-07，5 日 -12.10bp）利差压缩、USDJPY 20 日实现波动率 11.56%（2026-08-06，5 日 +2.49%）波动率抬升，构成温和脆弱性但非急性事件。",
+    "summary": "本次美元流动性整体中性：资金价格锚定、信用与波动率低位、腹部收益率小幅回落偏松；但 RRP 存量缓冲接近耗尽构成结构脆弱性，T-bill 与未来已公告毛供给放量带来吸收压力，JPY carry 处于空头回补而非加杠杆。无 P0 级已实现双证据压力。",
+    "rates": "资金价格轴：SOFR 3.63%（2026-08-10，+0.01%）紧贴 IORB 下方 2.00bp（2026-08-10，+1.00bp），EFFR/OBFR 3.63%（2026-08-10，+0.00%）持平，TGCR/BGCR 3.61%（2026-08-10，+0.01%）；交易量 2964.00bn（2026-08-10，-13.00bn）、SOFR_VOLUME_IMPACT -1.65mn/day（2026-08-10，+0.83），价格×规模均无异常。融资链条未现压力。",
+    "balance_sheet": "数量与缓冲轴：准备金 2993.35bn（2026-08-05，+8.78bn，已滞后 7 日）充裕，SOMA 6356.01bn（2026-08-05，+10.36bn，已滞后 7 日）仍在 QT 节奏；TGA 966.85bn（2026-08-10，+12.74bn）偏高；RRP 1.25bn（2026-08-11，+0.28bn）极低，缓冲垫薄使未来冲击更易落到准备金。RRP 流量回升仅代表短期资金回流联储停车场，不改变结构脆弱性。",
+    "market_transmission": "跨市场传导轴：IG OAS 0.78%（2026-08-10，+0.00%）、HY OAS 2.70%（2026-08-10，+0.00%）平稳，VIX 15.46（2026-08-10，+0.56）低位，美元指数 119.06（2026-08-07，-0.45）走弱，NFCI -0.53（2026-07-31，+0.00，已滞后 12 日）宽松；JPY carry 空头回补主导，不构成美元支撑。杠杆与信用传导未现压力。",
     "treasury_yields": {
-      "label": "偏紧",
-      "one_liner": "腹部 1Y/3Y/5Y/7Y 名义组合上行 3.00bp（2026-08-10，+3.00bp）至 7.00bp（2026-08-10，+7.00bp），由期限溢价与通胀补偿走阔驱动，10Y 仅作背景。",
-      "analysis": "1Y/3Y/5Y/7Y 名义收益率分别 4.04%（2026-08-10，+3.00bp）、4.31%（2026-08-10，+6.00bp）、4.41%（2026-08-10，+6.00bp）、4.56%（2026-08-10，+7.00bp）；5Y-3Y 斜率 10.00bp（2026-08-10，0.00bp）、7Y-5Y 斜率 15.00bp（2026-08-10，+1.00bp）轻微陡化。5Y/7Y 实际收益率 DFII5 2.16%（2026-08-10，+3.00bp）、DFII7 2.28%（2026-08-10，+3.00bp）；5Y/7Y 通胀补偿 UST_5Y_BREAKEVEN 2.25%（2026-08-10，+3.00bp）、UST_7Y_BREAKEVEN 2.28%（2026-08-10，+4.00bp），通胀补偿走阔。FRBSF 模型分解（model_decomposition，2026-08-05 已滞后 6 日）显示预期短率 2Y 3.90%（2026-08-05，-0.54bp）、期限溢价 10Y 1.29%（2026-08-05，+0.22bp）；腹部上行更多由期限溢价与通胀补偿驱动，预期短率小幅下修，归因置信度中低。10Y 仅作背景：DGS10 4.72%（2026-08-10，+7.00bp）、DFII10 2.43%（2026-08-10，+3.00bp），二者须分开命名。"
+      "label": "中性",
+      "one_liner": "1Y/3Y/5Y/7Y 腹部收益率小幅回落，宽松重定价；10Y 仅作背景；T-bill 供给放量但需求走弱。",
+      "analysis": "1Y/3Y/5Y/7Y 名义腹部组合整体回落：1Y 4.03%（2026-08-11，-0.01%）、3Y 4.27%（2026-08-11，-0.04%）、5Y 4.39%（2026-08-11，-0.02%）、7Y 4.54%（2026-08-11，-0.02%）；腹部平均动量 -2.25bp（2026-08-11，环比未知）指向近端宽松重定价。曲线腹部斜率：5Y-3Y 12.00bp（2026-08-11，+2.00bp）、7Y-5Y 15.00bp（2026-08-11，+0.00bp），基本平稳。实际收益率（Treasury 官方 TIPS 恒定期限）5Y 2.16%（2026-08-11，+0.00%）、7Y 2.28%（2026-08-11，+0.00%）持平；通胀补偿（名义减实际，含预期通胀、通胀风险溢价与 TIPS 流动性影响，非纯通胀预期）5Y 2.23%（2026-08-11，-0.02%）、7Y 2.26%（2026-08-11，-0.02%）小幅回落。FRBSF（Christensen-Rudebusch 模型分解，model_decomposition，非期货直接定价、非调查共识、非唯一因果）显示：2Y 平均预期短率 3.94%（2026-08-10，+0.04%）、10Y 3.46%（2026-08-10，+0.04%），2Y 期限溢价 0.24%（2026-08-10，+0.01%）、10Y 1.33%（2026-08-10，+0.03%）；名义收益率回落主要由预期短率小幅下行与期限溢价变化共同驱动，归因候选为政策路径预期边际缓和，置信度中等。10Y 名义 4.70%（2026-08-11，-0.02%）仅作长期折现率背景。"
     },
     "jpy_carry": {
-      "label": "偏紧",
-      "one_liner": "日元 carry 处于去杠杆（空头回补）状态，融资端抬升、利差压缩、波动率放大，脆弱性偏高但非急性。",
-      "analysis": "融资端 JPY_CALL 0.98%（2026-08-06，20 日 +0.003000pt）缓慢抬升仍低；JGB10 2.822%（2026-08-11，20 日 +0.077000pt）高位吸引资金回流。利差与汇率 USDJPY 157.87（2026-08-06，5 日 -2.34、20 日 -4.42），US_JP_10Y 182.80bp（2026-08-07，5 日 -12.10bp、8.2 分位）压缩至历史低位，carry 收益端顺风减弱；USDJPY 20 日实现波动率 11.56%（2026-08-06，5 日 +2.49%、20 日 +6.31%）波动率放大压低夏普。CFTC：空头 -71,982.00 口（2026-08-04，-27.20%）、多头 +45,957.00 口（2026-08-04，+45.38%）、空头占比 0.566886（2026-08-04，-0.156382）、driver 为 short_covering（jpy:CFTC_DECOMPOSITION），carry 未加杠杆、不构成美元/风险资产边际支撑。高 JGB 收益率与日元升值构成反转踩踏风险，属 P1 级情景风险。"
+      "label": "中性",
+      "one_liner": "JPY carry 空头回补主导，不构成美元支撑；波动率上行提示拥挤反转风险，属 P2 级情景观察。",
+      "analysis": "JPY carry 当前处于空头回补主导的去杠杆早期：CFTC 拆解 driver=short_covering，gross short -71982.0（2026-08-04，1日 -71982.0）、gross long +45957.0（2026-08-04，1日 +45957.0）、short share 0.57（2026-08-04，环比未知）、net -0.11（2026-08-04，环比未知）；carry_usd_support=false，即空头资金流退潮、不支撑美元 carry 加杠杆。汇率端 USDJPY 158.41（2026-08-07，5日 -1.80、20日 -3.88）温和回落，JGB10 2.86%（2026-08-12，+0.03%），美日 10Y 利差 186.40bp（2026-08-10，+1.50bp）。波动率 USDJPY_VOL20 11.66（2026-08-07，20日 +6.41）上行，提示拥挤仓位下反转踩踏风险上升。结论：当前为去杠杆/回补而非加杠杆，属 P2 级情景观察；若波动率与 short share 同步抬升并触发 USDJPY 快速上行，则 carry unwind 对风险资产的传导需上修。"
     }
   }
 }
