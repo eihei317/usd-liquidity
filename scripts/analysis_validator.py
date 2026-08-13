@@ -922,6 +922,9 @@ def publish_analysis_candidate(
         errors.extend(validate_analysis(candidate, model_input))
     if errors:
         return errors
+    # Mark the published artifact so the frontend can read it inline from data.js
+    # (no HTTP fetch needed) and distinguish it from run.py's pending placeholder.
+    candidate.setdefault("meta", {})["status"] = "published"
     try:
         _atomic_write_json(candidate, Path(output_path))
     except (OSError, TypeError, ValueError) as exc:
