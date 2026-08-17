@@ -1,6 +1,6 @@
 {
   "meta": {
-    "generated_at_bjt": "2026-08-14 11:22:00 UTC+08:00",
+    "generated_at_bjt": "2026-08-17 11:09:44 UTC+08:00",
     "model": "rule_summary",
     "prompt_file": "/Users/eiheisun/WorkBuddy/2026-05-04-task-1/prompts/jpy_usd_carry_liquidity_prompt.md",
     "note": "模型分析可基于 jpy_carry_model_input.json 覆盖本文件。"
@@ -25,26 +25,26 @@
     {
       "module": "美日利差",
       "status": "仍有carry收益",
-      "evidence": "182bp",
+      "evidence": "170bp",
       "explanation": "美日长端利差越宽，carry收益端越顺风"
     },
     {
       "module": "汇率与波动",
       "status": "未触发unwind",
-      "evidence": "159.38 / vol 11.81%",
+      "evidence": "159.37 / vol 11.78%",
       "explanation": "快速日元升值和波动率上升才是核心触发。"
     },
     {
       "module": "仓位拥挤度(净)",
       "status": "中性",
-      "evidence": "-10.8%",
-      "explanation": "净空头边际变化需拆分：空头回补主导（空头 -71,982.0 口、多头 +45,957.0 口、空头占比 -15.64%、净头寸 +117,939.0 口）：净空头与空头占比同步下降，carry 空头资金流正在退潮。"
+      "evidence": "-10.7%",
+      "explanation": "净空头边际变化需拆分：多空分项、空头占比与净头寸方向未形成一致且可归因的信号（空头 -16,428.0 口、多头 -13,040.0 口、空头占比 +0.09%、净头寸 +3,388.0 口），不得解读为 carry 资金流支撑美元。"
     },
     {
       "module": "空头真实强度",
-      "status": "空头回补",
-      "evidence": "56.7%",
-      "explanation": "空头回补主导（空头 -71,982.0 口、多头 +45,957.0 口、空头占比 -15.64%、净头寸 +117,939.0 口）：净空头与空头占比同步下降，carry 空头资金流正在退潮。"
+      "status": "信号混合",
+      "evidence": "56.8%",
+      "explanation": "多空分项、空头占比与净头寸方向未形成一致且可归因的信号（空头 -16,428.0 口、多头 -13,040.0 口、空头占比 +0.09%、净头寸 +3,388.0 口），不得解读为 carry 资金流支撑美元。"
     }
   ],
   "watchlist": [
