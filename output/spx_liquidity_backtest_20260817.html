@@ -1,0 +1,88 @@
+<!DOCTYPE html><html lang="zh"><head><meta charset="utf-8">
+<title>美元流动性 × 标普500 回测</title>
+<style>
+:root{--bg:#0d1117;--card:#161b22;--ink:#c9d1d9;--mut:#8b949e;--acc:#5ec8d8;--gold:#e8b04b;--red:#ff6b6b;--grn:#6bd49a;--bd:#30363d;}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,"PingFang SC","Microsoft YaHei",monospace;padding:32px;line-height:1.6}
+.wrap{max-width:980px;margin:0 auto}
+h1{font-size:22px;color:#fff;border-left:4px solid var(--acc);padding-left:12px}
+h2{font-size:16px;color:var(--acc);margin-top:30px}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:10px;padding:18px 20px;margin:14px 0}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.kpi{font-size:13px;color:var(--mut)}
+.kpi b{display:block;font-size:22px;color:#fff;margin-top:4px}
+table{width:100%;border-collapse:collapse;font-size:13px;margin-top:8px}
+th,td{border:1px solid var(--bd);padding:7px 9px;text-align:right}
+th{background:#1c232c;color:var(--acc)}
+td:first-child,th:first-child{text-align:left}
+.pos{color:var(--grn)} .neg{color:var(--red)}
+.chart{width:100%;height:auto;background:#0a0e13;border:1px solid var(--bd);border-radius:8px}
+.grid{stroke:#1c232c;stroke-width:1} .lab{font-size:11px;font-family:monospace}
+.verdict{font-size:14px;border-radius:10px;padding:16px 20px;border:1px solid var(--bd);background:linear-gradient(90deg,#10171f,#161b22)}
+.note{font-size:12px;color:var(--mut)}
+code{background:#1c232c;padding:1px 5px;border-radius:4px;color:var(--gold)}
+</style></head><body><div class="wrap">
+<h1>美元流动性监测 × 标普500 回测验证</h1>
+<p class="note">回测窗口 2026-04-14 至 2026-08-13（76 个交易日的日频信号）。流动性综合脉冲 = 我们对 RPP/TGA/VIX/HY-OAS/IG-OAS/SOFR-IORB 六项日度变化的 z 分数合成，符号约定：<b>正值=宽松/利好风险资产，负值=收紧</b>。标普500取自 FRED(SP500) 日线。下文所有统计均基于本环境可获取的 2026 日期序列。</p>
+
+<div class="verdict">
+<b>结论：</b>我们这套日频流动性脉冲与标普500的<b>同日相关性 0.44</b>、<b>领先 1 日相关性 0.12</b>、<b>领先 5 日相关性 -0.05</b>。
+样本仅 ~76 天、日频流量噪声大，信号属于<b>边际辅助</b>而非独立择时武器：领先1日的回归系数 t 值 1.0（|t|<2 即不显著）。
+多空/空仓策略相对买入持有的夏普 1.86 vs 2.85，方向命中率 0.5。
+</div>
+
+<div class="card">
+<h2 style="margin-top:0">核心统计量</h2>
+<table>
+<tr><th>指标</th><th>数值</th><th>解读</th></tr>
+<tr><td>同日相关性 (composite_t, SPX_ret_t)</td><td>0.44</td><td>流动性与股市是否同步反应</td></tr>
+<tr><td>领先1日相关性 (composite_t, SPX_ret_t+1)</td><td>0.12</td><td>流动性是否预测次日</td></tr>
+<tr><td>领先5日相关性 (composite_t, SPX_ret_t+5)</td><td>-0.05</td><td>流动性是否预测一周</td></tr>
+<tr><td>领先1日回归 t 值</td><td>1.0</td><td>|t|≥2 才显著</td></tr>
+<tr><td>方向命中率 (sign 预测次日)</td><td>0.5</td><td>50% 为随机基准</td></tr>
+<tr><td>策略在市时间占比</td><td>0.5</td><td>信号>0 才持仓</td></tr>
+</table>
+</div>
+
+<div class="card">
+<h2 style="margin-top:0">策略对比（信号>0 持多 SPX，否则空仓 vs 全程买入持有）</h2>
+<table>
+<tr><th>策略</th><th>累计收益</th><th>年化</th><th>夏普</th><th>最大回撤</th><th>日胜率</th></tr>
+<tr><td>流动性信号策略</td><td class="pos">5.3%</td><td>19.5%</td><td>1.86</td><td class="neg">-5.2%</td><td>0.3</td></tr>
+<tr><td>买入持有 (SPX)</td><td class="pos">10.9%</td><td>42.8%</td><td>2.85</td><td class="neg">-4.5%</td><td>0.6</td></tr>
+</table>
+<p class="note">窗口内 SPX 累计 11.9%。注：策略用 composite[t-1] 决定第 t 日仓位，避免前视偏差；空仓期间收益记 0。</p>
+</div>
+
+<div class="card">
+<h2 style="margin-top:0">图表：标普500（金，左轴） vs 流动性综合脉冲 z（青，右轴）</h2>
+<svg viewBox="0 0 900 360" xmlns="http://www.w3.org/2000/svg" class="chart"><line x1="55" y1="20.0" x2="845" y2="20.0" class="grid"/><line x1="55" y1="97.5" x2="845" y2="97.5" class="grid"/><line x1="55" y1="175.0" x2="845" y2="175.0" class="grid"/><line x1="55" y1="252.5" x2="845" y2="252.5" class="grid"/><line x1="55" y1="330.0" x2="845" y2="330.0" class="grid"/><polyline points="55.0,330.0 66.0,309.3 76.9,302.5 87.9,270.8 98.9,277.2 109.9,294.0 120.8,266.4 131.8,277.4 142.8,256.3 153.8,253.0 164.7,266.1 175.7,267.2 186.7,239.9 197.6,232.1 208.6,243.0 219.6,221.2 230.6,181.7 241.5,192.2 252.5,169.1 263.5,163.9 274.4,168.4 285.4,152.2 296.4,131.0 307.4,165.6 318.3,167.6 329.3,186.0 340.3,156.4 351.2,151.7 362.2,141.3 373.2,124.3 384.2,123.9 395.1,107.7 406.1,101.6 417.1,94.2 428.1,90.5 439.0,111.4 450.0,100.0 461.0,174.8 471.9,166.6 482.9,173.7 493.9,218.3 504.9,170.9 515.8,157.0 526.8,111.2 537.8,127.2 548.8,161.2 559.7,131.2 570.7,141.6 581.7,184.3 592.6,184.6 603.6,153.7 614.6,131.7 625.6,137.7 636.5,137.7 647.5,117.5 658.5,130.0 669.4,137.9 680.4,115.2 691.4,103.4 702.4,104.5 713.3,118.9 724.3,147.2 735.3,152.6 746.2,128.0 757.2,131.8 768.2,165.6 779.2,200.0 790.1,94.0 801.1,35.4 812.1,37.1 823.1,46.4 834.0,38.8 845.0,20.0" fill="none" stroke="#e8b04b" stroke-width="2"/><polyline points="55.0,162.6 66.0,255.1 76.9,202.7 87.9,168.6 98.9,240.3 109.9,182.1 120.8,175.3 131.8,218.5 142.8,199.8 153.8,208.3 164.7,187.7 175.7,193.2 186.7,194.4 197.6,140.8 208.6,201.6 219.6,163.1 230.6,174.4 241.5,214.4 252.5,204.8 263.5,193.8 274.4,188.3 285.4,169.1 296.4,158.1 307.4,192.2 318.3,200.9 329.3,225.5 340.3,144.1 351.2,192.5 362.2,201.9 373.2,243.7 384.2,190.4 395.1,169.7 406.1,250.8 417.1,178.5 428.1,191.6 439.0,198.6 450.0,193.4 461.0,251.0 471.9,194.4 482.9,196.9 493.9,211.7 504.9,176.0 515.8,178.8 526.8,215.7 537.8,232.0 548.8,168.8 559.7,146.2 570.7,209.0 581.7,255.6 592.6,212.6 603.6,195.8 614.6,227.6 625.6,140.6 636.5,137.2 647.5,190.1 658.5,201.3 669.4,186.7 680.4,173.8 691.4,199.4 702.4,270.3 713.3,200.6 724.3,226.5 735.3,170.0 746.2,214.0 757.2,188.6 768.2,269.8 779.2,330.0 790.1,20.0 801.1,184.4 812.1,205.2 823.1,222.4 834.0,173.1 845.0,200.8" fill="none" stroke="#5ec8d8" stroke-width="1.6" stroke-dasharray="4 3"/><line x1="55" y1="197.8" x2="845" y2="197.8" stroke="#555" stroke-width="1"/><text x="55" y="32" fill="#e8b04b" class="lab">SPX (rebased=100)</text><text x="685" y="16" fill="#5ec8d8" class="lab">流动性综合脉冲 z</text><text x="55" y="352" fill="#888" class="lab" text-anchor="middle">2026-04</text><text x="252" y="352" fill="#888" class="lab" text-anchor="middle">2026-05</text><text x="450" y="352" fill="#888" class="lab" text-anchor="middle">2026-06</text><text x="648" y="352" fill="#888" class="lab" text-anchor="middle">2026-07</text><text x="845" y="352" fill="#888" class="lab" text-anchor="middle">2026-08</text></svg>
+<p class="note">青色虚线为流动性综合脉冲（z 分数，0 轴为中性）。可见两者在多数时段同向，但流动性脉冲波动更剧烈、存在明显领先/滞后错位。</p>
+</div>
+
+<div class="card">
+<h2 style="margin-top:0">最近一个月（2026-07-14 至 2026-08-14）流动性变化 vs 标普500</h2>
+<p>过去一个月标普500累计 <b class="pos">2.8%</b>；同期流动性综合脉冲均值 <b>-0.12</b>（偏紧）。分项日度流量合计：</p>
+<table>
+<tr><th>分项</th><th>月内日度变化合计</th></tr>
+<tr><td>RRP 流量</td><td>-1.69 bn</td></tr>
+<tr><td>TGA 流量</td><td>228.31 bn</td></tr>
+<tr><td>VIX 变化</td><td>-0.40 pt</td></tr>
+<tr><td>HY OAS 变化</td><td>0.02 %</td></tr>
+<tr><td>IG OAS 变化</td><td>0.02 %</td></tr>
+<tr><td>SOFR-IORB 利差变化</td><td>0.02 bp</td></tr>
+</table>
+<p class="note">正值=RRP净释放/TGA净投放/VIX回落/利差收窄（宽松）；负值=相反（收紧）。该月若 TGA 净回笼为正（TGA上升抽走准备金）则偏紧。</p>
+</div>
+
+<div class="card">
+<h2 style="margin-top:0">方法学与局限</h2>
+<ul class="note">
+<li>流动性综合脉冲由监测面板每日跟踪的六项流量指标等权 z 分数合成，与我们"更新数据并分析"产出的每日信号口径一致。</li>
+<li>样本约 76 个交易日，远小于统计稳健所需（通常 >250 日），结论仅作方向性参考。</li>
+<li>日频流量噪声大，单日变化易受技术因素（结算、缴税、月末）干扰；领先收益的相关性未达显著阈值。</li>
+<li>相关性≠因果：流动性与股市常共同受风险情绪/宏观新闻驱动，同日高相关可能源于共同因子而非传导。</li>
+<li>未计交易成本、隔夜跳空与做空可行性；策略为空仓而非做空，属保守设定。</li>
+</ul>
+</div>
+</div></body></html>
