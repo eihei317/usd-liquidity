@@ -5,6 +5,10 @@ ROOT=Path(__file__).resolve().parents[1]
 OUT=ROOT/'output'
 sys.path.insert(0,str(ROOT))
 
+def require_history_complete(coverage):
+    if coverage.get('missing') or coverage.get('treasury_failures'):
+        raise RuntimeError('历史覆盖未完成，已保留抓取产物但停止发布：'+json.dumps({'missing':coverage.get('missing',[]),'source_failures':coverage.get('treasury_failures',[])},ensure_ascii=False))
+
 def prepare_research(latest, previous_package=None, fetch=False):
     from scripts.investment_facts import enrich_package, build_market_context
     package=read(latest/'model_input.json')
@@ -127,6 +131,8 @@ def run(mode, source_run=None, candidate=None):
                 stage('syncing_capture')
                 from scripts.sync_to_github import sync
                 sync(dest,'capture')
+            if mode in ('update','history') and (work/'output/history_coverage.json').exists():
+                require_history_complete(read(work/'output/history_coverage.json'))
             stage('analyzing')
             if candidate:
                 sys.path.insert(0,str(ROOT))

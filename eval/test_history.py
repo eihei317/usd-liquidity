@@ -5,6 +5,11 @@ ROOT=Path(__file__).resolve().parents[1];sys.path.insert(0,str(ROOT))
 from scripts.charts import fetch_chart_series
 from scripts.utils import normalize_fred_value
 class History(unittest.TestCase):
+    def test_coverage_failure_blocks_publication(self):
+        from scripts.pipeline import require_history_complete
+        require_history_complete({'missing':[],'treasury_failures':[]})
+        with self.assertRaises(RuntimeError):require_history_complete({'missing':['JGB5']})
+        with self.assertRaises(RuntimeError):require_history_complete({'treasury_failures':['year unavailable']})
     def test_single_stored_spread_cannot_hide_history(self):
         rows={'SOFR':[('2026-10-27',4),('2026-10-28',4.1)],'IORB':[('2026-10-27',3.9),('2026-10-28',3.9)],'BGCR':[('2026-10-27',4),('2026-10-28',4.1)],'TGCR':[('2026-10-27',3.9),('2026-10-28',4)]}
         with patch('scripts.charts.db_metric_series',side_effect=lambda mid,days:rows.get(mid,[])),patch('scripts.charts.db_derived_series',return_value=[('2026-10-28',999)]):
