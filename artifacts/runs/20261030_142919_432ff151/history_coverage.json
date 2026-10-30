@@ -1,0 +1,1012 @@
+{
+  "scope": "全部本次canonical指标及全部派生信号；向官方源回抓可用历史，逐项列出缺口，不保证源端不存在未发布/停更资料。",
+  "series": [
+    {
+      "kind": "metric",
+      "id": "BAMLC0A0CM",
+      "source": "FRED CSV",
+      "observations": 785,
+      "first": "2023-10-30",
+      "last": "2026-10-28",
+      "status": "history_available",
+      "source_failures": []
+    },
+    {
+      "kind": "metric",
+      "id": "BAMLH0A0HYM2",
+      "source": "FRED CSV",
+      "observations": 786,
+      "first": "2023-10-30",
+      "last": "2026-10-28",
+      "status": "history_available",
+      "source_failures": []
+    },
+    {
+      "kind": "metric",
+      "id": "BGCR",
+      "source": "NY Fed Markets API",
+      "observations": 2142,
+      "first": "2018-04-02",
+      "last": "2026-10-28",
+      "status": "history_available",
+      "source_failures": []
+    },
+    {
+      "kind": "metric",
+      "id": "DCPN3M",
+      "source": "FRED CSV",
+      "observations": 5310,
+      "first": "1997-01-02",
+      "last": "2026-10-13",
+      "status": "history_available",
+      "source_failures": []
+    },
+    {
+      "kind": "metric",
+      "id": "DFEDTARU",
+      "source": "FRED CSV",
+      "observations": 6527,
+      "first": "2008-12-16",
+      "last": "2026-10-29",
+      "status": "history_available",
+      "source_failures": []
+    },
+    {
+      "kind": "metric",
+      "id": "DFII10",
+      "source": "Treasury.gov Daily Par Real Yield Curve",
+      "observations": 5961,
+      "first": "2003-01-02",
+      "last": "2026-10-29",
+      "status": "history_available",
+      "source_failures": []
+    },
+    {
+      "kind": "metric",
+      "id": "DFII5",
+      "source": "Treasury.gov Daily Par Real Yield Curve",
+      "observations": 5961,
+      "first": "2003-01-02",
+      "last": "2026-10-29",
+      "status": "history_available",
+      "source_failures": []
+    },
+    {
+      "kind": "metric",
+      "id": "DFII7",
+      "source": "Treasury.gov Daily Par Real Yield Curve",
+      "observations": 5961,
+      "first": "2003-01-02",
+      "last": "2026-10-29",
+      "status": "history_available",
+      "source_failures": []
+    },
+    {
+      "kind": "metric",
+      "id": "DGS1",
+      "source": "Treasury.gov Daily Par Yield Curve",
+      "observations": 9213,
+      "first": "1990-01-02",
+      "last": "2026-10-29",
+      "status": "history_available",
+      "source_failures": []
+    },
+    {
+      "kind": "metric",
+      "id": "DGS10",
+      "source": "Treasury.gov Daily Par Yield Curve",
+      "observations": 9213,
+      "first": "1990-01-02",
+      "last": "2026-10-29",
+      "status": "history_available",
+      "source_failures": []
+    },
+    {
+      "kind": "metric",
+      "id": "DGS2",
+      "source": "Treasury.gov Daily Par Yield Curve",
+      "observations": 9213,
+      "first": "1990-01-02",
+      "last": "2026-10-29",
+      "status": "history_available",
+      "source_failures": []
+    },
+    {
+      "kind": "metric",
+      "id": "DGS3",
+      "source": "Treasury.gov Daily Par Yield Curve",
+      "observations": 9213,
+      "first": "1990-01-02",
+      "last": "2026-10-29",
+      "status": "history_available",
+      "source_failures": []
+    },
+    {
+      "kind": "metric",
+      "id": "DGS3MO",
+      "source": "Treasury.gov Daily Par Yield Curve",
+      "observations": 9210,
+      "first": "1990-01-02",
+      "last": "2026-10-29",
+      "status": "history_available",
+      "source_failures": []
+    },
+    {
+      "kind": "metric",
+      "id": "DGS5",
+      "source": "Treasury.gov Daily Par Yield Curve",
+      "observations": 9213,
+      "first": "1990-01-02",
+      "last": "2026-10-29",
+      "status": "history_available",
+      "source_failures": []
+    },
+    {
+      "kind": "metric",
+      "id": "DGS7",
+      "source": "Treasury.gov Daily Par Yield Curve",
+      "observations": 9213,
+      "first": "1990-01-02",
+      "last": "2026-10-29",
+      "status": "history_available",
+      "source_failures": []
+    },
+    {
+      "kind": "metric",
+      "id": "DTB3",
+      "source": "FRED CSV",
+      "observations": 18197,
+      "first": "1954-01-04",
+      "last": "2026-10-28",
+      "status": "history_available",
+      "source_failures": []
+    },
+    {
+      "kind": "metric",
+      "id": "DTWEXBGS",
+      "source": "FRED CSV",
+      "observations": 5217,
+      "first": "2006-01-02",
+      "last": "2026-10-23",
+      "status": "history_available",
+      "source_failures": []
+    },
+    {
+      "kind": "metric",
+      "id": "EFFR",
+      "source": "NY Fed Markets API",
+      "observations": 6615,
+      "first": "2000-07-03",
+      "last": "2026-10-28",
+      "status": "history_available",
+      "source_failures": []
+    },
+    {
+      "kind": "metric",
+      "id": "FRBSF_EXPECTED_SHORT_10Y",
+      "source": "FRBSF Christensen-Rudebusch Model",
+      "observations": 7195,
+      "first": "1998-01-02",
+      "last": "2026-10-28",
+      "status": "history_available",
+      "source_failures": []
+    },
+    {
+      "kind": "metric",
+      "id": "FRBSF_EXPECTED_SHORT_2Y",
+      "source": "FRBSF Christensen-Rudebusch Model",
+      "observations": 7195,
+      "first": "1998-01-02",
+      "last": "2026-10-28",
+      "status": "history_available",
+      "source_failures": []
+    },
+    {
+      "kind": "metric",
+      "id": "FRBSF_TERM_PREMIUM_10Y",
+      "source": "FRBSF Christensen-Rudebusch Model",
+      "observations": 7195,
+      "first": "1998-01-02",
+      "last": "2026-10-28",
+      "status": "history_available",
+      "source_failures": []
+    },
+    {
+      "kind": "metric",
+      "id": "FRBSF_TERM_PREMIUM_2Y",
+      "source": "FRBSF Christensen-Rudebusch Model",
+      "observations": 7195,
+      "first": "1998-01-02",
+      "last": "2026-10-28",
+      "status": "history_available",
+      "source_failures": []
+    },
+    {
+      "kind": "metric",
+      "id": "IORB",
+      "source": "FRED CSV",
+      "observations": 1920,
+      "first": "2021-07-29",
+      "last": "2026-10-30",
+      "status": "history_available",
+      "source_failures": []
+    },
+    {
+      "kind": "metric",
+      "id": "NFCI",
+      "source": "FRED CSV",
+      "observations": 2912,
+      "first": "1971-01-08",
+      "last": "2026-10-23",
+      "status": "history_available",
+      "source_failures": []
+    },
+    {
+      "kind": "metric",
+      "id": "OBFR",
+      "source": "NY Fed Markets API",
+      "observations": 2679,
+      "first": "2016-03-01",
+      "last": "2026-10-28",
+      "status": "history_available",
+      "source_failures": []
+    },
+    {
+      "kind": "metric",
+      "id": "POLICY_UPPER_NYFED",
+      "source": "NY Fed Markets API",
+      "observations": 4489,
+      "first": "2008-12-16",
+      "last": "2026-10-28",
+      "status": "history_available",
+      "source_failures": []
+    },
+    {
+      "kind": "metric",
+      "id": "REPO_FAILS_UST",
+      "source": "OFR STFM",
+      "observations": 615,
+      "first": "2015-01-07",
+      "last": "2026-10-14",
+      "status": "history_available",
+      "source_failures": []
+    },
+    {
+      "kind": "metric",
+      "id": "RRPONTSYD",
+      "source": "NY Fed Markets API",
+      "observations": 3386,
+      "first": "2003-02-07",
+      "last": "2026-10-29",
+      "status": "history_available",
+      "source_failures": []
+    },
+    {
+      "kind": "metric",
+      "id": "SOFR",
+      "source": "NY Fed Markets API",
+      "observations": 2142,
+      "first": "2018-04-02",
+      "last": "2026-10-28",
+      "status": "history_available",
+      "source_failures": []
+    },
+    {
+      "kind": "metric",
+      "id": "SOFR_VOLUME",
+      "source": "NY Fed Markets API",
+      "observations": 2142,
+      "first": "2018-04-02",
+      "last": "2026-10-28",
+      "status": "history_available",
+      "source_failures": []
+    },
+    {
+      "kind": "metric",
+      "id": "SOMA",
+      "source": "NY Fed Markets API",
+      "observations": 1217,
+      "first": "2003-07-09",
+      "last": "2026-10-28",
+      "status": "history_available",
+      "source_failures": []
+    },
+    {
+      "kind": "metric",
+      "id": "SRP_ACCEPTED",
+      "source": "NY Fed Markets API",
+      "observations": 1311,
+      "first": "2021-07-29",
+      "last": "2026-10-29",
+      "status": "history_available",
+      "source_failures": []
+    },
+    {
+      "kind": "metric",
+      "id": "SRP_RATE",
+      "source": "NY Fed Markets API",
+      "observations": 221,
+      "first": "2025-12-11",
+      "last": "2026-10-29",
+      "status": "history_available",
+      "source_failures": []
+    },
+    {
+      "kind": "metric",
+      "id": "T10Y2Y",
+      "source": "Treasury.gov Daily Par Yield Curve",
+      "observations": 9213,
+      "first": "1990-01-02",
+      "last": "2026-10-29",
+      "status": "history_available",
+      "source_failures": []
+    },
+    {
+      "kind": "metric",
+      "id": "T10Y3M",
+      "source": "Treasury.gov Daily Par Yield Curve",
+      "observations": 9210,
+      "first": "1990-01-02",
+      "last": "2026-10-29",
+      "status": "history_available",
+      "source_failures": []
+    },
+    {
+      "kind": "metric",
+      "id": "TBILL_AUCTION_BTC",
+      "source": "TreasuryDirect",
+      "observations": 3493,
+      "first": "1999-10-18",
+      "last": "2026-10-29",
+      "status": "history_available",
+      "source_failures": []
+    },
+    {
+      "kind": "metric",
+      "id": "TBILL_AUCTION_SIZE",
+      "source": "TreasuryDirect",
+      "observations": 3493,
+      "first": "1999-10-18",
+      "last": "2026-10-29",
+      "status": "history_available",
+      "source_failures": []
+    },
+    {
+      "kind": "metric",
+      "id": "TGA",
+      "source": "Treasury FiscalData",
+      "observations": 1136,
+      "first": "2022-04-18",
+      "last": "2026-10-28",
+      "status": "history_available",
+      "source_failures": []
+    },
+    {
+      "kind": "metric",
+      "id": "TGCR",
+      "source": "NY Fed Markets API",
+      "observations": 2142,
+      "first": "2018-04-02",
+      "last": "2026-10-28",
+      "status": "history_available",
+      "source_failures": []
+    },
+    {
+      "kind": "metric",
+      "id": "UST_AUCTION_BTC",
+      "source": "TreasuryDirect",
+      "observations": 213,
+      "first": "2009-02-26",
+      "last": "2026-10-29",
+      "status": "history_available",
+      "source_failures": []
+    },
+    {
+      "kind": "metric",
+      "id": "VIXCLS",
+      "source": "FRED CSV",
+      "observations": 9305,
+      "first": "1990-01-02",
+      "last": "2026-10-28",
+      "status": "history_available",
+      "source_failures": []
+    },
+    {
+      "kind": "metric",
+      "id": "WRESBAL",
+      "source": "FRED CSV",
+      "observations": 1246,
+      "first": "2002-12-18",
+      "last": "2026-10-28",
+      "status": "history_available",
+      "source_failures": []
+    },
+    {
+      "kind": "derived",
+      "id": "SOFR_ANCHOR",
+      "observations": 1310,
+      "first": "2021-07-29",
+      "last": "2026-10-28",
+      "status": "history_available",
+      "note": "仅使用同日IORB实际存在后的利差，不混入早期目标上限代理。"
+    },
+    {
+      "kind": "derived",
+      "id": "SOFR_VOLUME_IMPACT",
+      "observations": 1310,
+      "first": "2021-07-29",
+      "last": "2026-10-28",
+      "status": "history_available",
+      "note": "仅使用同日IORB实际存在后的利差，不混入早期目标上限代理。"
+    },
+    {
+      "kind": "derived",
+      "id": "BGCR_TGCR",
+      "observations": 2142,
+      "first": "2018-04-02",
+      "last": "2026-10-28",
+      "status": "history_available",
+      "note": "按共同观测日期计算；依赖缺失不补零、不用当前值回填。"
+    },
+    {
+      "kind": "derived",
+      "id": "CP_PROXY",
+      "observations": 3066,
+      "first": "2008-12-19",
+      "last": "2026-10-13",
+      "status": "history_available",
+      "note": "按共同观测日期计算；依赖缺失不补零、不用当前值回填。"
+    },
+    {
+      "kind": "derived",
+      "id": "TGA_FLOW",
+      "observations": 1135,
+      "first": "2022-04-19",
+      "last": "2026-10-28",
+      "status": "history_available",
+      "note": "按共同观测日期计算；依赖缺失不补零、不用当前值回填。"
+    },
+    {
+      "kind": "derived",
+      "id": "RRP_FLOW",
+      "observations": 3385,
+      "first": "2003-03-19",
+      "last": "2026-10-29",
+      "status": "history_available",
+      "note": "按共同观测日期计算；依赖缺失不补零、不用当前值回填。"
+    },
+    {
+      "kind": "derived",
+      "id": "RRP_BUFFER",
+      "observations": 3386,
+      "first": "2003-02-07",
+      "last": "2026-10-29",
+      "status": "history_available",
+      "note": "按共同观测日期计算；依赖缺失不补零、不用当前值回填。"
+    },
+    {
+      "kind": "derived",
+      "id": "UST_1Y_YIELD",
+      "observations": 9213,
+      "first": "1990-01-02",
+      "last": "2026-10-29",
+      "status": "history_available",
+      "note": "按共同观测日期计算；依赖缺失不补零、不用当前值回填。"
+    },
+    {
+      "kind": "derived",
+      "id": "UST_1Y_CHANGE_BP",
+      "observations": 9212,
+      "first": "1990-01-03",
+      "last": "2026-10-29",
+      "status": "history_available",
+      "note": "按共同观测日期计算；依赖缺失不补零、不用当前值回填。"
+    },
+    {
+      "kind": "derived",
+      "id": "UST_3Y_YIELD",
+      "observations": 9213,
+      "first": "1990-01-02",
+      "last": "2026-10-29",
+      "status": "history_available",
+      "note": "按共同观测日期计算；依赖缺失不补零、不用当前值回填。"
+    },
+    {
+      "kind": "derived",
+      "id": "UST_3Y_CHANGE_BP",
+      "observations": 9212,
+      "first": "1990-01-03",
+      "last": "2026-10-29",
+      "status": "history_available",
+      "note": "按共同观测日期计算；依赖缺失不补零、不用当前值回填。"
+    },
+    {
+      "kind": "derived",
+      "id": "UST_5Y_YIELD",
+      "observations": 9213,
+      "first": "1990-01-02",
+      "last": "2026-10-29",
+      "status": "history_available",
+      "note": "按共同观测日期计算；依赖缺失不补零、不用当前值回填。"
+    },
+    {
+      "kind": "derived",
+      "id": "UST_5Y_CHANGE_BP",
+      "observations": 9212,
+      "first": "1990-01-03",
+      "last": "2026-10-29",
+      "status": "history_available",
+      "note": "按共同观测日期计算；依赖缺失不补零、不用当前值回填。"
+    },
+    {
+      "kind": "derived",
+      "id": "UST_7Y_YIELD",
+      "observations": 9213,
+      "first": "1990-01-02",
+      "last": "2026-10-29",
+      "status": "history_available",
+      "note": "按共同观测日期计算；依赖缺失不补零、不用当前值回填。"
+    },
+    {
+      "kind": "derived",
+      "id": "UST_7Y_CHANGE_BP",
+      "observations": 9212,
+      "first": "1990-01-03",
+      "last": "2026-10-29",
+      "status": "history_available",
+      "note": "按共同观测日期计算；依赖缺失不补零、不用当前值回填。"
+    },
+    {
+      "kind": "derived",
+      "id": "UST_BELLY_MOMENTUM",
+      "observations": 9212,
+      "first": "1990-01-03",
+      "last": "2026-10-29",
+      "status": "history_available",
+      "note": "按共同观测日期计算；依赖缺失不补零、不用当前值回填。"
+    },
+    {
+      "kind": "derived",
+      "id": "UST_5Y3Y_SLOPE_BP",
+      "observations": 9213,
+      "first": "1990-01-02",
+      "last": "2026-10-29",
+      "status": "history_available",
+      "note": "按共同观测日期计算；依赖缺失不补零、不用当前值回填。"
+    },
+    {
+      "kind": "derived",
+      "id": "UST_7Y5Y_SLOPE_BP",
+      "observations": 9213,
+      "first": "1990-01-02",
+      "last": "2026-10-29",
+      "status": "history_available",
+      "note": "按共同观测日期计算；依赖缺失不补零、不用当前值回填。"
+    },
+    {
+      "kind": "derived",
+      "id": "UST_5Y_REAL_LEVEL",
+      "observations": 5961,
+      "first": "2003-01-02",
+      "last": "2026-10-29",
+      "status": "history_available",
+      "note": "按共同观测日期计算；依赖缺失不补零、不用当前值回填。"
+    },
+    {
+      "kind": "derived",
+      "id": "UST_5Y_REAL_CHANGE_BP",
+      "observations": 5960,
+      "first": "2003-01-03",
+      "last": "2026-10-29",
+      "status": "history_available",
+      "note": "按共同观测日期计算；依赖缺失不补零、不用当前值回填。"
+    },
+    {
+      "kind": "derived",
+      "id": "UST_5Y_BREAKEVEN",
+      "observations": 5961,
+      "first": "2003-01-02",
+      "last": "2026-10-29",
+      "status": "history_available",
+      "note": "按共同观测日期计算；依赖缺失不补零、不用当前值回填。"
+    },
+    {
+      "kind": "derived",
+      "id": "UST_7Y_REAL_LEVEL",
+      "observations": 5961,
+      "first": "2003-01-02",
+      "last": "2026-10-29",
+      "status": "history_available",
+      "note": "按共同观测日期计算；依赖缺失不补零、不用当前值回填。"
+    },
+    {
+      "kind": "derived",
+      "id": "UST_7Y_REAL_CHANGE_BP",
+      "observations": 5960,
+      "first": "2003-01-03",
+      "last": "2026-10-29",
+      "status": "history_available",
+      "note": "按共同观测日期计算；依赖缺失不补零、不用当前值回填。"
+    },
+    {
+      "kind": "derived",
+      "id": "UST_7Y_BREAKEVEN",
+      "observations": 5961,
+      "first": "2003-01-02",
+      "last": "2026-10-29",
+      "status": "history_available",
+      "note": "按共同观测日期计算；依赖缺失不补零、不用当前值回填。"
+    },
+    {
+      "kind": "derived",
+      "id": "FRBSF_EXPECTED_SHORT_2Y_CHANGE",
+      "observations": 7195,
+      "first": "1998-01-02",
+      "last": "2026-10-28",
+      "status": "history_available",
+      "note": "按共同观测日期计算；依赖缺失不补零、不用当前值回填。"
+    },
+    {
+      "kind": "derived",
+      "id": "FRBSF_TERM_PREMIUM_2Y_CHANGE",
+      "observations": 7195,
+      "first": "1998-01-02",
+      "last": "2026-10-28",
+      "status": "history_available",
+      "note": "按共同观测日期计算；依赖缺失不补零、不用当前值回填。"
+    },
+    {
+      "kind": "derived",
+      "id": "FRBSF_EXPECTED_SHORT_10Y_CHANGE",
+      "observations": 7195,
+      "first": "1998-01-02",
+      "last": "2026-10-28",
+      "status": "history_available",
+      "note": "按共同观测日期计算；依赖缺失不补零、不用当前值回填。"
+    },
+    {
+      "kind": "derived",
+      "id": "FRBSF_TERM_PREMIUM_10Y_CHANGE",
+      "observations": 7195,
+      "first": "1998-01-02",
+      "last": "2026-10-28",
+      "status": "history_available",
+      "note": "按共同观测日期计算；依赖缺失不补零、不用当前值回填。"
+    },
+    {
+      "kind": "derived",
+      "id": "UST_10Y_NOMINAL_LEVEL",
+      "observations": 9213,
+      "first": "1990-01-02",
+      "last": "2026-10-29",
+      "status": "history_available",
+      "note": "按共同观测日期计算；依赖缺失不补零、不用当前值回填。"
+    },
+    {
+      "kind": "derived",
+      "id": "UST_10Y_NOMINAL_CHANGE_BP",
+      "observations": 9212,
+      "first": "1990-01-03",
+      "last": "2026-10-29",
+      "status": "history_available",
+      "note": "按共同观测日期计算；依赖缺失不补零、不用当前值回填。"
+    },
+    {
+      "kind": "derived",
+      "id": "NOMINAL_10Y",
+      "observations": 9213,
+      "first": "1990-01-02",
+      "last": "2026-10-29",
+      "status": "history_available",
+      "note": "按共同观测日期计算；依赖缺失不补零、不用当前值回填。"
+    },
+    {
+      "kind": "derived",
+      "id": "UST_10Y_REAL_LEVEL",
+      "observations": 5961,
+      "first": "2003-01-02",
+      "last": "2026-10-29",
+      "status": "history_available",
+      "note": "按共同观测日期计算；依赖缺失不补零、不用当前值回填。"
+    },
+    {
+      "kind": "derived",
+      "id": "UST_10Y_REAL_CHANGE_BP",
+      "observations": 5960,
+      "first": "2003-01-03",
+      "last": "2026-10-29",
+      "status": "history_available",
+      "note": "按共同观测日期计算；依赖缺失不补零、不用当前值回填。"
+    },
+    {
+      "kind": "derived",
+      "id": "REAL_10Y",
+      "observations": 5961,
+      "first": "2003-01-02",
+      "last": "2026-10-29",
+      "status": "history_available",
+      "note": "按共同观测日期计算；依赖缺失不补零、不用当前值回填。"
+    },
+    {
+      "kind": "derived",
+      "id": "REAL_10Y_MOMENTUM",
+      "observations": 5960,
+      "first": "2003-01-03",
+      "last": "2026-10-29",
+      "status": "history_available",
+      "note": "按共同观测日期计算；依赖缺失不补零、不用当前值回填。"
+    },
+    {
+      "kind": "derived",
+      "id": "HY_CHANGE",
+      "observations": 785,
+      "first": "2023-10-31",
+      "last": "2026-10-28",
+      "status": "history_available",
+      "note": "按共同观测日期计算；依赖缺失不补零、不用当前值回填。"
+    },
+    {
+      "kind": "derived",
+      "id": "IG_CHANGE",
+      "observations": 784,
+      "first": "2023-10-31",
+      "last": "2026-10-28",
+      "status": "history_available",
+      "note": "按共同观测日期计算；依赖缺失不补零、不用当前值回填。"
+    },
+    {
+      "kind": "derived",
+      "id": "VIX_RISK",
+      "observations": 9305,
+      "first": "1990-01-02",
+      "last": "2026-10-28",
+      "status": "history_available",
+      "note": "按共同观测日期计算；依赖缺失不补零、不用当前值回填。"
+    },
+    {
+      "kind": "derived",
+      "id": "VIX_MOMENTUM",
+      "observations": 9304,
+      "first": "1990-01-03",
+      "last": "2026-10-28",
+      "status": "history_available",
+      "note": "按共同观测日期计算；依赖缺失不补零、不用当前值回填。"
+    },
+    {
+      "kind": "derived",
+      "id": "USD_CHANGE",
+      "observations": 5216,
+      "first": "2006-01-03",
+      "last": "2026-10-23",
+      "status": "history_available",
+      "note": "按共同观测日期计算；依赖缺失不补零、不用当前值回填。"
+    },
+    {
+      "kind": "derived",
+      "id": "UST_10Y2Y",
+      "observations": 9213,
+      "first": "1990-01-02",
+      "last": "2026-10-29",
+      "status": "history_available",
+      "note": "按共同观测日期计算；依赖缺失不补零、不用当前值回填。"
+    },
+    {
+      "kind": "derived",
+      "id": "UST_10Y3M",
+      "observations": 9210,
+      "first": "1990-01-02",
+      "last": "2026-10-29",
+      "status": "history_available",
+      "note": "按共同观测日期计算；依赖缺失不补零、不用当前值回填。"
+    },
+    {
+      "kind": "derived",
+      "id": "NFCI_LEVEL",
+      "observations": 2912,
+      "first": "1971-01-08",
+      "last": "2026-10-23",
+      "status": "history_available",
+      "note": "按共同观测日期计算；依赖缺失不补零、不用当前值回填。"
+    },
+    {
+      "kind": "derived",
+      "id": "TBILL_AUCTION_STRESS",
+      "observations": 3493,
+      "first": "1999-10-18",
+      "last": "2026-10-29",
+      "status": "history_available",
+      "note": "按共同观测日期计算；依赖缺失不补零、不用当前值回填。"
+    },
+    {
+      "kind": "derived",
+      "id": "AUCTION_BTC",
+      "observations": 213,
+      "first": "2009-02-26",
+      "last": "2026-10-29",
+      "status": "history_available",
+      "note": "按共同观测日期计算；依赖缺失不补零、不用当前值回填。"
+    },
+    {
+      "kind": "jpy",
+      "id": "CFTC_JPY_GROSS_LONG",
+      "source": "JPY captured database; source provenance in payload",
+      "observations": 1940,
+      "first": "1986-01-15",
+      "last": "2026-10-20",
+      "status": "history_available"
+    },
+    {
+      "kind": "jpy",
+      "id": "CFTC_JPY_GROSS_SHORT",
+      "source": "JPY captured database; source provenance in payload",
+      "observations": 1940,
+      "first": "1986-01-15",
+      "last": "2026-10-20",
+      "status": "history_available"
+    },
+    {
+      "kind": "jpy",
+      "id": "CFTC_JPY_NET_OI",
+      "source": "JPY captured database; source provenance in payload",
+      "observations": 1940,
+      "first": "1986-01-15",
+      "last": "2026-10-20",
+      "status": "history_available"
+    },
+    {
+      "kind": "jpy",
+      "id": "CFTC_JPY_OPEN_INTEREST",
+      "source": "JPY captured database; source provenance in payload",
+      "observations": 1940,
+      "first": "1986-01-15",
+      "last": "2026-10-20",
+      "status": "history_available"
+    },
+    {
+      "kind": "jpy",
+      "id": "CFTC_JPY_SHORT_SHARE",
+      "source": "JPY captured database; source provenance in payload",
+      "observations": 1940,
+      "first": "1986-01-15",
+      "last": "2026-10-20",
+      "status": "history_available"
+    },
+    {
+      "kind": "jpy",
+      "id": "DGS10",
+      "source": "JPY captured database; source provenance in payload",
+      "observations": 16191,
+      "first": "1962-01-02",
+      "last": "2026-10-28",
+      "status": "history_available"
+    },
+    {
+      "kind": "jpy",
+      "id": "DGS2",
+      "source": "JPY captured database; source provenance in payload",
+      "observations": 12599,
+      "first": "1976-06-01",
+      "last": "2026-10-28",
+      "status": "history_available"
+    },
+    {
+      "kind": "jpy",
+      "id": "JGB10",
+      "source": "JPY captured database; source provenance in payload",
+      "observations": 9949,
+      "first": "1986-07-05",
+      "last": "2026-10-30",
+      "status": "history_available"
+    },
+    {
+      "kind": "jpy",
+      "id": "JGB2",
+      "source": "JPY captured database; source provenance in payload",
+      "observations": 12949,
+      "first": "1974-09-24",
+      "last": "2026-10-30",
+      "status": "history_available"
+    },
+    {
+      "kind": "jpy",
+      "id": "JGB30",
+      "source": "JPY captured database; source provenance in payload",
+      "observations": 6633,
+      "first": "1999-09-02",
+      "last": "2026-10-30",
+      "status": "history_available"
+    },
+    {
+      "kind": "jpy",
+      "id": "JGB5",
+      "source": "MOF official historical CSV + actual latest quote",
+      "observations": 13310,
+      "first": "1974-09-24",
+      "last": "2026-10-30",
+      "status": "history_available"
+    },
+    {
+      "kind": "jpy",
+      "id": "JPY_CALL",
+      "source": "JPY captured database; source provenance in payload",
+      "observations": 7063,
+      "first": "1998-01-05",
+      "last": "2026-10-28",
+      "status": "history_available"
+    },
+    {
+      "kind": "jpy",
+      "id": "JPY_NEER",
+      "source": "JPY captured database; source provenance in payload",
+      "observations": 7969,
+      "first": "1996-04-11",
+      "last": "2026-10-27",
+      "status": "history_available"
+    },
+    {
+      "kind": "jpy",
+      "id": "USDJPY",
+      "source": "JPY captured database; source provenance in payload",
+      "observations": 7063,
+      "first": "1998-01-05",
+      "last": "2026-10-28",
+      "status": "history_available"
+    },
+    {
+      "kind": "jpy",
+      "id": "USDJPY_VOL20",
+      "source": "JPY captured database; source provenance in payload",
+      "observations": 7043,
+      "first": "1998-02-03",
+      "last": "2026-10-28",
+      "status": "history_available"
+    },
+    {
+      "kind": "jpy",
+      "id": "US_JP_10Y",
+      "source": "JPY captured database; source provenance in payload",
+      "observations": 9520,
+      "first": "1986-07-07",
+      "last": "2026-09-30",
+      "status": "history_available"
+    },
+    {
+      "kind": "jpy",
+      "id": "US_JP_2Y",
+      "source": "JPY captured database; source provenance in payload",
+      "observations": 11612,
+      "first": "1976-06-01",
+      "last": "2026-09-30",
+      "status": "history_available"
+    },
+    {
+      "kind": "market",
+      "id": "SP500",
+      "source": "FRED public source history",
+      "observations": 2512,
+      "first": "2016-10-31",
+      "last": "2026-10-28",
+      "status": "history_available"
+    },
+    {
+      "kind": "market",
+      "id": "NASDAQCOM",
+      "source": "FRED public source history",
+      "observations": 14052,
+      "first": "1971-02-05",
+      "last": "2026-10-29",
+      "status": "history_available"
+    },
+    {
+      "kind": "market",
+      "id": "CBBTCUSD",
+      "source": "FRED public source history",
+      "observations": 4316,
+      "first": "2014-12-01",
+      "last": "2026-10-29",
+      "status": "history_available"
+    }
+  ],
+  "missing": [],
+  "treasury_failures": []
+}

@@ -21,6 +21,10 @@ class History(unittest.TestCase):
             work=Path(temp);latest=work/'output/latest';latest.mkdir(parents=True)
             with sqlite3.connect(work/'output/usd_liquidity.db') as c:
                 c.execute('CREATE TABLE jpy_carry_series_ts(series_id TEXT,as_of TEXT,value REAL,unit TEXT,source TEXT,source_url TEXT,snapshot_file TEXT,ingested_at TEXT,UNIQUE(series_id,as_of))')
+                c.execute('CREATE TABLE metrics_ts(metric_id TEXT,as_of TEXT,value REAL)')
+                c.execute("INSERT INTO metrics_ts VALUES('IORB','2021-07-29',0.15)")
+                c.execute('CREATE TABLE derived_signals_ts(signal_id TEXT,as_of TEXT,value REAL)')
+                c.execute("INSERT INTO derived_signals_ts VALUES('SOFR_ANCHOR','2018-04-02',3)")
             c.close()
             coverage={'series':[{'kind':'jpy','id':'JGB5','status':'missing_history'}],'missing':['JGB5']}
             (work/'output/history_coverage.json').write_text(json.dumps(coverage),encoding='utf-8')
@@ -31,4 +35,7 @@ class History(unittest.TestCase):
             self.assertEqual(before,package)
             value=json.loads((work/'output/history_coverage.json').read_text(encoding='utf-8'))
             self.assertEqual([],value['missing']);self.assertEqual(2,value['series'][0]['observations'])
+            with sqlite3.connect(work/'output/usd_liquidity.db') as check:
+                self.assertEqual(0,check.execute('SELECT COUNT(*) FROM derived_signals_ts').fetchone()[0])
+            check.close()
 if __name__=='__main__':unittest.main()

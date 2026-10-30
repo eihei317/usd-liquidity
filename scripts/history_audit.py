@@ -74,6 +74,7 @@ def rebuild_and_audit(metrics,signals,db_path):
                 engine.read_tga_history=lambda *a: []
                 computed,_,_=engine.derive_signals(current)
                 for s in computed:
+                    if s.id in {'SOFR_ANCHOR','SOFR_VOLUME_IMPACT'} and not any(m.id=='IORB' for m in current):continue
                     if s.value is None or s.as_of!=day:continue
                     p=previous.get(s.id); ch=s.value-p if p is not None else None
                     c.execute('INSERT INTO derived_signals_ts(signal_id,signal_name,as_of,value,previous,change,unit,severity,snapshot_file,ingested_at) VALUES(?,?,?,?,?,?,?,?,?,?)',(s.id,s.name,day,s.value,p,ch,s.unit,'','history_rebuild',datetime.now().isoformat()))
