@@ -118,6 +118,12 @@ _SIGNAL_BASE_METRICS = {
 }
 
 _SIGNAL_BASE_FACTS = {
+    "SOFR_ANCHOR": ["SOFR", "IORB"],
+    "SOFR_VOLUME_IMPACT": ["SOFR", "IORB", "SOFR_VOLUME"],
+    "BGCR_TGCR": ["BGCR", "TGCR"],
+    "CP_PROXY": ["DCPN3M", "DFEDTARU"],
+    "UST_5Y3Y_SLOPE_BP": ["DGS5", "DGS3"],
+    "UST_7Y5Y_SLOPE_BP": ["DGS7", "DGS5"],
     "UST_5Y_BREAKEVEN": ["DGS5", "DFII5"],
     "UST_7Y_BREAKEVEN": ["DGS7", "DFII7"],
 }
@@ -171,6 +177,14 @@ def _metric_selection_key(metric: Metric) -> Tuple[int, str, int, int]:
     return usable, as_of, _source_rank(metric), has_previous
 
 
+def _history_summary(metric):
+    rows=sorted({str(r['date']):r['value'] for r in (metric.extra or {}).get('history',[]) if isinstance(r,dict) and r.get('date') and isinstance(r.get('value'),(int,float))}.items())
+    result={'observations':len(rows),'basis':'valid observations; weekly series count weeks'}
+    for n in (5,20,60):
+        if len(rows)>n:
+            result[str(n)]={'start':rows[-n-1][0],'end':rows[-1][0],'change':rows[-1][1]-rows[-n-1][1]}
+    return result
+
 def _canonical_metric_fact(metric: Metric, candidates: List[Metric]) -> Dict[str, Any]:
     alternatives = [
         {
@@ -202,6 +216,9 @@ def _canonical_metric_fact(metric: Metric, candidates: List[Metric]) -> Dict[str
         "status": metric.status,
         "stale_days": metric.stale_days,
         "notes": metric.notes,
+        "fact_kind": "observed",
+        "history_summary": _history_summary(metric),
+        "distribution": {k:v for k,v in (metric.extra or {}).get("raw_latest",{}).items() if "percentile" in k.lower()},
         "source_selection": {
             "selected_source": metric.source,
             "precedence_rank": _source_rank(metric),
@@ -275,8 +292,8 @@ def _build_derived_facts(signals: List[DerivedSignal], metrics: List[Metric]) ->
             "previous": selected.previous,
             "change": selected.change,
             "unit": selected.unit,
-            "severity": selected.severity,
-            "interpretation": selected.interpretation,
+            "fact_kind": "calculated",
+            "method_version": "2.0",
             "as_of": selected.as_of or (base_metric.as_of if base_metric else None),
             "previous_as_of": base_metric.previous_as_of if base_metric else None,
             "frequency": DATA_FREQUENCY_RULES.get(base_metric_id or signal_id, (base_metric.frequency if base_metric else "derived", "", ""))[0],
@@ -313,14 +330,8 @@ def _jpy_change(rows: List[Tuple[str, float]], days: int) -> Tuple[Optional[floa
     latest_date = parse_date_guess(rows[-1][0])
     if not latest_date:
         return None, None, None
-    from datetime import date, timedelta
-    cutoff = (date.fromisoformat(latest_date) - timedelta(days=days)).isoformat()
-    previous = None
-    for row in rows:
-        if row[0] <= cutoff:
-            previous = row
-        else:
-            break
+    # Daily windows count distinct valid observations, not calendar days.
+    previous = rows[-days-1] if len(rows) > days else None
     if previous is None:
         return None, None, None
     change = rows[-1][1] - previous[1]
@@ -376,10 +387,11 @@ def _compact_jpy_carry_payload() -> Tuple[Optional[Dict[str, Any]], List[Dict[st
             "change_20d": change_20d,
             "change_20d_pct": change_20d_pct,
             "comparison_as_of_20d": compare_20d,
-            "history_percentile": percentile,
+            "history_percentile": percentile if len(rows) >= 52 else None,
+            "comparison_basis": "valid_observations; CFTC observations are weeks",
             "history_observations": len(rows),
             "source": _JPY_SOURCE_BY_ID.get(indicator_id, "see jpy_carry sources"),
-            "interpretation_note": card.get("why"),
+            "interpretation_note": None,
         })
 
     decomposition = jpy.get("cftc_decomposition") if isinstance(jpy.get("cftc_decomposition"), dict) else {}

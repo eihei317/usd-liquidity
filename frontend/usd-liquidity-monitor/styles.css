@@ -1096,3 +1096,86 @@ h1 {
   .topbar-meta { gap: 3px; }
   .chart-stats { grid-template-columns: 1fr; }
 }
+
+/* Full model prose stays readable beyond the compact dashboard previews. */
+.analysis-expand { margin-top: 10px; }
+.analysis-expand summary, .full-analysis > summary { cursor: pointer; color: var(--accent); font-weight: 700; }
+.analysis-expand summary { font-size: 12px; }
+.analysis-prose { white-space: pre-wrap; overflow-wrap: anywhere; line-height: 1.8; font-size: 14px; color: var(--muted); }
+.analysis-prose[hidden], .axis-summary[hidden], .horizon-summary[hidden], .signal-text[hidden] { display: none; }
+.full-analysis { padding: 22px; }
+.analysis-block { border-top: 1px solid var(--border); margin-top: 20px; padding-top: 12px; }
+.analysis-evidence { line-height: 1.8; overflow-wrap: anywhere; color: var(--muted); }
+.axis-grid, .horizon-grid { align-items: start; }
+
+/* Medium-term investment research remains separate from funding-market state. */
+.investment-section .section-head { align-items: end; }
+.investment-section .section-note { max-width: 33rem; margin-bottom: 0; }
+.investment-overview {
+  background: linear-gradient(135deg, color-mix(in oklch, var(--accent-soft) 56%, white), var(--card));
+  margin-bottom: 16px;
+}
+.investment-summary { margin-bottom: 0; font-size: clamp(19px, 2.5vw, 25px); line-height: 1.65; font-weight: 650; }
+.investment-change { display: grid; grid-template-columns: 6em minmax(0, 1fr); gap: 12px; margin-top: 18px; padding-top: 15px; border-top: 1px solid var(--border); }
+.investment-change strong { color: var(--accent); font-size: 13px; line-height: 1.75; }
+.investment-change p { margin: 0; color: var(--muted); font-size: 14px; line-height: 1.75; }
+.investment-assets { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; align-items: start; }
+.investment-card-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 10px; }
+.investment-card-head h3 { margin: 0; font-size: 23px; }
+.investment-bias, .investment-coverage-label { display: inline-flex; align-items: center; border: 1px solid var(--border); border-radius: 999px; padding: 5px 11px; font-size: 12px; font-weight: 700; background: var(--bg-soft); color: var(--muted); }
+.investment-bias.supportive { color: var(--loose); background: var(--loose-soft); border-color: color-mix(in oklch, var(--loose) 25%, transparent); }
+.investment-bias.restrictive { color: var(--tight); background: var(--tight-soft); border-color: color-mix(in oklch, var(--tight) 25%, transparent); }
+.investment-bias.mixed { color: var(--accent); background: var(--accent-soft); }
+.investment-bias.uncovered { border-style: dashed; }
+.investment-asset-meta { margin-bottom: 13px; color: var(--muted); font-size: 12px; }
+.investment-asset-summary { font-size: 16px; line-height: 1.8; margin-bottom: 18px; }
+.investment-fields { display: grid; gap: 12px; margin: 0; }
+.investment-field { display: grid; grid-template-columns: 5em minmax(0, 1fr); gap: 10px; font-size: 13px; line-height: 1.75; }
+.investment-field dt { color: var(--accent); font-weight: 700; }
+.investment-field dd { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; }
+.investment-field.coverage { color: var(--muted); border-top: 1px solid var(--border); padding-top: 12px; }
+.investment-field.invalidation dt { color: var(--tight); }
+.investment-refs { margin-top: 16px; }
+.investment-refs > summary, .investment-evidence > summary, .investment-review > summary { cursor: pointer; color: var(--accent); font-size: 13px; font-weight: 700; line-height: 1.7; }
+.investment-refs .analysis-evidence { padding-left: 19px; font-size: 12px; }
+.fact-reference { display: inline-block; font-size: 11px; }
+.fact-description { display: block; margin-top: 3px; }
+.investment-expectations { margin-top: 16px; }
+.investment-expectations .investment-card-head h3 { font-size: 17px; }
+.investment-expectations > p { margin-bottom: 0; font-size: 14px; line-height: 1.8; }
+.investment-scenarios { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; align-items: start; margin-top: 16px; }
+.investment-scenario { box-shadow: none; }
+.investment-scenario h3 { font-size: 16px; }
+.investment-scenario.upside { border-top: 3px solid color-mix(in oklch, var(--loose) 70%, white); }
+.investment-scenario.downside { border-top: 3px solid color-mix(in oklch, var(--tight) 70%, white); }
+.investment-path { font-size: 14px; line-height: 1.8; }
+.investment-scenario .investment-field { grid-template-columns: 1fr; gap: 2px; }
+.investment-next { margin-top: 16px; }
+.investment-next ol { margin-bottom: 0; padding-left: 22px; line-height: 1.9; font-size: 14px; }
+.investment-next li + li { margin-top: 6px; }
+.investment-evidence, .investment-review { margin-top: 16px; }
+.investment-evidence[open] > summary, .investment-review[open] > summary { margin-bottom: 17px; }
+.investment-table-wrap { width: 100%; overflow-x: auto; border: 1px solid var(--border); border-radius: 12px; margin: 16px 0; }
+.investment-table { width: 100%; border-collapse: collapse; font-size: 12px; line-height: 1.6; }
+.investment-table caption { text-align: left; color: var(--muted); font-size: 12px; padding: 12px 14px; background: var(--bg-soft); }
+.investment-table th { text-align: left; font-weight: 700; white-space: nowrap; color: var(--accent); background: color-mix(in oklch, var(--bg-soft) 65%, white); }
+.investment-table th, .investment-table td { padding: 10px 13px; border-bottom: 1px solid var(--border); vertical-align: top; min-width: 6em; }
+.investment-table td { overflow-wrap: anywhere; }
+.investment-table tr:last-child td { border-bottom: 0; }
+.investment-table td:nth-child(3) { min-width: 12em; }
+.investment-review-note { color: var(--muted); font-size: 13px; line-height: 1.8; white-space: pre-wrap; }
+.investment-review-status { font-size: 14px; line-height: 1.8; margin-bottom: 0; }
+.investment-empty { color: var(--muted); line-height: 1.8; }
+
+@media (max-width: 1100px) {
+  .investment-scenarios { grid-template-columns: 1fr; }
+  .investment-scenario .investment-field { grid-template-columns: 5em minmax(0, 1fr); gap: 10px; }
+}
+@media (max-width: 760px) {
+  .investment-assets { grid-template-columns: 1fr; }
+  .investment-section .section-head { align-items: start; }
+  .investment-change { grid-template-columns: 1fr; gap: 5px; }
+  .investment-card-head h3 { font-size: 21px; }
+  .investment-field, .investment-scenario .investment-field { grid-template-columns: 1fr; gap: 2px; }
+  .topbar-meta { white-space: normal; overflow-wrap: anywhere; }
+}

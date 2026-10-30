@@ -367,6 +367,8 @@ def redact_url_secret(url: str) -> str:
 
 
 def normalize_fred_value(series_id: str, value: float, unit: str) -> float:
+    if series_id == "WRESBAL" and unit == "USD bn":
+        return value / 1000.0
     if unit == "USD bn" and abs(value) > 100_000:
         return value / 1_000.0
     return value
@@ -470,7 +472,11 @@ def error_metric(metric_id: str, name: str, category: str, unit: str, frequency:
 
 
 def metric_map(metrics: List[Metric]) -> Dict[str, Metric]:
-    return {m.id.upper(): m for m in metrics}
+    grouped = {}
+    for m in metrics:
+        grouped.setdefault(m.id.upper(), []).append(m)
+    from .analysis import _metric_selection_key
+    return {key: max(rows, key=_metric_selection_key) for key, rows in grouped.items()}
 
 
 # ─── Generic helpers ───────────────────────────────────────────────────────────
@@ -681,3 +687,4 @@ def load_jpy_carry_history_payload() -> Optional[Dict[str, Any]]:
     except Exception:
         return None
     return None
+

@@ -1,0 +1,16 @@
+{
+  "meta": {
+    "status": "pending_model_analysis",
+    "generated_at_bjt": "2026-10-30 14:13:31 UTC+08:00"
+  },
+  "stance": {
+    "label": "待模型分析",
+    "score_text": "",
+    "one_liner": ""
+  },
+  "axis_assessment": {},
+  "horizon_assessment": {},
+  "key_takeaways": [],
+  "risk_flags": [],
+  "narrative_blocks": {}
+}

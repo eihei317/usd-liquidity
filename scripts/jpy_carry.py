@@ -124,7 +124,7 @@ def align_spread_previous_base(
         while idx < len(base) and base[idx][0] <= date:
             latest_base = base[idx]
             idx += 1
-        if latest_base is not None:
+        if latest_base is not None and latest_base[0] == date:
             out.append((date, (value - latest_base[1]) * multiplier))
     return out
 
@@ -682,15 +682,12 @@ def build_payload(trigger: str, stamp: Optional[str] = None) -> Tuple[Dict[str, 
             cdate, cval = pt
             rows = [r for r in rows if r[0] != cdate]
             rows.append((cdate, cval))
-            if dgs10_latest_date and dgs10_latest_date <= cdate:
-                rows = [r for r in rows if r[0] != dgs10_latest_date]
-                rows.append((dgs10_latest_date, cval))
+            # Quotes retain their actual observation date; never backdate.
         jgb_rows[term] = normalize_rows(rows)
     if cnbc_jgb.get("JGB5"):
         cdate, cval = cnbc_jgb["JGB5"]
         rows5 = [(cdate, cval)]
-        if dgs10_latest_date and dgs10_latest_date <= cdate:
-            rows5.append((dgs10_latest_date, cval))
+        # No synthetic earlier observation.
         jgb_rows["JGB5"] = normalize_rows(rows5)
     if cnbc_jgb:
         jgb_meta = {

@@ -3,11 +3,11 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>美元流动性监测</title>
+  <title>美元流动性 · 美股与 BTC 投资研究</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./styles.css?v=20260726-horizons">
+  <link rel="stylesheet" href="./styles.css?v=20261030-investment">
   <script src="./chart.min.js?v=20260515"></script>
 </head>
 <body>
@@ -15,8 +15,8 @@
     <header class="topbar" aria-label="页面头部">
       <div>
         <p class="eyebrow">USD LIQUIDITY MONITOR</p>
-        <h1>美元流动性监测</h1>
-        <p class="subtitle" id="page-subtitle">触发脚本 → 模型分析 → 稳定前端渲染</p>
+        <h1>美元流动性与风险资产</h1>
+        <p class="subtitle" id="page-subtitle">观察未来几周到几个月，美股与 BTC 面临的流动性环境。</p>
       </div>
       <div class="topbar-meta">
         <span id="generated-at">更新时间：--</span>
@@ -25,6 +25,25 @@
     </header>
 
     <main>
+      <section class="section investment-section" aria-labelledby="investment-title">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">INVESTMENT RESEARCH</p>
+            <h2 id="investment-title">美股与 BTC · 中期判断</h2>
+          </div>
+          <p class="section-note">支持／压制仅指流动性贡献；资产价格还受其他因素影响。</p>
+        </div>
+        <div id="investment-assessment" aria-live="polite"><p class="empty">等待投资研究结论...</p></div>
+        <details class="card investment-evidence">
+          <summary>中期趋势证据与未来资金日历</summary>
+          <div id="investment-facts"><p class="empty">尚无中期事实。</p></div>
+        </details>
+        <details class="card investment-review">
+          <summary>判断验证记录</summary>
+          <div id="research-review"><p class="empty">等待验证记录...</p></div>
+        </details>
+      </section>
+
       <!-- 区块1：今日总判断（唯一） -->
       <section class="section" aria-labelledby="stance-title">
         <div class="section-head">
@@ -68,6 +87,14 @@
         <div id="key-signals" class="key-signals">
           <p class="empty">等待分析数据...</p>
         </div>
+      </section>
+
+      <section class="section" aria-labelledby="full-analysis-title">
+        <div class="section-head"><div><p class="eyebrow">FULL ANALYSIS</p><h2 id="full-analysis-title">完整分析</h2></div></div>
+        <details class="card full-analysis" id="full-analysis">
+          <summary>展开全部分析正文、关键观察与风险证据</summary>
+          <div id="full-analysis-content"></div>
+        </details>
       </section>
 
       <!-- 区块3：日常交易雷达（精简） -->
@@ -143,6 +170,6 @@
   </div>
 
   <script src="./data.js?v=20260814"></script>
-  <script src="./app.js?v=20260726-horizons"></script>
+  <script src="./app.js?v=20261030-investment"></script>
 </body>
 </html>

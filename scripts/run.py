@@ -42,15 +42,17 @@ def refresh_jpy_carry_history(trigger: str) -> Optional[Dict[str, Any]]:
         return load_jpy_carry_history_payload()
     try:
         subprocess.run(
-            [sys.executable or "/usr/bin/python3", str(script), trigger or "更新日元carry数据", "--json"],
+            [sys.executable or "/usr/bin/python3", "-X", "utf8", str(script), trigger or "更新日元carry数据", "--json"],
             cwd=str(ROOT),
             check=True,
             capture_output=True,
             text=True,
+            encoding='utf-8',
+            errors='replace',
             timeout=180,
         )
-    except Exception:
-        pass
+    except Exception as exc:
+        raise RuntimeError("JPY refresh failed; refusing silent cached fallback") from exc
     return load_jpy_carry_history_payload()
 
 
@@ -129,6 +131,7 @@ def cleanup_old_outputs(current_stamp: str) -> int:
         "usd_liquidity_charts_*.json",
         "usd_liquidity_chart_*.svg",
     ]
+    return 0
     removed = 0
     for pattern in patterns:
         for path in OUTPUT_DIR.glob(pattern):
@@ -153,7 +156,7 @@ def load_snapshot(path: Path) -> Tuple[List[Metric], List[DerivedSignal], float,
 def parse_args(argv: List[str]) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Fetch USD liquidity data and generate a daily briefing")
     parser.add_argument("trigger", nargs="*", help="Natural-language trigger, e.g. 今天美元流动性如何")
-    parser.add_argument("--auction-lookback-days", type=int, default=21, help="Lookback window for Treasury auctions")
+    parser.add_argument("--auction-lookback-days", type=int, default=11000, help="Lookback window for Treasury auctions")
     parser.add_argument("--input-json", help="Reuse an existing usd_liquidity_snapshot_*.json instead of fetching live data")
     parser.add_argument("--model-input-only", action="store_true", help="Still writes all files, but console output focuses on model_input_path")
     parser.add_argument("--no-charts", action="store_true", help="Skip SVG chart generation")
@@ -171,7 +174,8 @@ def main(argv: List[str]) -> int:
     if args.input_json:
         metrics, signals, score, highlights = load_snapshot(Path(args.input_json))
     else:
-        metrics = fetch_all_metrics(args.auction_lookback_days)
+        from scripts.history_audit import hydrate
+        metrics = hydrate(fetch_all_metrics(args.auction_lookback_days))
         signals, score, highlights = derive_signals(metrics)
 
     upcoming_auctions = fetch_upcoming_auctions(60)
@@ -191,7 +195,10 @@ def main(argv: List[str]) -> int:
         ingest_snapshot(str(snapshot_path))
         print(f"[DB] 历史库已更新：{snapshot_path.name}")
     except Exception as db_exc:
-        print(f"[DB] 落库失败：{db_exc}")
+        raise RuntimeError(f"历史库写入失败：{db_exc}") from db_exc
+
+    from scripts.history_audit import rebuild_and_audit
+    coverage = rebuild_and_audit(metrics, signals, OUTPUT_DIR / "usd_liquidity.db")
 
     if not args.no_charts:
         try:
@@ -206,6 +213,7 @@ def main(argv: List[str]) -> int:
     charts_payload = augment_charts_payload(build_charts_payload(series_bundle, upcoming_auctions), upcoming_auctions)
     generated = context["generated_at_bjt"]
     dashboard_data = build_dashboard_data(trigger, generated, context, metrics, signals, charts_payload, chart_paths, upcoming_auctions)
+    dashboard_data["history_coverage"] = coverage
     output_paths = write_outputs(report, context, model_input, dashboard_data, charts_payload, stamp)
 
     cleanup_removed = cleanup_old_outputs(stamp)

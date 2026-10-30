@@ -1,0 +1,17 @@
+{
+  "run_id": "20261030_140417_625a3ba4",
+  "phase": "capture",
+  "files": {
+    "analysis.json": "a4c111d920a569d37fdb8e9610badd6a149acd7ab98af22f3419ce8069b62675",
+    "charts.json": "2709d34afbfbe572fba4dfde00d817420f8c074c49ae83727f8e1261ca1aeaa3",
+    "dashboard_data.json": "061eeb62c45ca324cf717b011c5e1271be8fc6e4f63ffe1d2fc5df28249ae079",
+    "history.sqlite.gz": "679a1fe08de66aa918a6739f0392ae9d238b11873b383897c0c908fdb6c5a644",
+    "history_coverage.json": "2cd658fb33c1b728636478f1f8a0342599a2296d58a1116b732ab10001aa0836",
+    "investment_market_context.json": "3494e9d6d598c3ba9e42763e99fd9e265e5b52fd0d865f74e11af22ca1d4441d",
+    "jpy_carry_analysis.json": "8e3b7bcc37e7da7e3c7fd3a31cd354777fd12b8bde44be3b7665cc5fbab992b3",
+    "jpy_carry_history.json": "e28cfe26ccd61cd28fdbf9cff2f3aee831f916d2f44986e966addb9d62273030",
+    "jpy_carry_model_input.json": "06be71f2106ed850df1fd2b7bce0b613f8d8b389193a1108a5cf68924b0e221b",
+    "model_input.json": "829a037e17f0630141e1cac0ff4ca3d007cbcdd5a68eb1f52a44c9b6fdeeec62",
+    "snapshot.json": "7f454a2582ac561b98905734d7439a580df2284d2cfc78e49a410515c51542bd"
+  }
+}

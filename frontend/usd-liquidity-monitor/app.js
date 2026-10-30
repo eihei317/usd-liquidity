@@ -14,25 +14,309 @@ function el(tag, className, text) {
 }
 
 async function loadJson(url) {
-  // 离线 fallback：若 data.js 已注入全局变量，直接返回
-  if (url === "/output/latest/dashboard_data.json" && window.DASHBOARD_DATA) {
+  // Prefer current JSON over the embedded offline snapshot.
+  if (location.protocol === "file:" && url === "/output/latest/dashboard_data.json" && window.DASHBOARD_DATA) {
     return window.DASHBOARD_DATA;
   }
-  if (url === "/output/latest/analysis.json" && window.ANALYSIS_DATA) {
+  if (location.protocol === "file:" && url === "/output/latest/analysis.json" && window.ANALYSIS_DATA) {
     // 占位符时继续 fetch 真正的 analysis.json，避免前端锁死在"待模型分析"
     if (!(window.ANALYSIS_DATA.meta && window.ANALYSIS_DATA.meta.status === "pending_model_analysis")) {
       return window.ANALYSIS_DATA;
     }
   }
-  const response = await fetch(url, { cache: "no-store" });
+  let response;
+  try {
+    if (!window.__publishedBundle) {
+      window.__publishedBundle = fetch('/output/current_bundle.json', {cache:'no-store'}).then(r => {if (!r.ok) throw new Error('尚无完整发布结果');return r.json();});
+    }
+    const bundle=await window.__publishedBundle;
+    window.__attemptStatus=bundle.latest_attempt;
+    window.INVESTMENT_FACTS = bundle.investment_facts || {};
+    window.RESEARCH_REVIEW = bundle.research_review || {};
+    return url===DATA_URLS.dashboard ? bundle.dashboard : bundle.analysis;
+    response = await fetch(url, { cache: "no-store" });
+  } catch (error) {
+    if (url === DATA_URLS.dashboard && window.DASHBOARD_DATA) return window.DASHBOARD_DATA;
+    if (url === DATA_URLS.analysis && window.ANALYSIS_DATA) return window.ANALYSIS_DATA;
+    throw error;
+  }
   if (!response.ok) throw new Error(`${url} ${response.status}`);
   return response.json();
 }
 
 function renderMeta(dashboard) {
   document.getElementById("generated-at").textContent = `更新时间：${dashboard.meta?.generated_at_bjt || "--"}`;
+  if(window.__attemptStatus?.status==="failed") document.getElementById("generated-at").textContent += "；最近更新失败，当前展示上次成功结果";
   document.getElementById("data-as-of").textContent = `数据日期：${dashboard.meta?.data_as_of || "--"}`;
-  document.getElementById("page-subtitle").textContent = dashboard.meta?.trigger ? `触发语：${dashboard.meta.trigger}` : "触发脚本 → 模型分析 → 稳定前端渲染";
+  document.getElementById("page-subtitle").textContent = "观察未来几周到几个月，美股与 BTC 面临的流动性环境。";
+}
+
+function investmentFactMap(facts = window.INVESTMENT_FACTS || {}) {
+  const map = new Map();
+  ["trend_facts", "calendar_facts", "market_facts", "comparison_facts", "coverage_facts"].forEach(group => {
+    (Array.isArray(facts[group]) ? facts[group] : []).forEach(fact => {
+      if (fact && typeof fact.fact_id === "string") map.set(fact.fact_id, fact);
+    });
+  });
+  // The catalog also contains canonical and derived facts referenced by an asset.
+  // Prefer its complete facts to any compact table copies.
+  if (facts.catalog && typeof facts.catalog === "object" && !Array.isArray(facts.catalog)) {
+    Object.entries(facts.catalog).forEach(([id, fact]) => {
+      if (fact && typeof fact === "object" && !Array.isArray(fact)) map.set(id, {...fact, fact_id: id});
+    });
+  }
+  return map;
+}
+
+function researchUnit(unit) {
+  const labels = {"percentage points": "个百分点", "percentage point": "个百分点", "USD bn": "十亿美元", "USD mn": "百万美元", index: "指数点", ratio: "倍", bps: "bp"};
+  return labels[unit] || unit || "";
+}
+
+function investmentChangeUnit(fact) {
+  // Rate levels use %, but their arithmetic differences are percentage points.
+  return researchUnit(fact.change_unit || (fact.unit === "%" ? "percentage points" : fact.unit));
+}
+
+function researchNumber(value, unit = "", signed = false) {
+  if (typeof value !== "number" || !Number.isFinite(value)) return "未知";
+  const label = researchUnit(unit);
+  return `${signed && value > 0 ? "+" : ""}${value.toLocaleString("zh-CN", {maximumFractionDigits: 2, minimumFractionDigits: 2})}${label ? ` ${label}` : ""}`;
+}
+
+function investmentWindow(fact) {
+  if (fact.window_label) return fact.window_label;
+  if (Number.isFinite(fact.window_observations)) {
+    const frequency = String(fact.frequency || "").toLowerCase();
+    const cadence = /week|周/.test(frequency) ? "周频" : /month|月/.test(frequency) ? "月频" : /daily|日/.test(frequency) ? "日频" : "";
+    return `${fact.window_observations}个有效${cadence}观测间隔`;
+  }
+  return fact.window_days ? `未来${fact.window_days}个日历日` : "--";
+}
+
+function investmentStatus(status) {
+  const labels = {
+    ok: "有效", available: "有效", missing: "数据不足", insufficient_history: "历史不足",
+    partial_announced: "仅已公告部分", stale: "观测滞后", partial: "部分覆盖",
+    anchor_mismatch: "历史锚点不匹配", missing_history: "缺少历史", history_missing: "缺少历史",
+    cached: "缓存数据", cached_offline: "离线缓存", cached_after_fetch_failure: "本次抓取失败，使用缓存",
+    error: "抓取失败", failed: "抓取失败", invalid: "观测无效", unknown_source_status: "来源状态未知",
+    canonical_unusable: "选定观测不可用", canonical_source_history_missing: "缺少选定来源历史",
+    history_endpoint_mismatch: "历史终点不匹配", incomplete_date_matched_history: "同日匹配历史不足",
+    prospective_capture_only: "仅保存本次可见版本", captured_history_not_verified_point_in_time: "回抓历史未验证当时可见版本",
+    missing_price: "缺少价格", pending: "等待观察", collecting: "积累中"
+  };
+  return labels[status] || status || "未知";
+}
+
+function investmentFactStatus(fact) {
+  const parts = [investmentStatus(fact.status)];
+  if (fact.source_status && fact.source_status !== "ok" && fact.source_status !== fact.status) {
+    parts.push(`来源：${investmentStatus(fact.source_status)}`);
+  }
+  return parts.join("；");
+}
+
+function investmentFactText(fact) {
+  const range = [fact.previous_as_of, fact.as_of].filter(Boolean).join(" 至 ");
+  const values = [];
+  if (fact.value !== undefined) values.push(`观测值 ${researchNumber(fact.value, fact.unit)}`);
+  if (fact.change !== undefined) values.push(`变化 ${researchNumber(fact.change, investmentChangeUnit(fact), true)}`);
+  if (!values.length) values.push(fact.summary || fact.coverage_note || fact.note || fact.reason || "");
+  return [fact.name || fact.id || fact.fact_id, range, ...values, investmentFactStatus(fact)].filter(Boolean).join(" · ");
+}
+
+function appendInvestmentRefs(root, ids, facts) {
+  if (!Array.isArray(ids) || !ids.length) return;
+  const details = el("details", "investment-refs");
+  details.appendChild(el("summary", "", `查看依据（${ids.length}项）`));
+  const list = el("ul", "analysis-evidence");
+  ids.forEach(id => {
+    const item = el("li");
+    const fact = facts.get(id);
+    if (fact) item.appendChild(el("span", "fact-description", investmentFactText(fact)));
+    else item.appendChild(el("span", "fact-description", "本页未提供该依据的完整数值。"));
+    item.appendChild(el("code", "fact-reference", id));
+    list.appendChild(item);
+  });
+  details.appendChild(list);
+  root.appendChild(details);
+}
+
+function appendInvestmentField(root, label, text, className = "") {
+  if (!text) return;
+  const field = el("div", `investment-field ${className}`.trim());
+  field.append(el("dt", "", label), el("dd", "", text));
+  root.appendChild(field);
+}
+
+function renderInvestmentAssessment(analysis) {
+  const root = document.getElementById("investment-assessment");
+  if (!root) return;
+  root.replaceChildren();
+  const research = analysis?.investment_assessment;
+  if (!research || typeof research !== "object") {
+    root.appendChild(el("p", "card investment-empty", "本版尚无投资研究结论。"));
+    return;
+  }
+  const facts = investmentFactMap();
+  const overview = el("article", "card investment-overview");
+  overview.appendChild(el("p", "investment-summary", research.summary || "本版尚无投资研究结论。"));
+  if (research.change_summary) {
+    const change = el("div", "investment-change");
+    change.append(el("strong", "", "相比上次"), el("p", "", research.change_summary));
+    overview.appendChild(change);
+  }
+  root.appendChild(overview);
+  const assets = el("div", "investment-assets");
+  [["equities", "美股"], ["bitcoin", "BTC"]].forEach(([key, label]) => {
+    const asset = research[key] || {};
+    const bias = ["支持", "中性", "压制", "分化", "数据不足"].includes(asset.liquidity_bias) ? asset.liquidity_bias : "数据不足";
+    const tone = {支持: "supportive", 压制: "restrictive", 分化: "mixed", 数据不足: "uncovered", 中性: "neutral"}[bias];
+    const card = el("article", `card investment-asset ${tone}`);
+    const head = el("div", "investment-card-head");
+    head.append(el("h3", "", label), el("span", `investment-bias ${tone}`, bias));
+    card.appendChild(head);
+    card.appendChild(el("p", "investment-asset-meta", `${asset.horizon || "期限待确认"} · 置信度：${asset.confidence || "未知"}`));
+    card.appendChild(el("p", "investment-asset-summary", asset.summary || "本版尚无该资产的投资研究结论。"));
+    const fields = el("dl", "investment-fields");
+    appendInvestmentField(fields, "传导路径", asset.transmission);
+    appendInvestmentField(fields, "继续确认", asset.confirmation);
+    appendInvestmentField(fields, "改判条件", asset.invalidation, "invalidation");
+    appendInvestmentField(fields, "覆盖边界", asset.coverage_limits, "coverage");
+    card.appendChild(fields);
+    appendInvestmentRefs(card, asset.fact_ids, facts);
+    assets.appendChild(card);
+  });
+  root.appendChild(assets);
+  const expectations = research.expectations || {};
+  if (expectations.summary || expectations.status) {
+    const card = el("article", "card investment-expectations");
+    const head = el("div", "investment-card-head");
+    head.append(el("h3", "", "市场预期与价格反应"), el("span", "investment-coverage-label", expectations.status || "数据不足"));
+    card.append(head, el("p", "", expectations.summary || "缺少直接预期数据，当前无法判断价格已反映多少。"));
+    appendInvestmentRefs(card, expectations.fact_ids, facts);
+    root.appendChild(card);
+  }
+  const scenarios = el("div", "investment-scenarios");
+  [["base", "基准路径"], ["upside", "改善路径"], ["downside", "恶化路径"]].forEach(([key, label]) => {
+    const scenario = research.scenarios?.[key] || {};
+    const card = el("article", `card investment-scenario ${key}`);
+    card.append(el("h3", "", label), el("p", "investment-path", scenario.path || "本版尚无该情景判断。"));
+    const fields = el("dl", "investment-fields");
+    appendInvestmentField(fields, "观察条件", scenario.trigger);
+    appendInvestmentField(fields, "失效条件", scenario.invalidation);
+    card.appendChild(fields);
+    appendInvestmentRefs(card, scenario.fact_ids, facts);
+    scenarios.appendChild(card);
+  });
+  root.appendChild(scenarios);
+  if (Array.isArray(research.next_checks) && research.next_checks.length) {
+    const card = el("article", "card investment-next");
+    const list = el("ol");
+    card.appendChild(el("h3", "", "下一步观察"));
+    research.next_checks.forEach(item => list.appendChild(el("li", "", item)));
+    card.appendChild(list);
+    root.appendChild(card);
+  }
+}
+
+function investmentTable(headers, rows, caption) {
+  const wrapper = el("div", "investment-table-wrap");
+  const table = el("table", "investment-table");
+  if (caption) table.appendChild(el("caption", "", caption));
+  const head = el("thead");
+  const header = el("tr");
+  headers.forEach(text => {
+    const cell = el("th", "", text);
+    cell.scope = "col";
+    header.appendChild(cell);
+  });
+  head.appendChild(header);
+  table.appendChild(head);
+  const body = el("tbody");
+  rows.forEach(values => {
+    const row = el("tr");
+    values.forEach(text => row.appendChild(el("td", "", text)));
+    body.appendChild(row);
+  });
+  table.appendChild(body);
+  wrapper.appendChild(table);
+  return wrapper;
+}
+
+function renderInvestmentFacts(facts = window.INVESTMENT_FACTS || {}) {
+  const root = document.getElementById("investment-facts");
+  if (!root) return;
+  root.replaceChildren();
+  const trends = Array.isArray(facts.trend_facts) ? facts.trend_facts : [];
+  if (trends.length) {
+    root.appendChild(investmentTable(["指标", "窗口", "观测区间", "变化", "状态"], trends.map(fact => [
+      fact.name || fact.id || fact.fact_id,
+      investmentWindow(fact),
+      [fact.previous_as_of || "未知", fact.as_of || "未知"].join(" 至 "),
+      researchNumber(fact.change, investmentChangeUnit(fact), true),
+      investmentFactStatus(fact)
+    ]), "中期趋势 · 按有效观测计算，周频窗口与日频窗口分别标注"));
+  } else root.appendChild(el("p", "empty", "本版尚无中期趋势证据。"));
+  const calendar = Array.isArray(facts.calendar_facts) ? facts.calendar_facts : [];
+  if (calendar.length) {
+    root.appendChild(investmentTable(["窗口", "日期区间", "已公告毛发行", "到期额", "净现金影响", "状态"], calendar.map(fact => [
+      investmentWindow(fact),
+      [fact.window_start || fact.as_of || "未知", fact.window_end || "未知"].join(" 至 "),
+      researchNumber(fact.gross_announced_offering_usd_bn, "十亿美元"),
+      researchNumber(fact.maturities_usd_bn, "十亿美元"),
+      researchNumber(fact.net_cash_impact_usd_bn, "十亿美元", true),
+      `${investmentStatus(fact.status)}${Number.isFinite(fact.unknown_amount_count) && fact.unknown_amount_count > 0 ? `；${fact.unknown_amount_count}项金额未知` : ""}`
+    ]), "未来资金日历 · 已公告毛发行不等于净融资或准备金消耗"));
+    const notes = [...new Set(calendar.map(fact => fact.coverage_note).filter(note => typeof note === "string" && note.trim()))];
+    if (!notes.length) notes.push("仅覆盖已捕获公告；已知金额小计不是完整未来发行预测。到期、净筹资及准备金影响缺失时保持未知。");
+    notes.forEach(note => root.appendChild(el("p", "investment-review-note", note)));
+  } else root.appendChild(el("p", "empty", "未来资金日历尚无可用事实，净现金影响未知。"));
+  const market = Array.isArray(facts.market_facts) ? facts.market_facts : [];
+  if (market.length) {
+    root.appendChild(investmentTable(["市场确认", "窗口", "日期", "观测值", "状态"], market.map(fact => [
+      fact.name || fact.id || fact.fact_id,
+      investmentWindow(fact),
+      fact.as_of || "未知",
+      researchNumber(fact.value, fact.unit),
+      investmentFactStatus(fact)
+    ]), "价格反应 · 用作市场确认，不能单独证明流动性预测能力"));
+  }
+  const coverage = Array.isArray(facts.coverage_facts) ? facts.coverage_facts : [];
+  if (coverage.length) {
+    const details = el("details", "investment-refs");
+    details.appendChild(el("summary", "", "来源与覆盖边界"));
+    const list = el("ul", "analysis-evidence");
+    coverage.forEach(fact => list.appendChild(el("li", "", [fact.name || fact.id || fact.fact_id, fact.summary || fact.note || fact.notes || fact.reason, investmentStatus(fact.status)].filter(Boolean).join(" · "))));
+    details.appendChild(list);
+    root.appendChild(details);
+  }
+}
+
+function renderResearchReview(review = window.RESEARCH_REVIEW || {}) {
+  const root = document.getElementById("research-review");
+  if (!root) return;
+  root.replaceChildren();
+  root.appendChild(el("p", "investment-review-note", review.methodology_note || "按判断发布后可观察到的价格持续记录；新判断需要等待观察窗口结束。"));
+  const rows = Array.isArray(review.records) ? review.records : [];
+  const mature = rows.filter(row => /^(complete|completed|matured|available|已完成)$/.test(row.status) && Number.isFinite(row.return_pct));
+  root.appendChild(el("p", "investment-review-status", mature.length ? `已有${mature.length}项完成观察，结果按原始判断逐条展示。` : "观察样本积累中，当前尚无完成观察的验证结果。"));
+  if (!rows.length) return;
+  const statusLabels = {pending: "等待观察", collecting: "积累中", complete: "已完成", completed: "已完成", matured: "已完成", available: "已完成", missing: "缺少价格", missing_price: "缺少价格", insufficient_data: "价格不足"};
+  const assetLabels = {equities: "美股", bitcoin: "BTC", SP500: "标普500", NASDAQCOM: "纳斯达克综合", CBBTCUSD: "BTC"};
+  root.appendChild(el("p", "investment-review-note", "基准为同一资产、同一观察窗口的持有价格变化，不是策略超额收益。最大回撤从窗口内高点计算，最大不利变动相对观察起点计算。"));
+  root.appendChild(investmentTable(["判断发布时间", "资产", "原始流动性判断", "观察窗口", "状态", "区间收益", "最大回撤", "最大不利变动", "同资产持有基准"], rows.map(row => [
+    row.published_at_bjt || row.run_id || "未知",
+    assetLabels[row.asset] || row.asset || "未知",
+    row.liquidity_bias || "未知",
+    row.horizon || "未知",
+    statusLabels[row.status] || row.status || "未知",
+    researchNumber(row.return_pct, "%", true),
+    researchNumber(row.max_drawdown_pct, "%", true),
+    researchNumber(row.max_adverse_excursion_pct, "%", true),
+    researchNumber(row.benchmark_return_pct, "%", true)
+  ]), "后续表现记录 · 收益与回撤是市场表现，不等于执行策略的收益"));
 }
 
 const AXIS_META = {
@@ -84,7 +368,7 @@ function renderAxisAssessment(axes) {
     top.appendChild(el("span", "axis-horizon", meta.horizon));
     card.appendChild(top);
     card.appendChild(el("strong", "axis-label", item.label || "待分析"));
-    card.appendChild(el("p", "axis-summary", item.summary || "暂无轴判断。"));
+    appendExpandableText(card, "axis-summary", item.summary || "暂无轴判断。");
     root.appendChild(card);
   });
 }
@@ -101,7 +385,7 @@ function renderHorizonAssessment(horizons) {
     top.appendChild(el("span", "horizon-window", item.window || meta.fallbackWindow));
     card.appendChild(top);
     card.appendChild(el("strong", "horizon-label", item.label || "待分析"));
-    card.appendChild(el("p", "horizon-summary", item.summary || "当前 analysis.json 尚未提供该期限判断。"));
+    appendExpandableText(card, "horizon-summary", item.summary || "当前 analysis.json 尚未提供该期限判断。");
     root.appendChild(card);
   });
 }
@@ -182,7 +466,7 @@ function renderKeySignals(analysis) {
     card.appendChild(head);
 
     if (sig.text) {
-      card.appendChild(el("p", "signal-text", sig.text));
+      appendExpandableText(card, "signal-text", sig.text);
     }
 
     if (sig.evidence && sig.evidence.length) {
@@ -641,6 +925,50 @@ function renderDataQuality(dataQuality) {
   });
 }
 
+
+function appendExpandableText(root, className, text) {
+  const preview = el("p", className, text);
+  const details = el("details", "analysis-expand");
+  const summary = el("summary", "", "展开全文");
+  details.append(summary, el("p", "analysis-prose", text));
+  details.addEventListener("toggle", () => {
+    preview.hidden = details.open;
+    summary.textContent = details.open ? "收起全文" : "展开全文";
+  });
+  root.append(preview, details);
+}
+
+function renderFullAnalysis(analysis) {
+  const root = document.getElementById("full-analysis-content");
+  root.replaceChildren();
+  const add = (title, text) => {
+    if (!text) return;
+    const block = el("article", "analysis-block");
+    block.append(el("h3", "", title), el("p", "analysis-prose", text));
+    root.appendChild(block);
+  };
+  add("数据日期与可用性", analysis.meta?.input_freshness_note);
+  add("综合判断", analysis.stance?.score_text);
+  const titles = {summary:"分析总述", rates:"资金价格", balance_sheet:"资产负债表与现金流", market_transmission:"跨市场传导", treasury_yields:"美债收益率", jpy_carry:"日元套利"};
+  Object.entries(analysis.narrative_blocks || {}).forEach(([key, value]) => {
+    if (typeof value === "string") add(titles[key] || key, value);
+    else if (value) add(titles[key] || key, [value.label, value.one_liner, value.analysis].filter(Boolean).join("\n\n"));
+  });
+  [["全部关键观察", analysis.key_takeaways], ["全部风险与触发条件", analysis.risk_flags]].forEach(([title, items]) => {
+    if (!items?.length) return;
+    root.appendChild(el("h3", "", title));
+    items.forEach(item => {
+      const block = el("article", "analysis-block");
+      block.append(el("h4", "", item.title), el("p", "analysis-prose", item.text));
+      if (item.condition) block.appendChild(el("p", "analysis-prose", "触发条件：" + item.condition));
+      const list = el("ul", "analysis-evidence");
+      (item.evidence || []).forEach(text => list.appendChild(el("li", "", text)));
+      block.appendChild(list);
+      root.appendChild(block);
+    });
+  });
+}
+
 async function init() {
   try {
     // 优先动态加载最新 JSON
@@ -659,16 +987,32 @@ async function init() {
     }
     
     renderMeta(dashboard);
+    renderInvestmentAssessment(analysis);
+    renderInvestmentFacts();
+    renderResearchReview();
     renderStance(dashboard, analysis);
     renderHorizonAssessment(analysis.horizon_assessment);
     renderKeySignals(analysis);
+    renderFullAnalysis(analysis);
     renderTradingRadar(dashboard.trading_dashboard);
     renderUpcomingAuctions(dashboard.upcoming_auctions);
     renderCharts(dashboard.charts, dashboard.trading_dashboard?.chart_groups, dashboard);
     renderIndicators(dashboard.indicator_groups);
     renderDataQuality(dashboard.data_quality);
+    if(dashboard.history_coverage){
+      const host=document.getElementById('data-quality');
+      const detail=el('details','history-coverage');
+      detail.appendChild(el('summary','',`全部历史覆盖核对（${dashboard.history_coverage.series.length}项；${dashboard.history_coverage.missing.length}项缺口）`));
+      detail.appendChild(el('p','',dashboard.history_coverage.scope));
+      detail.appendChild(investmentTable(['类型','指标','来源','起始日期','结束日期','观测数','状态'],dashboard.history_coverage.series.map(r=>[r.kind,r.id,r.source||'依赖原始指标',r.first||'未知',r.last||'未知',String(r.observations),r.status==='history_available'?'有历史':'历史缺失'])));
+      host.appendChild(detail);
+    }
   } catch (error) {
-    document.body.innerHTML = `<main class="page-shell"><article class="card"><h1>美元流动性监测</h1><p class="meaning">数据加载失败：${error.message}</p><p class="meaning">请先运行脚本生成 output/latest/dashboard_data.json 和 output/latest/analysis.json，并通过本地服务预览页面。</p></article></main>`;
+    const main = el("main", "page-shell");
+    const card = el("article", "card");
+    card.append(el("h1", "", "美元流动性与风险资产"), el("p", "meaning", `数据加载失败：${error.message}`), el("p", "meaning", "请确认本地服务可用，并在数据更新完成后刷新页面。"));
+    main.appendChild(card);
+    document.body.replaceChildren(main);
   }
 }
 

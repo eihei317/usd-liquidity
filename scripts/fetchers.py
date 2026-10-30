@@ -51,7 +51,7 @@ def extract_nyfed_observations(payload: Any) -> List[Dict[str, Any]]:
 
 def fetch_nyfed_rate(metric_id: str, name: str, secured: bool) -> Metric:
     market = "secured" if secured else "unsecured"
-    url = f"https://markets.newyorkfed.org/api/rates/{market}/{metric_id}/last/2.json"
+    url = f"https://markets.newyorkfed.org/api/rates/{market}/{metric_id}/search.json?startDate=2000-01-01&endDate={datetime.now(UTC).date().isoformat()}"
     try:
         payload = http_get_json(url)
         records = extract_nyfed_observations(payload)
@@ -64,7 +64,7 @@ def fetch_nyfed_rate(metric_id: str, name: str, secured: bool) -> Metric:
         parsed = sorted(parsed, key=lambda x: x[0])
         latest = (parsed[-1][0], parsed[-1][1]) if parsed else None
         previous = (parsed[-2][0], parsed[-2][1]) if len(parsed) >= 2 else None
-        extra = {"raw_latest": parsed[-1][2]} if parsed else {}
+        extra = {"raw_latest": parsed[-1][2], "history": [{"date":d,"value":v} for d,v,_ in parsed], "policy_history": [{"date":d,"value":rec["targetRateTo"]} for d,v,rec in parsed if rec.get("targetRateTo") is not None]} if parsed else {}
         return make_metric(metric_id.upper(), name, "银行间/回购融资", latest, previous, "%", "daily T+1", "NY Fed Markets API", url, extra=extra)
     except Exception as exc:
         return error_metric(metric_id.upper(), name, "银行间/回购融资", "%", "daily T+1", "NY Fed Markets API", url, exc)
@@ -72,7 +72,7 @@ def fetch_nyfed_rate(metric_id: str, name: str, secured: bool) -> Metric:
 
 def fetch_nyfed_sofr_volume() -> Metric:
     """Fetch SOFR transaction volume from the NY Fed reference-rate record."""
-    url = "https://markets.newyorkfed.org/api/rates/secured/sofr/last/2.json"
+    url = f"https://markets.newyorkfed.org/api/rates/secured/sofr/search.json?startDate=2000-01-01&endDate={datetime.now(UTC).date().isoformat()}"
     try:
         payload = http_get_json(url)
         records = extract_nyfed_observations(payload)
@@ -85,7 +85,7 @@ def fetch_nyfed_sofr_volume() -> Metric:
         parsed = sorted(parsed, key=lambda x: x[0])
         latest = (parsed[-1][0], parsed[-1][1]) if parsed else None
         previous = (parsed[-2][0], parsed[-2][1]) if len(parsed) >= 2 else None
-        extra = {"raw_latest": parsed[-1][2]} if parsed else {}
+        extra = {"raw_latest": parsed[-1][2], "history": [{"date": d, "value": v} for d, v, _ in parsed]} if parsed else {}
         notes = "SOFR transaction volume reported by NY Fed in billions of dollars; use with SOFR-Policy spread to estimate price × size impact."
         return make_metric("SOFR_VOLUME", "SOFR transaction volume", "回购融资/市场深度", latest, previous, "USD bn", "daily T+1", "NY Fed Markets API", url, notes=notes, extra=extra)
     except Exception as exc:
@@ -93,14 +93,14 @@ def fetch_nyfed_sofr_volume() -> Metric:
 
 
 def fetch_fred_series(series_id: str, name: str, category: str, unit: str, frequency: str) -> Metric:
-    start_date = (datetime.now(UTC).date() - timedelta(days=180)).isoformat()
+    start_date = "1900-01-01"
     source_page_url = f"https://fred.stlouisfed.org/series/{series_id}"
     api_key = get_fred_api_key()
     if api_key:
         # limit 必须远大于 2：最新交易日紧跟市场假期时，FRED 仍会给假期日期发一条
         # value="." 的 observation 占位；limit=2 会把真实上一交易日顶出窗口，导致 previous=None。
         # 拉足够多的近期 observation，过滤 "." 后取最后两条有效行即可得到正确的 previous。
-        params = urllib.parse.urlencode({"series_id": series_id, "api_key": api_key, "file_type": "json", "sort_order": "desc", "limit": 30, "observation_start": start_date})
+        params = urllib.parse.urlencode({"series_id": series_id, "api_key": api_key, "file_type": "json", "sort_order": "desc", "limit": 100000, "observation_start": start_date})
         url = f"https://api.stlouisfed.org/fred/series/observations?{params}"
         source = "FRED API"
     else:
@@ -128,7 +128,7 @@ def fetch_fred_series(series_id: str, name: str, category: str, unit: str, frequ
         rows = sorted(rows, key=lambda x: x[0])
         latest = rows[-1] if rows else None
         previous = rows[-2] if len(rows) >= 2 else None
-        return make_metric(series_id, name, category, latest, previous, unit, frequency, source, source_page_url, extra={"fetch_url": redact_url_secret(url)})
+        return make_metric(series_id, name, category, latest, previous, unit, frequency, source, source_page_url, extra={"fetch_url": redact_url_secret(url), "history": [{"date": d, "value": v} for d,v in rows]})
     except Exception as exc:
         safe_exc = RuntimeError(str(exc).replace(api_key, "REDACTED")) if api_key else exc
         metric = error_metric(series_id, name, category, unit, frequency, source, source_page_url, safe_exc)
@@ -136,7 +136,7 @@ def fetch_fred_series(series_id: str, name: str, category: str, unit: str, frequ
         return metric
 
 
-def fetch_treasury_par_yield_curve() -> Dict[str, Any]:
+def fetch_treasury_par_yield_curve(year=None) -> Dict[str, Any]:
     """Fetch SAME-DAY Treasury par yield curve from Treasury.gov (released ~4pm ET same day).
 
     Faster than FRED daily constant-maturity series (which are T+1). Returns a dict of
@@ -144,7 +144,7 @@ def fetch_treasury_par_yield_curve() -> Dict[str, Any]:
     plus computed T10Y2Y/T10Y3M), so signals/prompt/frontend are unaffected. FRED remains the
     fallback for these ids in fetch_all_metrics. Returns {} on any failure.
     """
-    year = datetime.now(UTC).year
+    year = year or datetime.now(UTC).year
     url = (
         f"https://home.treasury.gov/resource-center/data-chart-center/interest-rates/"
         f"daily-treasury-rates.csv/{year}/all?type=daily_treasury_yield_curve"
@@ -201,7 +201,7 @@ def fetch_treasury_par_yield_curve() -> Dict[str, Any]:
                     extra={
                         "history": [
                             {"date": date, "value": value}
-                            for date, value in sorted(history_by_mid.get(mid, []), key=lambda item: item[0])[-120:]
+                            for date, value in sorted(history_by_mid.get(mid, []), key=lambda item: item[0])
                         ]
                     },
                 )
@@ -234,9 +234,9 @@ def fetch_treasury_par_yield_curve() -> Dict[str, Any]:
         return {}
 
 
-def fetch_treasury_par_real_yield_curve() -> Dict[str, Metric]:
+def fetch_treasury_par_real_yield_curve(year=None) -> Dict[str, Metric]:
     """Fetch same-day Treasury par real yields for the official 5Y/7Y/10Y tenors."""
-    year = datetime.now(UTC).year
+    year = year or datetime.now(UTC).year
     url = (
         f"https://home.treasury.gov/resource-center/data-chart-center/interest-rates/"
         f"daily-treasury-rates.csv/{year}/all?type=daily_treasury_real_yield_curve"
@@ -279,7 +279,7 @@ def fetch_treasury_par_real_yield_curve() -> Dict[str, Metric]:
                     "Treasury official par real constant-maturity yield. Official daily real tenors start at 5Y; "
                     "there are no same-method official 1Y/3Y real constant-maturity rates."
                 ),
-                extra={"history": [{"date": date, "value": value} for date, value in rows[-120:]]},
+                extra={"history": [{"date": date, "value": value} for date, value in rows]},
             )
         return result
     except Exception:
@@ -396,7 +396,7 @@ def fetch_frbsf_term_premium_metrics() -> List[Metric]:
                     extra={
                         "fetch_url": fetch_url,
                         "sheet": sheet_name,
-                        "history": [{"date": date, "value": value} for date, value in parsed[-120:]],
+                        "history": [{"date": date, "value": value} for date, value in parsed],
                     },
                 )
             )
@@ -418,17 +418,24 @@ def fetch_frbsf_term_premium_metrics() -> List[Metric]:
 
 
 def fetch_tga() -> Metric:
-    url = "https://api.fiscaldata.treasury.gov/services/api/fiscal_service/v1/accounting/dts/operating_cash_balance?sort=-record_date&page[size]=90"
+    url = "https://api.fiscaldata.treasury.gov/services/api/fiscal_service/v1/accounting/dts/operating_cash_balance?sort=-record_date&page[size]=10000&filter=account_type:eq:Treasury%20General%20Account%20(TGA)%20Closing%20Balance"
     try:
         payload = http_get_json(url, timeout=30, retries=2)
         records = payload.get("data", []) if isinstance(payload, dict) else []
+        pages=int(payload.get('meta',{}).get('total-pages',1))
+        for page in range(2,pages+1):
+            extra_page=http_get_json(url+'&page[number]='+str(page),timeout=30,retries=2)
+            if not extra_page.get('data'):raise ValueError('Empty history page before reported end')
+            records.extend(extra_page['data'])
         parsed: List[Tuple[str, float]] = []
         for rec in records:
             account_type = str(rec.get("account_type", ""))
             if "Closing Balance" not in account_type:
                 continue
             date = parse_date_guess(rec.get("record_date"))
-            raw_value = safe_float(rec.get("open_today_bal") or rec.get("close_today_bal"))
+            raw_value = safe_float(rec.get("open_today_bal"))
+            if raw_value is None:
+                raw_value = safe_float(rec.get("close_today_bal"))
             value = fiscal_amount_to_bn(raw_value)
             if date and value is not None:
                 parsed.append((date, value))
@@ -438,13 +445,12 @@ def fetch_tga() -> Metric:
         for d, v in parsed:
             append_tga_history(d, v)
         latest_date, latest_value = parsed[-1]
-        history = read_tga_history(90)
-        previous = None
-        for d, v in reversed(history):
-            if d < latest_date:
-                previous = (d, v)
-                break
-        extra = {"raw_latest": records[0]} if records else {}
+        # Current comparisons and windows use this response only.  The legacy
+        # cache remains an archive, never an alternative source of prior values.
+        previous = parsed[-2] if len(parsed) >= 2 else None
+        raw_latest = next((rec for rec in records if parse_date_guess(rec.get("record_date")) == latest_date
+                           and "Closing Balance" in str(rec.get("account_type", ""))), {})
+        extra = {"raw_latest": raw_latest, "history": [{"date": d, "value": v} for d, v in parsed]}
         metric = make_metric("TGA", "Treasury General Account closing balance", "Fed负债端",
                             (latest_date, latest_value), previous,
                             "USD bn", "daily T+1", "Treasury FiscalData", url, extra=extra)
@@ -453,7 +459,7 @@ def fetch_tga() -> Metric:
         return error_metric("TGA", "Treasury General Account / operating cash balance", "Fed负债端", "USD bn", "daily T+1", "Treasury FiscalData", url, exc)
 
 
-def fetch_nyfed_rrp(lookback_days: int = 14) -> Metric:
+def fetch_nyfed_rrp(lookback_days: int = 120) -> Metric:
     end = datetime.now(UTC).date()
     start = end - timedelta(days=lookback_days)
     params = urllib.parse.urlencode({"startDate": start.isoformat(), "endDate": end.isoformat()})
@@ -472,7 +478,8 @@ def fetch_nyfed_rrp(lookback_days: int = 14) -> Metric:
         parsed = sorted(parsed, key=lambda x: x[0])
         latest = (parsed[-1][0], parsed[-1][1]) if parsed else None
         previous = (parsed[-2][0], parsed[-2][1]) if len(parsed) >= 2 else None
-        extra = {"raw_latest": parsed[-1][2], "lookback_days": lookback_days} if parsed else {"lookback_days": lookback_days}
+        extra = {"raw_latest": parsed[-1][2], "lookback_days": lookback_days,
+                 "history": [{"date": d, "value": v} for d, v, _ in parsed]} if parsed else {"lookback_days": lookback_days}
         status = "ok" if latest else "unavailable"
         notes = "NY Fed reverse repo accepted amount; replaces FRED RRPONTSYD when FRED is slow or unavailable"
         return make_metric("RRPONTSYD", "Overnight Reverse Repo accepted amount", "Fed负债端", latest, previous, "USD bn", "daily T+1", "NY Fed Markets API", url, status=status, notes=notes, extra=extra)
@@ -502,7 +509,7 @@ def fetch_soma_summary() -> Metric:
         parsed = sorted(parsed, key=lambda x: x[0])
         latest = (parsed[-1][0], parsed[-1][1]) if parsed else None
         previous = (parsed[-2][0], parsed[-2][1]) if len(parsed) >= 2 else None
-        extra = {"raw_latest": parsed[-1][2]} if parsed else {}
+        extra = {"raw_latest": parsed[-1][2], "history": [{"date": d, "value": v} for d, v, _ in parsed]} if parsed else {}
         status = "ok" if latest else "unavailable"
         notes = "SOMA endpoint schema may change; use as weekly QT background" if latest else "Could not extract numeric SOMA summary from endpoint"
         return make_metric("SOMA", "SOMA holdings / QT background", "Fed负债端", latest, previous, "USD bn", "weekly", "NY Fed Markets API", url, status=status, notes=notes, extra=extra)
@@ -514,22 +521,27 @@ def fetch_treasury_auctions(lookback_days: int) -> Metric:
     end = datetime.now(UTC).date()
     start = end - timedelta(days=lookback_days)
     params = urllib.parse.urlencode({"format": "json", "startDate": start.isoformat(), "endDate": end.isoformat()})
-    url = f"https://www.treasurydirect.gov/TA_WS/securities/search?{params}"
+    url = "https://www.treasurydirect.gov/TA_WS/securities/search?format=json"
     try:
         payload = http_get_json(url, timeout=30, retries=2)
-        records = payload if isinstance(payload, list) else payload.get("data", []) if isinstance(payload, dict) else []
+        if not isinstance(payload, list) and not (isinstance(payload, dict) and isinstance(payload.get("data"), list)):
+            raise ValueError("Unrecognized auction response schema")
+        records = payload if isinstance(payload, list) else payload["data"]
         parsed: List[Tuple[str, float, Dict[str, Any]]] = []
         for rec in records:
             if not isinstance(rec, dict):
                 continue
-            date = parse_date_guess(rec.get("auctionDate") or rec.get("auction_date"))
+            date = parse_date_guess(rec.get("auctionDate") or rec.get("competitiveAuctionCloseDate") or rec.get("auction_date"))
             value = safe_float(rec.get("bidToCoverRatio") or rec.get("bid_to_cover_ratio"))
-            if date and value is not None:
+            if date and start.isoformat() <= date <= end.isoformat() and value is not None:
                 parsed.append((date, value, rec))
         parsed = sorted(parsed, key=lambda x: x[0])
+        if parsed:
+            event=parsed[-1][2]
+            parsed=[r for r in parsed if (r[2].get("securityType"),r[2].get("securityTerm")) == (event.get("securityType"),event.get("securityTerm"))]
         latest = (parsed[-1][0], parsed[-1][1]) if parsed else None
         previous = (parsed[-2][0], parsed[-2][1]) if len(parsed) >= 2 else None
-        extra = {"latest_auction": parsed[-1][2], "lookback_days": lookback_days} if parsed else {"lookback_days": lookback_days}
+        extra = {"latest_auction": parsed[-1][2], "lookback_days": lookback_days, "history":[{"date":d,"value":v} for d,v,_ in parsed]} if parsed else {"lookback_days": lookback_days}
         notes = "Uses bid-to-cover as free auction demand proxy; auction tail requires WI yield not available here"
         status = "ok" if latest else "unavailable"
         return make_metric("UST_AUCTION_BTC", "Treasury auction bid-to-cover", "国债/抵押品", latest, previous, "ratio", "event-based", "TreasuryDirect", url, status=status, notes=notes, extra=extra)
@@ -542,21 +554,23 @@ def fetch_tbill_auction_metrics(lookback_days: int) -> List[Metric]:
     end = datetime.now(UTC).date()
     start = end - timedelta(days=lookback_days)
     params = urllib.parse.urlencode({"format": "json", "startDate": start.isoformat(), "endDate": end.isoformat()})
-    url = f"https://www.treasurydirect.gov/TA_WS/securities/search?{params}"
+    url = "https://www.treasurydirect.gov/TA_WS/securities/search?format=json"
     category = "国债/抵押品"
     try:
         payload = http_get_json(url)
-        records = payload if isinstance(payload, list) else payload.get("data", []) if isinstance(payload, dict) else []
+        if not isinstance(payload, list) and not (isinstance(payload, dict) and isinstance(payload.get("data"), list)):
+            raise ValueError("Unrecognized auction response schema")
+        records = payload if isinstance(payload, list) else payload["data"]
         grouped: Dict[str, Dict[str, Any]] = {}
         for rec in records:
             if not isinstance(rec, dict):
                 continue
             if str(rec.get("securityType", "")).lower() != "bill":
                 continue
-            date = parse_date_guess(rec.get("auctionDate") or rec.get("auction_date"))
+            date = parse_date_guess(rec.get("auctionDate") or rec.get("competitiveAuctionCloseDate") or rec.get("auction_date"))
             amount = fiscal_amount_to_bn(safe_float(rec.get("offeringAmount") or rec.get("offering_amount")))
             btc = safe_float(rec.get("bidToCoverRatio") or rec.get("bid_to_cover_ratio"))
-            if not date or amount is None:
+            if not date or date > end.isoformat() or amount is None or btc is None:
                 continue
             bucket = grouped.setdefault(date, {"size": 0.0, "btc_weighted_sum": 0.0, "btc_weight": 0.0, "records": [], "terms": []})
             bucket["size"] += amount
@@ -596,7 +610,7 @@ def fetch_tbill_auction_metrics(lookback_days: int) -> List[Metric]:
             "TreasuryDirect",
             url,
             notes=notes,
-            extra=shared_extra,
+            extra={**shared_extra, "history":[{"date":d,"value":v} for d,v,b,_ in parsed]},
         )
         btc_metric = make_metric(
             "TBILL_AUCTION_BTC",
@@ -610,7 +624,7 @@ def fetch_tbill_auction_metrics(lookback_days: int) -> List[Metric]:
             url,
             status="ok" if latest_btc is not None else "unavailable",
             notes=notes,
-            extra=shared_extra,
+            extra={**shared_extra, "history":[{"date":d,"value":b} for d,v,b,_ in parsed if b is not None]},
         )
         return [size_metric, btc_metric]
     except Exception as exc:
@@ -625,16 +639,18 @@ def fetch_upcoming_auctions(lookforward_days: int = 60) -> Dict[str, Any]:
     today = datetime.now(UTC).date()
     end = today + timedelta(days=lookforward_days)
     params = urllib.parse.urlencode({"format": "json", "startDate": today.isoformat(), "endDate": end.isoformat()})
-    url = f"https://www.treasurydirect.gov/TA_WS/securities/search?{params}"
+    url = "https://www.treasurydirect.gov/TA_WS/securities/announced?format=json"
     try:
         payload = http_get_json(url, timeout=30, retries=2)
-        records = payload if isinstance(payload, list) else payload.get("data", []) if isinstance(payload, dict) else []
+        if not isinstance(payload, list) and not (isinstance(payload, dict) and isinstance(payload.get("data"), list)):
+            raise ValueError("Unrecognized auction response schema")
+        records = payload if isinstance(payload, list) else payload["data"]
         auctions: List[Dict[str, Any]] = []
         for rec in records:
             if not isinstance(rec, dict):
                 continue
-            auction_date = parse_date_guess(rec.get("auctionDate") or rec.get("auction_date"))
-            if not auction_date or auction_date < today.isoformat():
+            auction_date = parse_date_guess(rec.get("auctionDate") or rec.get("competitiveAuctionCloseDate") or rec.get("auction_date"))
+            if not auction_date or not (today.isoformat() <= auction_date <= end.isoformat()):
                 continue
             security_type = str(rec.get("securityType") or rec.get("type") or "").strip()
             security_term = str(rec.get("securityTerm") or rec.get("term") or "").strip()
@@ -671,7 +687,7 @@ def fetch_upcoming_auctions(lookforward_days: int = 60) -> Dict[str, Any]:
             bucket["totalBillOfferingText"] = f"${bucket['totalBillOffering']:.0f}bn" if bucket["totalBillOffering"] else "待公布"
             bill_schedule.append(bucket)
         return {
-            "status": "ok",
+            "status": "ok" if auctions else "unknown",
             "as_of": today.isoformat(),
             "lookforward_days": lookforward_days,
             "source_url": url,
@@ -725,7 +741,7 @@ def fetch_ofr_series(mnemonic: str, metric_id: str, name: str) -> Metric:
         previous = parsed[-2] if len(parsed) >= 2 else None
         status = "ok" if latest else "unavailable"
         notes = "Optional OFR STFM series; if unavailable, do not block the main briefing"
-        return make_metric(metric_id, name, "国债/抵押品", latest, previous, "USD bn", "weekly", "OFR STFM", url, status=status, notes=notes)
+        return make_metric(metric_id, name, "国债/抵押品", latest, previous, "USD bn", "weekly", "OFR STFM", url, status=status, notes=notes, extra={"history":[{"date":d,"value":v} for d,v in parsed]})
     except Exception as exc:
         metric = error_metric(metric_id, name, "国债/抵押品", "USD bn", "weekly", "OFR STFM", url, exc)
         metric.notes = f"Optional source failed: {metric.notes}"
@@ -758,10 +774,28 @@ def add_synthetic_policy_anchor(metrics: List[Metric]) -> None:
         status="ok",
         notes="Fallback policy anchor when IORB/FRED is unavailable; not identical to IORB",
         stale_days=effr.stale_days,
-        extra={"raw_latest": raw, "raw_previous": prev_raw},
+        extra={"raw_latest": raw, "raw_previous": prev_raw, "history": effr.extra.get("policy_history",[])},
     )
     metrics.append(metric)
 
+
+def fetch_standing_repo_metrics():
+    url="https://markets.newyorkfed.org/api/rp/results/search.json?operationTypes=Repo&term=overnight&securityType=srf&startDate=2021-07-29&endDate="+datetime.now(UTC).date().isoformat()
+    try:
+        operations=http_get_json(url).get('repo',{}).get('operations',[])
+        daily={};rates={};seen=set()
+        for op in operations:
+            if op.get('operationId') in seen or op.get('operationType')!='Repo' or op.get('term')!='Overnight' or op.get('auctionStatus')!='Results':continue
+            seen.add(op.get('operationId'));d=parse_date_guess(op.get('operationDate'));v=safe_float(op.get('totalAmtAccepted'))
+            if d and v is not None:
+                daily[d]=daily.get(d,0)+v/1e9
+                rr={safe_float(x.get('percentOfferingRate')) for x in op.get('details',[]) if safe_float(x.get('percentOfferingRate')) is not None}
+                if len(rr)==1:rates[d]=next(iter(rr))
+        rows=sorted(daily.items());rate_rows=sorted(rates.items())
+        if not rows:raise ValueError('No overnight repo operation results')
+        return [make_metric('SRP_ACCEPTED','Standing overnight repo accepted amount','回购融资',rows[-1],rows[-2] if len(rows)>1 else None,'USD bn','daily T+1','NY Fed Markets API',url,extra={'history':[{'date':d,'value':v} for d,v in rows]}),make_metric('SRP_RATE','Standing repo operation offering rate','政策锚',rate_rows[-1] if rate_rows else None,rate_rows[-2] if len(rate_rows)>1 else None,'%','policy step','NY Fed Markets API',url,extra={'history':[{'date':d,'value':v} for d,v in rate_rows]})]
+    except Exception as exc:
+        return [error_metric('SRP_ACCEPTED','Standing overnight repo accepted amount','回购融资','USD bn','daily T+1','NY Fed Markets API',url,exc)]
 
 def fetch_all_metrics(auction_lookback_days: int) -> List[Metric]:
     api_jobs = [
@@ -772,7 +806,7 @@ def fetch_all_metrics(auction_lookback_days: int) -> List[Metric]:
         lambda: fetch_nyfed_rate("effr", "Effective Federal Funds Rate", False),
         lambda: fetch_nyfed_rate("obfr", "Overnight Bank Funding Rate", False),
         fetch_tga,
-        lambda: fetch_nyfed_rrp(14),
+        lambda: fetch_nyfed_rrp(10000),
         lambda: fetch_treasury_auctions(auction_lookback_days),
         fetch_soma_summary,
         lambda: fetch_ofr_series("NYPD-PD_AFtD_T-A", "REPO_FAILS_UST", "Primary dealer Treasury repo fails"),
@@ -826,6 +860,7 @@ def fetch_all_metrics(auction_lookback_days: int) -> List[Metric]:
         metrics.extend(real_yields.values())
     add_synthetic_policy_anchor(metrics)
     metrics.sort(key=lambda m: (m.category, m.id))
+    metrics.extend(fetch_standing_repo_metrics())
     return metrics
 
 

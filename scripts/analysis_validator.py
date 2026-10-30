@@ -15,13 +15,13 @@ from pathlib import Path
 from typing import Any, Dict, Iterable, List, Mapping, Optional, Sequence, Set, Tuple
 
 
-STANCE_LABELS = ["宽松", "中性偏松", "中性", "中性偏紧", "紧张"]
+STANCE_LABELS = ["宽松", "中性偏松", "中性", "中性偏紧", "紧张", "数据不足"]
 CONFIDENCE_LABELS = ["高", "中等", "低"]
 CLAIM_TYPES = ["observed", "inference", "scenario"]
 PRIORITIES = ["P0", "P1", "P2"]
 SEVERITIES = ["high", "medium", "low", "info"]
 RISK_TYPES = ["market", "data"]
-MODULE_LABELS = ["偏松", "中性", "偏紧"]
+MODULE_LABELS = ["偏松", "中性", "偏紧", "数据不足"]
 AXIS_LABELS = ["偏松", "中性", "偏紧", "紧张", "数据不足"]
 JPY_MODULE_LABELS = MODULE_LABELS + ["数据不足"]
 
@@ -44,6 +44,7 @@ _CLAIM_PROPERTIES: Dict[str, Any] = {
     "title": _TEXT_SCHEMA,
     "text": _TEXT_SCHEMA,
     "evidence": _STRING_ARRAY_SCHEMA,
+    "evidence_refs": {"type":"array","minItems":1,"items":{"type":"object","additionalProperties":False,"required":["fact_id"],"properties":{"fact_id":{"type":"string"}}}},
     "related_indicators": _STRING_ARRAY_SCHEMA,
 }
 _CLAIM_REQUIRED = [
@@ -54,6 +55,7 @@ _CLAIM_REQUIRED = [
     "text",
     "evidence",
     "related_indicators",
+    "evidence_refs",
 ]
 
 ANALYSIS_JSON_SCHEMA: Dict[str, Any] = {
@@ -105,6 +107,8 @@ ANALYSIS_JSON_SCHEMA: Dict[str, Any] = {
                     "properties": {
                         "label": {"type": "string", "enum": AXIS_LABELS},
                         "summary": _TEXT_SCHEMA,
+                        "confidence": {"type":"string","enum":CONFIDENCE_LABELS},
+                        "coverage_limits": _TEXT_SCHEMA,
                         "fact_ids": _STRING_ARRAY_SCHEMA,
                     },
                 }
@@ -129,6 +133,8 @@ ANALYSIS_JSON_SCHEMA: Dict[str, Any] = {
                         "label": {"type": "string", "enum": AXIS_LABELS},
                         "window": {"type": "string", "const": window},
                         "summary": _TEXT_SCHEMA,
+                        "confidence": {"type":"string","enum":CONFIDENCE_LABELS},
+                        "coverage_limits": _TEXT_SCHEMA,
                         "fact_ids": _STRING_ARRAY_SCHEMA,
                     },
                 }
@@ -211,6 +217,12 @@ ANALYSIS_JSON_SCHEMA: Dict[str, Any] = {
         },
     },
 }
+
+if not __package__:
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+from scripts.investment_contract import INVESTMENT_SCHEMA, validate_investment
+
+ANALYSIS_JSON_SCHEMA["properties"]["investment_assessment"] = INVESTMENT_SCHEMA
 
 _FACT_CONTAINER_KEYS = {
     "canonical_metrics",
@@ -530,9 +542,28 @@ def _iter_numeric_values(value: Any) -> Iterable[float]:
             yield from _iter_numeric_values(child)
 
 
+def materialize_evidence(candidate, model_input):
+    facts,_ = _collect_facts(model_input)
+    for _,claim in _iter_claims(candidate):
+        rendered=[]
+        for ref in claim.get('evidence_refs',[]):
+            fid=ref.get('fact_id');f=facts.get(fid)
+            if not f or fid not in claim.get('fact_ids',[]):
+                raise ValueError('Evidence reference absent from claim facts: '+str(fid))
+            value=f.get('value');change=f.get('change',f.get('change_1d'))
+            unit=f.get('unit','原始比例/口径');unit={'bp avg':'bp','USD bn':'bn','USD mn/day':'mn/day'}.get(unit,unit);date=f.get('as_of','日期未知')
+            if isinstance(value,(int,float)):
+                rendered.append(f"{f.get('id',fid)}：{value:.2f}{unit}（{date}，"+(f"{change:+.2f}{unit}" if isinstance(change,(int,float)) else '环比未知')+f"）；{f.get('frequency','按来源频率')}。")
+            else:
+                rendered.append(f"{fid}：{date}；状态 {f.get('status',f.get('type','unknown'))}；无可用数值。")
+        if rendered:claim['evidence']=rendered
+    return candidate
+
 def _number_matches_fact(number: float, unit: str, fact_values: Sequence[float]) -> bool:
     candidates = [number]
     if unit == "%":
+        candidates.append(number / 100.0)
+    if unit in {"bp", "bps"}:
         candidates.append(number / 100.0)
     for candidate in candidates:
         for fact_value in fact_values:
@@ -552,21 +583,22 @@ def _validate_claim_numbers(
     if not isinstance(fact_ids, list):
         return
     referenced = [facts[fact_id] for fact_id in fact_ids if isinstance(fact_id, str) and fact_id in facts]
-    fact_values = list(_iter_numeric_values(referenced))
-    if not fact_values:
-        return
-    seen: Set[Tuple[float, str]] = set()
-    for match in _UNIT_NUMBER_PATTERN.finditer(_claim_text(claim)):
-        number = float(match.group("number").replace(",", ""))
-        unit = match.group("unit").lower()
-        marker = (number, unit)
-        if marker in seen:
-            continue
-        seen.add(marker)
-        if not _number_matches_fact(number, unit, fact_values):
-            errors.append(
-                f"{path}: 数值 {match.group(0)!r} 无法在所引用 fact_ids 的数值字段中追溯"
-            )
+    text=_claim_text(claim)
+    dates=set(re.findall(r"\b\d{4}-\d{2}-\d{2}\b",json.dumps(referenced,ensure_ascii=False)))
+    for date in re.findall(r"\b\d{4}-\d{2}-\d{2}\b",text):
+        if date not in dates:errors.append(f"{path}: date {date} not in referenced observations")
+    for match in _UNIT_NUMBER_PATTERN.finditer(text):
+        number=float(match.group('number').replace(',',''));unit=match.group('unit').lower()
+        accepted=False
+        for fact in referenced:
+            native=str(fact.get('unit','')).lower();native={'bp avg':'bp'}.get(native,native)
+            factor=100.0 if unit in ('bp','bps') and native=='%' else 1.0
+            compatible=(unit==native or (unit=='bn' and native=='usd bn') or (unit=='mn/day' and native=='usd mn/day') or (unit in ('bp','bps') and native in ('%','bp','bps')) or (unit=='pt' and native in ('index','pt')) or (unit=='x' and native in ('ratio','x')) or (unit=='口' and not native))
+            if not compatible:continue
+            for field in ('value','previous','change','change_1d','change_5d','change_20d'):
+                value=fact.get(field)
+                if isinstance(value,(int,float)) and not isinstance(value,bool) and abs(number-value*factor)<=0.011:accepted=True
+        if not accepted:errors.append(f"{path}: incompatible number/unit {match.group(0)!r}")
 
 
 def _iter_narrative_text_fields(candidate: Mapping[str, Any]) -> Iterable[Tuple[str, str]]:
@@ -675,7 +707,12 @@ def _validate_claims(
     errors: List[str],
 ) -> None:
     dedupe_keys: Dict[str, str] = {}
+    content_keys = set()
     for path, claim in _iter_claims(candidate):
+        content_key = json.dumps({k: claim.get(k) for k in ("text", "evidence", "fact_ids")}, ensure_ascii=False, sort_keys=True)
+        if content_key in content_keys:
+            errors.append(f"{path}: duplicate claim content")
+        content_keys.add(content_key)
         claim_type = claim.get("claim_type")
         condition = claim.get("condition")
         if claim_type == "scenario" and (not isinstance(condition, str) or not condition.strip()):
@@ -698,6 +735,15 @@ def _validate_claims(
                 if isinstance(fact_id, str) and fact_id not in facts:
                     errors.append(f"{path}.fact_ids[{index}]: 未在 model_input 事实包中找到 {fact_id!r}")
 
+        if _UNIT_NUMBER_PATTERN.search(str(claim.get('text',''))):
+            errors.append(f"{path}.text: market values belong in structured evidence_refs")
+        if claim.get('evidence_refs'):
+            try:
+                expected=materialize_evidence({'key_takeaways':[copy.deepcopy(claim)]},{'data':{'facts':{'canonical_metrics':list(facts.values())}}})['key_takeaways'][0]['evidence']
+                if claim.get('evidence') != expected:
+                    errors.append(f"{path}.evidence: must match deterministic evidence_refs rendering")
+            except (ValueError,KeyError,TypeError) as exc:
+                errors.append(f"{path}.evidence_refs: {exc}")
         _validate_claim_numbers(path, claim, facts, errors)
 
         if not _prediction_is_supported(claim, facts):
@@ -770,6 +816,8 @@ def _validate_p0(
         if priority != "P0":
             continue
         path = f"$.risk_flags[{index}]"
+        if risk.get("claim_type") == "scenario":
+            errors.append(f"{path}: P0 cannot be a future scenario")
         if risk.get("type") != "market":
             errors.append(f"{path}.type: P0 只能是已实现的 market 压力，不能是 data 风险")
         if risk.get("severity") != "high":
@@ -785,7 +833,15 @@ def _validate_p0(
                     errors.append(f"{path}.fact_ids: P0 不得引用不新鲜或缺失事实 {fact_id!r}")
                 else:
                     usable.append((fact_id, fact))
-        if len({fact_id for fact_id, _ in usable}) < 2:
+        def roots(fid, seen=None):
+            seen = set() if seen is None else seen
+            if fid in seen: return set()
+            seen.add(fid)
+            deps = facts.get(fid, {}).get("base_fact_ids", [])
+            return set().union(*(roots(d, set(seen)) for d in deps)) if deps else {fid}
+        root_sets = [roots(fid) for fid, _ in usable]
+        independent = any(a and b and a.isdisjoint(b) for i,a in enumerate(root_sets) for b in root_sets[i+1:])
+        if not independent:
             errors.append(f"{path}.fact_ids: P0 至少需要两个不同的新鲜事实交叉确认")
         if (
             _risk_is_funding_pressure(risk)
@@ -859,6 +915,7 @@ def validate_analysis(candidate: Any, model_input: Any) -> List[str]:
     _validate_p0(candidate, facts, errors)
     _validate_required_modules(candidate, model_input, errors)
     _validate_uncited_predictions(candidate, errors)
+    errors.extend(validate_investment(candidate, model_input, facts, _unfresh_fact_ids(facts)))
     return errors
 
 

@@ -421,9 +421,9 @@ def fetch_chart_series(days: int = 40) -> Dict[str, List[Tuple[str, float]]]:
             series[signal_id] = rows
 
     # Fallback only from already-loaded DB rows, never from APIs.
-    if not series.get("SOFR_ANCHOR") and series.get("SOFR") and series.get("POLICY"):
+    if series.get("SOFR") and series.get("POLICY"):
         series["SOFR_ANCHOR"] = align_spread(series["SOFR"], series["POLICY"])
-    if not series.get("BGCR_TGCR") and series.get("BGCR") and series.get("TGCR"):
+    if series.get("BGCR") and series.get("TGCR"):
         series["BGCR_TGCR"] = align_spread(series["BGCR"], series["TGCR"])
     if series.get("DGS5") and series.get("DFII5"):
         series["UST_5Y_BREAKEVEN"] = align_spread(series["DGS5"], series["DFII5"], multiplier=1.0)

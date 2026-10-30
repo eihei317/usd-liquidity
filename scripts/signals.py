@@ -17,12 +17,23 @@ from .utils import (
 def spread_value(a: Optional[Metric], b: Optional[Metric]) -> Optional[float]:
     if not a or not b or a.value is None or b.value is None:
         return None
+    if a.as_of != b.as_of:
+        # Policy anchors may be carried only with an explicit effective-date observation.
+        history = (b.extra or {}).get("history", [])
+        matched = [r for r in history if isinstance(r, dict) and r.get("date") == a.as_of]
+        if not matched:
+            return None
+        return (a.value - matched[-1]["value"]) * 100.0
     return (a.value - b.value) * 100.0
 
 
 def previous_spread_value(a: Optional[Metric], b: Optional[Metric]) -> Optional[float]:
     if not a or not b or a.previous is None or b.previous is None:
         return None
+    if a.previous_as_of != b.previous_as_of:
+        history=(b.extra or {}).get("history",[])
+        matched=[r for r in history if isinstance(r,dict) and r.get("date")==a.previous_as_of]
+        return (a.previous-matched[-1]["value"])*100.0 if matched else None
     return (a.previous - b.previous) * 100.0
 
 
@@ -67,7 +78,7 @@ def derive_signals(metrics: List[Metric]) -> Tuple[List[DerivedSignal], float, L
     sofr_anchor_prev = previous_spread_value(mm.get("SOFR"), policy_anchor)
     sofr_as_of = mm.get("SOFR").as_of if mm.get("SOFR") else None  # 从底层metric继承时间
     sev_key, sev = classify_bp(sofr_anchor, 0.0, -8.0)
-    add_signal("SOFR_ANCHOR", sofr_anchor_label, sofr_anchor, "bp", f"SOFR相对{anchor_label}的位置。" + ("回购融资高于政策锚，抵押融资压力上升" if sev_key == "tight" else "回购融资低于政策锚，说明资金面不紧" if sev_key == "loose" else "回购融资与政策锚接近"), sev, 1.5 if sev_key == "tight" else -0.5 if sev_key == "loose" else 0.0, previous=sofr_anchor_prev, as_of=sofr_as_of)
+    add_signal("SOFR_ANCHOR", sofr_anchor_label, sofr_anchor, "bp", f"SOFR相对{anchor_label}的位置。" + ("回购融资高于观察阈值；变化方向须另行判断" if sev_key == "tight" else "回购融资低于政策锚，说明资金面不紧" if sev_key == "loose" else "回购融资与政策锚接近"), sev, 1.5 if sev_key == "tight" else -0.5 if sev_key == "loose" else 0.0, previous=sofr_anchor_prev, as_of=sofr_as_of)
 
     sofr_volume = mm.get("SOFR_VOLUME")
     if sofr_volume and sofr_volume.value is not None and sofr_anchor is not None:
