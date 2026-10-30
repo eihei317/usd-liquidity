@@ -99,6 +99,7 @@ def run(mode, source_run=None, candidate=None):
             def call(script,*args):subprocess.run([sys.executable,'-B','-X','utf8','-u',str(work/'scripts'/script),*args],cwd=work,env=env,check=True)
             if mode=='update':stage('fetching');call('run.py','更新美元流动性数据','--json')
             latest=work/'output/latest'
+            if mode=='history':stage('refreshing_missing_histories');call('run.py','补齐历史','--input-json',str(latest/'snapshot.json'),'--json')
             if not (latest/'model_input.json').exists():raise RuntimeError('没有可分析的事实包，请先更新数据。')
             if mode=='reanalyze' and not source_run and not candidate:
                 package=read(latest/'model_input.json')
@@ -106,12 +107,12 @@ def run(mode, source_run=None, candidate=None):
                 package['output_contract']['number_format_rule']='市场数值仅通过evidence_refs由程序呈现；定性叙述不手抄数值。'
                 package['prompt_version']='2.0'
                 atomic(latest/'model_input.json',package)
-            if source_run and not candidate:
+            if source_run and not candidate and mode!='history':
                 stage('rebuilding_facts');call('rebuild_facts.py')
             if not candidate:
                 stage('preparing_investment_research')
-                prepare_research(latest,previous_package,fetch=(mode=='update'))
-            if (ROOT/'github_sync.json').exists() and mode=='update':
+                prepare_research(latest,previous_package,fetch=(mode in ('update','history')))
+            if (ROOT/'github_sync.json').exists() and mode in ('update','history'):
                 stage('syncing_capture')
                 from scripts.sync_to_github import sync
                 sync(dest,'capture')
@@ -193,7 +194,7 @@ def rollback():
         atomic(OUT/'current.json',pointer);print(json.dumps(pointer,ensure_ascii=False));return 0
 
 def main():
-    a=argparse.ArgumentParser();a.add_argument('mode',choices=['update','reanalyze','status','rollback']);a.add_argument('--source-run');a.add_argument('--candidate');args=a.parse_args()
+    a=argparse.ArgumentParser();a.add_argument('mode',choices=['update','history','reanalyze','status','rollback']);a.add_argument('--source-run');a.add_argument('--candidate');args=a.parse_args()
     if args.mode=='rollback':return rollback()
     if args.mode=='status':
         print(json.dumps({x:read(OUT/x) if (OUT/x).exists() else None for x in ('current.json','latest_attempt.json')},ensure_ascii=False));return 0

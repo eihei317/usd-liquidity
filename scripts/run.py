@@ -173,6 +173,11 @@ def main(argv: List[str]) -> int:
 
     if args.input_json:
         metrics, signals, score, highlights = load_snapshot(Path(args.input_json))
+        from scripts.fetchers import fetch_standing_repo_metrics
+        refreshed = fetch_standing_repo_metrics()
+        if any(m.value is None for m in refreshed):raise RuntimeError('Repo history refresh failed')
+        metrics = [m for m in metrics if m.id not in {'SRP_ACCEPTED','SRP_RATE'}] + refreshed
+        signals, score, highlights = derive_signals(metrics)
     else:
         from scripts.history_audit import hydrate
         metrics = hydrate(fetch_all_metrics(args.auction_lookback_days))

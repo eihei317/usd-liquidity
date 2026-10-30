@@ -780,7 +780,7 @@ def add_synthetic_policy_anchor(metrics: List[Metric]) -> None:
 
 
 def fetch_standing_repo_metrics():
-    url="https://markets.newyorkfed.org/api/rp/results/search.json?operationTypes=Repo&term=overnight&securityType=srf&startDate=2021-07-29&endDate="+datetime.now(UTC).date().isoformat()
+    url="https://markets.newyorkfed.org/api/rp/results/search.json?operationTypes=Repo&term=overnight&startDate=2021-07-29&endDate="+datetime.now(UTC).date().isoformat()
     try:
         operations=http_get_json(url).get('repo',{}).get('operations',[])
         daily={};rates={};seen=set()

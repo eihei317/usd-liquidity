@@ -85,6 +85,10 @@ def rebuild_and_audit(metrics,signals,db_path):
         for mid,rows in json.loads(jpy.read_text(encoding='utf-8')).get('jpy_carry',{}).get('history',{}).items():
             valid=sorted({r['date'] for r in rows if isinstance(r,dict) and r.get('date') and isinstance(r.get('value'),(int,float))})
             report.append({'kind':'jpy','id':mid,'source':'JPY captured sources; see payload provenance','observations':len(valid),'first':valid[0] if valid else None,'last':valid[-1] if valid else None,'status':'history_available' if len(valid)>1 else 'missing_history'})
+    with sqlite3.connect(db_path) as c:
+        for mid,n,start,end in c.execute('SELECT series_id,COUNT(*),MIN(as_of),MAX(as_of) FROM jpy_carry_series_ts WHERE value IS NOT NULL GROUP BY series_id'):
+            report=[r for r in report if not(r['kind']=='jpy' and r['id']==mid)]
+            report.append({'kind':'jpy','id':mid,'source':'JPY captured database; source provenance in payload','observations':n,'first':start,'last':end,'status':'history_available' if n>1 else 'missing_history'})
     result={'scope':'全部本次canonical指标及全部派生信号；向官方源回抓可用历史，逐项列出缺口，不保证源端不存在未发布/停更资料。','series':report,'missing':[r['id'] for r in report if r['status']=='missing_history'],'treasury_failures':sorted(set(e for r in report for e in r.get('source_failures',[])))}
     OUTPUT_DIR.mkdir(exist_ok=True,parents=True)
     (OUTPUT_DIR/'history_coverage.json').write_text(json.dumps(result,ensure_ascii=False,indent=2),encoding='utf-8')

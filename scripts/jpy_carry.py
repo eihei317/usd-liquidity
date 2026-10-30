@@ -164,16 +164,17 @@ def fetch_boj_series(db: str, code: str, start_yyyymm: str, end_yyyymm: str) -> 
 
 def fetch_mof_jgb() -> Tuple[Dict[str, List[Tuple[str, float]]], Dict[str, Any]]:
     url = "https://www.mof.go.jp/english/policy/jgbs/reference/interest_rate/historical/jgbcme_all.csv"
-    raw = urllib.request.urlopen(urllib.request.Request(url, headers={"User-Agent": USER_AGENT}), timeout=25).read()
+    from scripts.utils import http_get_bytes
+    raw = http_get_bytes(url, timeout=25, retries=1)
     text = raw.decode("shift_jis", errors="replace")
     lines = text.splitlines()
     reader = csv.DictReader(io.StringIO("\n".join(lines[1:])))
-    out: Dict[str, List[Tuple[str, float]]] = {"JGB2": [], "JGB10": [], "JGB30": []}
+    out: Dict[str, List[Tuple[str, float]]] = {"JGB2": [], "JGB5": [], "JGB10": [], "JGB30": []}
     for row in reader:
         date = parse_date_guess(row.get("Date"))
         if not date:
             continue
-        for key, col in (("JGB2", "2Y"), ("JGB10", "10Y"), ("JGB30", "30Y")):
+        for key, col in (("JGB2", "2Y"), ("JGB5", "5Y"), ("JGB10", "10Y"), ("JGB30", "30Y")):
             value = safe_float(row.get(col))
             if value is not None:
                 out[key].append((date, value))
@@ -258,7 +259,7 @@ def fetch_cnbc_jgb() -> Tuple[Dict[str, Tuple[str, float]], Dict[str, Any]]:
     return out, {"source": "CNBC", "source_url": "https://www.cnbc.com/bonds/", "frequency": "daily", "name": "CNBC real-time JGB yields (JP2Y/JP5Y/JP10Y/JP30Y)", "missing_tenors": missing}
 
 
-def fetch_bis_neer(keep: int = 900) -> Tuple[List[Tuple[str, float]], Dict[str, Any]]:
+def fetch_bis_neer(keep: int = 100000) -> Tuple[List[Tuple[str, float]], Dict[str, Any]]:
     """Fetch the *daily* nominal effective exchange rate (NEER) for the yen from
     the BIS Data Portal SDMX API.
 
@@ -423,7 +424,7 @@ def _decompose_cftc_net(
     }
 
 
-def fetch_cftc_jpy(limit: int = 130) -> Tuple[List[Dict[str, Any]], Dict[str, Any]]:
+def fetch_cftc_jpy(limit: int = 100000) -> Tuple[List[Dict[str, Any]], Dict[str, Any]]:
     params = urllib.parse.urlencode({
         "cftc_contract_market_code": "097741",
         "$limit": limit,
@@ -641,7 +642,7 @@ def build_payload(trigger: str, stamp: Optional[str] = None) -> Tuple[Dict[str, 
     stamp = stamp or now_bjt().strftime("%Y%m%d_%H%M%S")
     snapshot_file = f"jpy_carry_history_{stamp}.json"
     end = now_bjt().strftime("%Y%m")
-    start_daily = (now_bjt().date() - timedelta(days=395)).strftime("%Y%m")
+    start_daily = "199001"
     start_monthly = (now_bjt().date() - timedelta(days=1250)).strftime("%Y%m")
     notes: List[str] = []
 
@@ -660,22 +661,22 @@ def build_payload(trigger: str, stamp: Optional[str] = None) -> Tuple[Dict[str, 
     if cnbc_jgb_meta.get("missing_tenors"):
         notes.append(f"CNBC JGB 部分期限未能获取：{', '.join(cnbc_jgb_meta['missing_tenors'])}（该期限回退至 MOF 历史值）")
     cftc = safe_fetch("CFTC JPY", fetch_cftc_jpy)
-    fred_dgs10 = safe_fetch("FRED DGS10", lambda: fetch_fred_series_jpy("DGS10", 420)) or []
-    fred_dgs2 = safe_fetch("FRED DGS2", lambda: fetch_fred_series_jpy("DGS2", 420)) or []
-    fred_vix = safe_fetch("FRED VIXCLS", lambda: fetch_fred_series_jpy("VIXCLS", 120)) or []
-    fred_hy = safe_fetch("FRED HY OAS", lambda: fetch_fred_series_jpy("BAMLH0A0HYM2", 120)) or []
+    fred_dgs10 = safe_fetch("FRED DGS10", lambda: fetch_fred_series_jpy("DGS10", 50000)) or []
+    fred_dgs2 = safe_fetch("FRED DGS2", lambda: fetch_fred_series_jpy("DGS2", 50000)) or []
+    fred_vix = safe_fetch("FRED VIXCLS", lambda: fetch_fred_series_jpy("VIXCLS", 50000)) or []
+    fred_hy = safe_fetch("FRED HY OAS", lambda: fetch_fred_series_jpy("BAMLH0A0HYM2", 50000)) or []
 
     usdjpy_rows, usdjpy_meta = boj_usdjpy if boj_usdjpy else ([], {"source_url": ""})
     call_rows, call_meta = boj_call if boj_call else ([], {"source_url": ""})
     neer_rows, neer_meta = bis_neer if bis_neer else ([], {"source_url": ""})
-    jgb_mof, jgb_meta = mof if mof else ({"JGB2": [], "JGB10": [], "JGB30": []}, {"source_url": ""})
+    jgb_mof, jgb_meta = mof if mof else ({"JGB2": [], "JGB5": [], "JGB10": [], "JGB30": []}, {"source_url": ""})
     dgs10_latest = latest_non_null(fred_dgs10)
     dgs10_latest_date = dgs10_latest[0] if dgs10_latest else None
     # Merge MOF long-run history with CNBC's fresher latest daily point. CNBC is
     # patched onto the DGS10 latest date too so the US-JP spread aligns to the same
     # trading day instead of forward-filling from MOF's stalled last row.
     jgb_rows: Dict[str, List[Tuple[str, float]]] = {}
-    for term in ["JGB2", "JGB10", "JGB30"]:
+    for term in ["JGB2", "JGB5", "JGB10", "JGB30"]:
         rows = list(jgb_mof.get(term, []))
         pt = cnbc_jgb.get(term)
         if pt:
