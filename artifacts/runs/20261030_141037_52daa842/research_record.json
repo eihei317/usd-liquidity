@@ -1,0 +1,142 @@
+{
+  "schema_version": "3.0",
+  "run_id": "20261030_141037_52daa842",
+  "method_version": "3.0",
+  "model": "gpt-6.1-sol",
+  "source_generated_at_bjt": "2026-10-30T14:13:31+08:00",
+  "source_data_as_of": "2026-10-30",
+  "published_at_bjt": "2026-10-30T14:17:33.874655+08:00",
+  "input_sha256": "9c8f5262de7334eff131ed6ed8aed3f7795c35320e85f3e53a8a30f0c57de279",
+  "dedupe_key": "81f50827979e1e5cf2205233ec2526f7819bb7f4c697ec4f8cdb796d56895a2d",
+  "historical_snapshot": false,
+  "assessment": {
+    "summary": "中期流动性贡献呈分化：上游现金缓冲偏薄、财政现金在近期窗口积累，融资端尚无全面失灵；折现率较月度起点下降提供支持，但下游价格与信用确认不一致。美股和BTC均不宜据此形成单向收益判断，较长期窗口的融资及真实贴现率约束仍在。当前研究未建立稳定样本外预测优势，捕获历史亦不等于当时可见版本。",
+    "change_summary": "相对上次成功事实包，可比的资金利率、现金余额、准备金、SOMA、国债曲线、实际收益率、信用、VIX及模型分解均未改变观测值或日期，未见已覆盖核心事实的实质更新；不能由此臆测上次模型观点。资产价格和日历未提供对应比较事实，不判断其相对上次变化。",
+    "equities": {
+      "liquidity_bias": "分化",
+      "confidence": "中等",
+      "horizon": "2—12周",
+      "summary": "较月度起点下降的真实贴现率有利于估值，但上游现金缓冲与担保融资约束抵消部分支持；标普与纳斯达克综合的价格确认分化，未形成普遍流动性利好。",
+      "transmission": "真实无风险收益率回落可降低长久期现金流折现压力，而现金缓冲薄及回购相对政策锚偏贵会限制风险中介扩张。若利率下降来自增长恶化，盈利压力可能抵消估值支持；现有数据无法区分这一驱动。",
+      "confirmation": "信用利差最新收窄、NFCI水平偏松，与市场仍具承接能力一致；标普月度窗口上涨，但纳斯达克综合对应窗口下降，且信用月度窗口未净改善，尚缺广度及增长盈利确认。股价不是新增美元供给证据。",
+      "invalidation": "若准备金连续回升、TGA持续回落且回购溢价回归政策锚附近，同时真实收益率下降和信用收窄延续、股指改善趋于一致，分化判断将转向支持；若准备金继续减少、回购溢价持续扩大并伴信用扩张，则转向压制。",
+      "coverage_limits": "缺增长与盈利修正、估值和行业资金流，不能得出完整股票回报结论。价格指数不含股息，股指窗口日期不完全一致。近期改善与较长窗口约束并存，置信度不能提高至高。",
+      "fact_ids": [
+        "trend:DFII5:20obs",
+        "trend:DFII7:20obs",
+        "trend:DFII5:60obs",
+        "trend:SOFR_IORB:20obs",
+        "metric:SOFR_VOLUME",
+        "trend:TGA:20obs",
+        "trend:WRESBAL:5obs",
+        "derived:RRP_BUFFER",
+        "metric:NFCI",
+        "trend:BAMLC0A0CM:20obs",
+        "metric:BAMLH0A0HYM2",
+        "market:SP500:20obs",
+        "market:NASDAQCOM:20obs",
+        "coverage:growth_earnings"
+      ]
+    },
+    "bitcoin": {
+      "liquidity_bias": "分化",
+      "confidence": "低",
+      "horizon": "2—12周",
+      "summary": "真实贴现率回落改善美元背景，但现金缓冲薄与担保融资约束仍在，BTC近期价格尚未确认改善；无法把宏观支持解读为新增现货资金或明确持有机会。",
+      "transmission": "美元实际融资与现金替代收益下降可改善风险承担环境，然而准备金缓冲偏弱和回购溢价会约束杠杆中介。BTC自身现货流量及衍生杠杆可使价格偏离宏观方向，当前缺少这些渠道的数据。",
+      "confirmation": "BTC最新及近期较短价格窗口下降，未确认折现率缓和已传导为价格支持；较长价格窗口接近平稳也不足以证明流入。美股或信用改善不属于BTC资金流事实。",
+      "invalidation": "若现金供给持续改善、回购溢价收敛且BTC价格在后续连续观测中恢复升势，并补充到同向现货流量确认，可转向支持；若回购溢价持续扩大、准备金继续减少且BTC弱势延续，则转向压制。",
+      "coverage_limits": "缺ETF流、稳定币供给、合约未平仓量、资金费率及清算信息，不能判断新增资金入场、去杠杆完成或BTC买入机会。BTC观测含周末，其窗口不能与美股交易日窗口等同。",
+      "fact_ids": [
+        "trend:DFII5:20obs",
+        "trend:DFII7:20obs",
+        "derived:RRP_BUFFER",
+        "trend:WRESBAL:5obs",
+        "trend:TGA:20obs",
+        "trend:SOFR_IORB:20obs",
+        "metric:SOFR_VOLUME",
+        "market:CBBTCUSD:level",
+        "market:CBBTCUSD:5obs",
+        "market:CBBTCUSD:20obs",
+        "market:CBBTCUSD:60obs",
+        "coverage:btc_flows_leverage"
+      ]
+    },
+    "expectations": {
+      "status": "部分覆盖",
+      "summary": "已覆盖名义曲线反应与FRBSF模型的预期短率、期限溢价分解，但未配置直接SOFR期货、调查共识或事件预期差。模型分解与资产价格均不能代表直接共识，无法判断充分计价或存在预期差。",
+      "fact_ids": [
+        "metric:DGS1",
+        "metric:DGS3",
+        "metric:FRBSF_EXPECTED_SHORT_2Y",
+        "metric:FRBSF_TERM_PREMIUM_2Y",
+        "metric:FRBSF_EXPECTED_SHORT_10Y",
+        "metric:FRBSF_TERM_PREMIUM_10Y",
+        "coverage:direct_expectations"
+      ]
+    },
+    "scenarios": {
+      "base": {
+        "path": "若资金价格保持有序、现金缓冲未明显修复，而真实贴现率不再上冲，则中期风险承担继续分化，美元因素对两类资产缺少一致推动。",
+        "trigger": "银行间利率继续稳定，回购溢价未持续扩大，准备金在后续周报中未加速减少，同时腹部实际收益率维持近期回落状态、信用未出现持续扩张。",
+        "invalidation": "数量缓冲与融资价格同步持续改善，或资金价格与信用同步持续恶化，使当前相互抵消的机制失衡。",
+        "fact_ids": [
+          "metric:EFFR",
+          "derived:SOFR_ANCHOR",
+          "metric:SOFR_VOLUME",
+          "trend:WRESBAL:5obs",
+          "trend:DFII5:20obs",
+          "trend:DFII7:20obs",
+          "trend:BAMLH0A0HYM2:20obs"
+        ]
+      },
+      "upside": {
+        "path": "若上游现金修复与折现率缓和同时延续，流动性可对美股和BTC形成更广泛支持；BTC仍需自身价格与现货资金渠道确认。",
+        "trigger": "TGA连续回落、后续准备金周报转向回升，回购相对政策锚溢价持续收敛；腹部实际收益率下降且信用持续收窄，股指改善趋于一致，BTC价格转强并获得新增流量数据支持。",
+        "invalidation": "TGA重新持续积累、准备金修复中断或回购溢价反复扩大；若实际利率回落同时信用扩张，则不能认定为良性宽松。",
+        "fact_ids": [
+          "derived:TGA_FLOW",
+          "metric:WRESBAL",
+          "derived:SOFR_ANCHOR",
+          "metric:SOFR_VOLUME",
+          "metric:DFII5",
+          "metric:DFII7",
+          "metric:BAMLH0A0HYM2",
+          "market:SP500:20obs",
+          "market:NASDAQCOM:20obs",
+          "market:CBBTCUSD:20obs",
+          "coverage:btc_flows_leverage",
+          "coverage:growth_earnings"
+        ]
+      },
+      "downside": {
+        "path": "若现金需求进一步触及准备金并进入融资与信用价格，流动性对美股和BTC的贡献将转向压制；若再伴日元升值和波动放大，杠杆调整可能放大传导。",
+        "trigger": "后续净结算信息与TGA持续上升、准备金继续下降相互确认，同时回购溢价及尾部持续抬升、信用利差扩大；日元快速升值与实现波动上升若同步出现，将构成额外确认。公告毛发行本身不满足触发条件。",
+        "invalidation": "结算期间TGA未持续上升、准备金企稳回升且回购溢价收敛，信用保持稳定，表明现金需求被有序吸收。",
+        "fact_ids": [
+          "calendar:7d",
+          "event:gross_total_by_issue_date:2026-11-05",
+          "metric:TGA",
+          "metric:WRESBAL",
+          "derived:SOFR_ANCHOR",
+          "metric:SOFR",
+          "metric:SOFR_VOLUME",
+          "metric:BAMLH0A0HYM2",
+          "jpy:USDJPY",
+          "jpy:USDJPY_VOL20"
+        ]
+      }
+    },
+    "next_checks": [
+      "核查更新后的核心资金利率、SOFR成交规模与尾部，重点区分最新缓解延续还是溢价重新扩大，并补齐常备回购结果。",
+      "追踪TGA连续方向与后续准备金周报，结合2026-11-05结算到期净额，验证公告供给是否实际形成现金压力。",
+      "观察名义腹部与实际收益率回落能否同信用收窄延续，并补充增长和盈利修正以辨别利率下降的经济含义。",
+      "补齐BTC现货ETF流、稳定币及合约杠杆数据，验证价格弱势与宏观折现率缓和之间的背离。",
+      "更新离岸融资基差、同日期美日利差和CFTC仓位，修复日本国债来源及派生元数据问题。"
+    ]
+  },
+  "entry_rule": "first valid price date >= UTC publication date + 2 calendar days",
+  "evaluation_cutoff_rule": "price date <= UTC evaluation date - 2 calendar days",
+  "record_type": "prospective_research_observation",
+  "previous_run_id": "20261030_135123_15fc84aa"
+}
