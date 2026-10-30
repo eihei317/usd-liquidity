@@ -687,7 +687,7 @@ def build_payload(trigger: str, stamp: Optional[str] = None) -> Tuple[Dict[str, 
         jgb_rows[term] = normalize_rows(rows)
     if cnbc_jgb.get("JGB5"):
         cdate, cval = cnbc_jgb["JGB5"]
-        rows5 = [(cdate, cval)]
+        rows5 = [r for r in jgb_mof.get("JGB5", []) if r[0] != cdate] + [(cdate, cval)]
         # No synthetic earlier observation.
         jgb_rows["JGB5"] = normalize_rows(rows5)
     if cnbc_jgb:
@@ -854,7 +854,7 @@ def build_payload(trigger: str, stamp: Optional[str] = None) -> Tuple[Dict[str, 
         "USDJPY": {"series_name": "USD/JPY", "category": "fx", "rows": usdjpy_rows, "unit": "JPY per USD", "source": "BOJ", "source_url": usdjpy_meta.get("source_url", "")},
         "JPY_CALL": {"series_name": "JPY overnight call rate", "category": "funding", "rows": call_rows, "unit": "%", "source": "BOJ", "source_url": call_meta.get("source_url", "")},
         "JGB2": {"series_name": "JGB 2Y", "category": "jgb", "rows": jgb_rows.get("JGB2", []), "unit": "%", "source": "MOF+CNBC", "source_url": jgb_meta.get("source_url", "")},
-        "JGB5": {"series_name": "JGB 5Y", "category": "jgb", "rows": jgb_rows.get("JGB5", []), "unit": "%", "source": "CNBC", "source_url": cnbc_jgb_meta.get("source_url", "")},
+        "JGB5": {"series_name": "JGB 5Y", "category": "jgb", "rows": jgb_rows.get("JGB5", []), "unit": "%", "source": "MOF+CNBC", "source_url": jgb_meta.get("source_url", "")},
         "JGB10": {"series_name": "JGB 10Y", "category": "jgb", "rows": jgb_rows.get("JGB10", []), "unit": "%", "source": "MOF+CNBC", "source_url": jgb_meta.get("source_url", "")},
         "JGB30": {"series_name": "JGB 30Y", "category": "jgb", "rows": jgb_rows.get("JGB30", []), "unit": "%", "source": "MOF+CNBC", "source_url": jgb_meta.get("source_url", "")},
         "DGS2": {"series_name": "US Treasury 2Y", "category": "ust", "rows": fred_dgs2, "unit": "%", "source": "FRED", "source_url": "https://fred.stlouisfed.org/series/DGS2"},

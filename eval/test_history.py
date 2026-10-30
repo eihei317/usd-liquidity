@@ -14,4 +14,21 @@ class History(unittest.TestCase):
     def test_reserves_unit_consistent_in_early_history(self):
         self.assertEqual(50,normalize_fred_value('WRESBAL',50000,'USD bn'))
         self.assertEqual(3000,normalize_fred_value('WRESBAL',3000000,'USD bn'))
+    def test_display_only_history_preserves_model_package(self):
+        import json,copy
+        from scripts.display_history import fill
+        with tempfile.TemporaryDirectory(dir=ROOT/'output') as temp:
+            work=Path(temp);latest=work/'output/latest';latest.mkdir(parents=True)
+            with sqlite3.connect(work/'output/usd_liquidity.db') as c:
+                c.execute('CREATE TABLE jpy_carry_series_ts(series_id TEXT,as_of TEXT,value REAL,unit TEXT,source TEXT,source_url TEXT,snapshot_file TEXT,ingested_at TEXT,UNIQUE(series_id,as_of))')
+            c.close()
+            coverage={'series':[{'kind':'jpy','id':'JGB5','status':'missing_history'}],'missing':['JGB5']}
+            (work/'output/history_coverage.json').write_text(json.dumps(coverage),encoding='utf-8')
+            (latest/'dashboard_data.json').write_text('{}',encoding='utf-8')
+            package={'generated_at_bjt':'2026-10-30','data':{'facts':{}}};before=copy.deepcopy(package)
+            with patch('scripts.jpy_carry.fetch_mof_jgb',return_value=({'JGB5':[('2026-10-28',1),('2026-10-29',2),('2026-11-01',3)]},{'source_url':'https://www.mof.go.jp/'})):
+                fill(work,latest,package)
+            self.assertEqual(before,package)
+            value=json.loads((work/'output/history_coverage.json').read_text(encoding='utf-8'))
+            self.assertEqual([],value['missing']);self.assertEqual(2,value['series'][0]['observations'])
 if __name__=='__main__':unittest.main()

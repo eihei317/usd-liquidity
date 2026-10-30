@@ -228,7 +228,7 @@ def build_market_context(generated_at_bjt: str, fetch: bool = True, previous_con
               "price_history": {}, "series": {}, "role": "market_confirmation",
               "vintage_note": "下载历史为当前可得版本；保存本次可见快照，不证明历史数据在过去已发布。"}
     previous_context = previous_context or {}
-    since = (date.fromisoformat(cutoff) - timedelta(days=550)).isoformat()
+    since = "1900-01-01"
     for sid, definition in MARKET_SERIES.items():
         info = {**definition, "source": "FRED public CSV", "source_url": f"https://fred.stlouisfed.org/series/{sid}",
                 "requested_start": since, "requested_end": cutoff}
@@ -397,3 +397,4 @@ def enrich_package(package: dict, snapshot: dict, previous_package: dict | None 
     facts["investment"] = investment
     package["investment_method_version"] = "3.0"
     return package
+

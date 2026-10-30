@@ -12,6 +12,16 @@ def prepare_research(latest, previous_package=None, fetch=False):
     old_context=read(latest/'investment_market_context.json') if (latest/'investment_market_context.json').exists() else None
     context=build_market_context(package['generated_at_bjt'],fetch=fetch,previous_context=old_context)
     atomic(latest/'investment_market_context.json',context)
+    coverage_path=latest.parent/'history_coverage.json'
+    if coverage_path.exists():
+        coverage=read(coverage_path)
+        coverage['series']=[r for r in coverage['series'] if r['kind']!='market']
+        for sid,rows in context.get('price_history',{}).items():
+            coverage['series'].append({'kind':'market','id':sid,'source':'FRED public source history','observations':len(rows),'first':rows[0]['date'] if rows else None,'last':rows[-1]['date'] if rows else None,'status':'history_available' if len(rows)>1 else 'missing_history'})
+        coverage['missing']=[r['id'] for r in coverage['series'] if r['status']=='missing_history']
+        atomic(coverage_path,coverage)
+        dashboard=read(latest/'dashboard_data.json');dashboard['history_coverage']=coverage;atomic(latest/'dashboard_data.json',dashboard)
+
     snapshot['investment_market_context']=context
     package=enrich_package(package,snapshot,previous_package)
     package['research_version']='3.0'
@@ -91,6 +101,7 @@ def run(mode, source_run=None, candidate=None):
             previous_package=read(previous/'model_input.json') if (previous/'model_input.json').exists() else None
             db=previous.parent/'usd_liquidity.db' if (current or source_run) else OUT/'usd_liquidity.db'
             (work/'output').mkdir(exist_ok=True)
+            if (previous.parent/'history_coverage.json').exists():shutil.copy2(previous.parent/'history_coverage.json',work/'output/history_coverage.json')
             if db.exists():
                 with sqlite3.connect(str(db)) as source,sqlite3.connect(str(work/'output/usd_liquidity.db')) as target:source.backup(target)
             env=os.environ.copy()
@@ -129,6 +140,9 @@ def run(mode, source_run=None, candidate=None):
                 if errors:raise ValueError(json.dumps(errors,ensure_ascii=False))
                 value.setdefault('meta',{})['status']='published';atomic(latest/'analysis.json',value)
             else:call('codex_analysis.py')
+            if candidate:
+                from scripts.display_history import fill
+                fill(work,latest,read(latest/'model_input.json'))
             stage('rendering')
             dashboard=read(latest/'dashboard_data.json');analysis=read(latest/'analysis.json')
             if analysis.get('meta',{}).get('status')!='published':raise RuntimeError('模型未通过发布校验')
