@@ -1,5 +1,6 @@
 """Capture source histories and rebuild every calculable signal by observation date."""
 import json, math, sqlite3
+from contextlib import closing
 from pathlib import Path
 from dataclasses import replace, asdict
 from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -55,13 +56,23 @@ def rebuild_and_audit(metrics,signals,db_path):
         rows=sorted(points.items());all_dates.update(points)
         selected.append((m,rows,points))
         report.append({'kind':'metric','id':m.id,'source':m.source,'observations':len(rows),'first':rows[0][0] if rows else None,'last':rows[-1][0] if rows else None,'status':'history_available' if len(rows)>1 else 'missing_history','source_failures':m.extra.get('history_download_failures',[])})
+    from .incremental_rebuild import plan_rebuild, save_state
+    state_path=Path(db_path).parent/'history_incremental_state.json'
+    state,full,cutoff=plan_rebuild(selected,signals,state_path)
     counts={}; first={};last={}; previous={};index={m.id:0 for m,_,_ in selected}
     original=engine.read_tga_history
     try:
-        with sqlite3.connect(db_path) as c:
-            # Replace sparse old derived rows, never preserve a stale one-point priority.
-            c.execute('DELETE FROM derived_signals_ts')
-            for day in sorted(all_dates):
+        with closing(sqlite3.connect(db_path)) as c, c:
+            if not c.execute('SELECT COUNT(*) FROM derived_signals_ts').fetchone()[0]:full=True
+            if full:
+                c.execute('DELETE FROM derived_signals_ts')
+            elif cutoff:
+                for sid,value in c.execute('SELECT signal_id,value FROM derived_signals_ts WHERE as_of < ? ORDER BY as_of',(cutoff,)):
+                    previous[sid]=value
+                c.execute('DELETE FROM derived_signals_ts WHERE as_of >= ?',(cutoff,))
+            days=[day for day in sorted(all_dates) if full or cutoff and day>=cutoff]
+            print(f'[history] rebuilding {len(days)} observation dates; mode={"full" if full else "incremental"}; from={cutoff if not full else "beginning"}',flush=True)
+            for day in days:
                 current=[]
                 for m,rows,points in selected:
                     if day not in points:continue
@@ -78,19 +89,22 @@ def rebuild_and_audit(metrics,signals,db_path):
                     if s.value is None or s.as_of!=day:continue
                     p=previous.get(s.id); ch=s.value-p if p is not None else None
                     c.execute('INSERT INTO derived_signals_ts(signal_id,signal_name,as_of,value,previous,change,unit,severity,snapshot_file,ingested_at) VALUES(?,?,?,?,?,?,?,?,?,?)',(s.id,s.name,day,s.value,p,ch,s.unit,'','history_rebuild',datetime.now().isoformat()))
-                    previous[s.id]=s.value;counts[s.id]=counts.get(s.id,0)+1;first.setdefault(s.id,day);last[s.id]=day
+                    previous[s.id]=s.value
+            for sid,n,start,end in c.execute('SELECT signal_id,COUNT(*),MIN(as_of),MAX(as_of) FROM derived_signals_ts WHERE value IS NOT NULL GROUP BY signal_id'):
+                counts[sid]=n;first[sid]=start;last[sid]=end
     finally:engine.read_tga_history=original
+    save_state(state_path,state)
     for s in signals:report.append({'kind':'derived','id':s.id,'observations':counts.get(s.id,0),'first':first.get(s.id),'last':last.get(s.id),'status':'history_available' if counts.get(s.id,0)>1 else 'missing_history','note':'按共同观测日期计算；依赖缺失不补零、不用当前值回填。'})
     jpy=OUTPUT_DIR/'latest/jpy_carry_history.json'
     if jpy.exists():
         for mid,rows in json.loads(jpy.read_text(encoding='utf-8')).get('jpy_carry',{}).get('history',{}).items():
             valid=sorted({r['date'] for r in rows if isinstance(r,dict) and r.get('date') and isinstance(r.get('value'),(int,float))})
             report.append({'kind':'jpy','id':mid,'source':'JPY captured sources; see payload provenance','observations':len(valid),'first':valid[0] if valid else None,'last':valid[-1] if valid else None,'status':'history_available' if len(valid)>1 else 'missing_history'})
-    with sqlite3.connect(db_path) as c:
+    with closing(sqlite3.connect(db_path)) as c, c:
         for mid,n,start,end in c.execute('SELECT series_id,COUNT(*),MIN(as_of),MAX(as_of) FROM jpy_carry_series_ts WHERE value IS NOT NULL GROUP BY series_id'):
             report=[r for r in report if not(r['kind']=='jpy' and r['id']==mid)]
             report.append({'kind':'jpy','id':mid,'source':'JPY captured database; source provenance in payload','observations':n,'first':start,'last':end,'status':'history_available' if n>1 else 'missing_history'})
-    result={'scope':'全部本次canonical指标及全部派生信号；向官方源回抓可用历史，逐项列出缺口，不保证源端不存在未发布/停更资料。','series':report,'missing':[r['id'] for r in report if r['status']=='missing_history'],'treasury_failures':sorted(set(e for r in report for e in r.get('source_failures',[])))}
+    result={'scope':'全部本次canonical指标及全部派生信号；向官方源回抓可用历史，逐项列出缺口，不保证源端不存在未发布/停更资料。','series':report,'missing':[r['id'] for r in report if r['status']=='missing_history'],'treasury_failures':sorted(set(e for r in report for e in r.get('source_failures',[]))), 'rebuild':{'mode':'full' if full else 'incremental','from':None if full else cutoff,'observation_dates':len(days)}}
     OUTPUT_DIR.mkdir(exist_ok=True,parents=True)
     (OUTPUT_DIR/'history_coverage.json').write_text(json.dumps(result,ensure_ascii=False,indent=2),encoding='utf-8')
     print(f'[history] {len(report)} series audited; {len(result["missing"])} gaps',flush=True)

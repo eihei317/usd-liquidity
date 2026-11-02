@@ -21,7 +21,7 @@ def sync(run,phase):
     git('pull','--ff-only','origin','main')
     for folder in ('scripts','prompts','frontend','eval'):
         shutil.copytree(ROOT/folder,REPO/folder,dirs_exist_ok=True,ignore=shutil.ignore_patterns('__pycache__','data.js','*.db'))
-    for name in ('local_app.py','requirements.txt','投资辅助升级方案.txt','github_sync.json','AGENTS.md'):
+    for name in ('local_app.py','requirements.txt','投资辅助升级方案.txt','提速改造说明.txt','github_sync.json','AGENTS.md'):
         if (ROOT/name).exists():shutil.copy2(ROOT/name,REPO/name)
     dest=REPO/'artifacts/runs'/run.name;dest.mkdir(parents=True,exist_ok=True)
     latest=run/'work/output/latest'
@@ -31,12 +31,22 @@ def sync(run,phase):
     coverage=run/'work/output/history_coverage.json'
     if coverage.exists():shutil.copy2(coverage,dest/'history_coverage.json')
     db=run/'work/output/usd_liquidity.db'
+    database_hash=None
     if db.exists():
-        with db.open('rb') as src,gzip.open(dest/'history.sqlite.gz','wb') as out:shutil.copyfileobj(src,out)
+        with db.open('rb') as stream:database_hash=hashlib.file_digest(stream,'sha256').hexdigest()
+        previous_export={}
+        try:previous_export=json.loads((dest/'export_manifest.json').read_text(encoding='utf-8'))
+        except (OSError,ValueError):pass
+        archive=dest/'history.sqlite.gz'
+        reuse=(archive.exists() and previous_export.get('history_database_sha256')==database_hash
+               and previous_export.get('files',{}).get('history.sqlite.gz')==hashlib.sha256(archive.read_bytes()).hexdigest())
+        if not reuse:
+            with db.open('rb') as src,gzip.open(archive,'wb') as out:shutil.copyfileobj(src,out)
+        print('[github] history archive '+('reused (hash verified)' if reuse else 'compressed'),flush=True)
     hashes={p.name:hashlib.sha256(p.read_bytes()).hexdigest() for p in dest.iterdir() if p.is_file() and p.name!='export_manifest.json'}
-    (dest/'export_manifest.json').write_text(json.dumps({'run_id':run.name,'phase':phase,'files':hashes},ensure_ascii=False,indent=2),encoding='utf-8')
+    (dest/'export_manifest.json').write_text(json.dumps({'run_id':run.name,'phase':phase,'files':hashes,'history_database_sha256':database_hash},ensure_ascii=False,indent=2),encoding='utf-8')
     (REPO/'artifacts/latest.json').write_text(json.dumps({'run_id':run.name,'phase':phase},ensure_ascii=False),encoding='utf-8')
-    git('add','scripts','prompts','frontend','eval','local_app.py','requirements.txt','投资辅助升级方案.txt','github_sync.json','AGENTS.md','artifacts')
+    git('add','scripts','prompts','frontend','eval','local_app.py','requirements.txt','投资辅助升级方案.txt','提速改造说明.txt','github_sync.json','AGENTS.md','artifacts')
     staged=git('diff','--cached','--name-only').splitlines()
     for name in staged:
         if any(part in {'.workbuddy','.runtime','.repair','secrets','config','.sync'} for part in Path(name).parts):raise RuntimeError('Protected path in staged export')

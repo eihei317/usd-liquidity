@@ -75,11 +75,12 @@ def analyze(input_path, output_path):
         "先质量检查，再四轴、三期限、总判断；尊重事实引用与数字格式。"
         "非 scenario 的 condition 必须为 null；scenario 写出触发条件。"
         "不使用规则打分脚本代替语义分析。不能通过删光关键观察规避分析规则。\n"
-        "<fact_package>\n" + raw.decode("utf-8-sig") + "\n</fact_package>\n")
+        "<fact_package>\n" + json.dumps(model_input, ensure_ascii=False, separators=(",", ":")) + "\n</fact_package>\n")
     errors = []
     previous = None
     report = {"model": MODEL, "source": "codex_cli_chatgpt", "input_sha256": digest,
-              "started_at_bjt": now, "attempts": [], "status": "running"}
+              "started_at_bjt": now, "attempts": [], "status": "running",
+              "source_bytes":len(raw), "compact_fact_bytes":len(json.dumps(model_input,ensure_ascii=False,separators=(",", ":")).encode("utf-8"))}
     report_path = directory / "report.json"
     def save_report():
         report_path.write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")

@@ -1,6 +1,6 @@
 """Isolated local runs with a single atomic publication pointer."""
 from pathlib import Path
-import argparse, contextlib, datetime, hashlib, json, os, shutil, sqlite3, subprocess, sys, uuid
+import argparse, contextlib, datetime, hashlib, json, os, shutil, sqlite3, subprocess, sys, uuid, time
 ROOT=Path(__file__).resolve().parents[1]
 OUT=ROOT/'output'
 sys.path.insert(0,str(ROOT))
@@ -86,7 +86,16 @@ def run(mode, source_run=None, candidate=None):
         rid=now.strftime('%Y%m%d_%H%M%S')+'_'+uuid.uuid4().hex[:8]
         dest=OUT/'runs'/rid;work=dest/'work';work.mkdir(parents=True)
         state={'run_id':rid,'mode':mode,'started_at_bjt':now.isoformat(),'status':'running'}
-        def stage(s):state.update(stage=s);atomic(OUT/'latest_attempt.json',state);atomic(OUT/'state'/ (rid+'.json'),state);print('[pipeline]',s,flush=True)
+        stage_started=time.monotonic()
+        def stage(s):
+            nonlocal stage_started
+            now_mono=time.monotonic()
+            if state.get('stage'):
+                state.setdefault('stage_seconds',{})[state['stage']]=round(now_mono-stage_started,3)
+            state.update(stage=s,stage_started_at_bjt=datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=8))).isoformat())
+            stage_started=now_mono
+            atomic(OUT/'latest_attempt.json',state);atomic(OUT/'state'/(rid+'.json'),state)
+            print('[pipeline]',s,flush=True)
         try:
             stage('preparing')
             for folder in ('scripts','prompts','frontend'):
@@ -106,14 +115,19 @@ def run(mode, source_run=None, candidate=None):
             db=previous.parent/'usd_liquidity.db' if (current or source_run) else OUT/'usd_liquidity.db'
             (work/'output').mkdir(exist_ok=True)
             if (previous.parent/'history_coverage.json').exists():shutil.copy2(previous.parent/'history_coverage.json',work/'output/history_coverage.json')
+            incremental_state=previous.parent/'history_incremental_state.json'
+            if incremental_state.exists():shutil.copy2(incremental_state,work/'output/history_incremental_state.json')
             if db.exists():
                 with sqlite3.connect(str(db)) as source,sqlite3.connect(str(work/'output/usd_liquidity.db')) as target:source.backup(target)
             env=os.environ.copy()
             key=ROOT/'.workbuddy/secrets/fred_api_key'
             if not env.get('FRED_API_KEY') and key.exists():env['FRED_API_KEY']=key.read_text(encoding='utf-8-sig').strip()
             def call(script,*args):subprocess.run([sys.executable,'-B','-X','utf8','-u',str(work/'scripts'/script),*args],cwd=work,env=env,check=True)
+            if mode=='history':env['LIQUIDITY_FULL_HISTORY']='1'
             if mode=='update':stage('fetching');call('run.py','更新美元流动性数据','--json')
             latest=work/'output/latest'
+            timing=work/'output/fetch_timings.json'
+            if mode=='update' and timing.exists():shutil.copy2(timing,latest/'fetch_timings.json')
             if mode=='history':stage('refreshing_missing_histories');call('run.py','补齐历史','--input-json',str(latest/'snapshot.json'),'--json')
             if not (latest/'model_input.json').exists():raise RuntimeError('没有可分析的事实包，请先更新数据。')
             if mode=='reanalyze' and not source_run and not candidate:

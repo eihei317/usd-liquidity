@@ -93,7 +93,9 @@ def fetch_nyfed_sofr_volume() -> Metric:
 
 
 def fetch_fred_series(series_id: str, name: str, category: str, unit: str, frequency: str) -> Metric:
-    start_date = "1900-01-01"
+    from .history_cache import prepare, finish
+    plan = prepare("fred:"+series_id, "FRED API" if get_fred_api_key() else "FRED CSV", unit)
+    start_date = plan["start"]
     source_page_url = f"https://fred.stlouisfed.org/series/{series_id}"
     api_key = get_fred_api_key()
     if api_key:
@@ -125,10 +127,10 @@ def fetch_fred_series(series_id: str, name: str, category: str, unit: str, frequ
                 value = safe_float(row.get(series_id) or row.get("VALUE") or row.get("value"))
                 if date and value is not None:
                     rows.append((date, normalize_fred_value(series_id, value, unit)))
-        rows = sorted(rows, key=lambda x: x[0])
+        rows, history_meta = finish(plan, rows)
         latest = rows[-1] if rows else None
         previous = rows[-2] if len(rows) >= 2 else None
-        return make_metric(series_id, name, category, latest, previous, unit, frequency, source, source_page_url, extra={"fetch_url": redact_url_secret(url), "history": [{"date": d, "value": v} for d,v in rows]})
+        return make_metric(series_id, name, category, latest, previous, unit, frequency, source, source_page_url, extra={"fetch_url": redact_url_secret(url), **history_meta, "history": [{"date": d, "value": v} for d,v in rows]})
     except Exception as exc:
         safe_exc = RuntimeError(str(exc).replace(api_key, "REDACTED")) if api_key else exc
         metric = error_metric(series_id, name, category, unit, frequency, source, source_page_url, safe_exc)
@@ -835,32 +837,28 @@ def fetch_all_metrics(auction_lookback_days: int) -> List[Metric]:
         lambda: fetch_fred_series("VIXCLS", "CBOE Volatility Index: VIX", "证券市场风险偏好", "index", "daily T+1"),
         lambda: fetch_fred_series("NFCI", "Chicago Fed National Financial Conditions Index", "金融条件", "index", "weekly"),
     ]
+    from .fetch_runtime import run_jobs
+    # Preserve declared order, not completion order: Treasury same-day overrides FRED.
+    api_names = ['SOFR','SOFR_VOLUME','TGCR','BGCR','EFFR','OBFR','TGA','RRP',
+                 'Treasury_auctions','SOMA','OFR_repo_fails']
+    fred_names = ['IORB','WRESBAL','DTWEXBGS','DCPN3M','DFEDTARU','HY_OAS','IG_OAS',
+                  'DTB3','DGS3MO','DGS1','DGS2','DGS3','DGS5','DGS7','DGS10',
+                  'DFII5','DFII7','DFII10','T10Y2Y','T10Y3M','VIX','NFCI']
+    jobs = list(zip(api_names, api_jobs))
+    jobs += [('Tbill_auctions',lambda:fetch_tbill_auction_metrics(auction_lookback_days)),
+             ('FRBSF_term_premium',fetch_frbsf_term_premium_metrics)]
+    jobs += list(zip(('FRED_'+n for n in fred_names), fred_jobs))
+    jobs += [('Treasury_nominal',fetch_treasury_par_yield_curve),
+             ('Treasury_real',fetch_treasury_par_real_yield_curve),
+             ('Standing_repo',fetch_standing_repo_metrics)]
+    values = run_jobs(jobs)
     metrics: List[Metric] = []
-    with concurrent.futures.ThreadPoolExecutor(max_workers=6) as executor:
-        future_to_index = {executor.submit(job): index for index, job in enumerate(api_jobs)}
-        for future in concurrent.futures.as_completed(future_to_index):
-            try:
-                metrics.append(future.result(timeout=1))
-            except Exception as exc:
-                index = future_to_index[future]
-                metrics.append(error_metric(f"JOB_{index}", "Uncaught fetch job error", "系统", "", "unknown", "internal", "", exc))
-    metrics.extend(fetch_tbill_auction_metrics(auction_lookback_days))
-    metrics.extend(fetch_frbsf_term_premium_metrics())
-    for job in fred_jobs:
-        metrics.append(job())
-        time.sleep(0.15)
-    # Same-day Treasury par yield curve overrides FRED T+1 for yield ids (stable sort keeps
-    # these appended-later metrics as the winning id in metric_map). FRED values remain as
-    # fallback if fetch_treasury_par_yield_curve() returns {}.
-    ty = fetch_treasury_par_yield_curve()
-    if ty:
-        metrics.extend(ty.values())
-    real_yields = fetch_treasury_par_real_yield_curve()
-    if real_yields:
-        metrics.extend(real_yields.values())
+    for value in values:
+        if isinstance(value, dict): metrics.extend(value.values())
+        elif isinstance(value, list): metrics.extend(value)
+        else: metrics.append(value)
     add_synthetic_policy_anchor(metrics)
     metrics.sort(key=lambda m: (m.category, m.id))
-    metrics.extend(fetch_standing_repo_metrics())
     return metrics
 
 
