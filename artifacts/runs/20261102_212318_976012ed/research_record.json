@@ -1,0 +1,141 @@
+{
+  "schema_version": "3.0",
+  "run_id": "20261102_212318_976012ed",
+  "method_version": "3.0",
+  "model": "gpt-6.1-sol",
+  "source_generated_at_bjt": "2026-11-02T21:31:13+08:00",
+  "source_data_as_of": "2026-11-02",
+  "published_at_bjt": "2026-11-02T21:36:01.457470+08:00",
+  "input_sha256": "2591f24cfe77aa6544a3ee2643d231f248f921adddd45a052aea79c7c2bb296e",
+  "dedupe_key": "7239304745077879e7680f660d31279d3343d96d5b5e43baf25c73714e436657",
+  "historical_snapshot": false,
+  "assessment": {
+    "summary": "上游财政现金积累与薄缓冲限制中期风险承担，融资成本层面回购偏紧而腹部实际贴现率下降，下游股票和BTC确认分化。流动性对美股的贡献呈分化，对BTC的美元融资背景略偏压制但置信度低。实际利率改善未获广泛价格与信用同步确认，不能据此推导完整资产回报、买卖机会或新增资金入场。",
+    "change_summary": "相对2026-10-30上次成功事实包，新增观测显示财政现金与逆回购增加，回购价格和规模上升；名义腹部及实际收益率下降提供相反方向的估值支持。信用利差与VIX上升，而无抵押融资和政策锚水平未变。准备金、SOMA及NFCI没有新增观测，不能把旧周度变化再写成本轮新冲击。依据comparison:TGA、comparison:RRPONTSYD、comparison:SOFR、comparison:SOFR_VOLUME、comparison:DGS1、comparison:DGS3、comparison:DGS5、comparison:DGS7、comparison:DFII5、comparison:DFII7、comparison:BAMLC0A0CM、comparison:BAMLH0A0HYM2、comparison:VIXCLS、comparison:EFFR、comparison:IORB、comparison:WRESBAL、comparison:SOMA、comparison:NFCI；不推测上次模型观点。",
+    "equities": {
+      "liquidity_bias": "分化",
+      "confidence": "中等",
+      "horizon": "2—12周",
+      "summary": "腹部真实贴现率下降对估值形成支持，但数量缓冲与抵押融资方向相反，流动性尚未形成一致顺风。标普与纳斯达克综合的中期表现分化，不能用局部上涨反推美元供给增加。",
+      "transmission": "上游现金积累和准备金缓冲下降提高资金敏感度；回购成本上升约束杠杆融资，实际收益率下降缓解久期估值压力。信用利差未同步持续收窄，使估值改善向风险承担的传导仍待确认。",
+      "confirmation": "标普可用中期窗口上涨，纳斯达克综合同期方向较弱，信用与VIX中期略恶化而较短窗口改善，显示下游确认不一致。缺增长与盈利修正，无法区分利率下降中的估值支持与增长担忧，更不能形成完整股票回报判断。",
+      "invalidation": "若TGA连续回落、准备金稳定回升、回购相对政策锚溢价持续收敛，同时信用收窄且股票表现趋于同步，将推翻分化判断并转向支持；若实际收益率持续反弹，且信用扩大、股市走弱与融资溢价上升同步，则转向压制。",
+      "coverage_limits": "股票指数截至不同观测日期，窗口按美国交易观测计；周频准备金不能当作日频资金流。缺盈利、增长、行业资金流和直接政策预期，流动性贡献不等同综合投资评级。",
+      "fact_ids": [
+        "trend:TGA:20obs",
+        "trend:WRESBAL:5obs",
+        "derived:RRP_BUFFER",
+        "trend:SOFR_IORB:20obs",
+        "metric:SOFR_VOLUME",
+        "trend:DFII5:20obs",
+        "trend:DFII7:20obs",
+        "market:SP500:20obs",
+        "market:NASDAQCOM:20obs",
+        "trend:BAMLH0A0HYM2:20obs",
+        "trend:VIXCLS:20obs",
+        "coverage:growth_earnings",
+        "coverage:direct_expectations"
+      ]
+    },
+    "bitcoin": {
+      "liquidity_bias": "压制",
+      "confidence": "低",
+      "horizon": "2—12周",
+      "summary": "美元现金缓冲与回购融资背景对BTC风险承担略偏压制，腹部真实贴现率下降提供抵消。现货近期及中期窗口走弱，与尚未形成一致流动性支持相容，但不能确认美元机制是价格变化的唯一原因。",
+      "transmission": "美元融资与现金机会成本通过风险预算及杠杆承受力影响BTC；实际收益率下降可缓解机会成本。BTC现货资金来源及衍生杠杆不在输入中，不能将美元背景直接等同于BTC资金流。",
+      "confirmation": "BTC最新价格回升，但近期与中期窗口仍下降，较长窗口则上涨，说明反弹尚未形成一致趋势。缺ETF流、稳定币供给、合约仓位和资金费事实，无法确认新增资金进入或杠杆去化完成；股票表现不作为BTC资金流证据。",
+      "invalidation": "若财政现金持续释放、准备金稳定、回购溢价持续收敛，且BTC现货在后续多个观测窗口止跌转强，则偏压制判断失效；补齐资金流后若进一步显示持续净流入，可增强转向支持的依据。若实际收益率反弹且融资溢价、BTC现货走弱同步持续，则压制判断获得加强。",
+      "coverage_limits": "BTC含周末观测，其窗口不能等同美股交易日。缺现货资金流和衍生杠杆，只有美元背景与价格确认，因此置信度低，不据此声称出现买入机会。",
+      "fact_ids": [
+        "trend:TGA:20obs",
+        "trend:WRESBAL:5obs",
+        "derived:RRP_BUFFER",
+        "trend:SOFR_IORB:20obs",
+        "metric:SOFR_VOLUME",
+        "trend:DFII5:20obs",
+        "market:CBBTCUSD:level",
+        "market:CBBTCUSD:5obs",
+        "market:CBBTCUSD:20obs",
+        "market:CBBTCUSD:60obs",
+        "coverage:btc_flows_leverage"
+      ]
+    },
+    "expectations": {
+      "status": "部分覆盖",
+      "summary": "国债近端与腹部价格及FRBSF模型分解可观察政策路径候选变化，模型中期平均预期短率下降与期限补偿回落提供部分解释。缺SOFR期货、调查共识与事件预期差，无法判断已充分定价或存在可交易预期差；模型与价格反应不是两类直接共识证据。",
+      "fact_ids": [
+        "metric:DGS1",
+        "metric:DGS3",
+        "metric:FRBSF_EXPECTED_SHORT_2Y",
+        "metric:FRBSF_TERM_PREMIUM_2Y",
+        "metric:FRBSF_EXPECTED_SHORT_10Y",
+        "metric:FRBSF_TERM_PREMIUM_10Y",
+        "trend:FRBSF_EXPECTED_SHORT_2Y:20obs",
+        "trend:FRBSF_TERM_PREMIUM_10Y:20obs",
+        "coverage:direct_expectations"
+      ]
+    },
+    "scenarios": {
+      "base": {
+        "path": "若上游现金偏紧与折现率缓解继续并存，流动性对美股维持分化贡献，对BTC风险承担支持有限，市场表现仍需自身价格和资金链条确认。",
+        "trigger": "无抵押融资继续稳定，回购溢价未持续加速扩大，实际收益率维持近期回落方向，而TGA与准备金尚未出现持续改善。",
+        "invalidation": "数量缓冲和资金价格同步持续改善，或融资异常向无抵押市场并伴随信用持续恶化扩散，均使此混合路径失效。",
+        "fact_ids": [
+          "trend:EFFR:20obs",
+          "trend:SOFR_IORB:20obs",
+          "metric:SOFR_VOLUME",
+          "trend:TGA:20obs",
+          "trend:WRESBAL:5obs",
+          "trend:DFII5:20obs",
+          "market:SP500:20obs",
+          "market:CBBTCUSD:20obs"
+        ]
+      },
+      "upside": {
+        "path": "若财政现金释放与融资成本改善共同出现，且真实贴现率保持缓和，流动性对美股和BTC风险承担的贡献可转向支持。",
+        "trigger": "TGA连续下降、准备金稳定回升、回购相对政策锚溢价持续收敛，信用收窄且美股与BTC各自价格趋势改善；BTC资金流支持仍须另行补齐确认。",
+        "invalidation": "财政现金重新持续积累，或融资溢价再度扩大且实际收益率反弹，或信用持续走弱而资产价格未能确认改善。",
+        "fact_ids": [
+          "derived:TGA_FLOW",
+          "metric:WRESBAL",
+          "derived:RRP_BUFFER",
+          "trend:SOFR_IORB:20obs",
+          "metric:SOFR_VOLUME",
+          "metric:DFII5",
+          "metric:BAMLH0A0HYM2",
+          "market:SP500:20obs",
+          "market:CBBTCUSD:20obs",
+          "coverage:btc_flows_leverage"
+        ]
+      },
+      "downside": {
+        "path": "若净现金吸收与薄缓冲相互强化，融资压力持续扩散且真实贴现率反弹，流动性对美股与BTC的压制可能增强。",
+        "trigger": "已公告结算经到期额核实后形成净吸收，随后TGA持续上升、准备金回落，回购溢价扩大并获无抵押融资或信用恶化确认；实际收益率同步持续上行。公告毛发行本身不满足触发条件。",
+        "invalidation": "净结算并未吸收现金，或财政支出释放现金、准备金稳定且融资溢价收敛，同时信用未持续恶化。",
+        "fact_ids": [
+          "event:gross_total_by_issue_date:2026-11-05",
+          "calendar:7d",
+          "derived:RRP_BUFFER",
+          "metric:TGA",
+          "metric:WRESBAL",
+          "derived:SOFR_ANCHOR",
+          "metric:SOFR_VOLUME",
+          "metric:EFFR",
+          "metric:BAMLH0A0HYM2",
+          "metric:DFII5"
+        ]
+      }
+    },
+    "next_checks": [
+      "优先更新同日政策锚、回购价格与成交规模、无抵押融资及尾部分布，确认溢价扩大是否持续并向银行间扩散。",
+      "核对2026-11-05结算的到期额与净现金筹集，并结合后续TGA、RRP流量及新一期准备金判断实际现金影响。",
+      "观察腹部名义与实际收益率回落能否延续，并与信用、VIX和股票各自趋势交叉验证，补齐增长及盈利修正。",
+      "补齐BTC现货ETF流、稳定币供给、合约仓位与资金费，区分现货反弹、资金流改善和杠杆变化。",
+      "更新离岸融资基差、直接政策预期及同日美日利差，校核日债混合来源、派生溯源和抓取时间元数据。"
+    ]
+  },
+  "entry_rule": "first valid price date >= UTC publication date + 2 calendar days",
+  "evaluation_cutoff_rule": "price date <= UTC evaluation date - 2 calendar days",
+  "record_type": "prospective_research_observation",
+  "previous_run_id": "20261030_142919_432ff151"
+}
