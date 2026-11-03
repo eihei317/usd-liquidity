@@ -1,0 +1,25 @@
+{
+  "run_id": "20261103_171111_681fcfa1",
+  "phase": "result",
+  "files": {
+    "analysis.json": "8aa3ad16c7c7cfa778241dc3eef5736086fda1f2adf9a4624ee613893d6af91d",
+    "brief.md": "9ab1ac683e8978a6983dcd701f7069ad3850de885ad498e79b77bcc008bb586f",
+    "bundle.json": "3dfa2a03436e06fcd359f922be8d7289cf883234e0886705e070ce4aa128d3eb",
+    "charts.json": "1d9c8c3af3865b1c9fead2b3385ccb94d9d5979c6d4786d89ea8fc24313a0f3e",
+    "dashboard.html": "be4de38e6add986a8b368491965d7bc9a8727d4584af9ed7ea54ff5e8ab5ec3f",
+    "dashboard_data.json": "a7029c4dfd59a93037e2c98fb4f25d65d9584b5780da5b647deef493f6204f52",
+    "fetch_timings.json": "760b09218eb504ca581fddbf3f259f796322d85af793196954db7712e35beb51",
+    "history.sqlite.gz": "a81fee2392b8c8c9e64a0999bb84a6e908f7a520f14937b1a37d9f586b8ef9d5",
+    "history_coverage.json": "4e24a5996be2f858a73e9755087a19f635ccf51b56155e8cda7ed7e1cbfd2860",
+    "investment_market_context.json": "dc498bbdcfa0be903abfaa5370c7f6fd197b60cb8f7d37b84a426440bf5dbf87",
+    "jpy_carry_analysis.json": "043ed0dbdd919e20c7946daf3fb17669689689371007343c125519e14c87c861",
+    "jpy_carry_history.json": "bb369a43e814b068620c891fbc99af501bac708b30a89d515d5cb1835be32152",
+    "jpy_carry_model_input.json": "d56b8a55087caf312792a1c0d56e6c408543cd140dd21633a8d16e09763166e0",
+    "manifest.json": "e328b5f98dcf7496916a41703171fe50be8179d3c22a1ebd28fd14132f7c97c2",
+    "model_input.json": "f95579d0ebd9cd1303d187c4b24cd3f29f257fd8ac2502148c86530e5e87427d",
+    "research_record.json": "737ad294a38cabe7c7e0e6ecd8e7417cec13c53cb9b080f101a09ea3364a4c21",
+    "research_review.json": "f6533a73f16dc91191783d24a70cd60727e80b0124ece002e22a535abbaf1ab7",
+    "snapshot.json": "3730a2ea4357eefbec99f0f929422bbe042c8db112617567d797f1d9d6d6182f"
+  },
+  "history_database_sha256": "552ed2491b6d2071bf971fa4cd807df2c0e3d6c00a0f52c0d0b97663ae3c9d49"
+}
