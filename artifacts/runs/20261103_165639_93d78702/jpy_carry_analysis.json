@@ -1,0 +1,55 @@
+{
+  "meta": {
+    "generated_at_bjt": "2026-11-03 16:58:46 UTC+08:00",
+    "model": "rule_summary",
+    "prompt_file": "C:\\Users\\Administrator\\Downloads\\美元流动性监控\\output\\runs\\20261103_165639_93d78702\\work\\prompts\\jpy_usd_carry_liquidity_prompt.md",
+    "note": "模型分析可基于 jpy_carry_model_input.json 覆盖本文件。"
+  },
+  "risk": {
+    "label": "中性",
+    "score": 0.5,
+    "reasons": [
+      "美日10Y利差处于相对较窄区域，收益端安全垫下降"
+    ]
+  },
+  "one_liner": "日元 carry unwind 风险为中性；美日10Y利差处于相对较窄区域，收益端安全垫下降",
+  "dashboard_modules": [
+    {
+      "module": "日元融资端",
+      "status": "低位但需观察",
+      "evidence": "1.227%",
+      "explanation": "carry trade 的融资端"
+    },
+    {
+      "module": "美日利差",
+      "status": "仍有carry收益",
+      "evidence": "223bp",
+      "explanation": "美日长端利差越宽，carry收益端越顺风"
+    },
+    {
+      "module": "汇率与波动",
+      "status": "未触发unwind",
+      "evidence": "157.83 / vol 5.08%",
+      "explanation": "快速日元升值和波动率上升才是核心触发。"
+    },
+    {
+      "module": "仓位拥挤度(净)",
+      "status": "中性",
+      "evidence": "27.2%",
+      "explanation": "净空头边际变化需拆分：多头主动加仓主导（空头 -6,383.0 口、多头 +25,330.0 口、空头占比 -3.96%、净头寸 +31,713.0 口）：净空头与空头占比同步下降，不构成空头强化或 carry 资金流支撑美元。"
+    },
+    {
+      "module": "空头真实强度",
+      "status": "多头加仓",
+      "evidence": "35.5%",
+      "explanation": "多头主动加仓主导（空头 -6,383.0 口、多头 +25,330.0 口、空头占比 -3.96%、净头寸 +31,713.0 口）：净空头与空头占比同步下降，不构成空头强化或 carry 资金流支撑美元。"
+    }
+  ],
+  "watchlist": [
+    "USD/JPY 20日实现波动率",
+    "CFTC JPY净仓位/OI",
+    "CFTC JPY空头占比(空头/(空头+多头))",
+    "10Y UST-JGB利差",
+    "VIX/HY OAS"
+  ]
+}
