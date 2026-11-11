@@ -1,0 +1,134 @@
+{
+  "schema_version": "3.0",
+  "run_id": "20261111_192802_9400e970",
+  "method_version": "3.0",
+  "model": "gpt-6.1-sol",
+  "source_generated_at_bjt": "2026-11-11T19:19:27+08:00",
+  "source_data_as_of": "2026-11-11",
+  "published_at_bjt": "2026-11-11T19:28:03.328581+08:00",
+  "input_sha256": "1b6e9bb6c26a9c76e683a2e764092c6aa30bcca66c4a7ac15ee6cae295b9d65d",
+  "dedupe_key": "90e7136dda5892ad6086e6505300b6ea6abee9fe05fbb52f27cfa84f50fa2f2d",
+  "historical_snapshot": false,
+  "assessment": {
+    "summary": "现金供给层的逆回购缓冲薄，准备金五周净降但最新一周回升。融资及折现层的隔夜资金价格平稳，腹部实际收益率短窗反弹、近月净降、较长窗口上升。下游股指与BTC价格在各自多期窗口偏弱，信用和VIX近期回落提供反向证据。中期流动性对风险承担偏压制，BTC专属渠道的确认更弱。",
+    "change_summary": "相对上次成功抓取，可比较的隔夜融资与成交规模、TGA、逆回购、准备金、SOMA、美债名义与实际收益率、信用和VIX均未出现实质更新。比较事实未覆盖股指及BTC，无法核对其跨包变化。",
+    "equities": {
+      "liquidity_bias": "压制",
+      "confidence": "中等",
+      "horizon": "2—12周",
+      "summary": "薄现金缓冲及实际收益率短窗反弹压制久期敏感估值。近月实际利率仍净降，近期信用改善，对压力形成缓冲。",
+      "transmission": "实际无风险收益上升会提高估值贴现率，信用利差若重新走阔还会提高企业融资成本。实际利率下降可缓解估值压力，但若伴随增长恶化或盈利下修，现金流预期可能同步走弱。",
+      "confirmation": "截至 2026-11-10，标普与纳斯达克综合指数在近周、近月及较长交易观测窗口均走弱，纳斯达克综合指数跌幅更深。信用与VIX短线回落尚未确认持续修复，缺增长和盈利修正验证。",
+      "invalidation": "若腹部实际收益率连续回落、周度准备金趋稳，信用利差持续收窄且股指在后续多个交易观测中企稳，则撤销偏压制判断。",
+      "coverage_limits": "美股采用交易日价格指数。缺增长与盈利修正，无法形成完整股票回报判断，股价走势只作下游确认。",
+      "fact_ids": [
+        "derived:RRP_BUFFER",
+        "trend:WRESBAL:5obs",
+        "trend:DFII5:5obs",
+        "trend:DFII5:20obs",
+        "trend:DFII7:60obs",
+        "trend:BAMLH0A0HYM2:5obs",
+        "metric:VIXCLS",
+        "market:SP500:5obs",
+        "market:SP500:20obs",
+        "market:SP500:60obs",
+        "market:NASDAQCOM:5obs",
+        "market:NASDAQCOM:20obs",
+        "market:NASDAQCOM:60obs",
+        "coverage:growth_earnings"
+      ]
+    },
+    "bitcoin": {
+      "liquidity_bias": "压制",
+      "confidence": "低",
+      "horizon": "2—12周",
+      "summary": "实际收益率反弹及偏强美元构成流动性逆风，境内隔夜融资平稳限制了对美元资金冲击的判断。",
+      "transmission": "较高实际收益率提高持有非生息资产的机会成本，偏强美元与薄缓冲可能降低风险承接。BTC自身现货资金流及衍生杠杆会改变传导强度。",
+      "confirmation": "截至 2026-11-10，Coinbase现货在短窗、近月窗口及较长窗口均走弱，仅确认价格表现。ETF净流、稳定币供给及合约仓位和资金费缺失，资金进出与去杠杆进度未知。",
+      "invalidation": "若实际收益率持续回落、广义美元转弱，BTC在连续现货观测中企稳，且补齐的数据确认现货净流改善及衍生杠杆未同步扩张，则撤销偏压制判断。",
+      "coverage_limits": "Coinbase日频含周末，近月价格窗口为 2026-10-21 至 2026-11-10，与美股交易日窗口不同。缺ETF、稳定币及衍生品数据，美元指数也缺跨币种基差验证。",
+      "fact_ids": [
+        "derived:RRP_BUFFER",
+        "trend:EFFR:20obs",
+        "trend:DFII5:5obs",
+        "trend:DFII7:60obs",
+        "trend:DTWEXBGS:20obs",
+        "market:CBBTCUSD:5obs",
+        "market:CBBTCUSD:20obs",
+        "market:CBBTCUSD:60obs",
+        "coverage:btc_flows_leverage"
+      ]
+    },
+    "expectations": {
+      "status": "部分覆盖",
+      "summary": "名义曲线反映已观察到的价格重估，FRBSF提供平均预期短率和期限溢价的模型估计。缺SOFR期货、调查共识及事件预期差，实际政策路径定价与已计价程度无法直接核实。",
+      "fact_ids": [
+        "metric:DGS1",
+        "metric:DGS3",
+        "metric:FRBSF_EXPECTED_SHORT_2Y",
+        "metric:FRBSF_EXPECTED_SHORT_10Y",
+        "metric:FRBSF_TERM_PREMIUM_2Y",
+        "metric:FRBSF_TERM_PREMIUM_10Y",
+        "coverage:direct_expectations"
+      ]
+    },
+    "scenarios": {
+      "base": {
+        "path": "从快照出发，隔夜资金市场保持平稳，薄缓冲与偏高的实际贴现率继续限制美股和BTC的风险承接。",
+        "trigger": "后续可比观测中隔夜利率相对有效同日参照及常备回购用量保持平稳，腹部实际利率和信用未形成同向持续变化。",
+        "invalidation": "连续出现准备金趋稳且实际收益率与信用利差共降，或结算后准备金转弱且隔夜融资价格同步上行。",
+        "fact_ids": [
+          "metric:EFFR",
+          "metric:SOFR",
+          "metric:SOFR_VOLUME",
+          "metric:SRP_ACCEPTED",
+          "derived:RRP_BUFFER",
+          "metric:DFII5",
+          "metric:BAMLH0A0HYM2",
+          "calendar:7d"
+        ]
+      },
+      "upside": {
+        "path": "现金缓冲趋稳与真实贴现率下降可缓解股市估值和BTC的美元流动性逆风，BTC传导仍取决于现货承接。",
+        "trigger": "连续周度准备金企稳、TGA停止持续补库，且多个交易日腹部实际收益率回落与信用利差收窄并存。",
+        "invalidation": "实际收益率重新持续上行，或其下行伴随信用利差持续走阔。",
+        "fact_ids": [
+          "metric:WRESBAL",
+          "trend:WRESBAL:5obs",
+          "trend:TGA:20obs",
+          "metric:DFII5",
+          "metric:DFII7",
+          "metric:BAMLH0A0HYM2",
+          "coverage:btc_flows_leverage"
+        ]
+      },
+      "downside": {
+        "path": "若财政净现金吸收挤压准备金并传至核心融资价格，信用压力可进一步压低美股与BTC的风险承接。",
+        "trigger": "若确认快照公告所涉结算净现金吸收，随后TGA持续回补、准备金走低，且连续可比观测中SOFR相对同日参照抬升并伴随成交量或常备回购用量走高。",
+        "invalidation": "结算后TGA回落且准备金企稳，同时隔夜资金价格和常备回购用量未持续上升。",
+        "fact_ids": [
+          "calendar:7d",
+          "derived:RRP_BUFFER",
+          "derived:TGA_FLOW",
+          "metric:WRESBAL",
+          "metric:SOFR",
+          "metric:SOFR_VOLUME",
+          "metric:SRP_ACCEPTED",
+          "metric:POLICY_UPPER_NYFED",
+          "metric:BAMLH0A0HYM2"
+        ]
+      }
+    },
+    "next_checks": [
+      "补齐同日IORB，核对SOFR、EFFR、回购成交量、利率上尾及常备回购用量是否同步转紧。",
+      "核对快照公告所列结算日的到期抵扣、净现金流、TGA路径与随后周度准备金。",
+      "核对5Y与7Y实际收益率反弹能否延续，并用信用利差、VIX、增长与盈利修正检验美股传导。",
+      "核对BTC现货企稳的连续性，补充ETF净流、稳定币供给、合约持仓及资金费。",
+      "补充直接政策预期、跨币种基差和同日美日利差，核对政策重估及离岸传导。"
+    ]
+  },
+  "entry_rule": "first valid price date >= UTC publication date + 2 calendar days",
+  "evaluation_cutoff_rule": "price date <= UTC evaluation date - 2 calendar days",
+  "record_type": "prospective_research_observation",
+  "previous_run_id": "20261103_171111_681fcfa1"
+}

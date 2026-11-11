@@ -102,11 +102,13 @@ def _json(path: Path) -> Any:
     return json.loads(path.read_text(encoding="utf-8-sig"))
 
 
-def load_published_records(output_dir: Path) -> list:
+def load_published_records(output_dir: Path, *, history_gaps: list | None = None) -> list:
     """Read only the published lineage, verifying archived record hashes.
 
     Failed or merely prepared runs are never scanned. New manifests and records
     retain previous_run_id. A legacy run with neither field ends the lineage.
+    A supplied gap list records an unavailable predecessor and ends traversal.
+    Current publication and available record hashes must always verify.
     """
     root = Path(output_dir).resolve()
     pointer_path = root / "current.json"
@@ -127,6 +129,10 @@ def load_published_records(output_dir: Path) -> list:
         directory = root / "runs" / run_id
         manifest_path = directory / "manifest.json"
         if not manifest_path.is_file():
+            if not first and history_gaps is not None:
+                history_gaps.append({"run_id": run_id, "status": "missing_manifest",
+                                     "earlier_lineage": "unavailable"})
+                break
             raise ValueError("已发布研究运行缺少manifest: " + run_id)
         manifest_bytes = manifest_path.read_bytes()
         if first and pointer.get("manifest_sha256"):

@@ -179,7 +179,13 @@ def run(mode, source_run=None, candidate=None):
                 record['previous_run_id']=current['run_id'] if current else None
                 atomic(dest/'research_record.json',record)
                 context=read(latest/'investment_market_context.json') if (latest/'investment_market_context.json').exists() else {}
-                review=build_research_review(load_published_records(OUT)+[record],context.get('price_history',{}),published_at)
+                history_gaps=[]
+                records=load_published_records(OUT,history_gaps=history_gaps)
+                review=build_research_review(records+[record],context.get('price_history',{}),published_at)
+                review['history_complete']=not history_gaps
+                review['history_gaps']=history_gaps
+                if history_gaps:
+                    review['methodology_note']+='早期研究归档不完整，缺失运行 '+', '.join(row['run_id'] for row in history_gaps)+' 及其更早链路。当前统计覆盖通过清单校验的记录。'
                 atomic(dest/'research_review.json',review)
             bundle={'run_id':rid,'input_sha256':digest,'dashboard':dashboard,'analysis':analysis,'investment_facts':investment,'research_review':review}
             atomic(dest/'bundle.json',bundle)

@@ -162,6 +162,32 @@ class ResearchReview(unittest.TestCase):
             with self.assertRaises(ValueError):
                 load_published_records(root)
 
+    def test_missing_predecessor_requires_explicit_gap_reporting(self):
+        with tempfile.TemporaryDirectory(dir=ROOT / "output", prefix="review-test-") as temp:
+            root = Path(temp)
+            digest = self._write_run(root, self.record("current"), "missing_old")
+            (root / "current.json").write_text(json.dumps({
+                "run_id": "current", "directory": "runs/current", "manifest_sha256": digest,
+            }))
+            with self.assertRaisesRegex(ValueError, "manifest"):
+                load_published_records(root)
+            gaps = []
+            self.assertEqual([row["run_id"] for row in load_published_records(root, history_gaps=gaps)], ["current"])
+            self.assertEqual(gaps, [{"run_id": "missing_old", "status": "missing_manifest",
+                                     "earlier_lineage": "unavailable"}])
+            (root / "runs/current/research_record.json").write_text("{}")
+            with self.assertRaisesRegex(ValueError, "哈希"):
+                load_published_records(root, history_gaps=[])
+
+    def test_gap_reporting_still_rejects_missing_current_manifest(self):
+        with tempfile.TemporaryDirectory(dir=ROOT / "output", prefix="review-test-") as temp:
+            root = Path(temp)
+            (root / "current.json").write_text(json.dumps({
+                "run_id": "missing", "directory": "runs/missing",
+            }))
+            with self.assertRaisesRegex(ValueError, "manifest"):
+                load_published_records(root, history_gaps=[])
+
     def test_rollback_to_legacy_does_not_follow_navigation_forward(self):
         with tempfile.TemporaryDirectory(dir=ROOT / "output", prefix="review-test-") as temp:
             root = Path(temp)
