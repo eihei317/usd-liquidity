@@ -1,13 +1,14 @@
 """Publish explicitly selected code and captured artifacts to the authorized private repo."""
-import argparse,gzip,hashlib,json,os,shutil,subprocess,sys
+import argparse,gzip,hashlib,json,os,shutil,subprocess,sys,urllib.request
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[1]
-REMOTE='git@github.com:eihei317/usd-liquidity.git'
+REMOTE='https://github.com/eihei317/usd-liquidity'
 REPO=ROOT/'.sync/repository'
 def git(*args):
     env=os.environ.copy();env['GIT_TERMINAL_PROMPT']='0'
-    wrapper=Path(r'C:\Users\Administrator\Downloads\推特信息自动化\.runtime\git-ssh.exe')
-    if wrapper.exists():env.update(GIT_SSH=str(wrapper),GIT_SSH_VARIANT='ssh');env.pop('GIT_SSH_COMMAND',None)
+    proxies=urllib.request.getproxies()
+    proxy=proxies.get('https') or proxies.get('http')
+    if proxy:env.update(HTTPS_PROXY=proxy,HTTP_PROXY=proxy)
     p=subprocess.run(['git','-c','safe.directory='+REPO.as_posix(),*args],cwd=REPO if REPO.exists() else ROOT,env=env,capture_output=True,text=True,encoding='utf-8',errors='replace',timeout=180)
     if p.returncode:raise RuntimeError(p.stderr.strip())
     return p.stdout.strip()
@@ -19,6 +20,10 @@ def sync(run,phase):
     if git('remote','get-url','origin')!=REMOTE:raise RuntimeError('Unexpected sync remote')
     if git('branch','--show-current')!='main':raise RuntimeError('Expected main branch')
     git('pull','--ff-only','origin','main')
+    attributes=REPO/'.gitattributes'
+    rules=attributes.read_text(encoding='utf-8') if attributes.exists() else ''
+    if 'artifacts/runs/** -text' not in rules.splitlines():
+        attributes.write_text(rules.rstrip()+'\nartifacts/runs/** -text\n',encoding='utf-8')
     for folder in ('scripts','prompts','frontend','eval'):
         shutil.copytree(ROOT/folder,REPO/folder,dirs_exist_ok=True,ignore=shutil.ignore_patterns('__pycache__','data.js','*.db'))
     for name in ('local_app.py','requirements.txt','投资辅助升级方案.txt','提速改造说明.txt','github_sync.json','AGENTS.md'):
@@ -46,7 +51,7 @@ def sync(run,phase):
     hashes={p.name:hashlib.sha256(p.read_bytes()).hexdigest() for p in dest.iterdir() if p.is_file() and p.name!='export_manifest.json'}
     (dest/'export_manifest.json').write_text(json.dumps({'run_id':run.name,'phase':phase,'files':hashes,'history_database_sha256':database_hash},ensure_ascii=False,indent=2),encoding='utf-8')
     (REPO/'artifacts/latest.json').write_text(json.dumps({'run_id':run.name,'phase':phase},ensure_ascii=False),encoding='utf-8')
-    git('add','scripts','prompts','frontend','eval','local_app.py','requirements.txt','投资辅助升级方案.txt','提速改造说明.txt','github_sync.json','AGENTS.md','artifacts')
+    git('add','.gitattributes','scripts','prompts','frontend','eval','local_app.py','requirements.txt','投资辅助升级方案.txt','提速改造说明.txt','github_sync.json','AGENTS.md','artifacts')
     staged=git('diff','--cached','--name-only').splitlines()
     for name in staged:
         if any(part in {'.workbuddy','.runtime','.repair','secrets','config','.sync'} for part in Path(name).parts):raise RuntimeError('Protected path in staged export')
@@ -60,6 +65,10 @@ def sync(run,phase):
     head=git('rev-parse','HEAD');remote=git('ls-remote','origin','refs/heads/main').split()[0]
     if head!=remote:raise RuntimeError('Remote verification failed')
     print('[github] pushed and verified '+head,flush=True)
-    return {'repository':'https://github.com/eihei317/usd-liquidity','commit':head,'phase':phase}
+    receipt={'repository':REMOTE,'commit':head,'phase':phase,
+             'export_manifest_sha256':hashlib.sha256((dest/'export_manifest.json').read_bytes()).hexdigest(),
+             'files':hashes,'history_database_sha256':database_hash}
+    (run/f'github_{phase}.json').write_text(json.dumps(receipt,ensure_ascii=False,indent=2),encoding='utf-8')
+    return receipt
 if __name__=='__main__':
     a=argparse.ArgumentParser();a.add_argument('--run',required=True);a.add_argument('--phase',choices=['capture','result'],required=True);v=a.parse_args();sync(v.run,v.phase)

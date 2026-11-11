@@ -136,7 +136,7 @@ def run(mode, source_run=None, candidate=None):
                 package['output_contract']['number_format_rule']='市场数值仅通过evidence_refs由程序呈现；定性叙述不手抄数值。'
                 package['prompt_version']='2.0'
                 atomic(latest/'model_input.json',package)
-            if source_run and not candidate and mode!='history':
+            if source_run and not candidate and mode=='reanalyze':
                 stage('rebuilding_facts');call('rebuild_facts.py')
             if not candidate:
                 stage('preparing_investment_research')
