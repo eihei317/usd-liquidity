@@ -1,9 +1,12 @@
 {
   "run_id": "20261117_211355_45c66f73",
-  "phase": "capture",
+  "phase": "result",
   "files": {
-    "analysis.json": "f2d83a3ca6d98028e22665be559560642588f4ace5a517673ad32208c0577756",
+    "analysis.json": "fab93c7219bbf1f1c317308bd39265c5acd72c196f5f81a05dfd22e8e10645f1",
+    "brief.md": "a187cb4baab7a64f2eb2d946ea66e5dc4f44e6f398eaf8ff18b25a7e5cffdc7d",
+    "bundle.json": "c87378d9261e95badad6191696e866a6a76bbf4edf667e7e4c4e8f0f2cc78a96",
     "charts.json": "ad2b0aa957800417fba8249af65cb21ae5a8b9b46985f903badfc612909eea2a",
+    "dashboard.html": "67fbab315fa87cb9877b4e78041f417198e0226723d89bfa60fe60f63b8dbf7e",
     "dashboard_data.json": "b285bce87b5db2b22c6faa07d9c885b134616db5c666d84361abcd4e923d92f9",
     "fetch_timings.json": "5b9ff081bbea0be380ddd6d9848f1470903a7c3017b7c05693c2401ef71db738",
     "history.sqlite.gz": "1a622434facbfaa4453c290b3b1844210c6b39cee98c1a7bd0e664d747c4c7f3",
@@ -12,7 +15,10 @@
     "jpy_carry_analysis.json": "84061316e77c6bc5adee25e90417c490be6674b9d0b21d66adb8a11124c3cca3",
     "jpy_carry_history.json": "1624706899475758a06f6d41deb6f6afe89a7414af34b3c4b1096a2059ec44d9",
     "jpy_carry_model_input.json": "07f9e84b3876c4fca9736b67eee65f2a91e5acc5245ab5418491eeed596a3e5c",
+    "manifest.json": "068071d5b708d8bd1b6bd7e01d056eb289a5d3ae0519e19eb5641e8626ce6f3e",
     "model_input.json": "9f8a71d60654a09a42d428b344542aa4cc5b889236aeea920209e019d1342e88",
+    "research_record.json": "ee7031026ba78af487605c205d9e09f2f8d83a620250ff0bd272216603b1d7fe",
+    "research_review.json": "6536d49ef901fef7f8c030343d8dafaf04217b5ed13071ef5f77356c40e57e6b",
     "snapshot.json": "bac85f71ea06499dd317f5c838a8bc336a69fff9001c2f6a46bbf2a845f31913"
   },
   "history_database_sha256": "12f24f5717b73272968dadc86de624d8afdeba0ad16dd48adb72b201f6388e31"
