@@ -1,16 +1,708 @@
 {
   "meta": {
-    "status": "pending_model_analysis",
-    "generated_at_bjt": "2026-11-21 17:01:29 UTC+08:00"
+    "generated_at_bjt": "2026-11-21 17:01:29 UTC+08:00",
+    "data_as_of": "2026-11-21",
+    "model": "gpt-6.1-sol",
+    "input_freshness_note": "本次为2026-11-21新抓取的最新可得快照。主要资金价格及信用观测截至2026-11-19，美债及BTC截至2026-11-20，准备金截至2026-11-18；各指标并非全部为今日数据。IORB日期晚于快照，不能用于当前同日政策锚比较；美元指数和商业票据陈旧，日债混合来源及部分派生事实的追溯信息存在限制。",
+    "status": "published"
   },
   "stance": {
-    "label": "待模型分析",
-    "score_text": "",
-    "one_liner": ""
+    "label": "中性偏紧",
+    "confidence": "中等",
+    "score_text": "四轴语义综合，不作机械评分。",
+    "one_liner": "2026-11-21最新可得快照显示，境内资金价格总体稳定、财政现金释放和美债回落提供支持，但缓冲薄弱、信用与风险偏好恶化使综合环境中性偏紧；数据日期不齐且同日IORB比较不可用。"
   },
-  "axis_assessment": {},
-  "horizon_assessment": {},
-  "key_takeaways": [],
-  "risk_flags": [],
-  "narrative_blocks": {}
+  "axis_assessment": {
+    "funding_price": {
+      "label": "中性",
+      "summary": "无抵押融资价格稳定，回购价格小幅上行且交易规模增加，但一般抵押品利率未同步走高，常备工具使用低，尚无广泛融资失灵确认。相对同日目标上限，核心资金价格仍处于其下方。",
+      "confidence": "中等",
+      "coverage_limits": "IORB观测晚于快照，相关利差和价格乘规模派生值不能确认为当前压力；目标上限不能替代IORB。仅有最新尾部分布，无法判断尾部是否持续扩大；交易量字段复制的利率分布不作数量分布使用。",
+      "fact_ids": [
+        "metric:EFFR",
+        "metric:OBFR",
+        "metric:SOFR",
+        "metric:SOFR_VOLUME",
+        "metric:TGCR",
+        "metric:BGCR",
+        "metric:POLICY_UPPER_NYFED",
+        "metric:SRP_ACCEPTED",
+        "coverage:sofr_iorb_matching",
+        "coverage:history:IORB"
+      ]
+    },
+    "liquidity_buffer": {
+      "label": "偏紧",
+      "summary": "TGA下降和RRP边际释放提供现金支持，最新周度准备金也回升；反向证据是准备金跨周窗口仍下降、RRP存量缓冲极薄。SOMA近期近乎持平，较长窗口增加，不支持把最新持仓微降描述为持续强化的QT冲击。",
+      "confidence": "中等",
+      "coverage_limits": "财政现金、准备金和RRP观测时点不同，不能进行跨日期会计归因。低RRP不能证明准备金已经稀缺，缺少准备金分布及其他负债完整变化。",
+      "fact_ids": [
+        "derived:TGA_FLOW",
+        "derived:RRP_FLOW",
+        "derived:RRP_BUFFER",
+        "metric:WRESBAL",
+        "trend:WRESBAL:5obs",
+        "trend:TGA:20obs",
+        "metric:SOMA",
+        "trend:SOMA:5obs",
+        "trend:SOMA:20obs"
+      ]
+    },
+    "treasury_pricing": {
+      "label": "中性",
+      "summary": "近端及腹部名义收益率最新共同下降，真实贴现率回落提供边际缓解；但近端现金替代收益仍有吸引力，腹部实际收益率在跨月窗口仍上升。已完成短债拍卖有规模及认购资料，但组合不同和压力代理限制了吸收恶化结论；公告供给的净现金影响未知。",
+      "confidence": "中等",
+      "coverage_limits": "缺可比期限拍卖序列、发行前收益率及净结算额。短债压力事实仅列规模为底层依据，不视为独立吸收确认；腹部组合派生事实底层引用不完整，采用各期限canonical事实。FRBSF日期早于最新美债观测。",
+      "fact_ids": [
+        "metric:DGS1",
+        "metric:DGS3",
+        "metric:DGS5",
+        "metric:DGS7",
+        "metric:DFII5",
+        "metric:DFII7",
+        "derived:UST_5Y_BREAKEVEN",
+        "derived:UST_7Y_BREAKEVEN",
+        "trend:DFII5:20obs",
+        "trend:DFII7:20obs",
+        "metric:TBILL_AUCTION_SIZE",
+        "metric:TBILL_AUCTION_BTC",
+        "derived:TBILL_AUCTION_STRESS",
+        "calendar:28d"
+      ]
+    },
+    "cross_market_transmission": {
+      "label": "偏紧",
+      "summary": "信用利差扩大、波动率抬升和股市回撤共同确认风险承担转弱，BTC自身价格也偏弱；这不能倒推出银行体系现金减少。反向证据是周频NFCI仍偏松、日元汇率及实现波动尚未显示急速回补。",
+      "confidence": "中等",
+      "coverage_limits": "离岸基差缺失，陈旧美元指数不能确认当前离岸压力。日元利差陈旧且不同日，CFTC只能代表部分周频期货仓位；BTC资金流及杠杆缺失。",
+      "fact_ids": [
+        "metric:BAMLC0A0CM",
+        "metric:BAMLH0A0HYM2",
+        "metric:VIXCLS",
+        "metric:NFCI",
+        "market:SP500:20obs",
+        "market:NASDAQCOM:20obs",
+        "market:CBBTCUSD:20obs",
+        "jpy:USDJPY",
+        "jpy:USDJPY_VOL20",
+        "jpy:US_JP_10Y",
+        "quality:stale_metric:DTWEXBGS",
+        "coverage:btc_flows_leverage"
+      ]
+    }
+  },
+  "horizon_assessment": {
+    "immediate": {
+      "label": "中性",
+      "window": "1—3个交易日",
+      "summary": "资金价格未出现广泛异常，TGA下降及RRP边际释放提供支持，美债最新回落缓解折现压力；信用与波动率恶化构成反向证据，不能认定即时环境全面宽松。",
+      "confidence": "中等",
+      "coverage_limits": "各市场观测日期不齐，不能确认美债最新回落后的风险资产反应；同日IORB锚缺失。",
+      "fact_ids": [
+        "metric:EFFR",
+        "metric:OBFR",
+        "metric:SOFR",
+        "metric:SOFR_VOLUME",
+        "derived:TGA_FLOW",
+        "derived:RRP_FLOW",
+        "metric:DGS5",
+        "metric:VIXCLS",
+        "metric:BAMLH0A0HYM2",
+        "coverage:sofr_iorb_matching"
+      ]
+    },
+    "tactical": {
+      "label": "偏紧",
+      "window": "1—4周",
+      "summary": "跨月窗口中，真实贴现率上升、信用利差扩大和风险资产回撤对风险承担不利；财政现金释放、无抵押融资稳定及近期名义腹部下降则部分抵消压力。",
+      "confidence": "中等",
+      "coverage_limits": "依据有效日频窗口及其实际起止日，不将单日变化外推。周频准备金跨周变化仅作相邻背景，非日频趋势；缺增长和直接预期数据。",
+      "fact_ids": [
+        "trend:DFII5:20obs",
+        "trend:DFII7:20obs",
+        "trend:BAMLH0A0HYM2:20obs",
+        "trend:VIXCLS:20obs",
+        "market:SP500:20obs",
+        "trend:TGA:20obs",
+        "trend:EFFR:20obs",
+        "trend:DGS3:20obs",
+        "trend:DGS5:20obs",
+        "coverage:growth_earnings"
+      ]
+    },
+    "structural": {
+      "label": "偏紧",
+      "window": "1—3个月",
+      "summary": "薄弱RRP缓冲与跨月真实贴现率上移增加冲击敏感度，较长信用窗口也显示风险溢价上升；反向证据包括TGA持续释放、SOMA未呈持续收缩及NFCI仍偏松，尚不足认定系统性美元短缺。",
+      "confidence": "中等",
+      "coverage_limits": "准备金所提供的较长周频窗口超出本期限，不能直接替代季度趋势；未来发行公告仅覆盖已捕获事件，不能外推完整季度净抽水。",
+      "fact_ids": [
+        "derived:RRP_BUFFER",
+        "trend:DFII5:60obs",
+        "trend:DFII7:60obs",
+        "trend:BAMLH0A0HYM2:60obs",
+        "trend:TGA:60obs",
+        "trend:WRESBAL:5obs",
+        "trend:SOMA:5obs",
+        "metric:NFCI",
+        "calendar:84d"
+      ]
+    }
+  },
+  "key_takeaways": [
+    {
+      "claim_type": "observed",
+      "dedupe_key": "observed_funding_price_volume",
+      "fact_ids": [
+        "metric:EFFR",
+        "metric:OBFR",
+        "metric:SOFR",
+        "metric:SOFR_VOLUME",
+        "metric:TGCR",
+        "metric:BGCR"
+      ],
+      "title": "回购小幅走高，无抵押融资保持稳定",
+      "text": "SOFR与交易规模同时增加，但无抵押及一般抵押品利率持平，价格变化尚未广泛扩散。",
+      "evidence": [
+        "EFFR：3.88%（2026-11-19，+0.00%）；daily T+1。",
+        "OBFR：3.88%（2026-11-19，+0.00%）；daily T+1。",
+        "SOFR：3.91%（2026-11-19，+0.01%）；daily T+1。",
+        "SOFR_VOLUME：3161.00bn（2026-11-19，+27.00bn）；daily T+1。",
+        "TGCR：3.88%（2026-11-19，+0.00%）；daily T+1。",
+        "BGCR：3.88%（2026-11-19，+0.00%）；daily T+1。"
+      ],
+      "evidence_refs": [
+        {
+          "fact_id": "metric:EFFR"
+        },
+        {
+          "fact_id": "metric:OBFR"
+        },
+        {
+          "fact_id": "metric:SOFR"
+        },
+        {
+          "fact_id": "metric:SOFR_VOLUME"
+        },
+        {
+          "fact_id": "metric:TGCR"
+        },
+        {
+          "fact_id": "metric:BGCR"
+        }
+      ],
+      "related_indicators": [
+        "EFFR",
+        "OBFR",
+        "SOFR",
+        "SOFR_VOLUME",
+        "TGCR",
+        "BGCR"
+      ]
+    },
+    {
+      "claim_type": "observed",
+      "dedupe_key": "observed_cash_reserve_divergence",
+      "fact_ids": [
+        "derived:TGA_FLOW",
+        "derived:RRP_FLOW",
+        "metric:WRESBAL",
+        "trend:WRESBAL:5obs"
+      ],
+      "title": "财政现金释放，准备金最新回升",
+      "text": "TGA和RRP最新均下降，方向上释放现金；周度准备金回升，但跨周窗口仍下降，短期改善尚未形成持续数量扩张确认。",
+      "evidence": [
+        "TGA_FLOW：-1.09bn（2026-11-19，+27.83bn）；日频，Daily Treasury Statement 通常次一工作日 16:00 ET 前发布。",
+        "RRP_FLOW：-0.00bn（2026-11-20，环比未知）；日频，纽约联储每日操作结果。",
+        "WRESBAL：2979.66bn（2026-11-18，+19.05bn）；weekly。",
+        "WRESBAL：2979.66bn（2026-11-18，-42.48bn）；weekly。"
+      ],
+      "evidence_refs": [
+        {
+          "fact_id": "derived:TGA_FLOW"
+        },
+        {
+          "fact_id": "derived:RRP_FLOW"
+        },
+        {
+          "fact_id": "metric:WRESBAL"
+        },
+        {
+          "fact_id": "trend:WRESBAL:5obs"
+        }
+      ],
+      "related_indicators": [
+        "TGA",
+        "RRPONTSYD",
+        "WRESBAL"
+      ]
+    },
+    {
+      "claim_type": "observed",
+      "dedupe_key": "observed_belly_real_reversal",
+      "fact_ids": [
+        "metric:DGS1",
+        "metric:DGS3",
+        "metric:DGS5",
+        "metric:DGS7",
+        "metric:DFII5",
+        "metric:DFII7",
+        "derived:UST_5Y_BREAKEVEN",
+        "derived:UST_7Y_BREAKEVEN",
+        "trend:DFII5:20obs",
+        "trend:DFII7:20obs"
+      ],
+      "title": "美债回落缓解边际折现压力",
+      "text": "近端与腹部名义收益率共同下降，腹部实际收益率及通胀补偿也下降；实际收益率跨月仍上升，近期缓解与中期水平压力并存。",
+      "evidence": [
+        "DGS1：4.51%（2026-11-20，-0.11%）；daily / same-day (Treasury 4pm ET)。",
+        "DGS3：4.65%（2026-11-20，-0.16%）；daily / same-day (Treasury 4pm ET)。",
+        "DGS5：4.71%（2026-11-20，-0.15%）；daily / same-day (Treasury 4pm ET)。",
+        "DGS7：4.80%（2026-11-20，-0.14%）；daily / same-day (Treasury 4pm ET)。",
+        "DFII5：2.53%（2026-11-20，-0.11%）；daily / same-day (Treasury 4pm ET)。",
+        "DFII7：2.64%（2026-11-20，-0.12%）；daily / same-day (Treasury 4pm ET)。",
+        "UST_5Y_BREAKEVEN：2.18%（2026-11-20，-0.04%）；日频，FRED/H.15国债恒定期限收益率。",
+        "UST_7Y_BREAKEVEN：2.16%（2026-11-20，-0.02%）；日频，FRED/H.15国债恒定期限收益率。",
+        "DFII5：2.53%（2026-11-20，+0.20%）；daily / same-day (Treasury 4pm ET)。",
+        "DFII7：2.64%（2026-11-20，+0.16%）；daily / same-day (Treasury 4pm ET)。"
+      ],
+      "evidence_refs": [
+        {
+          "fact_id": "metric:DGS1"
+        },
+        {
+          "fact_id": "metric:DGS3"
+        },
+        {
+          "fact_id": "metric:DGS5"
+        },
+        {
+          "fact_id": "metric:DGS7"
+        },
+        {
+          "fact_id": "metric:DFII5"
+        },
+        {
+          "fact_id": "metric:DFII7"
+        },
+        {
+          "fact_id": "derived:UST_5Y_BREAKEVEN"
+        },
+        {
+          "fact_id": "derived:UST_7Y_BREAKEVEN"
+        },
+        {
+          "fact_id": "trend:DFII5:20obs"
+        },
+        {
+          "fact_id": "trend:DFII7:20obs"
+        }
+      ],
+      "related_indicators": [
+        "DGS1",
+        "DGS3",
+        "DGS5",
+        "DGS7",
+        "DFII5",
+        "DFII7"
+      ]
+    },
+    {
+      "claim_type": "observed",
+      "dedupe_key": "observed_downstream_risk_weakness",
+      "fact_ids": [
+        "trend:BAMLC0A0CM:20obs",
+        "trend:BAMLH0A0HYM2:20obs",
+        "trend:VIXCLS:20obs",
+        "market:SP500:20obs",
+        "market:NASDAQCOM:20obs",
+        "market:CBBTCUSD:20obs"
+      ],
+      "title": "下游风险承担转弱",
+      "text": "信用利差扩大、波动率上升与股票及BTC价格回撤并存，市场尚未确认现金释放带来普遍风险偏好修复。",
+      "evidence": [
+        "BAMLC0A0CM：0.94%（2026-11-19，+0.05%）；daily T+1。",
+        "BAMLH0A0HYM2：3.52%（2026-11-19，+0.12%）；daily T+1。",
+        "VIXCLS：28.44index（2026-11-19，+9.41index）；daily T+1。",
+        "SP500：-6.36%（2026-11-19，-6.36%）；daily close / US trading observations。",
+        "NASDAQCOM：-8.19%（2026-11-19，-8.19%）；daily close / US trading observations。",
+        "CBBTCUSD：-24.00%（2026-11-20，-24.00%）；daily / 7-day observations。"
+      ],
+      "evidence_refs": [
+        {
+          "fact_id": "trend:BAMLC0A0CM:20obs"
+        },
+        {
+          "fact_id": "trend:BAMLH0A0HYM2:20obs"
+        },
+        {
+          "fact_id": "trend:VIXCLS:20obs"
+        },
+        {
+          "fact_id": "market:SP500:20obs"
+        },
+        {
+          "fact_id": "market:NASDAQCOM:20obs"
+        },
+        {
+          "fact_id": "market:CBBTCUSD:20obs"
+        }
+      ],
+      "related_indicators": [
+        "BAMLC0A0CM",
+        "BAMLH0A0HYM2",
+        "VIXCLS",
+        "SP500",
+        "NASDAQCOM",
+        "CBBTCUSD"
+      ]
+    }
+  ],
+  "risk_flags": [
+    {
+      "priority": "P1",
+      "severity": "medium",
+      "type": "data",
+      "claim_type": "observed",
+      "dedupe_key": "data_future_anchor_derived_integrity",
+      "fact_ids": [
+        "metric:IORB",
+        "coverage:history:IORB",
+        "coverage:sofr_iorb_matching",
+        "derived:SOFR_ANCHOR",
+        "derived:SOFR_VOLUME_IMPACT",
+        "derived:UST_BELLY_MOMENTUM",
+        "derived:TBILL_AUCTION_STRESS"
+      ],
+      "title": "政策锚日期及派生追溯异常",
+      "text": "IORB观测晚于快照，缺少共同日期匹配，相关利差及价格乘规模代理不用于当前压力判断。该代理即使有效也是假设性量级，并非实际总融资成本；部分组合和拍卖压力事实底层引用不完整，降低解释置信度。",
+      "evidence": [
+        "IORB：3.90%（2026-11-23，+0.00%）；daily / policy step。",
+        "coverage:history:IORB：2026-11-23；状态 canonical_unusable；无可用数值。",
+        "coverage:sofr_iorb_matching：2026-11-19；状态 incomplete_date_matched_history；无可用数值。",
+        "SOFR_ANCHOR：1.00bp（2026-11-19，+1.00bp）；日频，纽约联储约 8:00 ET 发布。",
+        "SOFR_VOLUME_IMPACT：0.88mn/day（2026-11-19，+0.88mn/day）；日频，纽约联储SOFR记录随利率一同发布。",
+        "UST_BELLY_MOMENTUM：-14.00bp（2026-11-20，环比未知）；日频，FRED/H.15国债恒定期限收益率。",
+        "TBILL_AUCTION_STRESS：50.00index（2026-11-19，+50.00index）；事件驱动，财政部T-bill拍卖后公布。"
+      ],
+      "evidence_refs": [
+        {
+          "fact_id": "metric:IORB"
+        },
+        {
+          "fact_id": "coverage:history:IORB"
+        },
+        {
+          "fact_id": "coverage:sofr_iorb_matching"
+        },
+        {
+          "fact_id": "derived:SOFR_ANCHOR"
+        },
+        {
+          "fact_id": "derived:SOFR_VOLUME_IMPACT"
+        },
+        {
+          "fact_id": "derived:UST_BELLY_MOMENTUM"
+        },
+        {
+          "fact_id": "derived:TBILL_AUCTION_STRESS"
+        }
+      ],
+      "related_indicators": [
+        "IORB",
+        "SOFR_ANCHOR",
+        "SOFR_VOLUME_IMPACT",
+        "UST_BELLY_MOMENTUM",
+        "TBILL_AUCTION_STRESS"
+      ]
+    },
+    {
+      "priority": "P1",
+      "severity": "medium",
+      "type": "market",
+      "claim_type": "inference",
+      "dedupe_key": "risk_thin_structural_buffer",
+      "fact_ids": [
+        "derived:RRP_BUFFER",
+        "trend:WRESBAL:5obs",
+        "metric:WRESBAL",
+        "trend:TGA:20obs"
+      ],
+      "title": "现金缓冲薄，冲击敏感度偏高",
+      "text": "RRP可继续释放的缓冲有限，准备金跨周回落增加对后续现金需求的敏感度；最新准备金回升和TGA释放是重要抵消项，尚不能据此确认准备金稀缺。",
+      "evidence": [
+        "RRP_BUFFER：0.40bn（2026-11-20，-0.00bn）；日频，纽约联储每日操作结果。",
+        "WRESBAL：2979.66bn（2026-11-18，-42.48bn）；weekly。",
+        "WRESBAL：2979.66bn（2026-11-18，+19.05bn）；weekly。",
+        "TGA：891.22bn（2026-11-19，-53.93bn）；daily T+1。"
+      ],
+      "evidence_refs": [
+        {
+          "fact_id": "derived:RRP_BUFFER"
+        },
+        {
+          "fact_id": "trend:WRESBAL:5obs"
+        },
+        {
+          "fact_id": "metric:WRESBAL"
+        },
+        {
+          "fact_id": "trend:TGA:20obs"
+        }
+      ],
+      "related_indicators": [
+        "RRPONTSYD",
+        "WRESBAL",
+        "TGA"
+      ]
+    },
+    {
+      "priority": "P1",
+      "severity": "medium",
+      "type": "market",
+      "claim_type": "scenario",
+      "dedupe_key": "risk_conditional_settlement_drain",
+      "fact_ids": [
+        "calendar:7d",
+        "calendar:28d",
+        "derived:RRP_BUFFER",
+        "metric:TGA",
+        "metric:SOFR",
+        "metric:SOFR_VOLUME"
+      ],
+      "condition": "若公告发行结算后，净筹资资料确认现金净回笼，同时TGA持续上升，并伴准备金下降或资金价格持续走高。",
+      "title": "结算压力需要净额和融资确认",
+      "text": "在缓冲偏薄时，财政现金回补可能加重融资负担。当前只有公告毛发行，到期、净筹资及准备金影响仍未知，不构成已实现抽水。",
+      "evidence": [
+        "ANNOUNCED_SETTLEMENTS_7D：349.00bn（2026-11-21，环比未知）；announced event schedule。",
+        "ANNOUNCED_SETTLEMENTS_28D：532.00bn（2026-11-21，环比未知）；announced event schedule。",
+        "RRP_BUFFER：0.40bn（2026-11-20，-0.00bn）；日频，纽约联储每日操作结果。",
+        "TGA：891.22bn（2026-11-19，-1.09bn）；daily T+1。",
+        "SOFR：3.91%（2026-11-19，+0.01%）；daily T+1。",
+        "SOFR_VOLUME：3161.00bn（2026-11-19，+27.00bn）；daily T+1。"
+      ],
+      "evidence_refs": [
+        {
+          "fact_id": "calendar:7d"
+        },
+        {
+          "fact_id": "calendar:28d"
+        },
+        {
+          "fact_id": "derived:RRP_BUFFER"
+        },
+        {
+          "fact_id": "metric:TGA"
+        },
+        {
+          "fact_id": "metric:SOFR"
+        },
+        {
+          "fact_id": "metric:SOFR_VOLUME"
+        }
+      ],
+      "related_indicators": [
+        "TGA",
+        "WRESBAL",
+        "SOFR",
+        "SOFR_VOLUME",
+        "RRPONTSYD"
+      ]
+    },
+    {
+      "priority": "P2",
+      "severity": "medium",
+      "type": "data",
+      "claim_type": "observed",
+      "dedupe_key": "data_offshore_jpy_coverage",
+      "fact_ids": [
+        "quality:stale_metric:DCPN3M",
+        "quality:stale_metric:DTWEXBGS",
+        "jpy:JGB10",
+        "jpy:US_JP_10Y",
+        "jpy:CFTC_DECOMPOSITION",
+        "jpy:CFTC_JPY_NET_OI",
+        "jpy:CFTC_JPY_GROSS_LONG",
+        "jpy:CFTC_JPY_GROSS_SHORT"
+      ],
+      "title": "离岸与日元数据不足以确认去杠杆",
+      "text": "美元和商业票据观测陈旧，日债为混合来源，美日长端利差滞后。CFTC多空水平仍显示净多日元，分解文字所称净空头增加与水平不符；仅保留双边增仓但空头增量主导的描述，不能升级为全球carry资金流结论。",
+      "evidence": [
+        "quality:stale_metric:DCPN3M：2026-11-05；状态 stale；无可用数值。",
+        "quality:stale_metric:DTWEXBGS：2026-11-13；状态 stale；无可用数值。",
+        "JGB10：2.79原始比例/口径（2026-11-21，-0.10原始比例/口径）；按来源频率。",
+        "US_JP_10Y：212.30原始比例/口径（2026-10-30，+1.90原始比例/口径）；按来源频率。",
+        "jpy:CFTC_DECOMPOSITION：日期未知；状态 unknown；无可用数值。",
+        "CFTC_JPY_NET_OI：0.30原始比例/口径（2026-11-17，-0.02原始比例/口径）；按来源频率。",
+        "CFTC_JPY_GROSS_LONG：258756.00原始比例/口径（2026-11-17，+8997.00原始比例/口径）；按来源频率。",
+        "CFTC_JPY_GROSS_SHORT：142439.00原始比例/口径（2026-11-17，+15793.00原始比例/口径）；按来源频率。"
+      ],
+      "evidence_refs": [
+        {
+          "fact_id": "quality:stale_metric:DCPN3M"
+        },
+        {
+          "fact_id": "quality:stale_metric:DTWEXBGS"
+        },
+        {
+          "fact_id": "jpy:JGB10"
+        },
+        {
+          "fact_id": "jpy:US_JP_10Y"
+        },
+        {
+          "fact_id": "jpy:CFTC_DECOMPOSITION"
+        },
+        {
+          "fact_id": "jpy:CFTC_JPY_NET_OI"
+        },
+        {
+          "fact_id": "jpy:CFTC_JPY_GROSS_LONG"
+        },
+        {
+          "fact_id": "jpy:CFTC_JPY_GROSS_SHORT"
+        }
+      ],
+      "related_indicators": [
+        "DTWEXBGS",
+        "DCPN3M",
+        "JGB10",
+        "US_JP_10Y",
+        "CFTC_JPY_NET_OI"
+      ]
+    }
+  ],
+  "narrative_blocks": {
+    "summary": "质量检查后，境内融资、数量缓冲和资产定价可作有限综合，离岸及直接预期覆盖不足。综合偏紧主要来自结构缓冲和风险承担走弱，稳定资金价格、财政释放及近期美债回落限制了紧张程度，未达到已实现严重融资压力的确认要求。",
+    "rates": "银行间无抵押利率稳定；SOFR随交易规模小幅上行，但一般抵押品价格和常备工具使用未确认普遍紧张。最新交易尾部未普遍越过同日政策上限，不过缺少尾部历史比较。IORB及相关派生代理存在日期问题，不能据此宣称当前回购溢价扩大。",
+    "balance_sheet": "RRP_FLOW显示最新边际释放，RRP_BUFFER显示结构缓冲很薄，两者作用期限不同。TGA跨日及跨月下降支持现金供给，准备金最新周度回升但跨周仍减少，不能跨日期进行完整归因。SOMA最新微降而多周近乎持平，更长窗口增加，不支持仅凭指标名称认定持续QT加速。",
+    "market_transmission": "信用利差和股票隐含波动率的多期上行、股票回撤确认风险承担恶化，BTC价格也给出自身偏弱确认。它们属于下游反应，不能与上游现金供给重复投票。NFCI仍偏松是反向证据，但周频信息不足以否定最新市场变化；美元指数不等于跨币种融资基差。",
+    "treasury_yields": {
+      "label": "中性",
+      "one_liner": "名义腹部及实际收益率近期回落，缓解边际压力，但跨月真实贴现率仍形成约束。",
+      "analysis": "一年期名义收益率仍高于当前政策目标上限，现金替代收益具有吸引力，最新下降意味着近端路径边际下修；三年期水平仍有融资与估值约束，最新下降显示中段再定价缓解。五年期与七年期名义水平沿腹部上倾，两者最新均下降，预计算腹部斜率略趋陡。对应官方实际收益率保持为正且最新下降，同期限通胀补偿也下降，与真实贴现率和通胀补偿共同回落一致，置信度中等；通胀补偿还含风险溢价及TIPS流动性影响。实际收益率跨月仍上升，近期回落不能等同持续宽松。FRBSF在2026-11-19显示近端平均预期短率和期限溢价同时下降，长期平均预期短率下降而长期期限溢价略升，仅作为候选分解，不能解释2026-11-20的唯一驱动，也不等于期货共识。十年期名义及实际收益率回落仅作长期背景，曲线利差维持正值。短债拍卖须结合规模、认购和压力代理，但期限组合不同不能直接环比判定需求恶化；缺拍卖尾差和净结算额，公告毛供给仅作条件情景。"
+    },
+    "jpy_carry": {
+      "label": "数据不足",
+      "one_liner": "汇率及实现波动未确认急速日元回补，但利差覆盖和仓位文字冲突限制判断。",
+      "analysis": "日元隔夜融资成本最新稳定，当前同日美日短端利差未提供，长端利差陈旧且日债为混合来源，不自行拼接。USD/JPY近期温和上行、实现波动较跨月起点下降，与急速日元升值去杠杆不一致；实现波动不能代替隐含波动。CFTC周频数据为双边增仓、空头增量主导，可视为边际carry激励的有限候选信号，但整体仍是净多日元，不能沿用分解文字中的净空头水平结论，更不能确认全球carry加杠杆。风险资产走弱使策略脆弱性上升，但尚缺汇率急变、当前利差和资金回流交叉确认。不使用未明确窗口的历史分位判定拥挤。"
+    }
+  },
+  "investment_assessment": {
+    "summary": "上游财政现金释放和最新准备金回升提供支持，融资价格总体稳定；但缓冲薄、跨月实际贴现率上升及下游风险偏好恶化，使中期流动性贡献仍偏约束。近期利率下降是反向证据，尚未形成现金、折现率和市场确认同步改善。这是流动性因素研究，不等同预期收益或综合投资评级。",
+    "change_summary": "相对上次成功事实包，美债名义及实际收益率下降，回购价格和常备工具使用回落，无抵押融资价格稳定；TGA继续下降、准备金回升，但RRP余额较上次增加。与此同时信用利差扩大、波动率上升，显示融资与贴现改善尚未传到风险承担。依据comparison:SOFR、comparison:SOFR_VOLUME、comparison:SRP_ACCEPTED、comparison:EFFR、comparison:DGS1、comparison:DGS3、comparison:DGS5、comparison:DGS7、comparison:DFII5、comparison:DFII7、comparison:TGA、comparison:WRESBAL、comparison:RRPONTSYD、comparison:BAMLC0A0CM、comparison:BAMLH0A0HYM2及comparison:VIXCLS；不推测上次模型观点。",
+    "equities": {
+      "liquidity_bias": "压制",
+      "confidence": "中等",
+      "horizon": "2—12周",
+      "summary": "流动性对持有期风险承担仍偏压制；近期实际利率下降带来估值缓解，但尚未抵消跨月贴现约束和信用风险溢价上升。",
+      "transmission": "财政释放与稳定短端融资支持中介运作，薄缓冲限制抗冲击能力；跨月真实贴现率和信用溢价上升抬高权益所需回报。若利率下降对应增长恶化，估值支持可能被盈利压力抵消，当前缺少辨别资料。",
+      "confirmation": "标普与纳斯达克综合指数跨月回撤，信用及波动率确认风险承担走弱；这些不证明上游现金减少，也尚不能确认最新美债回落后的反应。",
+      "invalidation": "若腹部实际收益率持续回落、准备金连续改善且信用利差与VIX持续回落，同时股指止跌修复，则偏压制判断失效。",
+      "coverage_limits": "缺增长、盈利修正、市场广度及直接政策预期；同日IORB比较不可用。不能据此形成完整股票回报结论。",
+      "fact_ids": [
+        "trend:TGA:20obs",
+        "metric:WRESBAL",
+        "derived:RRP_BUFFER",
+        "trend:EFFR:20obs",
+        "trend:DFII5:20obs",
+        "trend:DFII7:20obs",
+        "trend:DFII5:5obs",
+        "trend:BAMLH0A0HYM2:20obs",
+        "trend:VIXCLS:20obs",
+        "market:SP500:20obs",
+        "market:NASDAQCOM:20obs",
+        "coverage:growth_earnings",
+        "coverage:sofr_iorb_matching"
+      ]
+    },
+    "bitcoin": {
+      "liquidity_bias": "压制",
+      "confidence": "低",
+      "horizon": "2—12周",
+      "summary": "美元融资背景没有显示全面失灵，但真实贴现约束与风险承担恶化不利于BTC，近期利率回落的支持尚缺自身资金面确认。",
+      "transmission": "薄现金缓冲及跨月真实无风险回报上移限制投机风险预算，财政释放和稳定融资部分抵消。BTC现货回撤只确认价格承压，不能解释具体资金来源或衍生杠杆状态。",
+      "confirmation": "BTC自身多个窗口价格走弱，尚无现货资金流或衍生品资料确认持续增量需求；股票走弱仅提供共同风险背景。",
+      "invalidation": "若腹部实际收益率持续下降、现金缓冲改善，且BTC自身价格持续修复，并由新增可得现货流及杠杆资料确认需求改善而非杠杆堆积，则偏压制判断失效。",
+      "coverage_limits": "缺ETF流、稳定币供给、合约仓位、资金费和清算数据；不能声称新增资金入场、去杠杆完成或形成买入机会。BTC连续日历观测与美股交易日窗口不同。",
+      "fact_ids": [
+        "derived:RRP_BUFFER",
+        "trend:TGA:20obs",
+        "trend:EFFR:20obs",
+        "trend:DFII5:20obs",
+        "trend:DFII7:20obs",
+        "trend:DFII5:5obs",
+        "market:CBBTCUSD:level",
+        "market:CBBTCUSD:20obs",
+        "market:CBBTCUSD:60obs",
+        "coverage:btc_flows_leverage"
+      ]
+    },
+    "expectations": {
+      "status": "部分覆盖",
+      "summary": "FRBSF覆盖模型隐含平均短率和期限溢价，美债变化覆盖市场价格反应；缺直接期货、调查和事件预期差，不能判断充分定价或存在预期差。模型与最新美债日期不同，归因仅为候选解释。",
+      "fact_ids": [
+        "metric:FRBSF_EXPECTED_SHORT_2Y",
+        "metric:FRBSF_TERM_PREMIUM_2Y",
+        "metric:FRBSF_EXPECTED_SHORT_10Y",
+        "metric:FRBSF_TERM_PREMIUM_10Y",
+        "metric:DGS1",
+        "metric:DGS3",
+        "coverage:direct_expectations"
+      ]
+    },
+    "scenarios": {
+      "base": {
+        "path": "若融资保持稳定、财政释放延续而信用修复迟缓，风险承担继续受约束，近期折现改善只能部分缓解压力。",
+        "trigger": "无抵押资金价格保持稳定，TGA未转为持续回补，腹部实际收益率回落但信用利差和波动率尚未连续改善。",
+        "invalidation": "现金、实际贴现率与信用同步持续改善，或融资价格与准备金同步明显恶化，均使该分化路径失效。",
+        "fact_ids": [
+          "trend:EFFR:20obs",
+          "trend:TGA:20obs",
+          "trend:DFII5:5obs",
+          "trend:BAMLH0A0HYM2:20obs",
+          "trend:VIXCLS:20obs"
+        ]
+      },
+      "upside": {
+        "path": "若现金供给、实际贴现率和下游确认同步改善，流动性对美股及BTC的约束可减轻；BTC仍需自身资金面验证。",
+        "trigger": "准备金连续回升，腹部实际收益率持续下降，信用利差和VIX持续回落，股指与BTC自身价格均止跌修复。",
+        "invalidation": "利率下降同时信用利差继续扩大、风险资产持续下跌，或准备金改善中断并伴融资走高。",
+        "fact_ids": [
+          "metric:WRESBAL",
+          "metric:DFII5",
+          "metric:DFII7",
+          "metric:BAMLH0A0HYM2",
+          "metric:VIXCLS",
+          "market:SP500:level",
+          "market:CBBTCUSD:level",
+          "coverage:btc_flows_leverage",
+          "coverage:growth_earnings"
+        ]
+      },
+      "downside": {
+        "path": "若财政现金回补侵蚀准备金并进入融资价格，薄缓冲可能放大信用与风险资产压力。",
+        "trigger": "结算净额确认净现金筹集，TGA持续上升且准备金连续下降，回购价格及交易尾部持续走高并伴无抵押融资或信用进一步恶化。",
+        "invalidation": "净结算需求被平稳吸收，TGA未持续上升，准备金和融资价格保持稳定且信用开始修复。",
+        "fact_ids": [
+          "calendar:28d",
+          "derived:RRP_BUFFER",
+          "metric:TGA",
+          "metric:WRESBAL",
+          "metric:SOFR",
+          "metric:SOFR_VOLUME",
+          "metric:EFFR",
+          "metric:BAMLH0A0HYM2",
+          "coverage:sofr_iorb_matching"
+        ]
+      }
+    },
+    "next_checks": [
+      "修复IORB未来日期并补齐同日政策锚历史，联查资金价格、交易规模、尾部与常备工具使用。",
+      "核查公告发行的实际结算及到期净额，结合TGA与准备金连续变化判断是否形成现金冲击。",
+      "观察腹部实际收益率回落是否持续，以及信用、VIX与股票能否同步修复，并补增长和盈利修正。",
+      "补充BTC现货资金流、稳定币及衍生杠杆，验证价格变化背后的需求与融资状态。",
+      "更新离岸融资覆盖和同日美日利差，核验混合日债来源及CFTC分解文字，并补直接期货或调查预期。"
+    ]
+  }
 }
