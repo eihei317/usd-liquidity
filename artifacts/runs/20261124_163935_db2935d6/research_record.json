@@ -1,0 +1,140 @@
+{
+  "schema_version": "3.0",
+  "run_id": "20261124_163935_db2935d6",
+  "method_version": "3.3",
+  "model": "gpt-6.1-sol",
+  "source_generated_at_bjt": "2026-11-24T15:55:17+08:00",
+  "source_data_as_of": "2026-11-24",
+  "published_at_bjt": "2026-11-24T16:45:06.278565+08:00",
+  "input_sha256": "4d4a5ad71754465c0ee6bff1b7933969a3e72e711a8fcae08b6bf8c6b42fdab1",
+  "dedupe_key": "f01fb8a7cc53dd54e1502193fa68035419381f4172d5b8a17f9cf2ed2db01c1c",
+  "historical_snapshot": false,
+  "assessment": {
+    "summary": "未来两周至三个月，最重要的是财政现金释放能否转化为持续准备金修复。现有准备金仅部分回升，融资价格未明显放松，真实贴现率中期仍高，信用和波动率亦不利，美元环境整体压制风险资产。反向证据是TGA持续下降、银行隔夜融资稳定及实际利率最近一周回落。",
+    "change_summary": "与上份成功快照相比，融资价格、准备金及代表性风险指标均无新增观测或修订，维持原判断；既有压力不构成本次新增恶化。",
+    "equities": {
+      "liquidity_bias": "压制",
+      "confidence": "中等",
+      "horizon": "2—12周",
+      "summary": "股票仍受真实贴现率及企业信用加价约束，近期债券利率回落只能部分缓解估值压力。",
+      "transmission": "真实无风险收益抬升降低远期盈利现值，信用加价扩大提高企业外部融资门槛。财政现金释放若持续带动准备金恢复，才更可能使资金和估值约束共同减轻。",
+      "confirmation": "标普与纳斯达克综合多期回撤符合承压方向，但不证明单一流动性因果。隐含波动率高于过去一个月实际波动，差距扩大且处于此前有效历史的较高分位，表明前瞻波动报价相对近期经历更高，不能单独判断涨跌或期权盈亏；标准平值模型Gamma与其共用VIX，不重复计证。11月10日至17日CME按Delta折算的期权占比升高、交易商期权净方向更负，分别描述持仓构成与方向，均不确认实际对冲买卖或净Gamma。没有比较事实证明期权资料较上份报告更新。",
+      "invalidation": "若准备金持续修复、实际利率下降且信用风险补偿收窄，压制判断减弱；若回购加价与信用压力共同扩大，则加强。",
+      "coverage_limits": "缺增长与盈利修正，无法判断较低利率能否抵消盈利风险；期权资料也不覆盖做市商实际对冲。",
+      "fact_ids": [
+        "metric:WRESBAL",
+        "trend:WRESBAL:5obs",
+        "trend:DFII5:20obs",
+        "trend:DFII5:5obs",
+        "trend:DFII7:20obs",
+        "trend:BAMLH0A0HYM2:20obs",
+        "market:SP500:level",
+        "market:SP500:20obs",
+        "market:NASDAQCOM:level",
+        "market:NASDAQCOM:20obs",
+        "option:SPX:iv_minus_rv21",
+        "option:SPX:model_delta_change_1pct",
+        "option:SP500_FUTURES:option_oi_share",
+        "option:SP500_FUTURES:dealer_option_delta",
+        "coverage:growth_earnings",
+        "coverage:spx_dealer_gamma"
+      ]
+    },
+    "bitcoin": {
+      "liquidity_bias": "压制",
+      "confidence": "中等",
+      "horizon": "2—12周",
+      "summary": "美元走强及现金收益竞争使比特币持有环境偏不利，最新小幅反弹尚未改变多期下跌背景。",
+      "transmission": "美元走强可能增加非美元投资者的资金约束，较高真实收益提高持有无息资产的机会成本；风险承受力下降也可能抑制投机融资需求。财政现金释放能否持续支持持有环境，需准备金和融资价格确认。",
+      "confirmation": "现货最新回升，但较短及较长日历窗口仍下降，与美元环境承压相符。比特币含周末观测，窗口不能当成美股交易周；价格反弹不能确认申赎资金流入或去杠杆完成。",
+      "invalidation": "若美元持续回落、准备金多周回升且真实收益率下降，美元环境压制判断减弱；资产自身改善仍需现货资金流与杠杆资料确认。",
+      "coverage_limits": "缺现货申赎、稳定币资金和合约杠杆，无法识别买盘来源或清算风险是否解除。",
+      "fact_ids": [
+        "trend:DTWEXBGS:20obs",
+        "trend:DFII5:20obs",
+        "metric:WRESBAL",
+        "trend:TGA:20obs",
+        "market:CBBTCUSD:level",
+        "market:CBBTCUSD:5obs",
+        "market:CBBTCUSD:20obs",
+        "market:CBBTCUSD:60obs",
+        "coverage:btc_flows_leverage"
+      ]
+    },
+    "expectations": {
+      "status": "部分覆盖",
+      "summary": "覆盖名义国债反应及FRBSF两年、十年平均预期短率与期限溢价分解。模型最新政策路径分量和期限补偿回落，但不属于期货直接定价或调查共识，日期也早于最新国债观测；直接政策预期及风险已计价程度未知。",
+      "fact_ids": [
+        "metric:FRBSF_EXPECTED_SHORT_2Y",
+        "metric:FRBSF_TERM_PREMIUM_2Y",
+        "metric:FRBSF_EXPECTED_SHORT_10Y",
+        "metric:FRBSF_TERM_PREMIUM_10Y",
+        "metric:DGS1",
+        "metric:DGS3",
+        "coverage:direct_expectations"
+      ]
+    },
+    "scenarios": {
+      "base": {
+        "path": "若财政现金继续释放而准备金仅缓慢修复，银行融资稳定、信用风险补偿仍高，则维持中性偏紧，风险资产估值修复受限。",
+        "trigger": "首先观察新增TGA、准备金和同日SOFR相对IORB加价：现金释放延续，但融资价格与信用条件未共同改善。",
+        "invalidation": "准备金持续回升且信用、真实利率共同下降，或融资加价明显扩大并传入银行拆借。",
+        "fact_ids": [
+          "trend:TGA:20obs",
+          "metric:WRESBAL",
+          "trend:SOFR_IORB:20obs",
+          "metric:SOFR_VOLUME",
+          "metric:EFFR",
+          "trend:BAMLH0A0HYM2:20obs"
+        ]
+      },
+      "upside": {
+        "path": "若准备金持续修复、融资加价消退，并伴随真实利率和信用风险补偿下降，美元环境将更支持美股与比特币。",
+        "trigger": "先由新增准备金和同日融资利差确认，再看信用收窄、美元回落及价格止跌；BTC自身改善另需资金流确认。",
+        "invalidation": "准备金恢复中断，或名义利率下降而真实利率与信用加价未改善。",
+        "fact_ids": [
+          "metric:WRESBAL",
+          "trend:SOFR_IORB:5obs",
+          "metric:SOFR_VOLUME",
+          "metric:DFII5",
+          "metric:DFII7",
+          "metric:BAMLH0A0HYM2",
+          "metric:DTWEXBGS",
+          "coverage:btc_flows_leverage"
+        ]
+      },
+      "downside": {
+        "path": "若结算伴随财政补库、准备金减少和融资加价扩大，风险资产压力可能从估值与信用扩展到资金约束。",
+        "trigger": "先看到TGA转升及同日SOFR加价扩大，再由准备金下降、银行隔夜利率抬升或信用进一步恶化确认；公告毛额本身不触发判断。",
+        "invalidation": "结算后TGA不升、准备金稳定且融资加价回落，所设现金冲击未获确认。",
+        "fact_ids": [
+          "calendar:7d",
+          "derived:RRP_BUFFER",
+          "metric:TGA",
+          "metric:WRESBAL",
+          "trend:SOFR_IORB:5obs",
+          "metric:SOFR_VOLUME",
+          "metric:EFFR",
+          "metric:BAMLH0A0HYM2"
+        ]
+      }
+    },
+    "next_checks": [
+      "优先看下一次同日SOFR减IORB及成交量：若加价持续扩大且银行隔夜利率同步上升，判断转向更紧；若加价消退并获准备金回升确认，则减轻偏紧判断。",
+      "核对新增TGA与周度准备金，检验财政现金释放能否形成持续数量修复，避免错日会计归因。",
+      "按快照时已知的11月24日、27日和30日结算安排，补齐到期及净筹资，再判断实际现金影响。",
+      "观察五年、七年实际利率与信用风险补偿能否共同回落，并更新VIX及其相对实际波动的历史位置。",
+      "补充BTC资金流及杠杆、同日美日短端利差；期权周报仅在新增或修订时更新持仓解读。"
+    ],
+    "change_fact_ids": [
+      "comparison:SOFR",
+      "comparison:WRESBAL",
+      "comparison:BAMLH0A0HYM2",
+      "comparison:VIXCLS"
+    ]
+  },
+  "entry_rule": "first valid price date >= UTC publication date + 2 calendar days",
+  "evaluation_cutoff_rule": "price date <= UTC evaluation date - 2 calendar days",
+  "record_type": "prospective_research_observation",
+  "previous_run_id": "20261124_155409_efffeb2c"
+}

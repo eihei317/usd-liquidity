@@ -3,6 +3,7 @@ from pathlib import Path
 import argparse, contextlib, datetime, gzip, hashlib, json, os, shutil, sqlite3, subprocess, sys, uuid, time
 ROOT=Path(__file__).resolve().parents[1]
 OUT=ROOT/'output'
+RESEARCH_VERSION = '3.3'
 sys.path.insert(0,str(ROOT))
 
 def require_history_complete(coverage):
@@ -104,7 +105,7 @@ def market_context_for_capture(stamp, old_context, fetch):
 
 def prepare_research(latest, previous_package=None, fetch=False, previous_snapshot=None):
     from scripts.analysis import analysis_output_contract
-    from scripts.investment_facts import MARKET_SERIES, enrich_package
+    from scripts.investment_facts import MARKET_SERIES, enrich_package, option_package_comparisons
     from scripts.options_research import attach_options, capture_inputs
     package=read(latest/'model_input.json')
     snapshot=read(latest/'snapshot.json')
@@ -127,6 +128,8 @@ def prepare_research(latest, previous_package=None, fetch=False, previous_snapsh
                                     for name, source in sources.items()]}
         atomic(timing_path, timings)
     option_rows, option_details, option_charts = attach_options(package, snapshot, context, capture, db)
+    investment = package['data']['facts']['investment']
+    investment['comparison_facts'].extend(option_package_comparisons(investment['options'], previous_package, package['generated_at_bjt']))
     dashboard = read(latest/'dashboard_data.json')
     dashboard['charts'] = [c for c in dashboard.get('charts', []) if not c['id'].startswith('options_')] + option_charts
     charts_path = latest/'charts.json'
@@ -152,13 +155,11 @@ def prepare_research(latest, previous_package=None, fetch=False, previous_snapsh
         atomic(coverage_path,coverage)
         dashboard['history_coverage']=coverage
     atomic(latest/'dashboard_data.json',dashboard)
-    package['research_version']='3.2'
-    package['prompt_version']='3.2'
-    package['investment_method_version']='3.2'
+    package['research_version'] = package['prompt_version'] = package['investment_method_version'] = RESEARCH_VERSION
     package['analysis_prompt']=(ROOT/'prompts/usd_liquidity_prompt.md').read_text(encoding='utf-8')+'\n\n'+(ROOT/'prompts/investment_research_prompt.md').read_text(encoding='utf-8')
     contract=package.setdefault('output_contract',{})
     contract.update(analysis_output_contract())
-    contract['equity_options_rule']='美股期权只用于解释股市反应。VIX 模型不能作为独立确认，CFTC 的期权方向敞口不能识别做市商净 Gamma。'
+    contract['equity_options_rule']='美股期权用于解释市场反应。共享 VIX 的读数合并解释。波动率价差衡量相对近期实际波动的定价，CFTC 持仓占比衡量市场构成。周变化以两次持仓日比较，报告间变化只看 comparison 事实。'
     fields=contract.setdefault('required_top_level_fields',[])
     if 'investment_assessment' not in fields:fields.append('investment_assessment')
     atomic(latest/'model_input.json',package)

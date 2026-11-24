@@ -37,6 +37,68 @@ class DealerPositioning(unittest.TestCase):
                          (-805606, -791415, -14191, -4986))
         self.assertEqual(p["contract_multiplier"], 50)
 
+    def test_open_interest_share_uses_entire_market_independently_of_dealer_fields(self):
+        for row, total in zip(self.c + self.f, [3053894, 3279136, 2048000, 2129804]):
+            row["open_interest_all"] = str(total)
+        self.c[1]["dealer_positions_long_all"] = None
+        duplicate = dict(self.f[1], dealer_positions_short_all="42")
+        history = build_positioning_history(snapshot(self.c, self.f + [duplicate]), "2026-11-24")
+        self.assertEqual(history["status"], "partial_latest")
+        share = history["open_interest_share"]
+        self.assertEqual((share["as_of"], share["status"]), (self.d2, "ok"))
+        point = share["points"][-1]
+        self.assertEqual((point["combined_oi"], point["futures_only_oi"], point["contract_multiplier"]), (3279136, 2129804, 50))
+        self.assertAlmostEqual(point["value"], 35.04984239751)
+        self.assertAlmostEqual(point["change"], 2.11176399662)
+        self.assertEqual(history["source_open_interest_histories"]["futures_only"][-1],
+                         {"date": self.d2, "open_interest": 2129804, "contract_multiplier": 50})
+        self.assertEqual(share["coverage"]["source_gaps"]["combined"]["invalid_or_conflicting_dates"], [])
+
+    def test_open_interest_zero_share_is_valid_but_invalid_or_missing_denominator_is_not(self):
+        self.c[0]["open_interest_all"] = self.f[0]["open_interest_all"] = "100"
+        for combined, futures, reason in ((0, 0, "zero_combined_oi_dates"), (10, 11, "futures_oi_exceeds_combined_dates")):
+            with self.subTest(combined=combined, futures=futures):
+                self.c[1]["open_interest_all"] = combined
+                self.f[1]["open_interest_all"] = futures
+                h = build_positioning_history(snapshot(self.c, self.f), self.d2)
+                share = h["open_interest_share"]
+                self.assertEqual(h["status"], "ok")
+                self.assertEqual((share["status"], share["as_of"], share["points"][0]["value"]), ("partial_latest", self.d1, 0))
+                self.assertEqual(share["coverage"][reason], [self.d2])
+                self.assertEqual(len(h["source_open_interest_histories"]["combined"]), 2)
+        self.c[1]["open_interest_all"] = None
+        share = build_positioning_history(snapshot(self.c, self.f), self.d2)["open_interest_share"]
+        self.assertEqual(share["coverage"]["source_gaps"]["combined"]["invalid_or_conflicting_dates"], [self.d2])
+        self.assertEqual(share["coverage"]["missing_combined_dates"], [self.d2])
+        self.c[1]["open_interest_all"], self.f[1]["open_interest_all"] = 200, 0
+        share = build_positioning_history(snapshot(self.c, self.f), self.d2)["open_interest_share"]
+        self.assertEqual((share["points"][-1]["value"], share["points"][-1]["change"]), (100, 100))
+
+    def test_open_interest_gaps_dated_duplicates_unit_transitions_and_legacy_captures(self):
+        h = build_positioning_history(snapshot(self.c, self.f), self.d2)
+        self.assertEqual((h["status"], h["open_interest_share"]["status"]), ("ok", "missing"))
+        for row, total in zip(self.c + self.f, [150, 160, 100, 105]):
+            row["open_interest_all"] = total
+        for rows in [self.c, self.f]:
+            rows[0]["contract_units"] = "(S&P 500 INDEX X $250)"
+            rows.append(dict(rows[1], id="next", report_date_as_yyyy_mm_dd="2026-12-01"))
+        share = build_positioning_history(snapshot(self.c, self.f), "2026-12-02")["open_interest_share"]
+        self.assertEqual([p["change"] for p in share["points"]], [None, None, None])
+        self.assertEqual(share["coverage"]["unit_change_dates"], [self.d2])
+        self.assertEqual(share["coverage"]["missing_both_week_starts"], ["2026-11-23"])
+        self.c.append(dict(self.c[1], open_interest_all=161))
+        self.f[-1]["contract_units"] = "(S&P 500 INDEX X $250)"
+        h = build_positioning_history(snapshot(self.c, self.f), "2026-12-02")
+        share = h["open_interest_share"]
+        self.assertEqual(len(share["points"]), 1)
+        self.assertEqual(share["coverage"]["source_gaps"]["combined"]["invalid_or_conflicting_dates"], [self.d2])
+        self.assertEqual(share["coverage"]["incompatible_unit_dates"], ["2026-12-01"])
+        self.assertEqual(len(h["source_open_interest_histories"]["futures_only"]), 3)
+        capture = snapshot(self.c, self.f)
+        capture["sources"]["combined"]["status"] = "error"
+        share = build_positioning_history(capture, "2026-12-02")["open_interest_share"]
+        self.assertEqual((share["status"], share["source_status"]), ("error", "error"))
+
     def test_missing_weeks_incompatible_units_and_revisions(self):
         c, f = copy.deepcopy(self.c), copy.deepcopy(self.f)
         for rows in (c, f):

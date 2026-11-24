@@ -1021,7 +1021,7 @@ def _option_texts(value, path="$", refs=None, scenario=False):
 def _validate_option_claims(candidate, package, facts, errors):
     # Old packages retain the contract used to generate them. In the current
     # contract even a complete unsigned chain contains no signed dealer inventory.
-    if package.get("research_version") != "3.2" and not any(fid.startswith("option:") for fid in facts):
+    if package.get("research_version") not in {"3.2", "3.3"} and not any(fid.startswith("option:") for fid in facts):
         return
     for path, text, refs, scenario in _option_texts(candidate):
         for sentence in re.split(r"[。；;！!\n]|(?:但是|但(?!凡)|然而|不过|其实|实际上|\bbut\b)", text, flags=re.I):

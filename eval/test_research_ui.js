@@ -68,6 +68,7 @@ async function main() {
   };
   context.renderOptions(options, {model: {missing_sp500_dates: ["2025-11-20", "2026-11-19"]}});
   const panel = roots["options-panel"];
+  assert.doesNotMatch(panel.textContent, /近期限|期权未平仓量占比|过去21个交易日/);
   assert.match(panel.textContent, /5.12 个百分点.*净空 380 手股指期货.*2.5 亿美元.*7日内到期占比 0%.*当日到期占比 未知.*6,550 点／31.3%/);
   assert.match(panel.textContent, /行情时刻 2026-11-20.*未平仓量日期 2026-11-19.*2025-11-20，2026-11-19/);
   assert.deepEqual(allNodes(panel).filter(node => node.tagName === "a").map(node => node.href), ["https://www.cftc.gov"]);
@@ -88,6 +89,11 @@ async function main() {
   assert.deepEqual(Array.from(renderedCharts[0].data.labels), ["2025-11-21", "2026-11-20"]);
   assert.match(roots["options-charts"].textContent, /期权趋势/);
   assert.doesNotMatch(roots["charts-core"].textContent + roots["charts-background"].textContent, /期权趋势/);
+  const weekly = {id: "options_option_oi_share", unit: "%", title: "期权持仓占比", series: [{label: "占比",
+    points: [{date: "2026-11-03", value: 21}, {date: "2026-11-17", value: 25, change: null}]}]};
+  assert(!allNodes(context.renderChartStats(weekly)).some(node => node.tagName === "small"));
+  weekly.series[0].points[1].change = 1.5;
+  assert.match(context.renderChartStats(weekly).textContent, /\+1.50个百分点/);
   const archived = {stance: {one_liner: "银行拆借稳定"}, investment_assessment: {next_checks: ["明天看融资利差"]}};
   context.renderDailyBrief(archived);
   assert.match(roots["daily-brief"].textContent, /银行拆借稳定.*明天看融资利差/);
@@ -160,12 +166,28 @@ async function main() {
 
   context.location.protocol = "http:";
   const digest = {stance: "中性", headline: malicious, comparison: "比上次平稳", evidence: [{text: "利差从1基点升至3基点"}], assets: [{name: "BTC", bias: "压制", summary: "美元融资成本上升"}], watch: "看下次回购利率", alerts: ["拍卖延期"]};
+  facts.options = {...options, volatility_spread: {status: "ok", as_of: "2026-11-20", value: -2,
+    vix_pct: 18, realized_vol_pct: 20, change: -1.25, previous_as_of: "2026-11-19",
+    reference: {window: 252, count: 252, at_or_below: 189, percentile: 75, high: 9.6, start: "2025-11-19", end: "2026-11-19"}},
+    open_interest_share: {status: "ok", as_of: "2026-11-17", value: 25, combined_oi: 100000, futures_only_oi: 75000,
+      change: 2, previous_as_of: "2026-11-10", reference: {window: 52, count: 51, percentile: 90, high: 123456.78}}};
   const bundle = {dashboard: {meta: {}}, analysis: {}, investment_facts: facts, research_review: {status: "collecting", records: []}, daily_brief: digest};
   context.fetch = async () => ({ok: true, json: async () => bundle});
   const loaded = await context.loadJson("/output/latest/dashboard_data.json");
   assert.equal(loaded, bundle.dashboard);
   assert.equal(context.window.INVESTMENT_FACTS, facts);
   assert.equal(context.window.RESEARCH_REVIEW, bundle.research_review);
+  context.renderOptions();
+  assert.match(panel.textContent, /-2 个波动率点.*下降 1.25 个波动率点.*VIX 为 18%.*20%.*此前 252 期.*不含本期.*75%.*9.6个波动率点/);
+  assert.match(panel.textContent, /未平仓量占比.*25%.*上升 2 个百分点.*100,000 手期货等值.*75,000 手.*51 期.*尚未满 52/);
+  assert.doesNotMatch(panel.textContent, /123,456.78/);
+  const share = facts.options.open_interest_share;
+  share.reference = {window: 52, count: 52, percentile: 0, high: 32.1, start: "2025-11-12", end: "2026-11-10"};
+  context.renderOptions();
+  assert.match(panel.textContent, /此前 52 期.*0% 的读数不高于本期.*最高为 32.1%/);
+  share.reference.end = share.as_of;
+  context.renderOptions();
+  assert.doesNotMatch(panel.textContent, /32.1%/);
   context.renderDailyBrief(archived);
   assert.match(roots["daily-brief"].textContent, /拍卖延期.*比上次平稳.*利差从1基点升至3基点.*BTC.*美元融资成本上升.*看下次回购利率/);
   assert(!allNodes(roots["daily-brief"]).some(node => node.tagName === "img"));

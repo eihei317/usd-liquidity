@@ -347,7 +347,8 @@ function appendOptionsCoverage(root, audit) {
   if (!audit || !Object.keys(audit).length) return;
   const details = el("details", "investment-refs");
   details.appendChild(el("summary", "", "查看数据范围与逐日缺口"));
-  const seriesLabels = {model: "30天平值模型", positioning: "交易商方向敞口", chain: "真实期权链"};
+  const seriesLabels = {model: "30天平值模型", volatility_spread: "隐含与已实现波动率之差",
+    positioning: "交易商方向敞口", open_interest_share: "期权未平仓量占比", chain: "真实期权链"};
   const fieldLabels = {first: "最早观测", last: "最近观测", observations: "观测数", scope: "覆盖范围",
     status: "状态", missing_sp500_dates: "缺少标普收盘值的日期", missing_vix_dates: "缺少 VIX 的日期",
     missing_futures_only_dates: "缺少仅期货报表的日期", missing_combined_dates: "缺少合并报表的日期",
@@ -364,6 +365,11 @@ function appendOptionsCoverage(root, audit) {
     missing_snapshot_dates: "缺少期权链快照的交易日", missing_fact_dates: "按读数核对缺失日期",
     "option:SPX:gross_gamma_1pct": "指数变动1%的总 Gamma 敞口", "option:SPX:gamma_share_7d": "7日内到期占比",
     "option:SPX:gamma_share_0dte": "当日到期占比",
+    session_reference_first: "交易日参照序列起始日", session_reference_last: "交易日参照序列结束日",
+    missing_sp500_session_dates: "美股有交易但缺少标普收盘值的日期", vix_only_dates_within_reference: "交易日参照区间内仅有 VIX 的日期",
+    unconfirmed_session_dates: "尚未确认是否开市的日期", interrupted_window_dates: "实现波动率窗口中断日期",
+    insufficient_window_dates: "连续收盘记录不足的日期", zero_combined_oi_dates: "合并报表总未平仓量为零的日期",
+    futures_oi_exceeds_combined_dates: "仅期货报表未平仓量高于合并报表的日期",
     available_snapshots: "可用快照数", listed_rows: "合约记录", eligible_contracts: "有效合约", expired_contracts: "已到期合约",
     duplicate_rows: "重复记录", missing_contracts: "缺少 Gamma 或持仓的合约", same_day_timing_missing: "当日到期合约时刻缺失",
     quote_stale: "报价滞后", oi_stale: "未平仓量滞后", session_open_at_observation: "报价时开市", reason: "核对结果"};
@@ -396,6 +402,18 @@ function appendOptionsCoverage(root, audit) {
   root.appendChild(details);
 }
 
+function appendOptionReference(root, fact, windowSize, unit) {
+  const ref = fact.reference;
+  if (!ref || ref.window !== windowSize || !Number.isInteger(ref.count)) return;
+  if (ref.count >= 0 && ref.count < windowSize) {
+    root.appendChild(el("p", "options-meta", "此前已有 " + ref.count + " 期可比观测，尚未满 " + windowSize + " 期。"));
+  } else if (ref.count === windowSize && ref.start && ref.end && ref.start <= ref.end && ref.end < fact.as_of
+      && Number.isFinite(ref.percentile) && ref.percentile >= 0 && ref.percentile <= 100 && Number.isFinite(ref.high)) {
+    root.appendChild(el("p", "options-meta", "此前 " + windowSize + " 期（" + ref.start + " 至 " + ref.end +
+      "，不含本期）中，" + optionNumber(ref.percentile) + "% 的读数不高于本期，最高为 " + optionNumber(ref.high) + unit + "。"));
+  }
+}
+
 function renderOptions(options = window.INVESTMENT_FACTS?.options, coverage) {
   const root = document.getElementById("options-panel");
   if (!root) return;
@@ -407,12 +425,17 @@ function renderOptions(options = window.INVESTMENT_FACTS?.options, coverage) {
   }
   root.appendChild(el("p", "", "Delta 表示期权价格对指数涨跌有多敏感，Gamma 表示这种敏感度变得有多快。若做市商整体持有负 Gamma，指数越涨，他们为对冲而追买的需求可能越大。"));
   const readings = [
+    [options.volatility_spread, "标普500 · 期权隐含波动率与近期实际波动", "VIX 减去过去21个交易日收益率的年化波动率，差值为", "个波动率点",
+      "正值表示期权反映的未来30天波动幅度高于近期已实现波动，负值表示低于近期已实现波动。"],
     [options.model, "标普500平值期权 · 30天模型", "指数上涨1%时，模型估算期权 Delta 增加", "个百分点",
       "取同日 VIX 作为波动率假设，行权价等于指数点位。这项读数会随 VIX 变化。"],
+    [options.open_interest_share, "标普500股指期货市场 · 期权未平仓量占比", "以期货等值计，期权占该市场总未平仓量的", "%",
+      "计算覆盖全部参与者。将合并报表总持仓减去仅期货持仓，再除以合并报表总持仓。"],
     [options.positioning, "标普500股指期货期权 · 交易商方向敞口", "交易商期权净敞口折算为", "手股指期货",
       "取 CFTC 两张持仓报表中交易商净持仓之差。正数代表净多，负数代表净空。"]
   ];
   readings.forEach(([fact, title, prefix, unit, note]) => {
+    if (!fact) return;
     const section = el("div", "options-row");
     section.appendChild(el("h3", "", title));
     if (["ok", "stale", "partial_latest"].includes(fact?.status) && Number.isFinite(fact.value)) {
@@ -420,12 +443,25 @@ function renderOptions(options = window.INVESTMENT_FACTS?.options, coverage) {
       const weekly = fact === options.positioning;
       const direction = weekly && fact.value !== 0 ? (fact.value < 0 ? "净空 " : "净多 ") : "";
       const level = weekly ? Math.abs(fact.value) : fact.value;
-      let reading = (freshness[fact.status] || "") + prefix + " " + direction + optionNumber(level) + " " + unit + "。";
+      let reading = (freshness[fact.status] || "") + prefix + " " + direction + optionNumber(level) + (unit === "%" ? "" : " ") + unit + "。";
       if (weekly && Number.isFinite(fact.change) && fact.previous_as_of) {
         reading += fact.change === 0 ? "与上周持平。" : "较上周向" + (fact.change < 0 ? "净空" : "净多") + "方向变动 " + optionNumber(Math.abs(fact.change)) + " 手。";
       }
+      const spread = fact === options.volatility_spread;
+      const share = fact === options.open_interest_share;
+      if ((spread || share) && Number.isFinite(fact.change) && fact.previous_as_of) {
+        reading += "较 " + fact.previous_as_of + (fact.change === 0 ? " 持平。" :
+          (fact.change > 0 ? " 上升 " : " 下降 ") + optionNumber(Math.abs(fact.change)) + (spread ? " 个波动率点。" : " 个百分点。"));
+      }
       section.appendChild(el("p", "", reading));
-      section.appendChild(el("p", "options-meta", note));
+      let inputs = "";
+      if (spread && Number.isFinite(fact.vix_pct) && Number.isFinite(fact.realized_vol_pct)) {
+        inputs = "VIX 为 " + optionNumber(fact.vix_pct) + "%，已实现波动率为 " + optionNumber(fact.realized_vol_pct) + "%。";
+      } else if (share && Number.isFinite(fact.combined_oi) && Number.isFinite(fact.futures_only_oi)) {
+        inputs = "合并报表共 " + optionNumber(fact.combined_oi) + " 手期货等值，仅期货报表共 " + optionNumber(fact.futures_only_oi) + " 手。";
+      }
+      section.appendChild(el("p", "options-meta", inputs + note));
+      if (spread || share) appendOptionReference(section, fact, spread ? 252 : 52, spread ? "个波动率点" : "%");
     } else {
       section.appendChild(el("p", "", fact?.message || "本期缺少有效读数。"));
     }
@@ -939,12 +975,12 @@ function renderChartStats(chart) {
     if (!points.length) return;
     const latest = points[points.length - 1];
     const previous = points.length > 1 ? points[points.length - 2] : null;
-    const delta = previous ? Number(latest.value) - Number(previous.value) : null;
+    const delta = Object.hasOwn(latest, "change") ? latest.change : previous ? Number(latest.value) - Number(previous.value) : null;
     const stat = el("div", "chart-stat");
     stat.appendChild(el("span", "chart-stat-label", series.label));
     const valueRow = el("div", "chart-stat-value");
     valueRow.appendChild(document.createTextNode(formatChartNumber(latest.value, chart.unit)));
-    if (delta !== null && !Number.isNaN(delta)) {
+    if (Number.isFinite(delta)) {
       const changeUnit = chart.id.startsWith("options_") && chart.unit === "%" ? "个百分点" : chart.unit;
       valueRow.appendChild(el("small", delta > 0 ? "up" : delta < 0 ? "down" : "flat", `${delta > 0 ? "+" : ""}${formatChartNumber(delta, changeUnit)}`));
     }

@@ -6,6 +6,8 @@ from .utils import RATE_LABELS
 
 
 _LABELS = {
+    "iv_minus_rv21": "标普500隐含与已实现波动率之差",
+    "option_oi_share": "标普500股指期货市场的期权未平仓量占比",
     "SRP_ACCEPTED": "常备回购工具用量", "SRP_RATE": "常备回购工具利率",
     "SP500": "标普500指数", "NASDAQCOM": "纳斯达克综合指数", "CBBTCUSD": "比特币美元价格",
     "CFTC_JPY_NET_OI": "日元期货非商业净持仓占未平仓量的比例",
@@ -22,6 +24,7 @@ JPY_UNITS = {
     "CFTC_JPY_GROSS_SHORT": "contracts", "CFTC_JPY_GROSS_LONG": "contracts", "CFTC_JPY_OPEN_INTEREST": "contracts",
 }
 _UNITS = {
+    "波动率点": (1, "个波动率点"),
     "USD bn": (10, "亿美元"), "bn": (10, "亿美元"), "USD mn/day": (1, "百万美元/日"),
     "contracts": (1, "手"), "JPY per USD": (1, "日元/美元"), "USD": (1, "美元"),
     "pt": (1, "点"), "index": (1, "点"), "x": (1, "倍"), "ratio": (1, "倍"),
@@ -96,7 +99,9 @@ def _calendar_evidence(fact):
 
 _OPTION_NAMES = {
     "option:SPX:model_delta_change_1pct": "标普500的30天平值期权模型",
+    "option:SPX:iv_minus_rv21": "标普500隐含与已实现波动率之差",
     "option:SP500_FUTURES:dealer_option_delta": "标普500股指期货期权的交易商方向敞口",
+    "option:SP500_FUTURES:option_oi_share": "期权占标普500期货市场总未平仓量的比例（期货等值）",
     "option:SPX:gross_gamma_1pct": "SPX 与 SPXW 全部未平仓合约的 Gamma 敞口",
     "option:SPX:gamma_share_7d": "7日内到期合约占总 Gamma 敞口的比例",
     "option:SPX:gamma_share_0dte": "当日到期且仍可交易的合约占总 Gamma 敞口的比例",
@@ -111,6 +116,22 @@ def _gamma_money(value):
     return _quantity(value, "美元")
 
 
+def _option_reference(fact, window, unit):
+    ref = fact.get("reference") or {}
+    count = ref.get("count")
+    if type(count) is not int or ref.get("window") != window:
+        return ""
+    if 0 <= count < window:
+        return f"此前只有{count}期可比观测，尚未满{window}期。"
+    start, end, percentile, high = (ref.get(key) for key in ("start", "end", "percentile", "high"))
+    if count != window or not start or not end or not start <= end < (fact.get("as_of") or ""):
+        return ""
+    if not _number(percentile) or not 0 <= percentile <= 100 or not _number(high):
+        return ""
+    return (f"从{start}至{end}的前{window}期观测（不含本期）中，"
+            f"{_quantity(percentile, '%')}的读数不高于本期，窗口内最高为{_quantity(high, unit)}。")
+
+
 def _option_evidence(fact, fid):
     name, value = _OPTION_NAMES[fid], fact.get("value")
     status = fact.get("status")
@@ -120,8 +141,22 @@ def _option_evidence(fact, fid):
         return f"{name}本期缺少可用观测。"
     previous_date, change = fact.get("previous_as_of"), fact.get("change")
     change_unit = "个百分点"
+    reference = ""
     if fid.endswith(":model_delta_change_1pct"):
         statement = f"{name}估算，指数上涨1%时，期权 Delta 约增加{_quantity(value, '个百分点')}"
+    elif fid.endswith(":iv_minus_rv21"):
+        change_unit = "个波动率点"
+        statement = f"{name}为{_quantity(value, change_unit)}"
+        if _number(fact.get("vix_pct")) and _number(fact.get("realized_vol_pct")):
+            statement += (f"（VIX 为{_quantity(fact['vix_pct'], '%')}，前21个交易日收益率的"
+                          f"年化波动率为{_quantity(fact['realized_vol_pct'], '%')}）")
+        reference = _option_reference(fact, 252, change_unit)
+    elif fid.endswith(":option_oi_share"):
+        statement = f"{name}为{_quantity(value, '%')}"
+        if _number(fact.get("combined_oi")) and _number(fact.get("futures_only_oi")):
+            statement += (f"（CFTC 合并报表总持仓{_quantity(fact['combined_oi'], '手期货等值')}，"
+                          f"仅期货报表总持仓{_quantity(fact['futures_only_oi'], '手')}）")
+        reference = _option_reference(fact, 52, "%")
     elif fid.endswith(":dealer_option_delta"):
         position = "净多" if value > 0 else "净空" if value < 0 else "净额为"
         statement = f"CFTC 持仓折算显示，{name}{position}{_quantity(abs(value), '手期货等值')}"
@@ -141,7 +176,7 @@ def _option_evidence(fact, fid):
     text = (fact.get("as_of") or "观测日期未知") + "，" + statement + "。"
     if status == "partial_latest":
         text += "最新一期的来源未能配对，以上为最近一次可比观测。"
-    return text
+    return text + reference
 
 
 def _describe_fact(fact):
@@ -171,12 +206,17 @@ def _describe_fact(fact):
     if not _number(previous) and start and _number(fact.get("change_1d")):
         previous = value - fact["change_1d"]
     current = _quantity(value, unit)
+    change_unit = "个百分点" if fid == "comparison:option_oi_share" else unit
     if fid.startswith("comparison:"):
         captured = str(fact.get("previous_package_generated_at_bjt") or "")[:10]
         reference = f"上次报告（{captured}）" if captured else "上次报告"
-        if start == end and _number(change) and change == 0:
+        if start and start == end and _number(change) and change == 0:
             return f"{name}沿用{end}的观测值{current}，与{reference}相同。"
-        name += f"（对比{reference}）"
+        if start and start == end and _number(previous) and _number(change) and change != 0:
+            move = "上修" if change > 0 else "下修"
+            return (f"对比{reference}，{end}的{name}从{_quantity(previous, unit)}修订为{current}，"
+                    f"{move}{_quantity(abs(change), change_unit, change=True)}。")
+        name += f"（较{captured}报告）" if captured else "（较上次报告）"
     if _number(previous) and start and end:
         if start == end and not fid.startswith("comparison:"):
             return f"{end}，{name}为{current}。"
@@ -186,11 +226,11 @@ def _describe_fact(fact):
         else:
             text = f"{span}，{name}{interval}从{_quantity(previous, unit)}变为{current}"
             if _number(change):
-                text += f"，{'增加' if change > 0 else '减少'}{_quantity(abs(change), unit, change=True)}"
+                text += f"，{'增加' if change > 0 else '减少'}{_quantity(abs(change), change_unit, change=True)}"
     else:
         text = f"{end + '，' if end else ''}{name}为{current}"
         if _number(change):
-            text += f"，较前一观测{'增加' if change >= 0 else '减少'}{_quantity(abs(change), unit, change=True)}"
+            text += f"，较前一观测{'增加' if change >= 0 else '减少'}{_quantity(abs(change), change_unit, change=True)}"
     return text + "。"
 
 

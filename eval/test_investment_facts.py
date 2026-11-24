@@ -10,7 +10,7 @@ from urllib.parse import parse_qs, urlsplit
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
-from scripts.investment_facts import build_market_context, enrich_package
+from scripts.investment_facts import build_market_context, enrich_package, option_package_comparisons
 from scripts import fetchers
 
 
@@ -164,6 +164,48 @@ class InvestmentFacts(unittest.TestCase):
         result = enrich_package(package(m), snapshot(m), old)["data"]["facts"]["investment"]
         self.assertEqual(result["comparison_facts"][0]["comparison_kind"], "revision_same_observation_date")
         self.assertEqual(result["comparison_facts"][0]["change"], 1)
+
+    def test_option_report_changes_ignore_observation_to_observation_changes(self):
+        weekly = {"fact_id": "option:CME:share", "name": "期权等值持仓占比", "measurement": "oi_share",
+                  "unit": "%", "source": "CFTC", "source_url": "https://www.cftc.gov", "frequency": "weekly",
+                  "as_of": "2026-11-17", "value": 35, "change": 2, "contract_multiplier": 50, "status": "ok"}
+        spread = {**weekly, "fact_id": "option:SPX:spread", "measurement": "iv_minus_rv",
+                  "source": "FRED", "source_url": "https://fred.stlouisfed.org", "frequency": "daily",
+                  "as_of": "2026-11-20", "value": 14}
+        del spread["contract_multiplier"]
+        options = {"open_interest_share": weekly, "volatility_spread": spread, "model": weekly}
+        previous = {"generated_at_bjt": "2026-11-22T12:00:00Z", "data": {"facts": {"investment": {"options": copy.deepcopy(options)}}}}
+        old = previous["data"]["facts"]["investment"]["options"]
+        stamp = "2026-11-23 20:00:00 UTC+08:00"
+        old["volatility_spread"]["value"] = 11
+        rows = {r["fact_id"]: r for r in option_package_comparisons(options, previous, stamp)}
+        self.assertEqual(set(rows), {"comparison:iv_minus_rv21", "comparison:option_oi_share"})
+        revision, same = rows["comparison:iv_minus_rv21"], rows["comparison:option_oi_share"]
+        self.assertEqual((same["comparison_kind"], same["change"]), ("unchanged", 0))
+        self.assertEqual((revision["comparison_kind"], revision["change"]), ("revision_same_observation_date", 3))
+        self.assertEqual(revision["base_fact_ids"], [spread["fact_id"]])
+        self.assertEqual(revision["previous_package_generated_at_bjt"], previous["generated_at_bjt"])
+        old["volatility_spread"].update(as_of="2026-11-19", status="cached_after_fetch_failure")
+        row = option_package_comparisons(options, previous, stamp)[0]
+        self.assertEqual((row["comparison_kind"], row["status"]), ("new_observation", "cached_after_fetch_failure"))
+
+    def test_option_package_comparison_requires_strictly_earlier_matching_provenance(self):
+        item = {"fact_id": "option:CME:share", "value": 0, "as_of": "2026-11-17", "measurement": "oi_share",
+                "source": "CFTC", "source_url": "https://www.cftc.gov", "unit": "%", "contract_multiplier": 50, "status": "ok"}
+        options = {"open_interest_share": item}
+        stamp = "2026-11-23T20:00:00+08:00"
+        prev = {"generated_at_bjt": "2026-11-23T11:00:00Z", "data": {"facts": {"investment": {"options": copy.deepcopy(options)}}}}
+        old = prev["data"]["facts"]["investment"]["options"]["open_interest_share"]
+        for k, value in (("source", "another"), ("source_url", None), ("measurement", None), ("fact_id", "option:other"),
+                         ("unit", "ratio"), ("contract_multiplier", None), ("contract_multiplier", 250), ("as_of", "2026-11-24")):
+            with self.subTest(field=k):
+                old.update({k: value})
+                self.assertFalse(option_package_comparisons(options, prev, stamp))
+                old.update({k: item[k]})
+        for cutoff in ("2026-11-23T12:00:00Z", "2026-11-23T12:01:00Z", "invalid"):
+            prev["generated_at_bjt"] = cutoff
+            self.assertFalse(option_package_comparisons(options, prev, stamp))
+        self.assertFalse(option_package_comparisons(options, {"generated_at_bjt": "2026-11-22"}, stamp))
 
     def test_sofr_iorb_staleness_is_propagated(self):
         s, i = metric("SOFR"), metric("IORB")

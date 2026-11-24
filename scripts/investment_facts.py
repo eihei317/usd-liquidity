@@ -18,6 +18,7 @@ from datetime import date, datetime, timedelta
 from pathlib import Path
 from urllib.parse import urlencode
 
+from .investment_review import _timestamp
 from .utils import BJT, http_get_text
 
 WINDOWS = (5, 20, 60)
@@ -400,6 +401,60 @@ def build_market_context(generated_at_bjt: str, fetch: bool = True, previous_con
     return result
 
 
+def _comparison_fact(mid, current, old, cutoff, previous_cutoff, previous_time):
+    value, before = _number(current.get("value")), _number(old.get("value"))
+    end, start = _day(current.get("as_of")), _day(old.get("as_of"))
+    if value is None or before is None or not end or not start or start > end or end > cutoff or start > previous_cutoff:
+        return None
+    current_status, current_age = _freshness(current, cutoff)
+    old_status, old_age = _freshness(old, previous_cutoff)
+    return {
+        "fact_id": f"comparison:{mid}", "id": mid, "name": f"{current.get('name', mid)}较上次成功事实包",
+        "value": value, "previous": before, "change": value - before, "unit": current.get("unit"),
+        "as_of": end, "previous_as_of": start, "frequency": "since previous captured package",
+        "source": current.get("source"), "source_url": current.get("source_url"),
+        "status": current_status if current_status != "ok" else old_status,
+        "base_fact_ids": [current.get("fact_id", f"metric:{mid}")],
+        "source_status": current.get("source_status", current.get("status")),
+        "previous_source_status": old.get("source_status", old.get("status")),
+        "stale_days": current_age, "previous_stale_days_at_capture": old_age,
+        "role": current.get("role") or _role(mid), "previous_package_generated_at_bjt": previous_time,
+        "comparison_kind": "revision_same_observation_date" if end == start and value != before else "unchanged" if end == start else "new_observation",
+    }
+
+
+def option_package_comparisons(options, previous_package, generated_at):
+    """Compare published option readings, independently of their source-day or source-week change."""
+    if not previous_package:
+        return []
+    previous_time = previous_package.get("generated_at_bjt")
+    try:
+        earlier = _timestamp(previous_time).astimezone(BJT)
+        current_time = _timestamp(generated_at).astimezone(BJT)
+    except ValueError:
+        return []
+    if earlier >= current_time:
+        return []
+    previous = previous_package.get("data", {}).get("facts", {}).get("investment", {}).get("options", {})
+    pairs = (("volatility_spread", "iv_minus_rv21"), ("open_interest_share", "option_oi_share"))
+    identity = ("fact_id", "measurement", "unit", "source", "source_url")
+    comparisons = []
+    for slot, mid in pairs:
+        current, old = options.get(slot), previous.get(slot)
+        if not isinstance(current, dict) or not isinstance(old, dict):
+            continue
+        if any(not current.get(key) or current[key] != old.get(key) for key in identity):
+            continue
+        multiplier = current.get("contract_multiplier")
+        if multiplier is not None or old.get("contract_multiplier") is not None:
+            if _number(multiplier) is None or multiplier <= 0 or _number(old.get("contract_multiplier")) != multiplier:
+                continue
+        row = _comparison_fact(mid, current, old, current_time.date().isoformat(), earlier.date().isoformat(), previous_time)
+        if row:
+            comparisons.append(row)
+    return comparisons
+
+
 def _package_comparisons(canonical, market_facts, previous_package, previous_snapshot, generated_at):
     previous_time = previous_package.get("generated_at_bjt")
     previous_cutoff = _day(previous_time)
@@ -430,25 +485,9 @@ def _package_comparisons(canonical, market_facts, previous_package, previous_sna
             old = dict(old)
             points, _ = _metric_rows(old, previous_snapshot, previous_cutoff)
             _effective_policy_rate(old, points, previous_cutoff)
-        value, before = _number(current.get("value")), _number(old.get("value"))
-        end, start = _day(current.get("as_of")), _day(old.get("as_of"))
-        if value is None or before is None or not end or not start or start > end or end > cutoff or start > previous_cutoff:
-            continue
-        current_status, current_age = _freshness(current, cutoff)
-        old_status, old_age = _freshness(old, previous_cutoff)
-        comparisons.append({
-            "fact_id": f"comparison:{mid}", "id": mid, "name": f"{current.get('name', mid)}较上次成功事实包",
-            "value": value, "previous": before, "change": value - before, "unit": current.get("unit"),
-            "as_of": end, "previous_as_of": start, "frequency": "since previous captured package",
-            "source": current.get("source"), "source_url": current.get("source_url"),
-            "status": current_status if current_status != "ok" else old_status,
-            "base_fact_ids": [current.get("fact_id", f"metric:{mid}")],
-            "source_status": current.get("source_status", current.get("status")),
-            "previous_source_status": old.get("source_status", old.get("status")),
-            "stale_days": current_age, "previous_stale_days_at_capture": old_age,
-            "role": current.get("role") or _role(mid), "previous_package_generated_at_bjt": previous_time,
-            "comparison_kind": "revision_same_observation_date" if end == start and value != before else "unchanged" if end == start else "new_observation",
-        })
+        row = _comparison_fact(mid, current, old, cutoff, previous_cutoff, previous_time)
+        if row:
+            comparisons.append(row)
     return comparisons
 
 

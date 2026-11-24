@@ -103,7 +103,7 @@ class Publication(unittest.TestCase):
         manifest = pipeline.read(directory / 'manifest.json')
         self.assertEqual(bundle['analysis']['investment_assessment'], record['assessment'])
         self.assertEqual(pointer['published_at_bjt'], record['published_at_bjt'])
-        self.assertEqual('3.2', manifest['method_version'])
+        self.assertEqual('3.3', manifest['method_version'])
         self.assertEqual('collecting', bundle['research_review']['status'])
         self.assertIn('metric:SOFR', bundle['investment_facts']['catalog'])
         self.assertEqual(6, len(bundle['research_review']['records']))

@@ -7,6 +7,7 @@ import sys
 import tempfile
 import unittest
 from contextlib import closing
+from datetime import date, timedelta
 from pathlib import Path
 from unittest.mock import patch
 
@@ -24,9 +25,11 @@ SHORT = "option:SPX:gamma_share_7d"
 
 
 def prices():
+    days = [date(2026, 10, 1) + timedelta(days=i) for i in range(50)]
+    closes = [{"date": d.isoformat(), "value": 5000} for d in days if d.weekday() < 5]
+    closes.extend([{"date": "2026-11-20", "value": 5000}, {"date": "2026-11-23", "value": 5030}])
     return {"generated_at_bjt": STAMP, "series": {sid: {"status": "ok"} for sid in ("SP500", "NASDAQCOM", "CBBTCUSD")},
-            "price_history": {sid: [{"date": "2026-11-20", "value": 5000}, {"date": "2026-11-23", "value": 5030}]
-                              for sid in ("SP500", "NASDAQCOM", "CBBTCUSD")}}
+            "price_history": {sid: copy.deepcopy(closes) for sid in ("SP500", "NASDAQCOM", "CBBTCUSD")}}
 
 
 def positioning():
@@ -37,6 +40,7 @@ def positioning():
             rows.append({"id": marker + day, "report_date_as_yyyy_mm_dd": day,
                          "cftc_contract_market_code": MARKET_CODE, "futonly_or_combined": marker,
                          "contract_market_name": "S&P 500 Consolidated", "contract_units": f"(S&P 500 INDEX X ${multiplier})",
+                         "open_interest_all": 200 if kind == "combined" else 140 - i,
                          "dealer_positions_long_all": 100 + 3 * i if kind == "combined" else 90 + i,
                          "dealer_positions_short_all": 80 if kind == "combined" else 75})
         source[kind] = {"status": "ok", "dataset_id": dataset, "market_code": MARKET_CODE, "rows": rows,
@@ -112,6 +116,14 @@ class OptionIntegration(unittest.TestCase):
         self.assertTrue(all(fid in facts for fid in facts[MODEL]["base_fact_ids"]))
         self.assertEqual(facts[POSITION]["value"], 9)
         self.assertEqual(facts[POSITION]["change"], 2)
+        spread, share = facts[options_research.SPREAD_ID], facts[options_research.OI_SHARE_ID]
+        self.assertEqual(spread["vix_pct"], 24)
+        self.assertAlmostEqual(spread["value"], spread["vix_pct"] - spread["realized_vol_pct"])
+        self.assertEqual(share["value"], 31)
+        self.assertAlmostEqual(share["change"], .5)
+        self.assertEqual(share["reference"]["count"], 1)
+        self.assertIsNone(share["reference"]["percentile"])
+        self.assertGreater(len(self.history(options_research.REALIZED_ID)), len(self.history(options_research.SPREAD_ID)))
         self.assertEqual(self.history(GROSS), [("2026-11-20", 250000, None), ("2026-11-23", 300000, None)])
         self.assertEqual(len(self.history(MODEL)), 2)
         self.assertEqual([r[2] for r in self.history(POSITION)], [250, 50, 50])
@@ -120,6 +132,8 @@ class OptionIntegration(unittest.TestCase):
         self.assertNotIn("options_obsolete", charts)
         shown = charts["options_dealer_option_delta"]["series"][0]["points"]
         self.assertEqual([r["date"] for r in shown], ["2026-11-10", "2026-11-17"])
+        self.assertEqual(charts["options_iv_minus_rv21"]["series"][0]["points"][-1]["value"], spread["value"])
+        self.assertEqual(charts["options_option_oi_share"]["series"][0]["points"][-1]["value"], share["value"])
         self.assertEqual(charts["options_gross_gamma_1pct"]["series"][0]["points"][-1]["value"], facts[GROSS]["value"])
         pipeline.require_history_complete(self.audit())
         captured = (self.latest / "options_capture.json").read_bytes()
@@ -137,7 +151,7 @@ class OptionIntegration(unittest.TestCase):
         self.prepare(True)
         pipeline.atomic(self.local / "amended.json", local_file("20", 14, "2026-11-23T16:00:00-05:00"))
         pipeline.atomic(self.local / "withdrawn.json", local_file("23", None, "2026-11-23T18:00:00-05:00"))
-        self.context["price_history"]["SP500"].pop(0)
+        self.context["price_history"]["SP500"].pop(-2)
         self.pos["sources"]["futures_only"]["rows"].pop(1)
         package = self.prepare(True)
         self.assertEqual(self.history(GROSS), [("2026-11-20", 350000, None)])
@@ -148,10 +162,17 @@ class OptionIntegration(unittest.TestCase):
             raw_legs = conn.execute("""SELECT report, dealer_long, dealer_short FROM option_cftc_source_history
                                        WHERE as_of='2026-11-10'""").fetchall()
         self.assertEqual(raw_legs, [("combined", 103, 80)])
+        with closing(sqlite3.connect(self.db)) as conn:
+            oi_legs = conn.execute("SELECT report,open_interest FROM option_cftc_open_interest_history WHERE as_of='2026-11-10'").fetchall()
+        self.assertEqual(oi_legs, [("combined", 200)])
+        self.assertFalse(self.history(options_research.SPREAD_ID))
+        self.assertEqual([row[0] for row in self.history(options_research.OI_SHARE_ID)], ["2026-11-03", "2026-11-17"])
         options = package["data"]["facts"]["investment"]["options"]
         self.assertEqual((options["chain"]["status"], options["chain"]["facts"]), ("partial", []))
         self.assertIsNone(options["positioning"]["change"])
         self.assertIsNone(options["positioning"]["previous_as_of"])
+        self.assertIsNone(options["open_interest_share"]["change"])
+        self.assertEqual(options["open_interest_share"]["reference"]["count"], 0)
         self.assertEqual(self.audit()["option_details"]["positioning"]["missing_futures_only_dates"], ["2026-11-10"])
         self.assertEqual(self.charts()["options_gross_gamma_1pct"]["series"][0]["points"], [{"date": "2026-11-20", "value": 350000}])
         self.context["price_history"]["SP500"].clear()
@@ -197,6 +218,16 @@ class OptionIntegration(unittest.TestCase):
         option = p["data"]["facts"]["investment"]["options"]
         self.assertFalse(option["chain"]["facts"])
         self.assertFalse(self.history(GROSS))
+
+    def test_reference_compares_only_earlier_observations_including_ties(self):
+        points = [{"date": str(i), "value": value, "change": 1} for i, value in enumerate((10, 1, 2, 4, 2))]
+        ref = options_research._prior_reference(points, 3)
+        self.assertEqual((ref["start"], ref["end"], ref["high"], ref["at_or_below"]), ("1", "3", 4, 2))
+        self.assertAlmostEqual(ref["percentile"], 200 / 3)
+        points[-2]["change"] = None
+        ref = options_research._prior_reference(points, 3, weekly=True)
+        self.assertEqual(ref["count"], 1)
+        self.assertIsNone(ref["percentile"])
 
 
 if __name__ == "__main__":
