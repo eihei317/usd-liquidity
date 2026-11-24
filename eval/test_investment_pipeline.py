@@ -1,5 +1,4 @@
 """Offline publication tests: one bundle, immutable record, failure retention."""
-import copy
 import hashlib
 import json
 import shutil
@@ -48,19 +47,42 @@ class Publication(unittest.TestCase):
             raise subprocess.CalledProcessError(1, args)
         latest = script.parents[1] / 'output/latest'
         package = pipeline.read(latest / 'model_input.json')
-        analysis = pipeline.read(latest / 'analysis.json')
-        analysis['meta'].pop('status', None)
         research = sample_assessment()
         research['expectations']['fact_ids'] = ['coverage:direct_expectations']
-        analysis['investment_assessment'] = research
-        # The isolated first publication has no earlier run. Its model double can
-        # reuse only archive claims whose cited facts exist in this test input.
         facts, _ = _collect_facts(package)
         research['change_fact_ids'] = [fid for fid, fact in facts.items()
                                        if fid.startswith('comparison:') and fact.get('status') == 'ok'
                                        and fact.get('change') not in (None, 0)][:1]
-        for field in ('key_takeaways', 'risk_flags'):
-            analysis[field] = [item for item in analysis[field] if all(fid in facts for fid in item['fact_ids'])]
+        # This double exercises publication even when the source capture has no
+        # prior report or comparison facts. No wording is read from a live report.
+        def assessment(mid):
+            fid = 'metric:' + mid
+            return {'label': '中性', 'summary': '观察本次输入中的记录。',
+                    'fact_ids': [fid if fid in facts else 'metric:SOFR']}
+
+        generated = package['generated_at_bjt']
+        module = {'label': '数据不足', 'one_liner': '仅用于离线发布测试。', 'analysis': '本次不判断市场方向。'}
+        analysis = {
+            'meta': {'generated_at_bjt': generated, 'data_as_of': generated[:10], 'model': 'gpt-6.1-sol',
+                     'input_freshness_note': '数据来自本次测试输入。'},
+            'stance': {'label': '中性', 'confidence': '低', 'score_text': '固定测试样本。',
+                       'one_liner': '本次记录隔夜融资和资产价格。'},
+            'axis_assessment': {
+                key: assessment(mid) for key, mid in [('funding_price', 'SOFR'), ('liquidity_buffer', 'WRESBAL'),
+                    ('treasury_pricing', 'DGS10'), ('cross_market_transmission', 'VIXCLS')]
+            },
+            'horizon_assessment': {
+                key: {**assessment(mid), 'window': window} for key, mid, window in
+                [('immediate', 'SOFR', '1—3个交易日'), ('tactical', 'DGS10', '1—4周'),
+                 ('structural', 'WRESBAL', '1—3个月')]
+            },
+            'key_takeaways': [{'claim_type': 'observed', 'dedupe_key': 'funding.software_test',
+                               'title': '隔夜融资', 'text': '本期记录了担保隔夜融资利率。',
+                               'fact_ids': ['metric:SOFR'], 'related_indicators': ['SOFR'],
+                               'evidence_refs': [{'fact_id': 'metric:SOFR'}]}],
+            'risk_flags': [], 'narrative_blocks': {'treasury_yields': module, 'jpy_carry': module},
+            'investment_assessment': research,
+        }
         analysis = materialize_evidence(analysis, package)
         self.assertEqual([], validate_analysis(analysis, package))
         analysis['meta']['status'] = 'published'
