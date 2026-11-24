@@ -6,6 +6,7 @@ from __future__ import annotations
 import argparse
 import copy
 import json
+import math
 import os
 import re
 import sys
@@ -221,6 +222,7 @@ ANALYSIS_JSON_SCHEMA: Dict[str, Any] = {
 if not __package__:
     sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from scripts.investment_contract import INVESTMENT_SCHEMA, validate_investment
+from scripts.evidence import format_fact_evidence
 
 ANALYSIS_JSON_SCHEMA["properties"]["investment_assessment"] = INVESTMENT_SCHEMA
 
@@ -233,20 +235,6 @@ _FACT_CONTAINER_KEYS = {
     "facts",
     "metrics",
     "quality_flags",
-}
-_CORE_FUNDING_PRICE_IDS = {
-    "BGCR_IORB_SPREAD",
-    "BGCR_PRESSURE",
-    "EFFR_IORB_SPREAD",
-    "EFFR_PRESSURE",
-    "OBFR_IORB_SPREAD",
-    "OBFR_PRESSURE",
-    "REPO_PRESSURE",
-    "SOFR_ANCHOR",
-    "SOFR_IORB_SPREAD",
-    "SOFR_PRESSURE",
-    "TGCR_IORB_SPREAD",
-    "TGCR_PRESSURE",
 }
 _EXPLICIT_BAD_STATUSES = {
     "error",
@@ -416,9 +404,13 @@ def _fact_is_fresh(fact: Mapping[str, Any]) -> bool:
             return False
     if fact.get("stale") is True:
         return False
+    for key in ("source_status", "previous_source_status"):
+        if fact.get(key) and fact[key] != "ok":
+            return False
     for key in ("status", "freshness", "quality", "type"):
         status = fact.get(key)
-        if isinstance(status, str) and status.strip().lower().replace(" ", "_") in _EXPLICIT_BAD_STATUSES:
+        if isinstance(status, str) and (status.strip().lower().replace(" ", "_") in _EXPLICIT_BAD_STATUSES
+                                       or "fetch_failure" in status.lower()):
             return False
     flags = fact.get("quality_flags")
     if flags:
@@ -432,23 +424,6 @@ def _fact_is_fresh(fact: Mapping[str, Any]) -> bool:
     return True
 
 
-def _is_core_funding_price(fact_id: str, fact: Mapping[str, Any]) -> bool:
-    normalized = fact_id.upper().replace("-", "_").rsplit(":", 1)[-1]
-    if normalized in _CORE_FUNDING_PRICE_IDS:
-        return True
-    if any(normalized.startswith(prefix) for prefix in ("EFFR_", "OBFR_", "SOFR_", "TGCR_", "BGCR_")):
-        if any(token in normalized for token in ("ANCHOR", "IORB", "PRESSURE", "SPREAD")):
-            return True
-    if fact.get("is_core_funding_price") is True:
-        return True
-    metadata = " ".join(
-        str(fact.get(key, ""))
-        for key in ("p0_role", "role", "dimension", "category", "fact_type", "name")
-    ).lower()
-    return (
-        any(token in metadata for token in ("core_funding_price", "funding_price", "资金价格", "融资价格"))
-        and any(token in metadata for token in ("anomaly", "pressure", "spread", "异常", "压力", "利差"))
-    )
 
 
 def _parse_date(value: str) -> Optional[datetime]:
@@ -543,21 +518,21 @@ def _iter_numeric_values(value: Any) -> Iterable[float]:
 
 
 def materialize_evidence(candidate, model_input):
-    facts,_ = _collect_facts(model_input)
-    for _,claim in _iter_claims(candidate):
-        rendered=[]
-        for ref in claim.get('evidence_refs',[]):
-            fid=ref.get('fact_id');f=facts.get(fid)
-            if not f or fid not in claim.get('fact_ids',[]):
-                raise ValueError('Evidence reference absent from claim facts: '+str(fid))
-            value=f.get('value');change=f.get('change',f.get('change_1d'))
-            unit=f.get('unit','原始比例/口径');unit={'bp avg':'bp','USD bn':'bn','USD mn/day':'mn/day'}.get(unit,unit);date=f.get('as_of','日期未知')
-            if isinstance(value,(int,float)):
-                rendered.append(f"{f.get('id',fid)}：{value:.2f}{unit}（{date}，"+(f"{change:+.2f}{unit}" if isinstance(change,(int,float)) else '环比未知')+f"）；{f.get('frequency','按来源频率')}。")
-            else:
-                rendered.append(f"{fid}：{date}；状态 {f.get('status',f.get('type','unknown'))}；无可用数值。")
-        if rendered:claim['evidence']=rendered
+    facts, _ = _collect_facts(model_input)
+    for _, claim in _iter_claims(candidate):
+        if claim.get("evidence_refs"):
+            claim["evidence"] = _render_claim_evidence(claim, facts)
     return candidate
+
+
+def _render_claim_evidence(claim, facts):
+    rendered = []
+    for ref in claim["evidence_refs"]:
+        fid = ref.get("fact_id") if isinstance(ref, dict) else None
+        if not isinstance(fid, str) or fid not in facts or fid not in claim.get("fact_ids", []):
+            raise ValueError("Evidence reference absent from claim facts: " + str(fid))
+        rendered.append(format_fact_evidence(facts[fid]))
+    return rendered
 
 def _number_matches_fact(number: float, unit: str, fact_values: Sequence[float]) -> bool:
     candidates = [number]
@@ -639,7 +614,7 @@ def _iter_narrative_text_fields(candidate: Mapping[str, Any]) -> Iterable[Tuple[
                 if isinstance(value, str):
                     yield f"$.{section}[{index}].{key}", value
             evidence = item.get("evidence")
-            if isinstance(evidence, list):
+            if isinstance(evidence, list) and not item.get("evidence_refs"):
                 for j, ev in enumerate(evidence):
                     if isinstance(ev, str):
                         yield f"$.{section}[{index}].evidence[{j}]", ev
@@ -739,12 +714,14 @@ def _validate_claims(
             errors.append(f"{path}.text: market values belong in structured evidence_refs")
         if claim.get('evidence_refs'):
             try:
-                expected=materialize_evidence({'key_takeaways':[copy.deepcopy(claim)]},{'data':{'facts':{'canonical_metrics':list(facts.values())}}})['key_takeaways'][0]['evidence']
+                expected = _render_claim_evidence(claim, facts)
                 if claim.get('evidence') != expected:
                     errors.append(f"{path}.evidence: must match deterministic evidence_refs rendering")
             except (ValueError,KeyError,TypeError) as exc:
                 errors.append(f"{path}.evidence_refs: {exc}")
-        _validate_claim_numbers(path, claim, facts, errors)
+        # Reference-backed evidence is checked verbatim above, including unit conversions.
+        prose = {**claim, "evidence": []} if claim.get("evidence_refs") else claim
+        _validate_claim_numbers(path, prose, facts, errors)
 
         if not _prediction_is_supported(claim, facts):
             text = _claim_text(claim)
@@ -789,7 +766,112 @@ def _risk_is_funding_pressure(risk: Mapping[str, Any]) -> bool:
     text = " ".join(str(risk.get(key, "")) for key in ("title", "text"))
     return (
         any(token in identifier for identifier in identifiers for token in ("SOFR", "EFFR", "OBFR", "TGCR", "BGCR", "REPO"))
-        or any(token in text for token in ("资金价格", "融资价格", "回购融资", "银行间融资"))
+        or any(token in text for token in ("资金价格", "融资价格", "回购融资", "银行间融资", "回购市场", "隔夜融资", "资金市场", "融资失灵"))
+    )
+
+
+_P0_BENCHMARKS = {
+    "metric:EFFR": ("metric:POLICY_UPPER_NYFED", "metric:DFEDTARU"),
+    **{f"metric:{rate}": ("metric:SRP_RATE",) for rate in ("SOFR", "BGCR", "TGCR")},
+}
+_P0_CONFIRMATIONS = {
+    "SRP_ACCEPTED": "facility", "REPO_FAILS_UST": "settlement",
+    "BAMLH0A0HYM2": "credit", "BAMLC0A0CM": "credit", "VIXCLS": "volatility",
+    "NFCI": "conditions", "SP500": "equities", "NASDAQCOM": "equities",
+    "CBBTCUSD": "crypto", "UST_AUCTION_BTC": "auction", "TBILL_AUCTION_BTC": "auction",
+}
+
+
+def _p0_roots(fid, facts, ancestors=frozenset()):
+    if fid in ancestors or fid not in facts:
+        return set()
+    deps = facts[fid].get("base_fact_ids") or []
+    if not deps:
+        return {fid}
+    leaves = [_p0_roots(dep, facts, ancestors | {fid}) for dep in deps]
+    return set.union(*leaves) if all(leaves) else set()
+
+
+def _p0_number(value):
+    return isinstance(value, (int, float)) and not isinstance(value, bool) and math.isfinite(value)
+
+
+def _p0_observation(fid, facts, cited, cutoff):
+    """Return the market mechanism, interval, provenance and verified breach, if supported."""
+    fact = facts[fid]
+    end = fact.get("as_of")
+    start = fact.get("window_start") or fact.get("previous_as_of")
+    n = fact.get("window_observations", 1)
+    if not isinstance(end, str) or not _parse_date(end) or (cutoff and end > cutoff):
+        return None
+    if cutoff:
+        # The investment facts use these same observation-age rules for daily,
+        # weekly and monthly series, including old captures with an "ok" flag.
+        from scripts.investment_facts import _freshness
+        if _freshness({**fact, "status": fact.get("status") or "ok"}, cutoff)[0] != "ok":
+            return None
+    if fact.get("window_end", end) != end or fact.get("previous_as_of", start) != start:
+        return None
+    if start and (not isinstance(start, str) or not _parse_date(start) or start >= end):
+        return None
+    roots = _p0_roots(fid, facts)
+    value = fact.get("value")
+    if not roots or not _p0_number(value):
+        return None
+    if fid in _P0_BENCHMARKS:
+        for benchmark in _P0_BENCHMARKS[fid]:
+            if benchmark not in cited:
+                continue
+            anchor = facts[benchmark]
+            if (anchor.get("as_of") == end and anchor.get("unit") == fact.get("unit") == "%"
+                    and _p0_number(anchor.get("value")) and value > anchor["value"]):
+                return ("funding", start, end, n, roots | {benchmark}, True)
+        return None
+    if len(roots) != 1:
+        return None
+    leaf = next(iter(roots))
+    parts = leaf.split(":")
+    if len(parts) < 2 or parts[0] not in {"metric", "market"}:
+        return None
+    mechanism = _P0_CONFIRMATIONS.get(parts[1])
+    if not mechanism:
+        return None
+    # Only these derived IDs repeat levels in their original units. Other
+    # transformations, notably momentum scores, cannot be interpreted as levels.
+    if fid.startswith("derived:") and fid not in {"derived:VIX_RISK", "derived:HY_CHANGE", "derived:IG_CHANGE", "derived:NFCI_LEVEL", "derived:AUCTION_BTC"}:
+        return None
+    previous = fact.get("previous")
+    if mechanism == "auction" and fid.startswith("metric:") and fact.get("unit") in {"x", "ratio"} and 0 <= value < 1:
+        return (mechanism, None, end, 1, roots, True)
+    if not start or not _p0_number(previous):
+        return None
+    change = value - previous
+    if mechanism in {"equities", "crypto", "auction"}:
+        adverse = change < 0
+    else:
+        adverse = change > 0
+    if not adverse or (mechanism in {"facility", "settlement"} and value <= 0):
+        return None
+    market_breach = False
+    if leaf == fid == "market:SP500:level" and previous > 0:
+        # NYSE Rule 7.12 uses the prior close. A capture with missing weekdays
+        # cannot prove a one-session move. A closing move cannot prove a halt.
+        prior, current = _parse_date(start), _parse_date(end)
+        days = (current - prior).days
+        adjacent = current.weekday() < 5 and days == (3 if current.weekday() == 0 else 1)
+        market_breach = adjacent and value <= previous * 0.93
+    return (mechanism, start, end, n, roots, market_breach)
+
+
+def _p0_confirms(left, right, funding):
+    mechanism, start, end, intervals, roots, breach = left
+    other, other_start, other_end, other_intervals, other_roots, other_breach = right
+    return (
+        mechanism != other and roots.isdisjoint(other_roots)
+        and end == other_end and intervals == other_intervals
+        and (not start or not other_start or start == other_start)
+        and (breach or other_breach)
+        and (not funding or "funding" in {mechanism, other})
     )
 
 
@@ -797,6 +879,7 @@ def _validate_p0(
     candidate: Mapping[str, Any],
     facts: Mapping[str, Mapping[str, Any]],
     errors: List[str],
+    cutoff: Optional[str] = None,
 ) -> None:
     risk_flags = candidate.get("risk_flags")
     if not isinstance(risk_flags, list):
@@ -816,8 +899,8 @@ def _validate_p0(
         if priority != "P0":
             continue
         path = f"$.risk_flags[{index}]"
-        if risk.get("claim_type") == "scenario":
-            errors.append(f"{path}: P0 cannot be a future scenario")
+        if risk.get("claim_type") != "observed":
+            errors.append(f"{path}: P0 只能陈述已经发生且有观测支持的压力")
         if risk.get("type") != "market":
             errors.append(f"{path}.type: P0 只能是已实现的 market 压力，不能是 data 风险")
         if risk.get("severity") != "high":
@@ -825,30 +908,19 @@ def _validate_p0(
         fact_ids = risk.get("fact_ids")
         if not isinstance(fact_ids, list):
             continue
-        usable: List[Tuple[str, Mapping[str, Any]]] = []
-        for fact_id in fact_ids:
-            fact = facts.get(fact_id) if isinstance(fact_id, str) else None
-            if fact is not None:
-                if fact_id in unfresh:
-                    errors.append(f"{path}.fact_ids: P0 不得引用不新鲜或缺失事实 {fact_id!r}")
-                else:
-                    usable.append((fact_id, fact))
-        def roots(fid, seen=None):
-            seen = set() if seen is None else seen
-            if fid in seen: return set()
-            seen.add(fid)
-            deps = facts.get(fid, {}).get("base_fact_ids", [])
-            return set().union(*(roots(d, set(seen)) for d in deps)) if deps else {fid}
-        root_sets = [roots(fid) for fid, _ in usable]
-        independent = any(a and b and a.isdisjoint(b) for i,a in enumerate(root_sets) for b in root_sets[i+1:])
-        if not independent:
-            errors.append(f"{path}.fact_ids: P0 至少需要两个不同的新鲜事实交叉确认")
-        if (
-            _risk_is_funding_pressure(risk)
-            and usable
-            and not any(_is_core_funding_price(fact_id, fact) for fact_id, fact in usable)
-        ):
-            errors.append(f"{path}.fact_ids: 融资压力 P0 必须包含至少一个核心资金价格异常事实")
+        refs = risk.get("evidence_refs")
+        cited = {ref.get("fact_id") for ref in (refs if isinstance(refs, list) else [])
+                 if isinstance(ref, dict) and isinstance(ref.get("fact_id"), str)}
+        cited.intersection_update(fid for fid in fact_ids if isinstance(fid, str) and fid in facts)
+        stale = unfresh.intersection(fid for fid in fact_ids if isinstance(fid, str))
+        if stale:
+            errors.append(f"{path}.fact_ids: P0 引用了过期或抓取失败的数据 {sorted(stale)}")
+        cited.difference_update(stale)
+        observed = [_p0_observation(fid, facts, cited, cutoff) for fid in sorted(cited)]
+        supported = [row for row in observed if row is not None]
+        funding = _risk_is_funding_pressure(risk)
+        if not any(_p0_confirms(a, b, funding) for i, a in enumerate(supported) for b in supported[i+1:]):
+            errors.append(f"{path}.evidence_refs: P0 需要有依据的异常及同一观测窗口的独立压力佐证；融资异常须列同日核心利率与对应上限或常备回购报价")
 
 
 def _has_jpy_input(model_input: Mapping[str, Any]) -> bool:
@@ -912,7 +984,10 @@ def validate_analysis(candidate: Any, model_input: Any) -> List[str]:
     _validate_assessment_fact_ids(candidate, facts, errors)
     _validate_claims(candidate, facts, errors)
     _validate_narrative_numeric_format(candidate, errors)
-    _validate_p0(candidate, facts, errors)
+    generated_day = str(model_input.get("generated_at_bjt") or "")[:10]
+    report_day = (candidate.get("meta") or {}).get("data_as_of") if isinstance(candidate.get("meta"), dict) else None
+    cutoffs = [day for day in (generated_day, report_day) if isinstance(day, str) and _parse_date(day)]
+    _validate_p0(candidate, facts, errors, min(cutoffs) if cutoffs else None)
     _validate_required_modules(candidate, model_input, errors)
     _validate_uncited_predictions(candidate, errors)
     errors.extend(validate_investment(candidate, model_input, facts, _unfresh_fact_ids(facts)))

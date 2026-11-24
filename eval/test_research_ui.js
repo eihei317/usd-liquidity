@@ -24,7 +24,7 @@ class TestNode {
 function allNodes(node) { return [node, ...node.children.flatMap(allNodes)]; }
 
 function makeContext() {
-  const roots = Object.fromEntries(["investment-assessment", "investment-facts", "research-review"].map(id => [id, new TestNode()]));
+  const roots = Object.fromEntries(["investment-assessment", "investment-facts", "research-review", "daily-brief", "key-signals"].map(id => [id, new TestNode()]));
   const document = {
     body: new TestNode("body"),
     createElement: tag => new TestNode(tag),
@@ -49,6 +49,14 @@ async function main() {
   assert.doesNotMatch(roots["investment-assessment"].textContent, /中性/);
 
   const malicious = "<img src=x onerror=alert(1)>";
+  const archived = {stance: {one_liner: "银行拆借稳定"}, investment_assessment: {next_checks: ["明天看融资利差"]}};
+  context.renderDailyBrief(archived);
+  assert.match(roots["daily-brief"].textContent, /银行拆借稳定.*明天看融资利差/);
+  context.renderKeySignals({
+    key_takeaways: [{title: "今日融资", text: "已观察到溢价", related_indicators: ["SOFR"]}],
+    risk_flags: [{title: "下期风险", text: "可能传导", condition: "利差继续扩大", priority: "P1", related_indicators: ["SOFR"]}]
+  });
+  assert.match(roots["key-signals"].textContent, /下期风险.*触发条件：利差继续扩大.*今日融资/);
   const facts = {
     trend_facts: [
       {fact_id: "trend:SOFR:20obs", name: "SOFR", value: 3.94, change: -0.4, unit: "%", change_unit: "percentage points", as_of: "2026-10-30", previous_as_of: "2026-09-30", window_observations: 20, frequency: "daily", status: "ok"},
@@ -112,12 +120,23 @@ async function main() {
   assert.match(roots["investment-facts"].textContent, /不是完整未来发行预测/);
 
   context.location.protocol = "http:";
-  const bundle = {dashboard: {meta: {}}, analysis: {}, investment_facts: facts, research_review: {status: "collecting", records: []}};
+  const digest = {stance: "中性", headline: malicious, comparison: "比上次平稳", evidence: [{text: "利差从1基点升至3基点"}], assets: [{name: "BTC", bias: "压制", summary: "美元融资成本上升"}], watch: "看下次回购利率", alerts: ["拍卖延期"]};
+  const bundle = {dashboard: {meta: {}}, analysis: {}, investment_facts: facts, research_review: {status: "collecting", records: []}, daily_brief: digest};
   context.fetch = async () => ({ok: true, json: async () => bundle});
   const loaded = await context.loadJson("/output/latest/dashboard_data.json");
   assert.equal(loaded, bundle.dashboard);
   assert.equal(context.window.INVESTMENT_FACTS, facts);
   assert.equal(context.window.RESEARCH_REVIEW, bundle.research_review);
+  context.renderDailyBrief(archived);
+  assert.match(roots["daily-brief"].textContent, /拍卖延期.*比上次平稳.*利差从1基点升至3基点.*BTC.*美元融资成本上升.*看下次回购利率/);
+  assert(!allNodes(roots["daily-brief"]).some(node => node.tagName === "img"));
+  assert(roots["daily-brief"].textContent.includes(malicious));
+  context.window.__publishedBundle = undefined;
+  context.window.DASHBOARD_DATA = {source: "embedded"};
+  context.fetch = async () => ({ok: false, status: 503});
+  await assert.rejects(context.loadJson("/output/latest/dashboard_data.json"), /503/);
+  context.window.STANDALONE_REPORT = true;
+  assert.equal(await context.loadJson("/output/latest/dashboard_data.json"), context.window.DASHBOARD_DATA);
   console.log("PASS: research UI legacy compatibility, source-text safety, catalog/comparison references, rate units, calendar coverage, cached/stale status, review context and bundle loading");
 }
 

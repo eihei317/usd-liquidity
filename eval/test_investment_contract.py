@@ -40,6 +40,20 @@ class ResearchContract(unittest.TestCase):
     def test_valid_qualitative_research(self):
         self.assertEqual([], self.validate())
 
+    def test_change_summary_uses_usable_comparison_refs_in_new_reports(self):
+        self.package["prompt_version"] = "3.1"
+        assessment = self.value["investment_assessment"]
+        assessment["change_fact_ids"] = []
+        self.assertEqual([], self.validate())
+        self.facts["comparison:SOFR"] = {"status": "ok", "previous": 4, "value": 4.1, "change": .1}
+        self.assertTrue(any("change_fact_ids" in e for e in self.validate()))
+        assessment["change_fact_ids"] = ["metric:SOFR"]
+        self.assertTrue(any("change_fact_ids" in e for e in self.validate()))
+        assessment["change_fact_ids"] = ["comparison:SOFR"]
+        self.assertEqual([], self.validate())
+        self.facts["comparison:SOFR"]["status"] = "stale"
+        self.assertTrue(any("change_fact_ids" in e for e in self.validate()))
+
     def test_required_for_new_method_only(self):
         self.assertTrue(validate_investment({}, self.package, self.facts))
         self.assertEqual([], validate_investment({}, {}, self.facts))

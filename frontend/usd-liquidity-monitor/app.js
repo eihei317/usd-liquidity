@@ -14,34 +14,23 @@ function el(tag, className, text) {
 }
 
 async function loadJson(url) {
-  // Prefer current JSON over the embedded offline snapshot.
-  if (location.protocol === "file:" && url === "/output/latest/dashboard_data.json" && window.DASHBOARD_DATA) {
-    return window.DASHBOARD_DATA;
+  if (location.protocol === "file:" || window.STANDALONE_REPORT) {
+    const snapshot = url === DATA_URLS.dashboard ? window.DASHBOARD_DATA : window.ANALYSIS_DATA;
+    if (!snapshot) throw new Error("离线文件缺少发布数据");
+    return snapshot;
   }
-  if (location.protocol === "file:" && url === "/output/latest/analysis.json" && window.ANALYSIS_DATA) {
-    // 占位符时继续 fetch 真正的 analysis.json，避免前端锁死在"待模型分析"
-    if (!(window.ANALYSIS_DATA.meta && window.ANALYSIS_DATA.meta.status === "pending_model_analysis")) {
-      return window.ANALYSIS_DATA;
-    }
+  if (!window.__publishedBundle) {
+    window.__publishedBundle = fetch("/output/current_bundle.json", {cache: "no-store"}).then(response => {
+      if (!response.ok) throw new Error("无法读取本地已发布的报告（HTTP " + response.status + "）");
+      return response.json();
+    });
   }
-  let response;
-  try {
-    if (!window.__publishedBundle) {
-      window.__publishedBundle = fetch('/output/current_bundle.json', {cache:'no-store'}).then(r => {if (!r.ok) throw new Error('尚无完整发布结果');return r.json();});
-    }
-    const bundle=await window.__publishedBundle;
-    window.__attemptStatus=bundle.latest_attempt;
-    window.INVESTMENT_FACTS = bundle.investment_facts || {};
-    window.RESEARCH_REVIEW = bundle.research_review || {};
-    return url===DATA_URLS.dashboard ? bundle.dashboard : bundle.analysis;
-    response = await fetch(url, { cache: "no-store" });
-  } catch (error) {
-    if (url === DATA_URLS.dashboard && window.DASHBOARD_DATA) return window.DASHBOARD_DATA;
-    if (url === DATA_URLS.analysis && window.ANALYSIS_DATA) return window.ANALYSIS_DATA;
-    throw error;
-  }
-  if (!response.ok) throw new Error(`${url} ${response.status}`);
-  return response.json();
+  const bundle = await window.__publishedBundle;
+  window.__attemptStatus = bundle.latest_attempt;
+  window.INVESTMENT_FACTS = bundle.investment_facts || {};
+  window.RESEARCH_REVIEW = bundle.research_review || {};
+  window.DAILY_BRIEF = bundle.daily_brief;
+  return url === DATA_URLS.dashboard ? bundle.dashboard : bundle.analysis;
 }
 
 function renderMeta(dashboard) {
@@ -49,6 +38,48 @@ function renderMeta(dashboard) {
   if(window.__attemptStatus?.status==="failed") document.getElementById("generated-at").textContent += "；最近更新失败，当前展示上次成功结果";
   document.getElementById("data-as-of").textContent = `数据日期：${dashboard.meta?.data_as_of || "--"}`;
   document.getElementById("page-subtitle").textContent = "观察未来几周到几个月，美股与 BTC 面临的流动性环境。";
+}
+
+function renderDailyBrief(analysis) {
+  const root = document.getElementById("daily-brief");
+  const research = analysis.investment_assessment || {};
+  const brief = window.DAILY_BRIEF || {
+    stance: analysis.stance?.label, confidence: analysis.stance?.confidence,
+    headline: analysis.stance?.one_liner || analysis.stance?.summary,
+    comparison: research.change_summary, watch: research.next_checks?.[0],
+    assets: [["equities", "美股"], ["bitcoin", "BTC"]].filter(([key]) => research[key]).map(([key, name]) => ({
+      name, bias: research[key].liquidity_bias, horizon: research[key].horizon,
+      confidence: research[key].confidence, summary: research[key].summary
+    })),
+    alerts: (analysis.risk_flags || []).filter(risk => risk.priority === "P0")
+      .map(risk => risk.text + (risk.condition ? " 触发条件：" + risk.condition : ""))
+  };
+  root.replaceChildren();
+  const heading = el("div", "brief-heading");
+  if (brief.stance) heading.appendChild(el("strong", "", brief.stance));
+  if (brief.confidence) heading.appendChild(el("span", "confidence", "置信度" + brief.confidence));
+  root.appendChild(heading);
+  root.appendChild(el("p", "brief-headline", brief.headline || "本期缺少总判断。"));
+  for (const alert of brief.alerts || []) root.appendChild(el("p", "brief-alert", "优先关注 · " + alert));
+  if (brief.comparison) {
+    root.append(el("h3", "", "比上次有什么变化"), el("p", "", brief.comparison));
+  }
+  if (brief.evidence?.length) {
+    const list = el("ul", "brief-evidence");
+    brief.evidence.forEach(item => list.appendChild(el("li", "", item.text)));
+    root.appendChild(list);
+  }
+  if (brief.assets?.length) {
+    const grid = el("div", "brief-assets");
+    brief.assets.forEach(asset => {
+      const block = el("section", "");
+      const context = [asset.bias, asset.horizon, asset.confidence && "置信度" + asset.confidence].filter(Boolean);
+      block.append(el("h3", "", asset.name), el("p", "brief-asset-meta", context.join(" · ")), el("p", "", asset.summary));
+      grid.appendChild(block);
+    });
+    root.appendChild(grid);
+  }
+  if (brief.watch) root.append(el("h3", "", "接下来观察"), el("p", "", brief.watch));
 }
 
 function investmentFactMap(facts = window.INVESTMENT_FACTS || {}) {
@@ -399,9 +430,6 @@ function renderKeySignals(analysis) {
   container.innerHTML = "";
   
   const signals = [];
-  const riskIndicatorSet = new Set();
-  const titleSet = new Set();
-  const normalizeTitle = value => (value || "").replace(/[\s：:，,。.!！]/g, "").slice(0, 16);
   
   // 1. 风险信号优先，按 P0/P1/P2 排序。
   if (analysis.risk_flags) {
@@ -410,34 +438,22 @@ function renderKeySignals(analysis) {
       return (order[a.priority] ?? 9) - (order[b.priority] ?? 9);
     });
     sorted.forEach(item => {
-      (item.related_indicators || []).forEach(id => riskIndicatorSet.add(id));
-      titleSet.add(normalizeTitle(item.title));
       signals.push({
         priority: item.priority || "P2",
         title: item.title,
         text: item.text,
+        condition: item.condition,
         evidence: item.evidence || [],
         type: "risk"
       });
     });
   }
   
-  // 2. 关键变化只补充未被风险信号覆盖的内容，避免 RRP/SOFR 等重复出现。
-  if (analysis.key_takeaways) {
-    analysis.key_takeaways.forEach(item => {
-      const related = item.related_indicators || [];
-      const overlapsRisk = related.some(id => riskIndicatorSet.has(id));
-      const titleKey = normalizeTitle(item.title);
-      if (!overlapsRisk && !titleSet.has(titleKey)) {
-        signals.push({
-          priority: "INFO",
-          title: item.title,
-          text: item.text,
-          evidence: item.evidence || [],
-          type: "takeaway"
-        });
-        titleSet.add(titleKey);
-      }
+  // 同一利率可以同时支持一条已发生的观察和一条未来风险。
+  for (const item of analysis.key_takeaways || []) {
+    signals.push({
+      priority: "INFO", title: item.title, text: item.text,
+      evidence: item.evidence || [], type: "takeaway"
     });
   }
   
@@ -468,6 +484,7 @@ function renderKeySignals(analysis) {
     if (sig.text) {
       appendExpandableText(card, "signal-text", sig.text);
     }
+    if (sig.condition) card.appendChild(el("p", "signal-text", "触发条件：" + sig.condition));
 
     if (sig.evidence && sig.evidence.length) {
       const details = el("details", "signal-details");
@@ -971,22 +988,11 @@ function renderFullAnalysis(analysis) {
 
 async function init() {
   try {
-    // 优先动态加载最新 JSON
-    let dashboard;
-    try {
-      dashboard = await loadJson(DATA_URLS.dashboard);
-    } catch (e) {
-      dashboard = window.DASHBOARD_DATA || {};
-    }
-
-    let analysis;
-    try {
-      analysis = await loadJson(DATA_URLS.analysis);
-    } catch (e) {
-      analysis = window.ANALYSIS_DATA || {};
-    }
+    const dashboard = await loadJson(DATA_URLS.dashboard);
+    const analysis = await loadJson(DATA_URLS.analysis);
     
     renderMeta(dashboard);
+    renderDailyBrief(analysis);
     renderInvestmentAssessment(analysis);
     renderInvestmentFacts();
     renderResearchReview();

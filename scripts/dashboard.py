@@ -468,13 +468,15 @@ def build_trading_dashboard(metrics: List[Metric], signals: List[DerivedSignal])
     }
 
 
-def build_jpy_carry_overlay(metrics: List[Metric], signals: List[DerivedSignal]) -> Dict[str, Any]:
+def build_jpy_carry_overlay(metrics: List[Metric], signals: List[DerivedSignal], *, allow_fetch=True) -> Dict[str, Any]:
     history_payload = load_jpy_carry_history_payload()
     if history_payload and isinstance(history_payload.get("jpy_carry"), dict):
         jpy_carry = history_payload["jpy_carry"]
         if history_payload.get("charts") and isinstance(jpy_carry, dict):
             jpy_carry.setdefault("chart_ids", [chart.get("id") for chart in history_payload.get("charts", []) if chart.get("id")])
         return jpy_carry
+    if not allow_fetch:
+        return {"status": "missing", "cards": [], "history": {}, "notes": ["本次快照缺少日元观察数据。"]}
 
     mm = metric_map(metrics)
     rows_usdjpy: List[Tuple[str, float]] = []
@@ -698,7 +700,7 @@ def augment_charts_payload(charts_payload: Dict[str, Any], upcoming_auctions: Op
     return charts_payload
 
 
-def build_dashboard_data(trigger: str, generated: str, context: Dict[str, Any], metrics: List[Metric], signals: List[DerivedSignal], charts_payload: Dict[str, Any], chart_paths: List[str], upcoming_auctions: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+def build_dashboard_data(trigger: str, generated: str, context: Dict[str, Any], metrics: List[Metric], signals: List[DerivedSignal], charts_payload: Dict[str, Any], chart_paths: List[str], upcoming_auctions: Optional[Dict[str, Any]] = None, *, allow_jpy_fetch=True) -> Dict[str, Any]:
     data_as_of = latest_nonfuture_date([m.as_of for m in metrics])
     charts_payload = augment_charts_payload(charts_payload, upcoming_auctions)
     return {
@@ -718,7 +720,7 @@ def build_dashboard_data(trigger: str, generated: str, context: Dict[str, Any], 
         },
         "trading_dashboard": build_trading_dashboard(metrics, signals),
         "upcoming_auctions": upcoming_auctions or {},
-        "jpy_carry": build_jpy_carry_overlay(metrics, signals),
+        "jpy_carry": build_jpy_carry_overlay(metrics, signals, allow_fetch=allow_jpy_fetch),
         "indicator_groups": group_indicators(metrics),
         "derived_signals": [
             {

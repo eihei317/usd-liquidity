@@ -11,6 +11,7 @@ import webbrowser
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 
 ROOT = Path(__file__).resolve().parent
+sys.path.insert(0, str(ROOT))
 HOST, PORT = "127.0.0.1", 8790
 URL = f"http://{HOST}:{PORT}"
 ALLOWED = {
@@ -33,6 +34,9 @@ class Handler(SimpleHTTPRequestHandler):
             selected=json.loads(pointer.read_text(encoding="utf-8"))
             bundle=ROOT/"output"/selected["directory"]/"bundle.json"
             payload=json.loads(bundle.read_text(encoding="utf-8"))
+            if "daily_brief" not in payload:
+                from scripts.daily_brief import build_daily_brief
+                payload["daily_brief"] = build_daily_brief(payload["analysis"], payload.get("investment_facts", {}))
             state=ROOT/"output/latest_attempt.json"
             payload["latest_attempt"]=json.loads(state.read_text(encoding="utf-8")) if state.exists() else None
             body=json.dumps(payload,ensure_ascii=False).encode("utf-8")

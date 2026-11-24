@@ -71,7 +71,7 @@ def _format_metric_mention(metric: Metric) -> str:
 
 _SIGNAL_BASE_METRICS = {
     "SOFR_ANCHOR": "SOFR",
-    "SOFR_VOLUME_IMPACT": "SOFR_VOLUME",
+    "SOFR_VOLUME_IMPACT": "SOFR",
     "BGCR_TGCR": "BGCR",
     "CP_PROXY": "DCPN3M",
     "TGA_FLOW": "TGA",
@@ -122,6 +122,8 @@ _SIGNAL_BASE_FACTS = {
     "SOFR_VOLUME_IMPACT": ["SOFR", "IORB", "SOFR_VOLUME"],
     "BGCR_TGCR": ["BGCR", "TGCR"],
     "CP_PROXY": ["DCPN3M", "DFEDTARU"],
+    "TBILL_AUCTION_STRESS": ["TBILL_AUCTION_SIZE", "TBILL_AUCTION_BTC"],
+    "UST_BELLY_MOMENTUM": ["DGS1", "DGS3", "DGS5", "DGS7"],
     "UST_5Y3Y_SLOPE_BP": ["DGS5", "DGS3"],
     "UST_7Y5Y_SLOPE_BP": ["DGS7", "DGS5"],
     "UST_5Y_BREAKEVEN": ["DGS5", "DFII5"],
@@ -283,6 +285,9 @@ def _build_derived_facts(signals: List[DerivedSignal], metrics: List[Metric]) ->
         selected = max(candidates, key=lambda item: (int(item.value is not None), parse_date_guess(item.as_of) or "", int(item.previous is not None)))
         base_metric_id = _SIGNAL_BASE_METRICS.get(signal_id)
         base_metric_ids = _SIGNAL_BASE_FACTS.get(signal_id, [base_metric_id] if base_metric_id else [])
+        if signal_id in {"SOFR_ANCHOR", "SOFR_VOLUME_IMPACT"} and not (mm.get("IORB") and mm["IORB"].value is not None):
+            anchor = mm.get("POLICY_UPPER_NYFED") or mm.get("DFEDTARU")
+            base_metric_ids = [anchor.id if key == "IORB" and anchor else key for key in base_metric_ids]
         base_metric = mm.get(base_metric_id or "")
         facts.append({
             "fact_id": f"derived:{signal_id}",
@@ -340,6 +345,9 @@ def _jpy_change(rows: List[Tuple[str, float]], days: int) -> Tuple[Optional[floa
 
 
 def _compact_jpy_carry_payload() -> Tuple[Optional[Dict[str, Any]], List[Dict[str, Any]]]:
+    from .evidence import JPY_UNITS
+    from .jpy_carry import _decompose_cftc_net
+
     payload = load_jpy_carry_history_payload()
     quality_flags: List[Dict[str, Any]] = []
     if not payload or not isinstance(payload.get("jpy_carry"), dict):
@@ -377,7 +385,11 @@ def _compact_jpy_carry_payload() -> Tuple[Optional[Dict[str, Any]], List[Dict[st
             "id": indicator_id,
             "name": card.get("label") or indicator_id,
             "value": latest_value,
+            "unit": JPY_UNITS.get(indicator_id, ""),
             "as_of": rows[-1][0],
+            "previous": rows[-2][1] if len(rows) > 1 else None,
+            "previous_as_of": compare_1d,
+            "frequency": "weekly" if indicator_id.startswith("CFTC_") else "daily",
             "change_1d": change_1d,
             "change_1d_pct": change_1d_pct,
             "comparison_as_of_1d": compare_1d,
@@ -394,18 +406,30 @@ def _compact_jpy_carry_payload() -> Tuple[Optional[Dict[str, Any]], List[Dict[st
             "interpretation_note": None,
         })
 
-    decomposition = jpy.get("cftc_decomposition") if isinstance(jpy.get("cftc_decomposition"), dict) else {}
+    # Reconstruct from dated legs, including when replaying a pre-fix capture.
+    # An old generated explanation cannot verify positions or OTC currency flows.
+    by_id = {row["id"]: row for row in indicator_facts}
+    legs = [by_id.get("CFTC_JPY_" + key, {}) for key in ("GROSS_SHORT", "GROSS_LONG", "SHORT_SHARE")]
+    dates = {(leg.get("previous_as_of"), leg.get("as_of")) for leg in legs}
+    prior_day = day = short_change = long_change = share_change = net_change = net = None
+    if len(dates) == 1 and all(leg.get("change_1d") is not None for leg in legs):
+        prior_day, day = dates.pop()
+        short_change, long_change, share_change = (leg["change_1d"] for leg in legs)
+        net_change = long_change - short_change
+        net = legs[1]["value"] - legs[0]["value"]
+    decomposition = _decompose_cftc_net(short_change, long_change, share_change, net_change, net)
     compact = {
         "meta": jpy.get("meta", {}),
         "indicators": indicator_facts,
         "cftc_decomposition": {
             "fact_id": "jpy:CFTC_DECOMPOSITION",
+            "as_of": day, "previous_as_of": prior_day, "net_contracts": net,
             "driver": decomposition.get("driver", "unknown"),
             "text": decomposition.get("text", ""),
-            "gross_short_change": decomposition.get("gross_short_change"),
-            "gross_long_change": decomposition.get("gross_long_change"),
-            "short_share_change": decomposition.get("short_share_change"),
-            "net_change": decomposition.get("net_change"),
+            "gross_short_change": short_change,
+            "gross_long_change": long_change,
+            "short_share_change": share_change,
+            "net_change": net_change,
             "carry_usd_support": decomposition.get("carry_usd_support", False),
         },
         "sources": jpy.get("sources", []),
@@ -444,6 +468,7 @@ def _build_event_facts(upcoming_auctions: Optional[Dict[str, Any]]) -> Tuple[Dic
         compact_auctions.append({
             "fact_id": fact_id,
             "event_type": "treasury_auction_announcement",
+            "announcement_date": item.get("announcementDate") or None,
             "auction_date": auction_date,
             "issue_date": issue_date,
             "security_type": security_type,
@@ -599,31 +624,55 @@ def _format_upcoming_auctions_table_for_prompt(upcoming_auctions: Optional[Dict[
     return "\n".join(rows)
 
 
+def analysis_output_contract() -> Dict[str, Any]:
+    return {
+        "format": "strict_json_only",
+        "language": "中文",
+        "style": "主判断用一两句中文写清谁借钱更贵或更便宜，以及哪条证据限制判断。每个字段回答一个问题。",
+        "forbidden_outputs": ["html", "markdown", "code_fence", "free_text_before_or_after_json"],
+        "required_top_level_fields": ["meta", "stance", "axis_assessment", "horizon_assessment", "key_takeaways", "risk_flags", "narrative_blocks"],
+        "fact_scope_rule": "只用 data.facts 内的原始、派生、事件、日元、质量及已提供的投资研究事实。只引用程序给出的值和窗口，不用旧报告、规则分数或图形推算。",
+        "canonical_metrics_rule": "每个metric ID只能引用唯一canonical row；source_selection记录选中来源、优先级、原因和备选来源。",
+        "four_axis_rule": "先独立评估四轴：funding_price资金价格、liquidity_buffer数量与缓冲、treasury_pricing美债供给与资产定价、cross_market_transmission跨市场传导与杠杆；再综合形成stance，不得用单一总分替代。",
+        "horizon_rule": "另按immediate即时1—3个交易日、tactical战术1—4周、structural结构1—3个月输出horizon_assessment。frequency是发布频率，horizon是机制作用期限，transmission_lag是下游传导滞后，三者不得混用。单日变化不得机械外推为战术趋势；同一底层指标只有机制已拆分时才可跨期限使用，例如RRP_FLOW用于即时、RRP_BUFFER用于结构。每个期限必须引用存在的fact_ids。",
+        "p0_confirmation_rule": "P0 market仅用于已实现压力，至少两个独立且新鲜的fact_id交叉确认；融资压力P0必须含一个核心资金价格事实和一个同层或下游确认。低RRP、未来gross拍卖或单一情景不得单独列P0。",
+        "claim_rule": "观察栏只写 observed。风险栏可用 observed、inference、scenario，条件情景必须有 condition。两栏各条给全局唯一 dedupe_key、合法 fact_ids、evidence_refs。投资栏另按资产与情景契约。",
+        "marginal_change_rule": "边际变化不能只写数值，必须说明上升/下降对融资压力、流动性或资产定价的含义。",
+        "freshness_evidence_rule": "evidence_refs 指向本条 fact_ids 中的事实。程序呈现数值、观测日、前值或变化、单位等可用信息。P0 只接受新鲜证据。",
+        "scale_rule": "利率是价格信号，必须结合SOFR_VOLUME、TBILL_AUCTION_SIZE、TBILL_AUCTION_BTC、SOFR_VOLUME_IMPACT、TBILL_AUCTION_STRESS判断价格×规模影响。",
+        "required_scale_mentions_rule": "若涉及SOFR/回购融资，fact_ids必须包含metric:SOFR_VOLUME或derived:SOFR_VOLUME_IMPACT；若涉及已完成T-bill拍卖吸收，必须同时引用derived:TBILL_AUCTION_STRESS、metric:TBILL_AUCTION_SIZE和metric:TBILL_AUCTION_BTC。",
+        "gross_auction_rule": "拍卖公告总量引用已算好的 event:gross_total 系列；未来结算窗口引用 calendar 系列。未知金额、到期量和净现金影响保持未知。只有结算净额、TGA、准备金或资金价格确认后，才可认定已发生资金冲击。",
+        "dynamic_sections_rule": "key_takeaways和risk_flags各0-5条，动态生成；两数组dedupe_key全局唯一，不得重复同一风险。",
+        "risk_type_rule": "risk_flags.type必须区分market与data；数据缺口不能写成真实市场压力。",
+        "indicator_mention_rule": "正文解释观察的方向、影响和限制。完整 ISO 日期按需使用，市场数值由程序写入证据。",
+        "number_format_rule": "金额、利率、点差等市场读数统一由结构化事实渲染。模型只写定性解释。",
+        "rrp_rule": "必须用RRP_FLOW说明边际流量方向，用RRP_BUFFER说明存量缓冲垫厚度；RRP下降短期可释放流动性，但极低RRP_BUFFER仅代表结构脆弱性，单独最高为P1。",
+        "treasury_yields_rule": "国债收益率名义主框架固定为1Y/3Y/5Y/7Y：1Y近端政策路径、3Y中段再定价、5Y/7Y腹部传导。四个期限都必须拆成水平+边际变化，并直接引用canonical/derived facts；腹部斜率使用脚本预计算事实。10Y仅作曲线/长期名义折现率背景，不替代1Y/3Y/5Y/7Y。",
+        "expectations_decomposition_rule": "1Y/3Y保留名义政策路径口径；官方同口径日频实际收益率从5Y开始。5Y/7Y必须结合DFII5/DFII7与脚本预计算UST_5Y_BREAKEVEN/UST_7Y_BREAKEVEN拆分真实贴现率和通胀补偿。通胀补偿包含预期通胀、风险溢价与TIPS流动性影响，不得称纯通胀预期。FRBSF_EXPECTED_SHORT_2Y/10Y和FRBSF_TERM_PREMIUM_2Y/10Y属于期限结构模型分解，不是SOFR期货直接定价、调查共识或唯一因果结论。归因使用与某驱动一致/候选驱动/置信度表述，不得依赖新闻标题断言唯一原因。",
+        "jpy_carry_rule": "JPY Carry按融资成本、美日利差、USD/JPY趋势与波动、CFTC多空拆解、风险资产传导分析。只有cftc_decomposition.driver为short_building或two_sided_building_short_dominant时，才能称该类期货空头主导增仓；美元资金流向仍需独立证据；long_unwinding、two_sided_building_long_dominant、two_sided_reduction、mixed或unknown均不得声称carry在加杠杆。水平拥挤与当下流量必须分开。",
+        "json_schema_summary": {
+            "stance": ["label", "confidence", "score_text", "one_liner"],
+            "axis_item": ["label", "summary", "fact_ids"],
+            "horizon_item": ["label", "window", "summary", "fact_ids"],
+            "key_takeaway_item": ["title", "text", "evidence", "related_indicators", "claim_type", "dedupe_key", "fact_ids"],
+            "risk_flag_item": ["priority", "severity", "type", "title", "text", "evidence", "related_indicators", "claim_type", "dedupe_key", "fact_ids"],
+            "narrative_blocks.treasury_yields": ["label", "one_liner", "analysis"],
+        },
+    }
+
+
 def build_model_input_package(trigger: str, generated: str, metrics: List[Metric], signals: List[DerivedSignal], upcoming_auctions: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
     canonical_metrics, metric_quality = _build_canonical_metrics(metrics)
     derived_facts, signal_quality = _build_derived_facts(signals, metrics)
     event_facts, event_quality = _build_event_facts(upcoming_auctions)
     jpy_carry, jpy_quality = _compact_jpy_carry_payload()
     quality_flags = metric_quality + signal_quality + event_quality + jpy_quality
-    prompt_text = (
-        "【本次模型事实包硬约束】\n"
-        "只能使用 data.facts 中的 canonical_metrics、derived_facts、event_facts、jpy_carry 与 quality_flags；"
-        "每个 metric ID 已去重，禁止回到来源列表自行二选一，禁止使用旧报告、fallback stance/score/highlights 或图表路径锚定结论。\n"
-        "必须按资金价格、流动性数量与缓冲、美债供给与资产定价、跨市场传导与杠杆四轴独立判断后再合成 stance。"
-        "必须另按即时（1—3个交易日）、战术（1—4周）、结构（1—3个月）输出 horizon_assessment；数据频率、信号期限和传导滞后不得混用，单日变化不得机械外推为战术趋势。"
-        "美债腹部必须保留1Y/3Y/5Y/7Y名义主框架，并用5Y/7Y官方实际收益率、通胀补偿及FRBSF预期短率/期限溢价分解解释驱动；通胀补偿不是纯通胀预期，FRBSF是模型分解而非期货或调查共识。"
-        "P0 market 必须是已实现压力，至少引用两个独立且新鲜的 fact_id 交叉确认；其中融资压力 P0 至少包含一个核心资金价格事实及一个同层或下游确认。"
-        "低 RRP 单独只能是 P1 结构脆弱性；未来拍卖 offeringAmount 是 gross announced issuance，不是净融资或确定性准备金消耗。\n"
-        "每条 key_takeaway/risk_flag 必须给出 claim_type、跨两数组唯一的 dedupe_key、以及只指向本次事实包的 fact_ids；key_takeaways 只允许 observed，inference/scenario 只进入 risk_flags。\n"
-        "所有叙述性文字（text、evidence、narrative_blocks，含 stance、axis summary 与 horizon summary）里任何带数字的地方都必须彻底统一：带市场单位的指标数值一律写成 数量（更新时间，环比变化）；日期用完整 ISO（如 2026-07-22，区间写 2026-07-22 至 2026-07-23），禁止 M/D 简写；滞后天数写成 已滞后 N 日，不得裸写 stale_days N；多指标并列时每个指标分别使用该格式，环比未知时写环比未知。\n\n"
-        + load_prompt()
-    )
     return {
         "task": "基于唯一、可追溯的 canonical facts，完成四轴美元流动性分析并输出固定前端可渲染的严格 analysis.json。",
         "trigger": trigger or "默认运行",
         "generated_at_bjt": generated,
         "intro_document": load_intro(),
-        "analysis_prompt": prompt_text,
+        "analysis_prompt": load_prompt(),
         "data": {
             "facts": {
                 "canonical_metrics": canonical_metrics,
@@ -649,40 +698,7 @@ def build_model_input_package(trigger: str, generated: str, metrics: List[Metric
             "core_indicator_impacts": CORE_INDICATOR_IMPACTS,
             "unavailable_sources": UNAVAILABLE_SOURCES,
         },
-        "output_contract": {
-            "format": "strict_json_only",
-            "language": "中文",
-            "style": "结论先行、事实可追溯、字段稳定、由前端固定模板渲染",
-            "forbidden_outputs": ["html", "markdown", "code_fence", "free_text_before_or_after_json"],
-            "required_top_level_fields": ["meta", "stance", "axis_assessment", "horizon_assessment", "key_takeaways", "risk_flags", "narrative_blocks"],
-            "fact_scope_rule": "只能使用data.facts中的canonical_metrics、derived_facts、event_facts、jpy_carry、quality_flags；禁止使用旧报告、fallback结论、图表路径或模型自行重算值。",
-            "canonical_metrics_rule": "每个metric ID只能引用唯一canonical row；source_selection记录选中来源、优先级、原因和备选来源。",
-            "four_axis_rule": "先独立评估四轴：funding_price资金价格、liquidity_buffer数量与缓冲、treasury_pricing美债供给与资产定价、cross_market_transmission跨市场传导与杠杆；再综合形成stance，不得用单一总分替代。",
-            "horizon_rule": "另按immediate即时1—3个交易日、tactical战术1—4周、structural结构1—3个月输出horizon_assessment。frequency是发布频率，horizon是机制作用期限，transmission_lag是下游传导滞后，三者不得混用。单日变化不得机械外推为战术趋势；同一底层指标只有机制已拆分时才可跨期限使用，例如RRP_FLOW用于即时、RRP_BUFFER用于结构。每个期限必须引用存在的fact_ids。",
-            "p0_confirmation_rule": "P0 market仅用于已实现压力，至少两个独立且新鲜的fact_id交叉确认；融资压力P0必须含一个核心资金价格事实和一个同层或下游确认。低RRP、未来gross拍卖或单一情景不得单独列P0。",
-            "claim_rule": "每条key_takeaway和risk_flag必须包含claim_type、跨两个数组唯一的dedupe_key、非空fact_ids；fact_ids必须存在于本次facts。key_takeaways只允许observed；inference和scenario只能进入risk_flags，scenario必须有非空condition。",
-            "marginal_change_rule": "边际变化不能只写数值，必须说明上升/下降对融资压力、流动性或资产定价的含义。",
-            "freshness_evidence_rule": "所有key_takeaways.evidence和risk_flags.evidence必须包含日期、频率/口径、最新值、上一期值或边际变化中的至少三项；P0引用的事实必须新鲜。凡提到带市场单位的指标数值，统一写成数量（更新时间，环比变化）；日期用完整ISO，滞后天数写成已滞后 N 日，禁止 M/D 简写与裸写 stale_days。",
-            "scale_rule": "利率是价格信号，必须结合SOFR_VOLUME、TBILL_AUCTION_SIZE、TBILL_AUCTION_BTC、SOFR_VOLUME_IMPACT、TBILL_AUCTION_STRESS判断价格×规模影响。",
-            "required_scale_mentions_rule": "若涉及SOFR/回购融资，fact_ids必须包含metric:SOFR_VOLUME或derived:SOFR_VOLUME_IMPACT；若涉及已完成T-bill拍卖吸收，必须同时引用derived:TBILL_AUCTION_STRESS、metric:TBILL_AUCTION_SIZE和metric:TBILL_AUCTION_BTC。",
-            "gross_auction_rule": "event_facts中的offeringAmount与gross totals仅为已公告毛发行，不等于净融资、净现金筹集或确定性准备金消耗；maturities/net_cash_impact缺失时必须保持未知。所有合计直接引用gross_totals_by_auction_date、gross_totals_by_issue_date、gross_totals_by_security_type或gross_total_announced，禁止手工求和。只有结算/到期净额、TGA变化、准备金或资金价格等事实确认后，才可把供给写成已实现流动性冲击；否则只能写scenario。",
-            "dynamic_sections_rule": "key_takeaways和risk_flags各0-5条，动态生成；两数组dedupe_key全局唯一，不得重复同一风险。",
-            "risk_type_rule": "risk_flags.type必须区分market与data；数据缺口不能写成真实市场压力。",
-            "indicator_mention_rule": "text、evidence、narrative_blocks、stance、axis summary、horizon summary 等所有叙述性文字里任何带数字的地方都必须彻底统一：带市场单位的指标数值必须写成 数量（更新时间，环比变化）；日期用完整ISO（如 2026-07-22，区间写至连接），禁止 M/D 简写；滞后天数写成 已滞后 N 日；多指标并列时每个指标分别使用该格式，环比未知时写环比未知。",
-            "number_format_rule": "所有输出文本中的数值统一保留两位小数；不得输出浮点长尾。凡提到带市场单位的指标数值，一律写成数量（更新时间，环比变化）；日期用完整ISO，滞后天数写成已滞后 N 日。",
-            "rrp_rule": "必须用RRP_FLOW说明边际流量方向，用RRP_BUFFER说明存量缓冲垫厚度；RRP下降短期可释放流动性，但极低RRP_BUFFER仅代表结构脆弱性，单独最高为P1。",
-            "treasury_yields_rule": "国债收益率名义主框架固定为1Y/3Y/5Y/7Y：1Y近端政策路径、3Y中段再定价、5Y/7Y腹部传导。四个期限都必须拆成水平+边际变化，并直接引用canonical/derived facts；腹部斜率使用脚本预计算事实。10Y仅作曲线/长期名义折现率背景，不替代1Y/3Y/5Y/7Y。",
-            "expectations_decomposition_rule": "1Y/3Y保留名义政策路径口径；官方同口径日频实际收益率从5Y开始。5Y/7Y必须结合DFII5/DFII7与脚本预计算UST_5Y_BREAKEVEN/UST_7Y_BREAKEVEN拆分真实贴现率和通胀补偿。通胀补偿包含预期通胀、风险溢价与TIPS流动性影响，不得称纯通胀预期。FRBSF_EXPECTED_SHORT_2Y/10Y和FRBSF_TERM_PREMIUM_2Y/10Y属于期限结构模型分解，不是SOFR期货直接定价、调查共识或唯一因果结论。归因使用与某驱动一致/候选驱动/置信度表述，不得依赖新闻标题断言唯一原因。",
-            "jpy_carry_rule": "JPY Carry按融资成本、美日利差、USD/JPY趋势与波动、CFTC多空拆解、风险资产传导分析。只有cftc_decomposition.driver为short_building或two_sided_building_short_dominant时，才能称空头主导加仓并边际支撑美元；long_unwinding、two_sided_building_long_dominant、two_sided_reduction、mixed或unknown均不得声称carry在加杠杆。水平拥挤与当下流量必须分开。",
-            "json_schema_summary": {
-                "stance": ["label", "confidence", "score_text", "one_liner"],
-                "axis_item": ["label", "summary", "fact_ids"],
-                "horizon_item": ["label", "window", "summary", "fact_ids"],
-                "key_takeaway_item": ["title", "text", "evidence", "related_indicators", "claim_type", "dedupe_key", "fact_ids"],
-                "risk_flag_item": ["priority", "severity", "type", "title", "text", "evidence", "related_indicators", "claim_type", "dedupe_key", "fact_ids"],
-                "narrative_blocks.treasury_yields": ["label", "one_liner", "analysis"],
-            },
-        },
+        "output_contract": analysis_output_contract(),
     }
 
 

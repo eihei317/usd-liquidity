@@ -32,6 +32,8 @@ INVESTMENT_SCHEMA = obj({
     "scenarios": obj({name: SCENARIO for name in ("base", "upside", "downside")}),
     "next_checks": {"type": "array", "minItems": 1, "maxItems": 5, "items": TEXT},
 })
+# Earlier published assessments predate explicit citations for their change summary.
+INVESTMENT_SCHEMA["properties"]["change_fact_ids"] = {"type": "array", "items": TEXT, "maxItems": 4, "uniqueItems": True}
 
 # Financing conditions and discount rates are drivers. Asset prices, VIX and
 # credit spreads are confirmation and never create independent upstream votes.
@@ -77,9 +79,26 @@ def validate_investment(candidate, package, facts, unfresh=None):
     unfresh = set() if unfresh is None else unfresh
     value = candidate.get("investment_assessment")
     if not isinstance(value, dict):
-        if package.get("research_version") == "3.0":
+        if package.get("research_version") in {"3.0", "3.1"} or "investment_assessment" in package.get("output_contract", {}).get("required_top_level_fields", []):
             errors.append("$.investment_assessment: 本版必须包含投资研究")
         return errors
+
+    if package.get("prompt_version") == "3.1":
+        headline = candidate.get("stance", {}).get("one_liner", "") if isinstance(candidate.get("stance"), dict) else ""
+        change = value.get("change_summary")
+        for path, text, limit in (("stance.one_liner", headline, 110), ("investment_assessment.change_summary", change, 160)):
+            if isinstance(text, str) and len(text.strip()) > limit:
+                errors.append(f"{path}: 请在{limit}字以内写清主要判断或变化，次要依据放在对应分析字段。")
+        if isinstance(change, str) and change.strip() and change.strip() == str(headline).strip():
+            errors.append("investment_assessment.change_summary: 请说明相对于比较基准的变化，避免照抄总判断。")
+        comparisons = {fid: row for fid, row in facts.items() if fid.startswith("comparison:")
+                       and row.get("status") == "ok" and row.get("value") is not None and row.get("previous") is not None}
+        refs = value.get("change_fact_ids")
+        if not isinstance(refs, list) or any(not isinstance(fid, str) or fid not in comparisons for fid in refs):
+            errors.append("investment_assessment.change_fact_ids: 只可引用本次可用的 comparison 事实，没有可比事实时填空数组。")
+        elif (any(row.get("change") not in (0, None) for row in comparisons.values())
+              and not any(comparisons[fid].get("change") not in (0, None) for fid in refs)):
+            errors.append("investment_assessment.change_fact_ids: 有可比读数发生变化，请至少引用一项数值发生变化的事实。")
 
     def check_refs(item, path):
         refs = item.get("fact_ids", [])

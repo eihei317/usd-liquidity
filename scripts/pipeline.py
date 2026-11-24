@@ -1,6 +1,6 @@
 """Isolated local runs with a single atomic publication pointer."""
 from pathlib import Path
-import argparse, contextlib, datetime, hashlib, json, os, shutil, sqlite3, subprocess, sys, uuid, time
+import argparse, contextlib, datetime, gzip, hashlib, json, os, shutil, sqlite3, subprocess, sys, uuid, time
 ROOT=Path(__file__).resolve().parents[1]
 OUT=ROOT/'output'
 sys.path.insert(0,str(ROOT))
@@ -9,60 +9,130 @@ def require_history_complete(coverage):
     if coverage.get('missing') or coverage.get('treasury_failures'):
         raise RuntimeError('历史覆盖未完成，已保留抓取产物但停止发布：'+json.dumps({'missing':coverage.get('missing',[]),'source_failures':coverage.get('treasury_failures',[])},ensure_ascii=False))
 
-def prepare_research(latest, previous_package=None, fetch=False):
-    from scripts.investment_facts import enrich_package, build_market_context
+def verified_json_bytes(path, digest, *, exported=False):
+    raw = path.read_bytes()
+    if hashlib.sha256(raw).hexdigest() == digest:
+        return raw
+    if exported:  # Git normalized some early JSON exports before .gitattributes was installed.
+        lf = raw.replace(b'\r\n', b'\n')
+        for original in (lf, lf.replace(b'\n', b'\r\n')):
+            if hashlib.sha256(original).hexdigest() == digest:
+                return original
+    raise ValueError('已归档事实文件哈希不符：' + path.name)
+
+
+def restore_archived_capture(run, work):
+    """Restore a pruned run's frozen inputs into the new work directory only."""
+    archive = ROOT / '.sync/repository/artifacts/runs' / run.name
+    manifest = read(run / 'manifest.json')
+    if manifest.get('run_id') != run.name:
+        raise ValueError('归档清单与源运行不符')
+    restored = set()
+    for name, digest in manifest['files'].items():
+        parts = name.replace('\\', '/').split('/')
+        if parts[:3] == ['work', 'output', 'latest'] and len(parts) == 4 and parts[-1].endswith('.json'):
+            src = archive / parts[-1]
+        elif parts == ['work', 'output', 'history_coverage.json']:
+            src = archive / parts[-1]
+        elif parts == ['work', 'output', 'usd_liquidity.db']:
+            src = archive / 'history.sqlite.gz'
+        else:
+            continue
+        target = work.joinpath(*parts[1:])
+        target.parent.mkdir(parents=True, exist_ok=True)
+        if target.suffix == '.db':
+            with gzip.open(src, 'rb') as stream, target.open('wb') as dest:
+                shutil.copyfileobj(stream, dest)
+            with target.open('rb') as stream:
+                if hashlib.file_digest(stream, 'sha256').hexdigest() != digest:
+                    raise ValueError('归档源文件哈希不符：' + target.name)
+        else:
+            target.write_bytes(verified_json_bytes(src, digest, exported=True))
+        restored.add(target.name)
+    if not {'model_input.json', 'snapshot.json', 'usd_liquidity.db'} <= restored:
+        raise ValueError('归档缺少回放所需的事实包、原始快照或冻结数据库')
+
+
+def comparison_baseline(head_run, capture_time):
+    """Find a strictly earlier capture on the published branch, including after a replay."""
+    from scripts.investment_review import _timestamp
+    cutoff = _timestamp(capture_time)
+    visited = set()
+    while head_run:
+        directory = (OUT / 'runs' / head_run).resolve()
+        if directory.parent != (OUT / 'runs').resolve() or head_run in visited:
+            raise ValueError('比较基准的发布链无效')
+        visited.add(head_run)
+        manifest_path = directory / 'manifest.json'
+        if not manifest_path.is_file():
+            break
+        manifest = read(manifest_path)
+        if manifest.get('run_id') != head_run:
+            raise ValueError('比较基准清单与运行标识不符')
+        latest = directory / 'work/output/latest'
+        exported = not (latest / 'model_input.json').is_file()
+        if exported:
+            latest = ROOT / '.sync/repository/artifacts/runs' / head_run
+        package_path = latest / 'model_input.json'
+        if not package_path.is_file():
+            break
+        raw = verified_json_bytes(package_path, manifest.get('input_sha256'), exported=exported)
+        package = json.loads(raw)
+        if _timestamp(package['generated_at_bjt']) < cutoff:
+            return package, latest / 'snapshot.json'
+        head_run = manifest.get('previous_run_id')
+    return None, None
+
+
+def market_context_for_capture(stamp, old_context, fetch):
+    from scripts.investment_facts import build_market_context
+    from scripts.investment_review import _timestamp
+    if not fetch and old_context:
+        if old_context.get('generated_at_bjt') == stamp:
+            return old_context  # This capture includes its original source statuses.
+        try:
+            captured = _timestamp(old_context['generated_at_bjt'])
+            retrieved = _timestamp(old_context['retrieved_at_bjt'])
+            if max(captured, retrieved) > _timestamp(stamp):
+                old_context = None
+        except (KeyError, ValueError):
+            old_context = None
+    return build_market_context(stamp, fetch=fetch, previous_context=old_context)
+
+
+def prepare_research(latest, previous_package=None, fetch=False, previous_snapshot=None):
+    from scripts.analysis import analysis_output_contract
+    from scripts.investment_facts import MARKET_SERIES, enrich_package
     package=read(latest/'model_input.json')
     snapshot=read(latest/'snapshot.json')
     old_context=read(latest/'investment_market_context.json') if (latest/'investment_market_context.json').exists() else None
-    context=build_market_context(package['generated_at_bjt'],fetch=fetch,previous_context=old_context)
+    context = market_context_for_capture(package['generated_at_bjt'], old_context, fetch)
     atomic(latest/'investment_market_context.json',context)
     coverage_path=latest.parent/'history_coverage.json'
     if coverage_path.exists():
         coverage=read(coverage_path)
         coverage['series']=[r for r in coverage['series'] if r['kind']!='market']
-        for sid,rows in context.get('price_history',{}).items():
-            coverage['series'].append({'kind':'market','id':sid,'source':'FRED public source history','observations':len(rows),'first':rows[0]['date'] if rows else None,'last':rows[-1]['date'] if rows else None,'status':'history_available' if len(rows)>1 else 'missing_history'})
+        for sid in MARKET_SERIES:
+            rows = context.get('price_history', {}).get(sid, [])
+            source_status = context.get('series', {}).get(sid, {}).get('status', 'missing')
+            coverage['series'].append({'kind':'market','id':sid,'source':'FRED public source history','source_status':source_status,'observations':len(rows),'first':rows[0]['date'] if rows else None,'last':rows[-1]['date'] if rows else None,'status':'history_available' if len(rows)>1 else 'missing_history'})
         coverage['missing']=[r['id'] for r in coverage['series'] if r['status']=='missing_history']
         atomic(coverage_path,coverage)
         dashboard=read(latest/'dashboard_data.json');dashboard['history_coverage']=coverage;atomic(latest/'dashboard_data.json',dashboard)
 
     snapshot['investment_market_context']=context
-    package=enrich_package(package,snapshot,previous_package)
-    package['research_version']='3.0'
+    package=enrich_package(package,snapshot,previous_package,history_db=latest.parent/'usd_liquidity.db',
+                           previous_snapshot=previous_snapshot)
+    package['research_version']='3.1'
+    package['prompt_version']='3.1'
     package['analysis_prompt']=(ROOT/'prompts/usd_liquidity_prompt.md').read_text(encoding='utf-8')+'\n\n'+(ROOT/'prompts/investment_research_prompt.md').read_text(encoding='utf-8')
     contract=package.setdefault('output_contract',{})
-    contract['fact_scope_rule']='唯一事实为data.facts；含investment趋势、日历、市场确认、比较及覆盖事实。历史价格数组不进入模型。'
-    contract['claim_rule']='旧key_takeaways只写observed；旧risk_flags支持inference/scenario；投资推断和对称情景进入investment_assessment。全部引用合法fact_ids。'
-    contract['number_format_rule']='模型定性解释，不手抄市场数值；所有市场数值由程序按结构化事实展示。'
+    contract.update(analysis_output_contract())
     fields=contract.setdefault('required_top_level_fields',[])
     if 'investment_assessment' not in fields:fields.append('investment_assessment')
     atomic(latest/'model_input.json',package)
     return package,context
 
-def research_brief(analysis,investment,review):
-    value=analysis.get('investment_assessment')
-    if not value:return []
-    lines=['','## 美股与BTC中期投资研究',value['summary'],'','相对上次：'+value['change_summary']]
-    for key,title in (('equities','美股'),('bitcoin','BTC')):
-        item=value[key]
-        lines+=['','### '+title+'：'+item['liquidity_bias']+'（'+item['horizon']+'，'+item['confidence']+'置信度）']
-        for field,label in (('summary','判断'),('transmission','传导'),('confirmation','市场确认'),('invalidation','失效条件'),('coverage_limits','覆盖边界')):
-            lines.append(label+'：'+item[field])
-        lines.append('事实引用：'+', '.join(item['fact_ids']))
-    lines+=['','### 市场预期覆盖',value['expectations']['status']+'：'+value['expectations']['summary']]
-    for key,title in (('base','基准'),('upside','改善'),('downside','恶化')):
-        item=value['scenarios'][key]
-        lines+=['','### '+title+'情景',item['path'],'触发：'+item['trigger'],'失效：'+item['invalidation'],'事实引用：'+', '.join(item['fact_ids'])]
-    lines+=['','### 下一轮核查',*('- '+s for s in value['next_checks'])]
-    lines+=['','### 中期趋势（有效观测数，日频与周频分开）']
-    for fact in investment.get('trend_facts',[]):
-        lines.append(f"- {fact.get('name',fact.get('id',fact.get('fact_id')))}：{fact.get('previous_as_of','未知')} 至 {fact.get('as_of','未知')}；{fact.get('window_observations','?')}期；变化 {fact.get('change','未知')} {fact.get('unit','')}；状态 {fact.get('status','未知')}；{fact.get('fact_id')}")
-    lines+=['','### 已公告结算日历（毛额，不等于净融资）']
-    for fact in investment.get('calendar_facts',[]):
-        lines.append('- '+json.dumps(fact,ensure_ascii=False))
-    lines+=['','### 判断验证记录',review.get('methodology_note','尚在积累观察样本。')]
-    for row in review.get('records',[]):lines.append('- '+json.dumps(row,ensure_ascii=False))
-    return lines
 def atomic(path,value):
     path.parent.mkdir(parents=True,exist_ok=True)
     tmp=path.with_name(path.name+'.'+uuid.uuid4().hex+'.tmp')
@@ -104,21 +174,24 @@ def run(mode, source_run=None, candidate=None):
             if cache.exists():shutil.copytree(cache,work/'.workbuddy/cache')
             current=read(OUT/'current.json') if (OUT/'current.json').exists() else None
             previous=OUT/current['directory']/'work/output/latest' if current else OUT/'latest'
+            restored = False
             if source_run:
                 source=(OUT/'runs'/source_run).resolve()
                 if source.parent != (OUT/'runs').resolve():raise ValueError('Invalid source run')
                 previous=source/'work/output/latest'
+                if not (previous/'model_input.json').is_file():
+                    restore_archived_capture(source, work)
+                    restored = True
             previous_cache=previous.parents[1]/'.workbuddy/cache'
             if previous_cache.exists():shutil.copytree(previous_cache,work/'.workbuddy/cache',dirs_exist_ok=True)
-            if previous.exists():shutil.copytree(previous,work/'output/latest')
-            previous_package=read(previous/'model_input.json') if (previous/'model_input.json').exists() else None
+            if previous.exists() and not restored:shutil.copytree(previous,work/'output/latest')
             db=previous.parent/'usd_liquidity.db' if (current or source_run) else OUT/'usd_liquidity.db'
             (work/'output').mkdir(exist_ok=True)
-            if (previous.parent/'history_coverage.json').exists():shutil.copy2(previous.parent/'history_coverage.json',work/'output/history_coverage.json')
+            if not restored and (previous.parent/'history_coverage.json').exists():shutil.copy2(previous.parent/'history_coverage.json',work/'output/history_coverage.json')
             incremental_state=previous.parent/'history_incremental_state.json'
-            if incremental_state.exists():shutil.copy2(incremental_state,work/'output/history_incremental_state.json')
-            if db.exists():
-                with sqlite3.connect(str(db)) as source,sqlite3.connect(str(work/'output/usd_liquidity.db')) as target:source.backup(target)
+            if incremental_state.exists() and not restored:shutil.copy2(incremental_state,work/'output/history_incremental_state.json')
+            if db.exists() and not restored:
+                with sqlite3.connect(str(db)) as source_db,sqlite3.connect(str(work/'output/usd_liquidity.db')) as target:source_db.backup(target)
             env=os.environ.copy()
             key=ROOT/'.workbuddy/secrets/fred_api_key'
             if not env.get('FRED_API_KEY') and key.exists():env['FRED_API_KEY']=key.read_text(encoding='utf-8-sig').strip()
@@ -130,17 +203,16 @@ def run(mode, source_run=None, candidate=None):
             if mode=='update' and timing.exists():shutil.copy2(timing,latest/'fetch_timings.json')
             if mode=='history':stage('refreshing_missing_histories');call('run.py','补齐历史','--input-json',str(latest/'snapshot.json'),'--json')
             if not (latest/'model_input.json').exists():raise RuntimeError('没有可分析的事实包，请先更新数据。')
-            if mode=='reanalyze' and not source_run and not candidate:
-                package=read(latest/'model_input.json')
-                package['analysis_prompt']=(ROOT/'prompts/usd_liquidity_prompt.md').read_text(encoding='utf-8')
-                package['output_contract']['number_format_rule']='市场数值仅通过evidence_refs由程序呈现；定性叙述不手抄数值。'
-                package['prompt_version']='2.0'
-                atomic(latest/'model_input.json',package)
-            if source_run and not candidate and mode=='reanalyze':
+            if mode=='reanalyze' and not candidate:
                 stage('rebuilding_facts');call('rebuild_facts.py')
             if not candidate:
                 stage('preparing_investment_research')
-                prepare_research(latest,previous_package,fetch=(mode in ('update','history')))
+                head_run = current['run_id'] if current else None
+                if source_run and (source/'manifest.json').exists():
+                    head_run = source_run
+                capture_time = read(latest/'model_input.json')['generated_at_bjt']
+                baseline, baseline_snapshot = comparison_baseline(head_run, capture_time)
+                prepare_research(latest,baseline,fetch=(mode in ('update','history')),previous_snapshot=baseline_snapshot)
             if (ROOT/'github_sync.json').exists() and mode in ('update','history'):
                 stage('syncing_capture')
                 from scripts.sync_to_github import sync
@@ -187,16 +259,14 @@ def run(mode, source_run=None, candidate=None):
                 if history_gaps:
                     review['methodology_note']+='早期研究归档不完整，缺失运行 '+', '.join(row['run_id'] for row in history_gaps)+' 及其更早链路。当前统计覆盖通过清单校验的记录。'
                 atomic(dest/'research_review.json',review)
-            bundle={'run_id':rid,'input_sha256':digest,'dashboard':dashboard,'analysis':analysis,'investment_facts':investment,'research_review':review}
+            from scripts.daily_brief import build_daily_brief, brief_markdown
+            daily_brief = build_daily_brief(analysis, investment)
+            bundle={'run_id':rid,'input_sha256':digest,'dashboard':dashboard,'analysis':analysis,'investment_facts':investment,'research_review':review,'daily_brief':daily_brief}
             atomic(dest/'bundle.json',bundle)
-            lines=['# 美元流动性分析',analysis['meta']['generated_at_bjt'],'',analysis['stance']['label'],analysis['stance']['one_liner']]
-            lines+=research_brief(analysis,investment,review)
-            for group in ('key_takeaways','risk_flags'):
-                for item in analysis[group]:lines+=['','## '+item['title'],item['text'],*item['evidence']]
-            (dest/'brief.md').write_text('\n'.join(lines),encoding='utf-8')
+            (dest/'brief.md').write_text(brief_markdown(daily_brief),encoding='utf-8')
             front=work/'frontend/usd-liquidity-monitor'
             def safe_json(value):return json.dumps(value,ensure_ascii=False).replace('<','\\u003c')
-            inline='window.DASHBOARD_DATA='+safe_json(dashboard)+';window.ANALYSIS_DATA='+safe_json(analysis)+';window.INVESTMENT_FACTS='+safe_json(investment)+';window.RESEARCH_REVIEW='+safe_json(review)+';'
+            inline='window.STANDALONE_REPORT=true;window.DASHBOARD_DATA='+safe_json(dashboard)+';window.ANALYSIS_DATA='+safe_json(analysis)+';window.INVESTMENT_FACTS='+safe_json(investment)+';window.RESEARCH_REVIEW='+safe_json(review)+';window.DAILY_BRIEF='+safe_json(daily_brief)+';'
             (front/'data.js').write_text(inline,encoding='utf-8')
             html=(front/'index.html').read_text(encoding='utf-8')
             import re

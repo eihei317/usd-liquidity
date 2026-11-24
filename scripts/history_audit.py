@@ -60,39 +60,34 @@ def rebuild_and_audit(metrics,signals,db_path):
     state_path=Path(db_path).parent/'history_incremental_state.json'
     state,full,cutoff=plan_rebuild(selected,signals,state_path)
     counts={}; first={};last={}; previous={};index={m.id:0 for m,_,_ in selected}
-    original=engine.read_tga_history
-    try:
-        with closing(sqlite3.connect(db_path)) as c, c:
-            if not c.execute('SELECT COUNT(*) FROM derived_signals_ts').fetchone()[0]:full=True
-            if full:
-                c.execute('DELETE FROM derived_signals_ts')
-            elif cutoff:
-                for sid,value in c.execute('SELECT signal_id,value FROM derived_signals_ts WHERE as_of < ? ORDER BY as_of',(cutoff,)):
-                    previous[sid]=value
-                c.execute('DELETE FROM derived_signals_ts WHERE as_of >= ?',(cutoff,))
-            days=[day for day in sorted(all_dates) if full or cutoff and day>=cutoff]
-            print(f'[history] rebuilding {len(days)} observation dates; mode={"full" if full else "incremental"}; from={cutoff if not full else "beginning"}',flush=True)
-            for day in days:
-                current=[]
-                for m,rows,points in selected:
-                    if day not in points:continue
-                    i=index[m.id]
-                    while i<len(rows) and rows[i][0]<day:i+=1
-                    index[m.id]=i
-                    prev=rows[i-1] if i else (None,None)
-                    current.append(replace(m,as_of=day,value=points[day],previous_as_of=prev[0],previous=prev[1],change=points[day]-prev[1] if prev[1] is not None else None,extra={'history':[]}))
-                # Pure historical values, with no access to today's fiscal cache.
-                engine.read_tga_history=lambda *a: []
-                computed,_,_=engine.derive_signals(current)
-                for s in computed:
-                    if s.id in {'SOFR_ANCHOR','SOFR_VOLUME_IMPACT'} and not any(m.id=='IORB' for m in current):continue
-                    if s.value is None or s.as_of!=day:continue
-                    p=previous.get(s.id); ch=s.value-p if p is not None else None
-                    c.execute('INSERT INTO derived_signals_ts(signal_id,signal_name,as_of,value,previous,change,unit,severity,snapshot_file,ingested_at) VALUES(?,?,?,?,?,?,?,?,?,?)',(s.id,s.name,day,s.value,p,ch,s.unit,'','history_rebuild',datetime.now().isoformat()))
-                    previous[s.id]=s.value
-            for sid,n,start,end in c.execute('SELECT signal_id,COUNT(*),MIN(as_of),MAX(as_of) FROM derived_signals_ts WHERE value IS NOT NULL GROUP BY signal_id'):
-                counts[sid]=n;first[sid]=start;last[sid]=end
-    finally:engine.read_tga_history=original
+    with closing(sqlite3.connect(db_path)) as c, c:
+        if not c.execute('SELECT COUNT(*) FROM derived_signals_ts').fetchone()[0]:full=True
+        if full:
+            c.execute('DELETE FROM derived_signals_ts')
+        elif cutoff:
+            for sid,value in c.execute('SELECT signal_id,value FROM derived_signals_ts WHERE as_of < ? ORDER BY as_of',(cutoff,)):
+                previous[sid]=value
+            c.execute('DELETE FROM derived_signals_ts WHERE as_of >= ?',(cutoff,))
+        days=[day for day in sorted(all_dates) if full or cutoff and day>=cutoff]
+        print(f'[history] rebuilding {len(days)} observation dates; mode={"full" if full else "incremental"}; from={cutoff if not full else "beginning"}',flush=True)
+        for day in days:
+            current=[]
+            for m,rows,points in selected:
+                if day not in points:continue
+                i=index[m.id]
+                while i<len(rows) and rows[i][0]<day:i+=1
+                index[m.id]=i
+                prev=rows[i-1] if i else (None,None)
+                current.append(replace(m,as_of=day,value=points[day],previous_as_of=prev[0],previous=prev[1],change=points[day]-prev[1] if prev[1] is not None else None,extra={'history':[]}))
+            computed,_,_=engine.derive_signals(current)
+            for s in computed:
+                if s.id in {'SOFR_ANCHOR','SOFR_VOLUME_IMPACT'} and not any(m.id=='IORB' for m in current):continue
+                if s.value is None or s.as_of!=day:continue
+                p=previous.get(s.id); ch=s.value-p if p is not None else None
+                c.execute('INSERT INTO derived_signals_ts(signal_id,signal_name,as_of,value,previous,change,unit,severity,snapshot_file,ingested_at) VALUES(?,?,?,?,?,?,?,?,?,?)',(s.id,s.name,day,s.value,p,ch,s.unit,'','history_rebuild',datetime.now().isoformat()))
+                previous[s.id]=s.value
+        for sid,n,start,end in c.execute('SELECT signal_id,COUNT(*),MIN(as_of),MAX(as_of) FROM derived_signals_ts WHERE value IS NOT NULL GROUP BY signal_id'):
+            counts[sid]=n;first[sid]=start;last[sid]=end
     save_state(state_path,state)
     for s in signals:report.append({'kind':'derived','id':s.id,'observations':counts.get(s.id,0),'first':first.get(s.id),'last':last.get(s.id),'status':'history_available' if counts.get(s.id,0)>1 else 'missing_history','note':'按共同观测日期计算；依赖缺失不补零、不用当前值回填。'})
     jpy=OUTPUT_DIR/'latest/jpy_carry_history.json'

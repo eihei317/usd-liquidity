@@ -1167,6 +1167,20 @@ h1 {
 .investment-review-status { font-size: 14px; line-height: 1.8; margin-bottom: 0; }
 .investment-empty { color: var(--muted); line-height: 1.8; }
 
+.daily-brief { padding: clamp(18px, 3vw, 36px); }
+.daily-brief p, .brief-evidence { max-width: 88ch; line-height: 1.8; overflow-wrap: anywhere; }
+.brief-heading { display: flex; align-items: center; gap: 14px; color: var(--accent); }
+.brief-heading strong { font-size: 22px; }
+.brief-headline { margin-top: 10px; font-size: clamp(17px, 2vw, 21px); }
+.daily-brief h3 { margin: 18px 0 5px; }
+.daily-brief p:last-child { margin-bottom: 0; }
+.brief-alert { border-left: 3px solid var(--tight); padding: 6px 12px; color: var(--tight); }
+.brief-evidence { padding-left: 1.4em; color: var(--muted); }
+.brief-assets { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 19rem), 1fr)); gap: 24px; }
+.brief-assets section { border-top: 1px solid var(--border); }
+.brief-asset-meta { margin-bottom: 4px; color: var(--accent); }
+.report-details { margin-top: 16px; }
+
 @media (max-width: 1100px) {
   .investment-scenarios { grid-template-columns: 1fr; }
   .investment-scenario .investment-field { grid-template-columns: 5em minmax(0, 1fr); gap: 10px; }

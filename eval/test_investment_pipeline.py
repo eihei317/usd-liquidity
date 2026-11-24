@@ -14,7 +14,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 sys.path.insert(0, str(ROOT / 'eval'))
 from scripts import pipeline
-from scripts.analysis_validator import validate_analysis
+from scripts.analysis_validator import _collect_facts, materialize_evidence, validate_analysis
 from test_investment_contract import sample_assessment
 
 
@@ -33,7 +33,7 @@ class Publication(unittest.TestCase):
             pointer = json.loads(pointer_path.read_text(encoding='utf-8-sig'))
             fixture_latest = ROOT / 'output' / pointer['directory'] / 'work/output/latest'
         shutil.copytree(fixture_latest, self.root / 'output/latest')
-        self.fail = False
+        self.fail_model = False
 
     def tearDown(self):
         self.assertTrue(self.root.is_relative_to((ROOT / 'output').resolve()))
@@ -41,8 +41,10 @@ class Publication(unittest.TestCase):
 
     def model_call(self, args, **kwargs):
         script = Path(args[5])
+        if script.name == 'rebuild_facts.py':
+            return subprocess.CompletedProcess(args, 0)
         self.assertEqual('codex_analysis.py', script.name)
-        if self.fail:
+        if self.fail_model:
             raise subprocess.CalledProcessError(1, args)
         latest = script.parents[1] / 'output/latest'
         package = pipeline.read(latest / 'model_input.json')
@@ -51,6 +53,15 @@ class Publication(unittest.TestCase):
         research = sample_assessment()
         research['expectations']['fact_ids'] = ['coverage:direct_expectations']
         analysis['investment_assessment'] = research
+        # The isolated first publication has no earlier run. Its model double can
+        # reuse only archive claims whose cited facts exist in this test input.
+        facts, _ = _collect_facts(package)
+        research['change_fact_ids'] = [fid for fid, fact in facts.items()
+                                       if fid.startswith('comparison:') and fact.get('status') == 'ok'
+                                       and fact.get('change') not in (None, 0)][:1]
+        for field in ('key_takeaways', 'risk_flags'):
+            analysis[field] = [item for item in analysis[field] if all(fid in facts for fid in item['fact_ids'])]
+        analysis = materialize_evidence(analysis, package)
         self.assertEqual([], validate_analysis(analysis, package))
         analysis['meta']['status'] = 'published'
         pipeline.atomic(latest / 'analysis.json', analysis)
@@ -70,7 +81,7 @@ class Publication(unittest.TestCase):
         manifest = pipeline.read(directory / 'manifest.json')
         self.assertEqual(bundle['analysis']['investment_assessment'], record['assessment'])
         self.assertEqual(pointer['published_at_bjt'], record['published_at_bjt'])
-        self.assertEqual('3.0', manifest['method_version'])
+        self.assertEqual('3.1', manifest['method_version'])
         self.assertEqual('collecting', bundle['research_review']['status'])
         self.assertIn('metric:SOFR', bundle['investment_facts']['catalog'])
         self.assertEqual(6, len(bundle['research_review']['records']))
@@ -80,14 +91,21 @@ class Publication(unittest.TestCase):
         offline = (directory / 'dashboard.html').read_text(encoding='utf-8')
         self.assertIn('window.INVESTMENT_FACTS=', offline)
         self.assertIn('window.RESEARCH_REVIEW=', offline)
+        embedded_brief = json.JSONDecoder().raw_decode(offline.split('window.DAILY_BRIEF=', 1)[1])[0]
+        self.assertEqual(bundle['daily_brief'], embedded_brief)
+        self.assertIn('id="daily-brief"', offline)
         self.assertNotIn('src="./app.js', offline)
         self.assertNotIn('href="./styles.css', offline)
-        self.assertIn('失效条件', (directory / 'brief.md').read_text(encoding='utf-8'))
+        brief = (directory / 'brief.md').read_text(encoding='utf-8')
+        self.assertIn('失效条件', brief)
+        self.assertIn('(dashboard.html)', brief)
+        self.assertIn(bundle['daily_brief']['headline'], brief)
+        self.assertNotIn('"benchmark_return_pct"', brief)
 
     def test_failed_next_run_keeps_published_pointer(self):
         self.run_pipeline()
         before = (self.root / 'output/current.json').read_bytes()
-        self.fail = True
+        self.fail_model = True
         with self.assertRaises(subprocess.CalledProcessError):
             self.run_pipeline()
         self.assertEqual(before, (self.root / 'output/current.json').read_bytes())

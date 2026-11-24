@@ -112,7 +112,7 @@ def align_spread_previous_base(
     base_rows: List[Tuple[str, float]],
     multiplier: float = 100.0,
 ) -> List[Tuple[str, float]]:
-    """Align primary series with the latest base observation not after each date."""
+    """Calculate spreads only for observation dates present in both series."""
     primary = normalize_rows(primary_rows)
     base = normalize_rows(base_rows)
     if not primary or not base:
@@ -314,114 +314,61 @@ _CFTC_DASHBOARD_STATUS = {
 }
 
 
+def _net_position_text(current, change):
+    if current is None:
+        return f"净持仓较上周变化{change:+,.0f}手"
+    previous = current - change
+    if not current:
+        return "本周多头与空头持仓相等"
+    side = "净多" if current > 0 else "净空"
+    if previous * current < 0:
+        before = "净空" if previous < 0 else "净多"
+        return f"由{before}转为{side}{abs(current):,.0f}手"
+    if not previous:
+        return f"由多空持平转为{side}{abs(current):,.0f}手"
+    if change == 0:
+        return f"{side}持仓维持在{abs(current):,.0f}手"
+    direction = "扩大" if abs(current) > abs(previous) else "收窄"
+    return f"{side}持仓{direction}{abs(change):,.0f}手，至{abs(current):,.0f}手"
+
+
 def _decompose_cftc_net(
     short_chg: Optional[float],
     long_chg: Optional[float],
     short_share_change: Optional[float],
     net_change: Optional[float],
+    current_net: Optional[float] = None,
 ) -> Dict[str, Any]:
-    """结合多空分项、空头占比和净头寸方向拆解 CFTC 周度仓位变化。"""
+    """Report futures positioning. These data do not identify cash FX flows."""
     if any(value is None for value in (short_chg, long_chg, short_share_change, net_change)):
-        return {
-            "driver": "unknown",
-            "carry_usd_support": False,
-            "text": "CFTC 多/空分项、空头占比或净头寸周度变化不可用，无法可靠归因，应标记为数据缺口。",
-        }
-
-    assert short_chg is not None
-    assert long_chg is not None
-    assert short_share_change is not None
-    assert net_change is not None
-    short_side_stronger = net_change < 0 and short_share_change > 0
-    long_side_stronger = net_change > 0 and short_share_change < 0
-    direction_unchanged = net_change == 0 and short_share_change == 0
-    changes = (
-        f"空头 {short_chg:+,} 口、多头 {long_chg:+,} 口、"
-        f"空头占比 {short_share_change:+.2%}、净头寸 {net_change:+,} 口"
-    )
+        return {"driver": "unknown", "carry_usd_support": False, "text": "缺少周度多空持仓变化，暂时无法判断交易方向。"}
     if not math.isclose(net_change, long_chg - short_chg, abs_tol=1e-9):
-        return {
-            "driver": "mixed",
-            "carry_usd_support": False,
-            "text": f"多空分项与净头寸变化不一致（{changes}），不得解读为 carry 资金流支撑美元。",
-        }
+        return {"driver": "mixed", "carry_usd_support": False, "text": "周度净持仓变化与多空分项不一致。"}
 
+    short_dominant = net_change < 0 and short_share_change > 0
+    long_dominant = net_change > 0 and short_share_change < 0
+    unchanged = net_change == 0 and short_share_change == 0
+    driver = "mixed"
     if short_chg > 0 and long_chg > 0:
-        if short_side_stronger:
-            return {
-                "driver": "two_sided_building_short_dominant",
-                "carry_usd_support": True,
-                "text": f"双边增仓但空头主导（{changes}）：净空头与空头占比同步增加，构成 carry 资金流对美元的边际支撑。",
-            }
-        if long_side_stronger:
-            return {
-                "driver": "two_sided_building_long_dominant",
-                "carry_usd_support": False,
-                "text": f"双边增仓但多头主导（{changes}）：净空头与空头占比下降，不构成空头强化，也不能解读为 carry 资金流支撑美元。",
-            }
+        if short_dominant:
+            driver = "two_sided_building_short_dominant"
+        elif long_dominant:
+            driver = "two_sided_building_long_dominant"
+    elif short_chg < 0 and long_chg < 0 and (short_dominant or long_dominant or unchanged):
+        driver = "two_sided_reduction"
+    elif short_chg >= 0 and long_chg <= 0 and short_dominant:
+        if short_chg != abs(long_chg):
+            driver = "short_building" if short_chg > abs(long_chg) else "long_unwinding"
+    elif short_chg <= 0 and long_chg >= 0 and long_dominant:
+        if abs(short_chg) != long_chg:
+            driver = "short_covering" if abs(short_chg) > long_chg else "long_building"
+    elif short_chg == long_chg == 0 and unchanged:
+        driver = "unchanged"
 
-    if short_chg < 0 and long_chg < 0 and (short_side_stronger or long_side_stronger or direction_unchanged):
-        direction = "净空头增加" if short_side_stronger else "净空头减少" if long_side_stronger else "净头寸不变"
-        return {
-            "driver": "two_sided_reduction",
-            "carry_usd_support": False,
-            "text": f"多空双方同步减仓（{changes}，{direction}）：这是总持仓收缩，不构成新增空头或 carry 资金流支撑美元。",
-        }
-
-    if short_chg > 0 and long_chg <= 0 and short_side_stronger:
-        if long_chg == 0 or short_chg > abs(long_chg):
-            return {
-                "driver": "short_building",
-                "carry_usd_support": True,
-                "text": f"空头主动加仓主导（{changes}）：净空头与空头占比同步增加，构成 carry 资金流对美元的边际支撑。",
-            }
-        if abs(long_chg) > short_chg:
-            return {
-                "driver": "long_unwinding",
-                "carry_usd_support": False,
-                "text": f"多头平仓主导（{changes}）：虽有少量空头增加，但净空头扩张主要来自多头离场，不能解读为 carry 资金流支撑美元。",
-            }
-
-    if short_chg == 0 and long_chg < 0 and short_side_stronger:
-        return {
-            "driver": "long_unwinding",
-            "carry_usd_support": False,
-            "text": f"多头平仓（{changes}）：没有新增空头，不能解读为 carry 资金流支撑美元。",
-        }
-
-    if short_chg < 0 and long_chg >= 0 and long_side_stronger:
-        if long_chg == 0 or abs(short_chg) > long_chg:
-            return {
-                "driver": "short_covering",
-                "carry_usd_support": False,
-                "text": f"空头回补主导（{changes}）：净空头与空头占比同步下降，carry 空头资金流正在退潮。",
-            }
-        if long_chg > abs(short_chg):
-            return {
-                "driver": "long_building",
-                "carry_usd_support": False,
-                "text": f"多头主动加仓主导（{changes}）：净空头与空头占比同步下降，不构成空头强化或 carry 资金流支撑美元。",
-            }
-
-    if short_chg == 0 and long_chg > 0 and long_side_stronger:
-        return {
-            "driver": "long_building",
-            "carry_usd_support": False,
-            "text": f"多头主动加仓（{changes}）：净空头与空头占比同步下降，不构成空头强化或 carry 资金流支撑美元。",
-        }
-
-    if short_chg == 0 and long_chg == 0 and direction_unchanged:
-        return {
-            "driver": "unchanged",
-            "carry_usd_support": False,
-            "text": f"多空仓位及方向指标均无变化（{changes}），不构成新的 carry 资金流信号。",
-        }
-
-    return {
-        "driver": "mixed",
-        "carry_usd_support": False,
-        "text": f"多空分项、空头占比与净头寸方向未形成一致且可归因的信号（{changes}），不得解读为 carry 资金流支撑美元。",
-    }
+    position = _net_position_text(current_net, net_change)
+    text = (f"{position}。本周非商业空头{short_chg:+,.0f}手，多头{long_chg:+,.0f}手，"
+            f"空头占比变化{short_share_change * 100:+.2f}个百分点。")
+    return {"driver": driver, "carry_usd_support": False, "text": text}
 
 
 def fetch_cftc_jpy(limit: int = 100000) -> Tuple[List[Dict[str, Any]], Dict[str, Any]]:
@@ -580,7 +527,29 @@ def load_jpy_series_from_db(series_id: str, snapshot_file: Optional[str] = None,
     return rows[-limit:] if limit else rows
 
 
-def persist_jpy_carry_series(series_map: Dict[str, Dict[str, Any]], snapshot_file: str, ingested_at: str) -> None:
+def rebuild_jpy_spreads(conn, snapshot_file, captured_at):
+    """Replace the two derived series using the complete frozen input legs in this database."""
+    spreads = {}
+    for tenor in ("2", "10"):
+        sid = f"US_JP_{tenor}Y"
+        rows = conn.execute("""
+            SELECT u.as_of, (u.value - j.value) * 100
+            FROM jpy_carry_series_ts u JOIN jpy_carry_series_ts j ON j.as_of = u.as_of
+            WHERE u.series_id = ? AND j.series_id = ? AND u.unit = '%' AND j.unit = '%'
+                  AND u.value IS NOT NULL AND j.value IS NOT NULL AND u.as_of <= ?
+            ORDER BY u.as_of
+        """, (f"DGS{tenor}", f"JGB{tenor}", captured_at[:10])).fetchall()
+        conn.execute("DELETE FROM jpy_carry_series_ts WHERE series_id=?", (sid,))
+        conn.executemany("""
+            INSERT INTO jpy_carry_series_ts
+                (series_id, series_name, category, as_of, value, unit, source, source_url, snapshot_file, ingested_at, notes)
+            VALUES (?, ?, 'engineered_spread', ?, ?, 'bp', 'engineered', '', ?, ?, 'US and Japanese yields on the same observation date')
+        """, ((sid, f"{tenor}Y UST-JGB spread", d, v, snapshot_file, captured_at) for d, v in rows))
+        spreads[sid] = rows
+    return spreads
+
+
+def persist_jpy_carry_series(series_map: Dict[str, Dict[str, Any]], snapshot_file: str, ingested_at: str):
     db_path = ROOT / "output" / "usd_liquidity.db"
     db_path.parent.mkdir(parents=True, exist_ok=True)
     conn = sqlite3.connect(str(db_path))
@@ -613,7 +582,9 @@ def persist_jpy_carry_series(series_map: Dict[str, Dict[str, Any]], snapshot_fil
                 ingested_at=ingested_at,
                 notes=meta.get("notes", ""),
             )
+        spreads = rebuild_jpy_spreads(conn, snapshot_file, ingested_at)
         conn.commit()
+        return spreads
     finally:
         conn.close()
 
@@ -635,6 +606,40 @@ def fmt_asof_month(iso: Optional[str]) -> Optional[str]:
     if not iso or len(iso) < 7:
         return iso
     return iso[:7]
+
+
+def carry_risk(cftc_net_oi, jgb10_chg_bp, usdjpy_chg20, usdjpy_vol20, vix, us_jp_10y):
+    score = 0.0
+    reasons: List[str] = []
+    if cftc_net_oi is not None and cftc_net_oi <= -0.20:
+        score += 1.5
+        reasons.append("CFTC日元非商业净空头占未平仓合约比例偏高")
+    if jgb10_chg_bp is not None and jgb10_chg_bp >= 20:
+        score += 1.0
+        reasons.append("JGB 10Y阶段性上行，日本本土收益率吸引力增强")
+    if usdjpy_chg20 is not None and usdjpy_chg20 <= -2.0:
+        score += 1.0
+        reasons.append("USD/JPY近20日下跌，日元升值会触发carry回补")
+    if usdjpy_vol20 is not None and usdjpy_vol20 >= 12:
+        score += 1.0
+        reasons.append("美元兑日元的实际波动率处于较高水平")
+    if vix is not None and vix >= 20:
+        score += 1.0
+        reasons.append("美股期权隐含波动率处于较高水平")
+    if us_jp_10y is not None and us_jp_10y < 250:
+        score += 0.5
+        reasons.append("美日10Y利差处于相对较窄区域，收益端安全垫下降")
+
+    if score >= 4:
+        label = "偏高"
+    elif score >= 2:
+        label = "中性偏高"
+    else:
+        label = "中性"
+    if not reasons:
+        reasons.append("利差、汇率波动、仓位和全球风险偏好暂未形成unwind共振")
+
+    return {"label": label, "score": round(score, 1), "reasons": reasons[:5]}
 
 
 def build_payload(trigger: str, stamp: Optional[str] = None) -> Tuple[Dict[str, Any], Dict[str, Any], Dict[str, Any]]:
@@ -670,11 +675,7 @@ def build_payload(trigger: str, stamp: Optional[str] = None) -> Tuple[Dict[str, 
     call_rows, call_meta = boj_call if boj_call else ([], {"source_url": ""})
     neer_rows, neer_meta = bis_neer if bis_neer else ([], {"source_url": ""})
     jgb_mof, jgb_meta = mof if mof else ({"JGB2": [], "JGB5": [], "JGB10": [], "JGB30": []}, {"source_url": ""})
-    dgs10_latest = latest_non_null(fred_dgs10)
-    dgs10_latest_date = dgs10_latest[0] if dgs10_latest else None
-    # Merge MOF long-run history with CNBC's fresher latest daily point. CNBC is
-    # patched onto the DGS10 latest date too so the US-JP spread aligns to the same
-    # trading day instead of forward-filling from MOF's stalled last row.
+    # Preserve the actual observation date of each CNBC quote alongside MOF history.
     jgb_rows: Dict[str, List[Tuple[str, float]]] = {}
     for term in ["JGB2", "JGB5", "JGB10", "JGB30"]:
         rows = list(jgb_mof.get(term, []))
@@ -765,6 +766,7 @@ def build_payload(trigger: str, stamp: Optional[str] = None) -> Tuple[Dict[str, 
         cftc_long_chg,
         cftc_short_share_chg,
         cftc_change,
+        cftc_latest.get("net") if cftc_latest else None,
     )
     # Keep the raw decomposition inputs beside the semantic driver so downstream model facts
     # never need to reconstruct the attribution from cards or history arrays.
@@ -780,77 +782,9 @@ def build_payload(trigger: str, stamp: Optional[str] = None) -> Tuple[Dict[str, 
     cftc_open_interest_series = [(r["date"], r["open_interest"]) for r in cftc_rows if r.get("date") and r.get("open_interest") is not None]
     cftc_short_share_series = [(r["date"], r["short_share"]) for r in cftc_rows if r.get("date") and r.get("short_share") is not None]
 
-    dgs10_latest = latest_non_null(fred_dgs10)
-    dgs2_latest = latest_non_null(fred_dgs2)
-    us_jp_10y_series = align_spread_previous_base(fred_dgs10, jgb_rows.get("JGB10", []))
-    us_jp_2y_series = align_spread_previous_base(fred_dgs2, jgb_rows.get("JGB2", []))
     usdjpy_vol20_series = realized_vol_series(usdjpy_rows, 20)
     cftc_net_oi_series = [(r["date"], r["net_oi"]) for r in cftc_rows if r.get("date") and r.get("net_oi") is not None]
-    us_jp_10y_latest = latest_non_null(us_jp_10y_series)
-    us_jp_2y_latest = latest_non_null(us_jp_2y_series)
-    us_jp_10y = us_jp_10y_latest[1] if us_jp_10y_latest else None
-    us_jp_2y = us_jp_2y_latest[1] if us_jp_2y_latest else None
-    vix_latest = latest_non_null(fred_vix)
-    hy_latest = latest_non_null(fred_hy)
-
-    score = 0.0
-    reasons: List[str] = []
-    if cftc_net_oi is not None and cftc_net_oi <= -0.20:
-        score += 1.5
-        reasons.append("CFTC日元非商业净空头占未平仓合约比例偏高")
-    if jgb10_chg_bp is not None and jgb10_chg_bp >= 20:
-        score += 1.0
-        reasons.append("JGB 10Y阶段性上行，日本本土收益率吸引力增强")
-    if usdjpy_chg20 is not None and usdjpy_chg20 <= -2.0:
-        score += 1.0
-        reasons.append("USD/JPY近20日下跌，日元升值会触发carry回补")
-    if usdjpy_vol20 is not None and usdjpy_vol20 >= 12:
-        score += 1.0
-        reasons.append("USD/JPY实现波动率上升，carry夏普下降")
-    if vix_latest and vix_latest[1] >= 20:
-        score += 1.0
-        reasons.append("VIX上行，全球风险偏好转弱")
-    if us_jp_10y is not None and us_jp_10y < 250:
-        score += 0.5
-        reasons.append("美日10Y利差处于相对较窄区域，收益端安全垫下降")
-
-    if score >= 4:
-        label = "偏高"
-    elif score >= 2:
-        label = "中性偏高"
-    else:
-        label = "中性"
-    if not reasons:
-        reasons.append("利差、汇率波动、仓位和全球风险偏好暂未形成unwind共振")
-
-    def card(card_id, label_text, value_text, change_text, as_of, why):
-        return {"id": card_id, "label": label_text, "value_text": value_text, "change_text": change_text, "as_of": as_of or "NA", "why": why}
-
-    cards = [
-        card("USDJPY", "USD/JPY（美元兑日元）", f"{usdjpy_latest[1]:.2f}" if usdjpy_latest else "NA", f"逐日 {fmt_signed_pct(usdjpy_chg1_pct)}" if usdjpy_chg1_pct is not None else "NA", usdjpy_latest[0] if usdjpy_latest else None, "日元快速升值会触发carry止损/回补"),
-        card("JPY_CALL", "JPY隔夜融资成本（日本无担保隔夜拆借利率）", fmt_pct(call_latest[1], 3) if call_latest else "NA", f"逐日 {fmt_bp(call_chg1_bp)}" if call_chg1_bp is not None else "NA", call_latest[0] if call_latest else None, "carry trade 的融资端"),
-        card("JGB10", "JGB 10Y（日本10年期国债收益率）", fmt_pct(jgb10_latest[1], 3) if jgb10_latest else "NA", f"逐日 {fmt_bp(jgb10_chg1_bp)}" if jgb10_chg1_bp is not None else "NA", jgb10_latest[0] if jgb10_latest else None, "日本本土资产吸引力和资金回流压力"),
-        card("US_JP_10Y", "10Y UST-JGB利差（美日10年期国债利差）", fmt_bp(us_jp_10y, 0), "收益端核心", min(dgs10_latest[0], jgb10_latest[0]) if dgs10_latest and jgb10_latest else None, "美日长端利差越宽，carry收益端越顺风"),
-        card("CFTC_JPY", "CFTC JPY净仓位/OI（日元期货非商业净仓位占比）", f"{cftc_net_oi:.1%}" if cftc_net_oi is not None else "NA", f"净周变化 {cftc_change:,.0f} 口" if cftc_change is not None else "NA", cftc_latest.get("date") if cftc_latest else None, f"净空头边际变化需拆分：{cftc_decomposition['text']}"),
-        card("CFTC_JPY_GROSS_SHORT", "CFTC JPY非商业空头（总口数）", f"{cftc_short:,.0f}" if cftc_short is not None else "NA", f"周变化 {cftc_short_chg:,.0f} 口" if cftc_short_chg is not None else "NA", cftc_latest.get("date") if cftc_latest else None, "空头合约绝对量；周变化确认 carry 是否真在加仓（比 net/OI 更直接）"),
-        card("CFTC_JPY_SHORT_SHARE", "CFTC JPY空头占比（空头/(空头+多头)）", f"{cftc_short_share:.1%}" if cftc_short_share is not None else "NA", f"周变化 {cftc_short_share_chg:+.1%}" if cftc_short_share_chg is not None else "NA", cftc_latest.get("date") if cftc_latest else None, (f"空头一侧真实强度代理；近1年分位 {cftc_short_share_pctile:.0%}" if cftc_short_share_pctile is not None else "空头一侧真实强度代理；净空头变多可能只是多头平仓，需看此值确认空头真加仓")),
-        card("USDJPY_VOL20", "USD/JPY 20日实现波动率（年化）", fmt_pct(usdjpy_vol20), "年化", usdjpy_latest[0] if usdjpy_latest else None, "波动率上升会降低carry策略夏普"),
-        card("JPY_NEER", "JPY NEER（日元名义有效汇率，BIS日频）", f"{neer_latest[1]:.2f}" if neer_latest else "NA", f"逐日 {neer_chg1:+.2f}｜约1月 {neer_chg20:+.2f}" if (neer_chg1 is not None and neer_chg20 is not None) else (f"逐日 {neer_chg1:+.2f}" if neer_chg1 is not None else "NA"), neer_latest[0] if neer_latest else None, "相对一篮子货币的日元强弱/资金流广度背景（日频）"),
-    ]
-
-    sources = [
-        {"name": "BOJ Time-Series Data Search API", "url": "https://www.stat-search.boj.or.jp/api/v1/getDataCode", "items": ["FM08/FXERD04 USDJPY", "FM01/STRDCLUCON call rate"]},
-        {"name": "BIS Data Portal (daily NEER)", "url": neer_meta.get("source_url"), "items": ["D.N.B.JP 日频名义有效汇率（广义64经济体篮子）"]},
-        {"name": "MOF JGB constant-maturity CSV (history)", "url": jgb_meta.get("source_url"), "items": ["2Y/10Y/30Y JGB yields long-run history"]},
-        {"name": "CNBC real-time JGB yields (latest daily patch)", "url": cnbc_jgb_meta.get("source_url"), "items": ["JP2Y/JP5Y/JP10Y/JP30Y latest values"]},
-        {"name": "CFTC Public Reporting API", "url": cftc_meta.get("source_url"), "items": ["JPY futures non-commercial positioning"]},
-        {"name": "FRED", "url": "https://fred.stlouisfed.org/", "items": ["DGS2/DGS10", "VIXCLS", "BAMLH0A0HYM2"]},
-    ]
-
-    # Persist raw and engineered JPY carry series. Charts and model input below
-    # read the engineered spreads back from SQLite, so spread values are an
-    # auditable engineering output rather than model-side math.
-    persist_jpy_carry_series({
+    spreads = persist_jpy_carry_series({
         "USDJPY": {"series_name": "USD/JPY", "category": "fx", "rows": usdjpy_rows, "unit": "JPY per USD", "source": "BOJ", "source_url": usdjpy_meta.get("source_url", "")},
         "JPY_CALL": {"series_name": "JPY overnight call rate", "category": "funding", "rows": call_rows, "unit": "%", "source": "BOJ", "source_url": call_meta.get("source_url", "")},
         "JGB2": {"series_name": "JGB 2Y", "category": "jgb", "rows": jgb_rows.get("JGB2", []), "unit": "%", "source": "MOF+CNBC", "source_url": jgb_meta.get("source_url", "")},
@@ -866,9 +800,40 @@ def build_payload(trigger: str, stamp: Optional[str] = None) -> Tuple[Dict[str, 
         "CFTC_JPY_SHORT_SHARE": {"series_name": "CFTC JPY short share", "category": "positioning", "rows": cftc_short_share_series, "unit": "short/(short+long)", "source": "CFTC", "source_url": cftc_meta.get("source_url", ""), "notes": "gross short / (gross short + gross long): short-side intensity proxy"},
         "CFTC_JPY_OPEN_INTEREST": {"series_name": "CFTC JPY open interest", "category": "positioning", "rows": cftc_open_interest_series, "unit": "contracts", "source": "CFTC", "source_url": cftc_meta.get("source_url", ""), "notes": "total open interest all"},
         "USDJPY_VOL20": {"series_name": "USD/JPY 20D realized volatility", "category": "engineered_volatility", "rows": usdjpy_vol20_series, "unit": "%", "source": "engineered", "source_url": "", "notes": "20-observation annualized realized volatility from USDJPY"},
-        "US_JP_2Y": {"series_name": "2Y UST-JGB spread", "category": "engineered_spread", "rows": us_jp_2y_series, "unit": "bp", "source": "engineered", "source_url": "", "notes": "DGS2 minus latest JGB2 not after each US date"},
-        "US_JP_10Y": {"series_name": "10Y UST-JGB spread", "category": "engineered_spread", "rows": us_jp_10y_series, "unit": "bp", "source": "engineered", "source_url": "", "notes": "DGS10 minus latest JGB10 not after each US date"},
     }, snapshot_file=snapshot_file, ingested_at=generated)
+    us_jp_10y_series = spreads["US_JP_10Y"]
+    us_jp_2y_series = spreads["US_JP_2Y"]
+    us_jp_10y_latest = latest_non_null(us_jp_10y_series)
+    us_jp_10y = us_jp_10y_latest[1] if us_jp_10y_latest else None
+    vix_latest = latest_non_null(fred_vix)
+
+    risk = carry_risk(cftc_net_oi, jgb10_chg_bp, usdjpy_chg20, usdjpy_vol20,
+                      vix_latest[1] if vix_latest else None, us_jp_10y)
+
+    def card(card_id, label_text, value_text, change_text, as_of, why):
+        return {"id": card_id, "label": label_text, "value_text": value_text, "change_text": change_text, "as_of": as_of or "NA", "why": why}
+
+    cards = [
+        card("USDJPY", "USD/JPY（美元兑日元）", f"{usdjpy_latest[1]:.2f}" if usdjpy_latest else "NA", f"逐日 {fmt_signed_pct(usdjpy_chg1_pct)}" if usdjpy_chg1_pct is not None else "NA", usdjpy_latest[0] if usdjpy_latest else None, "日元快速升值会触发carry止损/回补"),
+        card("JPY_CALL", "JPY隔夜融资成本（日本无担保隔夜拆借利率）", fmt_pct(call_latest[1], 3) if call_latest else "NA", f"逐日 {fmt_bp(call_chg1_bp)}" if call_chg1_bp is not None else "NA", call_latest[0] if call_latest else None, "carry trade 的融资端"),
+        card("JGB10", "JGB 10Y（日本10年期国债收益率）", fmt_pct(jgb10_latest[1], 3) if jgb10_latest else "NA", f"逐日 {fmt_bp(jgb10_chg1_bp)}" if jgb10_chg1_bp is not None else "NA", jgb10_latest[0] if jgb10_latest else None, "日本本土资产吸引力和资金回流压力"),
+        card("US_JP_10Y", "10Y UST-JGB利差（美日10年期国债利差）", fmt_bp(us_jp_10y, 1), "同日收益率之差", us_jp_10y_latest[0] if us_jp_10y_latest else None, "美日长端利差越宽，carry收益端越顺风"),
+        card("CFTC_JPY", "CFTC JPY净仓位/OI（日元期货非商业净仓位占比）", f"{cftc_net_oi:.1%}" if cftc_net_oi is not None else "NA", f"净周变化 {cftc_change:,.0f} 口" if cftc_change is not None else "NA", cftc_latest.get("date") if cftc_latest else None, cftc_decomposition['text']),
+        card("CFTC_JPY_GROSS_SHORT", "CFTC JPY非商业空头（总口数）", f"{cftc_short:,.0f}" if cftc_short is not None else "NA", f"周变化 {cftc_short_chg:,.0f} 口" if cftc_short_chg is not None else "NA", cftc_latest.get("date") if cftc_latest else None, "本周非商业交易者持有的日元期货空头合约数"),
+        card("CFTC_JPY_SHORT_SHARE", "CFTC JPY空头占比（空头/(空头+多头)）", f"{cftc_short_share:.1%}" if cftc_short_share is not None else "NA", f"周变化 {cftc_short_share_chg * 100:+.1f} 个百分点" if cftc_short_share_chg is not None else "NA", cftc_latest.get("date") if cftc_latest else None, (f"空头占比在过去一年位于{cftc_short_share_pctile:.0%}分位" if cftc_short_share_pctile is not None else "空头合约占非商业多空合约合计的比例")),
+        card("USDJPY_VOL20", "USD/JPY 20日实现波动率（年化）", fmt_pct(usdjpy_vol20), "年化", usdjpy_latest[0] if usdjpy_latest else None, "波动率上升会降低carry策略夏普"),
+        card("JPY_NEER", "JPY NEER（日元名义有效汇率，BIS日频）", f"{neer_latest[1]:.2f}" if neer_latest else "NA", f"逐日 {neer_chg1:+.2f}｜约1月 {neer_chg20:+.2f}" if (neer_chg1 is not None and neer_chg20 is not None) else (f"逐日 {neer_chg1:+.2f}" if neer_chg1 is not None else "NA"), neer_latest[0] if neer_latest else None, "相对一篮子货币的日元强弱/资金流广度背景（日频）"),
+    ]
+
+    sources = [
+        {"name": "BOJ Time-Series Data Search API", "url": "https://www.stat-search.boj.or.jp/api/v1/getDataCode", "items": ["FM08/FXERD04 USDJPY", "FM01/STRDCLUCON call rate"]},
+        {"name": "BIS Data Portal (daily NEER)", "url": neer_meta.get("source_url"), "items": ["D.N.B.JP 日频名义有效汇率（广义64经济体篮子）"]},
+        {"name": "MOF JGB constant-maturity CSV (history)", "url": jgb_meta.get("source_url"), "items": ["2Y/10Y/30Y JGB yields long-run history"]},
+        {"name": "CNBC real-time JGB yields (latest daily patch)", "url": cnbc_jgb_meta.get("source_url"), "items": ["JP2Y/JP5Y/JP10Y/JP30Y latest values"]},
+        {"name": "CFTC Public Reporting API", "url": cftc_meta.get("source_url"), "items": ["JPY futures non-commercial positioning"]},
+        {"name": "FRED", "url": "https://fred.stlouisfed.org/", "items": ["DGS2/DGS10", "VIXCLS", "BAMLH0A0HYM2"]},
+    ]
+
     # Load the FULL accumulated history for each series (snapshot_file=None) so the
     # rendered charts/history use the complete DB time series even if the current
     # run's live fetch was incomplete.
@@ -884,8 +849,6 @@ def build_payload(trigger: str, stamp: Optional[str] = None) -> Tuple[Dict[str, 
     cftc_open_interest_chart_rows = load_jpy_series_from_db("CFTC_JPY_OPEN_INTEREST")
     usdjpy_vol20_chart_rows = load_jpy_series_from_db("USDJPY_VOL20")
     neer_chart_rows = load_jpy_series_from_db("JPY_NEER", limit=260)  # BIS daily, ~1y window
-    us_jp_2y_series = load_jpy_series_from_db("US_JP_2Y")
-    us_jp_10y_series = load_jpy_series_from_db("US_JP_10Y")
 
     charts = [
         {"id": "jpy_usdjpy_funding_1y", "title": "JPY Carry：USD/JPY 与日元隔夜融资成本", "chart_type": "line", "unit": "", "dual_axis": True, "y_axes": {"y": "USD/JPY", "y1": "%"}, "data_source": "SQLite jpy_carry_series_ts", "series": [
@@ -918,7 +881,7 @@ def build_payload(trigger: str, stamp: Optional[str] = None) -> Tuple[Dict[str, 
 
     jpy_carry = {
         "meta": {"generated_at_bjt": generated, "lookback": "日频约1年，CFTC约2年，NEER(BIS日频)约1年"},
-        "risk": {"label": label, "score": round(score, 1), "reasons": reasons[:5]},
+        "risk": risk,
         "cards": cards,
         "cftc_decomposition": cftc_decomposition,
         "history": {
@@ -938,17 +901,31 @@ def build_payload(trigger: str, stamp: Optional[str] = None) -> Tuple[Dict[str, 
     }
     history = {"jpy_carry": jpy_carry, "charts": charts}
 
+    return outputs_from_jpy_history(history, trigger)
+
+
+def outputs_from_jpy_history(history, trigger):
+    """Build the same current JPY summary and prompt for live and frozen runs."""
+    jpy_carry = history["jpy_carry"]
+    generated = jpy_carry["meta"]["generated_at_bjt"]
+    risk = jpy_carry["risk"]
+    label, reasons = risk["label"], risk["reasons"]
+    cards = jpy_carry.get("cards", [])
+    cftc_decomposition = jpy_carry["cftc_decomposition"]
+    net_history = jpy_carry.get("history", {}).get("CFTC_JPY_NET_OI", [])
+    cftc_net_oi = net_history[-1]["value"] if net_history else None
     analysis = {
         "meta": {"generated_at_bjt": generated, "model": "rule_summary", "prompt_file": str(PROMPT_PATH), "note": "模型分析可基于 jpy_carry_model_input.json 覆盖本文件。"},
         "risk": jpy_carry["risk"],
         "one_liner": f"日元 carry unwind 风险为{label}；" + "；".join(reasons[:2]),
         "dashboard_modules": (lambda cb: [
             {"module": "日元融资端", "status": "低位但需观察", "evidence": cb["JPY_CALL"]["value_text"], "explanation": cb["JPY_CALL"]["why"]},
-            {"module": "美日利差", "status": "仍有carry收益", "evidence": cb["US_JP_10Y"]["value_text"], "explanation": cb["US_JP_10Y"]["why"]},
+            {"module": "美日利差", "status": "同日收益率之差" if cb["US_JP_10Y"]["value_text"] != "NA" else "缺少共同日期", "as_of": cb["US_JP_10Y"].get("as_of", "NA"), "evidence": cb["US_JP_10Y"]["value_text"], "explanation": cb["US_JP_10Y"]["why"]},
             {"module": "汇率与波动", "status": "未触发unwind", "evidence": f"{cb['USDJPY']['value_text']} / vol {cb['USDJPY_VOL20']['value_text']}", "explanation": "快速日元升值和波动率上升才是核心触发。"},
             {"module": "仓位拥挤度(净)", "status": "拥挤" if cftc_net_oi is not None and cftc_net_oi <= -0.2 else "中性", "evidence": cb["CFTC_JPY"]["value_text"], "explanation": cb["CFTC_JPY"]["why"]},
             {"module": "空头真实强度", "status": _CFTC_DASHBOARD_STATUS.get(cftc_decomposition["driver"], "信号混合"), "evidence": cb["CFTC_JPY_SHORT_SHARE"]["value_text"], "explanation": cftc_decomposition["text"]},
-        ])({c["id"]: c for c in cards}),
+        ])({key: {"value_text": "NA", "why": "缺少观测。", **next((c for c in cards if c.get("id") == key), {})}
+            for key in ("JPY_CALL", "US_JP_10Y", "USDJPY", "USDJPY_VOL20", "CFTC_JPY", "CFTC_JPY_SHORT_SHARE")}),
         "watchlist": ["USD/JPY 20日实现波动率", "CFTC JPY净仓位/OI", "CFTC JPY空头占比(空头/(空头+多头))", "10Y UST-JGB利差", "VIX/HY OAS"],
     }
 

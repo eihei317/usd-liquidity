@@ -9,32 +9,32 @@ from .utils import (
     Metric,
     format_number,
     metric_map,
-    read_tga_history,
     safe_float,
 )
 
 
-def spread_value(a: Optional[Metric], b: Optional[Metric]) -> Optional[float]:
-    if not a or not b or a.value is None or b.value is None:
+def observation_value(metric: Optional[Metric], day: Optional[str]) -> Optional[float]:
+    """Use an actual observation for this date; never carry a policy quote forward."""
+    if not metric or not day:
         return None
-    if a.as_of != b.as_of:
-        # Policy anchors may be carried only with an explicit effective-date observation.
-        history = (b.extra or {}).get("history", [])
-        matched = [r for r in history if isinstance(r, dict) and r.get("date") == a.as_of]
-        if not matched:
-            return None
-        return (a.value - matched[-1]["value"]) * 100.0
-    return (a.value - b.value) * 100.0
+    if day == metric.as_of:
+        return metric.value
+    if day == metric.previous_as_of and metric.previous is not None:
+        return metric.previous
+    values = {r["value"] for r in (metric.extra or {}).get("history", [])
+              if isinstance(r, dict) and r.get("date") == day and isinstance(r.get("value"), (int, float))
+              and r.get("source", metric.source) == metric.source and r.get("unit", metric.unit) == metric.unit}
+    return values.pop() if len(values) == 1 else None
+
+
+def spread_value(a: Optional[Metric], b: Optional[Metric]) -> Optional[float]:
+    other = observation_value(b, a.as_of) if a else None
+    return (a.value - other) * 100.0 if a and a.value is not None and other is not None else None
 
 
 def previous_spread_value(a: Optional[Metric], b: Optional[Metric]) -> Optional[float]:
-    if not a or not b or a.previous is None or b.previous is None:
-        return None
-    if a.previous_as_of != b.previous_as_of:
-        history=(b.extra or {}).get("history",[])
-        matched=[r for r in history if isinstance(r,dict) and r.get("date")==a.previous_as_of]
-        return (a.previous-matched[-1]["value"])*100.0 if matched else None
-    return (a.previous - b.previous) * 100.0
+    other = observation_value(b, a.previous_as_of) if a else None
+    return (a.previous - other) * 100.0 if a and a.previous is not None and other is not None else None
 
 
 def value_change(m: Optional[Metric]) -> Optional[float]:
@@ -77,50 +77,54 @@ def derive_signals(metrics: List[Metric]) -> Tuple[List[DerivedSignal], float, L
     sofr_anchor = spread_value(mm.get("SOFR"), policy_anchor)
     sofr_anchor_prev = previous_spread_value(mm.get("SOFR"), policy_anchor)
     sofr_as_of = mm.get("SOFR").as_of if mm.get("SOFR") else None  # 从底层metric继承时间
-    sev_key, sev = classify_bp(sofr_anchor, 0.0, -8.0)
-    add_signal("SOFR_ANCHOR", sofr_anchor_label, sofr_anchor, "bp", f"SOFR相对{anchor_label}的位置。" + ("回购融资高于观察阈值；变化方向须另行判断" if sev_key == "tight" else "回购融资低于政策锚，说明资金面不紧" if sev_key == "loose" else "回购融资与政策锚接近"), sev, 1.5 if sev_key == "tight" else -0.5 if sev_key == "loose" else 0.0, previous=sofr_anchor_prev, as_of=sofr_as_of)
+    sev_key, sev = ("neutral", "中性") if sofr_anchor == 0 else classify_bp(sofr_anchor, 0.0, -8.0)
+    add_signal("SOFR_ANCHOR", sofr_anchor_label, sofr_anchor, "bp", f"SOFR相对{anchor_label}的位置。" + ("缺少同日政策利率，无法判断利差" if sofr_anchor is None else "回购利率高于政策利率；变化方向须另行判断" if sev_key == "tight" else "回购融资低于政策锚，说明资金面不紧" if sev_key == "loose" else "回购融资与政策锚接近"), sev, 1.5 if sev_key == "tight" else -0.5 if sev_key == "loose" else 0.0, previous=sofr_anchor_prev, as_of=sofr_as_of)
 
     sofr_volume = mm.get("SOFR_VOLUME")
-    if sofr_volume and sofr_volume.value is not None and sofr_anchor is not None:
-        impact_mn_day = sofr_volume.value * sofr_anchor / 10_000.0 / 360.0 * 1_000.0
+    volume_at_fixing = observation_value(sofr_volume, sofr_as_of)
+    if volume_at_fixing is not None and sofr_anchor is not None:
+        impact_mn_day = volume_at_fixing * sofr_anchor / 10_000.0 / 360.0 * 1_000.0
         impact_prev = None
-        if sofr_volume.previous is not None and sofr_anchor_prev is not None:
-            impact_prev = sofr_volume.previous * sofr_anchor_prev / 10_000.0 / 360.0 * 1_000.0
+        previous_volume = observation_value(sofr_volume, mm["SOFR"].previous_as_of)
+        if previous_volume is not None and sofr_anchor_prev is not None:
+            impact_prev = previous_volume * sofr_anchor_prev / 10_000.0 / 360.0 * 1_000.0
         if impact_mn_day >= 5.0:
             impact_sev = "偏紧"
             impact_score = 0.6
-            impact_text = f"SOFR交易量约{sofr_volume.value:,.0f}bn，SOFR相对政策锚为{sofr_anchor:.1f}bp，价格偏离作用在大体量回购融资上，日化额外成本约{impact_mn_day:.1f}百万美元。"
+            impact_text = f"SOFR交易量约{volume_at_fixing:,.0f}bn，SOFR相对政策锚为{sofr_anchor:.1f}bp，价格偏离作用在大体量回购融资上，按该利差估算的每日成本差约{impact_mn_day:.1f}百万美元。"
         elif impact_mn_day <= -5.0:
             impact_sev = "偏松"
             impact_score = -0.3
-            impact_text = f"SOFR交易量约{sofr_volume.value:,.0f}bn，SOFR低于政策锚，按交易量估算日化融资成本低于政策锚约{abs(impact_mn_day):.1f}百万美元。"
+            impact_text = f"SOFR交易量约{volume_at_fixing:,.0f}bn，SOFR低于政策锚，按交易量估算日化融资成本低于政策锚约{abs(impact_mn_day):.1f}百万美元。"
         else:
             impact_sev = "中性"
             impact_score = 0.0
-            impact_text = f"SOFR交易量约{sofr_volume.value:,.0f}bn，但SOFR相对政策锚偏离有限，价格×规模冲击不大。"
-        add_signal("SOFR_VOLUME_IMPACT", "SOFR Rate-Volume Impact（SOFR价格×交易量影响）", impact_mn_day, "USD mn/day", impact_text, impact_sev, impact_score, previous=impact_prev, as_of=sofr_volume.as_of)
+            impact_text = f"SOFR交易量约{volume_at_fixing:,.0f}bn，但SOFR相对政策锚偏离有限，价格×规模冲击不大。"
+        add_signal("SOFR_VOLUME_IMPACT", "SOFR Rate-Volume Impact（SOFR价格×交易量影响）", impact_mn_day, "USD mn/day", impact_text, impact_sev, impact_score, previous=impact_prev, as_of=sofr_as_of)
+    else:
+        add_signal("SOFR_VOLUME_IMPACT", "回购利差与成交量的成本估算", None, "USD mn/day", "缺少同日利率、政策锚或成交量。", "缺失", as_of=sofr_as_of)
 
     bgcr_tgcr = spread_value(mm.get("BGCR"), mm.get("TGCR"))
     bgcr_tgcr_prev = previous_spread_value(mm.get("BGCR"), mm.get("TGCR"))
     bgcr_as_of = mm.get("BGCR").as_of if mm.get("BGCR") else None
     sev_key, sev = classify_bp(bgcr_tgcr, 3.0)
-    add_signal("BGCR_TGCR", "BGCR-TGCR（广义一般抵押品利率-三方一般抵押品利率）", bgcr_tgcr, "bp", "比较广义回购与三方回购的结构差异。" + ("一般抵押品市场结构可能有扰动" if sev_key == "tight" else "一般抵押品利率结构稳定"), sev, 0.5 if sev_key == "tight" else 0.0, previous=bgcr_tgcr_prev, as_of=bgcr_as_of)
+    add_signal("BGCR_TGCR", "BGCR-TGCR（广义一般抵押品利率-三方一般抵押品利率）", bgcr_tgcr, "bp", "比较广义回购与三方回购的结构差异。" + ("缺少同日利率观测" if bgcr_tgcr is None else "一般抵押品市场结构可能有扰动" if sev_key == "tight" else "一般抵押品利率结构稳定"), sev, 0.5 if sev_key == "tight" else 0.0, previous=bgcr_tgcr_prev, as_of=bgcr_as_of)
 
     cp_spread = spread_value(mm.get("DCPN3M"), mm.get("DFEDTARU"))
     cp_spread_prev = previous_spread_value(mm.get("DCPN3M"), mm.get("DFEDTARU"))
     dcpn_as_of = mm.get("DCPN3M").as_of if mm.get("DCPN3M") else None
     sev_key, sev = classify_bp(cp_spread, 30.0, 0.0)
-    add_signal("CP_PROXY", "CP Rate-Policy Upper Proxy（商业票据利率-政策上限代理利差）", cp_spread, "bp", "用90天AA非金融商业票据利率减联邦基金目标上限，粗略观察企业短融相对政策利率是否变贵；这是信用传导代理指标，不是FRA-OIS。" + ("企业短期融资压力偏高" if sev_key == "tight" else "企业短融压力不明显" if sev_key == "loose" else "企业短融压力中性"), sev, 1.0 if sev_key == "tight" else -0.3 if sev_key == "loose" else 0.0, previous=cp_spread_prev, as_of=dcpn_as_of)
+    add_signal("CP_PROXY", "CP Rate-Policy Upper Proxy（商业票据利率-政策上限代理利差）", cp_spread, "bp", "用90天AA非金融商业票据利率减联邦基金目标上限，粗略观察企业短融相对政策利率是否变贵；这是信用传导代理指标，不是FRA-OIS。" + ("缺少同日观测" if cp_spread is None else "企业短期融资压力偏高" if sev_key == "tight" else "企业短融压力不明显" if sev_key == "loose" else "企业短融压力中性"), sev, 1.0 if sev_key == "tight" else -0.3 if sev_key == "loose" else 0.0, previous=cp_spread_prev, as_of=dcpn_as_of)
 
     tga = mm.get("TGA")
     tga_change = value_change(tga)
     tga_change_prev = None
     if tga and tga.previous is not None and tga.previous_as_of:
-        history = read_tga_history(90)
-        for i, (d, v) in enumerate(history):
-            if d == tga.previous_as_of and i > 0:
-                tga_change_prev = tga.previous - history[i - 1][1]
-                break
+        earlier = [r["date"] for r in (tga.extra or {}).get("history", []) if isinstance(r, dict)
+                   and r.get("date") and r["date"] < tga.previous_as_of and r.get("value") is not None]
+        older_value = observation_value(tga, max(earlier)) if earlier else None
+        if older_value is not None:
+            tga_change_prev = tga.previous - older_value
 
     if tga_change is not None:
         if tga_change > 50:
@@ -162,7 +166,7 @@ def derive_signals(metrics: List[Metric]) -> Tuple[List[DerivedSignal], float, L
         ("7Y", "DGS7", "UST_7Y_YIELD", 3.0),
     ]
     belly_changes: List[float] = []
-    belly_as_of: Optional[str] = None
+    belly_windows = set()
     for tenor, metric_id, level_signal_id, low_level in yield_tenors:
         metric = mm.get(metric_id)
         if not metric or metric.value is None:
@@ -183,7 +187,7 @@ def derive_signals(metrics: List[Metric]) -> Tuple[List[DerivedSignal], float, L
         if change_bp is None:
             continue
         belly_changes.append(change_bp)
-        belly_as_of = metric.as_of or belly_as_of
+        belly_windows.add((metric.previous_as_of, metric.as_of))
         if change_bp > 5.0:
             change_severity = "偏紧"
             change_text = f"{tenor}收益率较上一期显著上行，折现率压力边际增强。"
@@ -195,7 +199,8 @@ def derive_signals(metrics: List[Metric]) -> Tuple[List[DerivedSignal], float, L
             change_text = f"{tenor}收益率较上一期变化有限。"
         add_signal(f"UST_{tenor}_CHANGE_BP", f"{tenor} Treasury Yield Change（{tenor}美国国债收益率变化）", change_bp, "bp", change_text, change_severity, 0.0, as_of=metric.as_of)
 
-    if belly_changes:
+    if len(belly_changes) == len(yield_tenors) and len(belly_windows) == 1 and all(next(iter(belly_windows))):
+        _, belly_as_of = next(iter(belly_windows))
         average_change_bp = sum(belly_changes) / len(belly_changes)
         up_count = sum(change > 5.0 for change in belly_changes)
         down_count = sum(change < -5.0 for change in belly_changes)
@@ -221,6 +226,10 @@ def derive_signals(metrics: List[Metric]) -> Tuple[List[DerivedSignal], float, L
             belly_score = 0.0
             belly_text = f"可用期限中显著上行{up_count}个、显著下行{down_count}个，尚未形成足够广泛的同向边际重定价。"
         add_signal("UST_BELLY_MOMENTUM", "1Y/3Y/5Y/7Y Treasury Yield Momentum（国债收益率腹部组合边际变化）", average_change_bp, "bp avg", belly_text, belly_severity, belly_score, as_of=belly_as_of)
+
+    else:
+        add_signal("UST_BELLY_MOMENTUM", "一年、三年、五年和七年期国债平均利率变化", None, "bp avg",
+                   "四个期限缺少相同起止日的变化，保留各期限的独立读数。", "缺失")
 
     def add_belly_slope(signal_id: str, name: str, longer: Optional[Metric], shorter: Optional[Metric]) -> None:
         current_bp = spread_value(longer, shorter)
@@ -284,14 +293,14 @@ def derive_signals(metrics: List[Metric]) -> Tuple[List[DerivedSignal], float, L
             )
 
         # Inflation compensation must use matched dates. It contains expected inflation plus risk/liquidity premia.
-        if nominal.as_of != real.as_of:
+        if not nominal.as_of or nominal.as_of != real.as_of:
             return
         breakeven = nominal.value - real.value
         breakeven_previous = None
         if (
             nominal.previous is not None
             and real.previous is not None
-            and nominal.previous_as_of == real.previous_as_of
+            and nominal.previous_as_of and nominal.previous_as_of == real.previous_as_of
         ):
             breakeven_previous = nominal.previous - real.previous
         breakeven_change_bp = (
@@ -513,7 +522,8 @@ def derive_signals(metrics: List[Metric]) -> Tuple[List[DerivedSignal], float, L
 
     tbill_size = mm.get("TBILL_AUCTION_SIZE")
     tbill_btc = mm.get("TBILL_AUCTION_BTC")
-    if tbill_size and tbill_btc and tbill_size.value is not None and tbill_btc.value is not None:
+    if (tbill_size and tbill_btc and tbill_size.as_of and tbill_size.as_of == tbill_btc.as_of
+            and tbill_size.value is not None and tbill_btc.value is not None):
         def tbill_stress_score(size: Optional[float], btc: Optional[float]) -> Optional[float]:
             if size is None or btc is None:
                 return None
@@ -522,7 +532,8 @@ def derive_signals(metrics: List[Metric]) -> Tuple[List[DerivedSignal], float, L
             return max(0.0, min(100.0, size_score + demand_score))
 
         stress = tbill_stress_score(tbill_size.value, tbill_btc.value)
-        stress_prev = tbill_stress_score(tbill_size.previous, tbill_btc.previous)
+        stress_prev = (tbill_stress_score(tbill_size.previous, tbill_btc.previous)
+                       if tbill_size.previous_as_of and tbill_size.previous_as_of == tbill_btc.previous_as_of else None)
         btc_prev = f"，上一T-bill拍卖日认购倍数 {tbill_btc.previous:.2f}x" if tbill_btc.previous is not None else ""
         stress_text = f"最新T-bill拍卖规模约{tbill_size.value:,.1f}bn，认购倍数{tbill_btc.value:.2f}x{btc_prev}；该分数综合供给规模与需求覆盖，数值越高表示吸收压力越大。"
         if stress is not None and stress >= 55:
@@ -531,6 +542,10 @@ def derive_signals(metrics: List[Metric]) -> Tuple[List[DerivedSignal], float, L
             add_signal("TBILL_AUCTION_STRESS", "T-bill Auction Stress Score（短债拍卖吸收压力评分）", stress, "index", stress_text + "需求覆盖较强或供给压力较低，短债吸收压力不明显。", "偏松", -0.2, previous=stress_prev, as_of=tbill_size.as_of)
         else:
             add_signal("TBILL_AUCTION_STRESS", "T-bill Auction Stress Score（短债拍卖吸收压力评分）", stress, "index", stress_text + "供给吸收处于中性区间。", "中性", 0.0, previous=stress_prev, as_of=tbill_size.as_of)
+
+    else:
+        add_signal("TBILL_AUCTION_STRESS", "短债拍卖吸收压力", None, "index",
+                   "缺少同一拍卖日的发行规模与投标倍数。", "缺失")
 
     auction = mm.get("UST_AUCTION_BTC")
     if auction and auction.value is not None:

@@ -11,10 +11,14 @@ import csv
 import io
 import json
 import math
+import re
+import sqlite3
+from contextlib import closing
 from datetime import date, datetime, timedelta
+from pathlib import Path
 from urllib.parse import urlencode
 
-from .utils import BJT, LATEST_DIR, http_get_text
+from .utils import BJT, http_get_text
 
 WINDOWS = (5, 20, 60)
 MARKET_SERIES = {
@@ -72,8 +76,10 @@ def _metric_rows(canonical, snapshot, cutoff):
     """Only use the raw row actually selected by canonical source/date/value."""
     mid = str(canonical.get("id", "")).upper()
     source, unit = canonical.get("source"), canonical.get("unit")
-    end, value = _day(canonical.get("as_of")), _number(canonical.get("value"))
-    if not end or end > cutoff or value is None or canonical.get("status") not in (None, "ok", "stale"):
+    reported = canonical.get("reported_future_endpoint", canonical)
+    end, value = _day(reported.get("as_of")), _number(reported.get("value"))
+    future_policy_rate = mid == "IORB" and end and end > cutoff
+    if not end or (end > cutoff and not future_policy_rate) or value is None or reported.get("status") not in (None, "ok", "stale"):
         return [], "canonical_unusable"
     candidates = [r for r in snapshot.get("metrics", []) if isinstance(r, dict)
                   and str(r.get("id", "")).upper() == mid
@@ -83,12 +89,34 @@ def _metric_rows(canonical, snapshot, cutoff):
         return [], "canonical_source_history_missing"
     # Equivalent copies are harmless; contradictory histories are never merged.
     row = max(candidates, key=lambda r: len((r.get("extra") or {}).get("history") or []))
-    rows = _points((row.get("extra") or {}).get("history"), end, source=source, unit=unit)
+    rows = _points((row.get("extra") or {}).get("history"), min(cutoff, end), source=source, unit=unit)
     if not rows:
         return [], "history_missing"
-    if rows[-1][0] != end or not math.isclose(rows[-1][1], value, abs_tol=1e-8, rel_tol=1e-9):
+    if not future_policy_rate and (rows[-1][0] != end or not math.isclose(rows[-1][1], value, abs_tol=1e-8, rel_tol=1e-9)):
         return [], "history_endpoint_mismatch"
     return rows, "ok"
+
+
+def _effective_policy_rate(row, points, cutoff):
+    """Keep the published future effective date separate from the in-force rate."""
+    reported = row.get("reported_future_endpoint", row)
+    if not _day(reported.get("as_of")) or _day(reported["as_of"]) <= cutoff:
+        return
+    row["reported_future_endpoint"] = {key: reported.get(key) for key in ("as_of", "value", "status")}
+    end, value = points[-1] if points else (None, None)
+    start, previous = points[-2] if len(points) > 1 else (None, None)
+    history = {"observations": len(points), "basis": "valid observations through capture date"}
+    for n in WINDOWS:
+        if len(points) > n:
+            history[str(n)] = {"start": points[-n-1][0], "end": end, "change": value - points[-n-1][1]}
+    source_status = reported.get("status") or "ok"
+    row.update(value=value, as_of=end, previous=previous, previous_as_of=start,
+               change=value - previous if previous is not None else None,
+               history_summary=history, distribution={},
+               status=source_status if points or source_status not in ("ok", "stale") else "missing")
+    row["status"], row["stale_days"] = _freshness(row, cutoff)
+    row["source_selection"] = {**(row.get("source_selection") or {}),
+                               "reason": f"{row.get('source')} 截至 {cutoff} 的最近有效观测日期为 {end or '未知'}。"}
 
 
 def _frequency_label(frequency):
@@ -164,8 +192,100 @@ def _coverage(fid, message, *, as_of=None, status="missing", base_ids=None, **ex
             "base_fact_ids": base_ids or [], **extra}
 
 
-def _calendar(event_facts, cutoff):
-    source_rows = event_facts.get("upcoming_auctions") or []
+def _auction_key(row):
+    auction_day, cusip = _day(row.get("auction_date")), row.get("cusip")
+    if auction_day and cusip:
+        return auction_day, cusip
+    if auction_day and row.get("security_type") and row.get("security_term"):
+        return auction_day, row["security_type"], row["security_term"]
+    return row.get("fact_id")
+
+
+def _capture_time(snapshot_file, ingested_at):
+    stamp = re.search(r"(\d{8})_(\d{6})\.json$", snapshot_file or "")
+    if stamp:
+        return datetime.strptime("".join(stamp.groups()), "%Y%m%d%H%M%S").isoformat(sep=" ")
+    return (ingested_at or "")[:19].replace("T", " ")
+
+
+def _archived_auctions(history_db, generated_at):
+    """Replay successful calendars in capture order, including withdrawals and amendments."""
+    if history_db is None or not Path(history_db).is_file():
+        return {}, False
+    cutoff = _day(generated_at)
+    timestamp = str(generated_at)[:19].replace("T", " ")
+    captures = {}
+    with closing(sqlite3.connect(Path(history_db).resolve().as_uri() + "?mode=ro", uri=True)) as db:
+        db.row_factory = sqlite3.Row
+        if not db.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name='treasury_auctions_ts'").fetchone():
+            return {}, False
+        for row in db.execute("""
+            SELECT snapshot_file, ingested_at, calendar_as_of, auction_date, issue_date,
+                   announcement_date, security_type, security_term, cusip, offering_amount_bn, source_url
+            FROM treasury_auctions_ts WHERE status='ok' AND calendar_as_of <= ?
+        """, (cutoff,)):
+            captured = _capture_time(row["snapshot_file"], row["ingested_at"])
+            calendar_day = _day(row["calendar_as_of"])
+            if not calendar_day or not _day(captured) or captured > timestamp:
+                continue
+            captures.setdefault((captured, row["snapshot_file"], calendar_day), []).append(row)
+    events = {}
+    for (captured, filename, calendar_day), rows in sorted(captures.items()):
+        # A later successful calendar replaces all previously listed upcoming auctions.
+        events = {k: r for k, r in events.items() if r["auction_date"] < calendar_day}
+        for row in rows:
+            event = {k: row[k] for k in ("auction_date", "issue_date", "announcement_date", "security_type", "security_term", "cusip", "source_url")}
+            key = _auction_key(event)
+            if key is None:
+                continue
+            if not event["issue_date"] or event["issue_date"] < cutoff:
+                events.pop(key, None)
+                continue
+            event.update(fact_id="event:settlement:" + ":".join(key),
+                         event_type="treasury_auction_announcement", source="TreasuryDirect",
+                         gross_announced_offering_usd_bn=row["offering_amount_bn"],
+                         maturities_usd_bn=None, net_cash_impact_usd_bn=None,
+                         captured_at_bjt=captured, capture_file=filename)
+            events[key] = event
+    return events, bool(captures)
+
+
+def _settlement_sources(event_facts, snapshot, previous_package, history_db, generated_at):
+    cutoff = _day(generated_at)
+    source = snapshot.get("upcoming_auctions") or {}
+    calendar_day = _day(source.get("as_of") or event_facts.get("as_of")) or cutoff
+    raw_announcements = {
+        _auction_key({"auction_date": a.get("auctionDate"), "cusip": a.get("cusip"),
+                      "security_type": a.get("securityType"), "security_term": a.get("securityTerm")}): a.get("announcementDate")
+        for a in source.get("auctions", []) if isinstance(a, dict)
+    }
+    fresh = event_facts.get("upcoming_auctions") or []
+    for row in fresh:
+        if isinstance(row, dict) and not row.get("announcement_date"):
+            row["announcement_date"] = raw_announcements.get(_auction_key(row))
+    events, has_archive = _archived_auctions(history_db, generated_at)
+    if not has_archive and previous_package and str(previous_package.get("generated_at_bjt") or "") <= str(generated_at):
+        prior = previous_package.get("data", {}).get("facts", {}).get("event_facts") or {}
+        for row in (prior.get("previously_announced_settlements") or []) + (prior.get("upcoming_auctions") or []):
+            if isinstance(row, dict) and _auction_key(row):
+                events[_auction_key(row)] = {**row, "captured_at_bjt": row.get("captured_at_bjt") or previous_package.get("generated_at_bjt")}
+    current_keys = {_auction_key(r) for r in fresh if isinstance(r, dict)}
+    success = event_facts.get("status") == "ok"
+    last_day = (date.fromisoformat(cutoff) + timedelta(days=83)).isoformat()
+    historical = []
+    for key, row in events.items():
+        issue, auction, announced = _day(row.get("issue_date")), _day(row.get("auction_date")), _day(row.get("announcement_date"))
+        if (key in current_keys or not issue or not cutoff <= issue <= last_day
+                or (announced and announced > cutoff) or (success and (not auction or auction >= calendar_day))):
+            continue
+        historical.append(row)
+    event_facts["previously_announced_settlements"] = sorted(historical, key=lambda r: (r["issue_date"], r["fact_id"]))
+    return source.get("status") or event_facts.get("status", "missing")
+
+
+def _calendar(event_facts, cutoff, source_status):
+    archived = event_facts.get("previously_announced_settlements") or []
+    source_rows = (event_facts.get("upcoming_auctions") or []) + archived
     usable, seen = [], set()
     for i, row in enumerate(source_rows):
         if not isinstance(row, dict):
@@ -173,7 +293,7 @@ def _calendar(event_facts, cutoff):
         issue, announced = _day(row.get("issue_date")), _day(row.get("announcement_date"))
         if not issue or issue < cutoff or (announced and announced > cutoff):
             continue
-        key = (row.get("cusip"), issue, row.get("security_type"), row.get("security_term")) if row.get("cusip") else row.get("fact_id", str(i))
+        key = _auction_key(row) or i
         if key in seen:
             continue
         seen.add(key)
@@ -189,15 +309,19 @@ def _calendar(event_facts, cutoff):
         all_gross = bool(rows) and len(known_gross) == len(rows)
         # Even a populated schedule contains announced amounts only, not all future issuance.
         status = "partial_announced" if rows else "missing"
+        if rows and source_status != "ok":
+            status = "historical_after_source_failure"
         amount = sum(known_gross) if known_gross else None
         results.append({
             "fact_id": f"calendar:{days}d", "id": f"ANNOUNCED_SETTLEMENTS_{days}D",
             "name": f"未来{days}日已公告结算毛发行（含快照日）", "value": amount,
             "previous": None, "change": None, "unit": "USD bn", "as_of": cutoff,
             "frequency": "announced event schedule", "source": "TreasuryDirect",
-            "source_url": event_facts.get("source_url"), "status": status,
+            "source_url": event_facts.get("source_url") or next((r["source_url"] for r in rows if r.get("source_url")), None),
+            "status": status, "source_status": source_status,
             "window_days": days, "window_start": cutoff, "window_end": end,
-            "event_count": len(rows), "unknown_amount_count": len(gross) - len(known_gross),
+            "event_count": len(rows), "previously_captured_count": sum(r in archived for r in rows),
+            "unknown_amount_count": len(gross) - len(known_gross),
             "gross_announced_offering_usd_bn": amount,
             "gross_amounts_complete_for_listed_events": all_gross,
             "maturities_usd_bn": sum(maturity) if rows and all(v is not None and v >= 0 for v in maturity) else None,
@@ -276,9 +400,63 @@ def build_market_context(generated_at_bjt: str, fetch: bool = True, previous_con
     return result
 
 
-def enrich_package(package: dict, snapshot: dict, previous_package: dict | None = None) -> dict:
+def _package_comparisons(canonical, market_facts, previous_package, previous_snapshot, generated_at):
+    previous_time = previous_package.get("generated_at_bjt")
+    previous_cutoff = _day(previous_time)
+    cutoff = _day(generated_at)
+    if not previous_cutoff or str(previous_time)[:19].replace("T", " ") > str(generated_at)[:19].replace("T", " "):
+        return []
+    previous_facts = previous_package.get("data", {}).get("facts", {})
+    previous = {r["id"]: r for r in previous_facts.get("canonical_metrics", []) if isinstance(r, dict) and r.get("id")}
+    current_rows = [r for mid, r in canonical.items() if mid in CORE_IDS]
+    for row in previous_facts.get("investment", {}).get("market_facts", []):
+        if row.get("fact_id") == f"market:{row.get('id')}:level":
+            previous[row["id"]] = row
+    current_rows.extend(r for r in market_facts if r["fact_id"] == f"market:{r['id']}:level")
+    comparisons = []
+    for current in current_rows:
+        mid = current["id"]
+        old = previous.get(mid)
+        if not old or current.get("source") != old.get("source") or current.get("unit") != old.get("unit"):
+            continue
+        if mid in MARKET_SERIES and current.get("source_url") != old.get("source_url"):
+            continue
+        if mid == "IORB" and (_day(old.get("as_of")) or "") > previous_cutoff:
+            # Pre-3.1 captures stored the last published policy date, including future effective dates.
+            if isinstance(previous_snapshot, (Path, str)) and Path(previous_snapshot).is_file():
+                previous_snapshot = json.loads(Path(previous_snapshot).read_text(encoding="utf-8-sig"))
+            if not isinstance(previous_snapshot, dict) or (previous_snapshot.get("generated_at_bjt") and previous_snapshot["generated_at_bjt"] != previous_time):
+                continue
+            old = dict(old)
+            points, _ = _metric_rows(old, previous_snapshot, previous_cutoff)
+            _effective_policy_rate(old, points, previous_cutoff)
+        value, before = _number(current.get("value")), _number(old.get("value"))
+        end, start = _day(current.get("as_of")), _day(old.get("as_of"))
+        if value is None or before is None or not end or not start or start > end or end > cutoff or start > previous_cutoff:
+            continue
+        current_status, current_age = _freshness(current, cutoff)
+        old_status, old_age = _freshness(old, previous_cutoff)
+        comparisons.append({
+            "fact_id": f"comparison:{mid}", "id": mid, "name": f"{current.get('name', mid)}较上次成功事实包",
+            "value": value, "previous": before, "change": value - before, "unit": current.get("unit"),
+            "as_of": end, "previous_as_of": start, "frequency": "since previous captured package",
+            "source": current.get("source"), "source_url": current.get("source_url"),
+            "status": current_status if current_status != "ok" else old_status,
+            "base_fact_ids": [current.get("fact_id", f"metric:{mid}")],
+            "source_status": current.get("source_status", current.get("status")),
+            "previous_source_status": old.get("source_status", old.get("status")),
+            "stale_days": current_age, "previous_stale_days_at_capture": old_age,
+            "role": current.get("role") or _role(mid), "previous_package_generated_at_bjt": previous_time,
+            "comparison_kind": "revision_same_observation_date" if end == start and value != before else "unchanged" if end == start else "new_observation",
+        })
+    return comparisons
+
+
+def enrich_package(package: dict, snapshot: dict, previous_package: dict | None = None, *,
+                   history_db: Path | None = None, previous_snapshot: Path | dict | None = None) -> dict:
     """Add source-matched windows, announced settlements and market confirmation."""
-    cutoff = _day(package.get("generated_at_bjt") or snapshot.get("generated_at_bjt"))
+    generated_at = package.get("generated_at_bjt") or snapshot.get("generated_at_bjt")
+    cutoff = _day(generated_at)
     if not cutoff:
         raise ValueError("A frozen generated_at_bjt is required")
     facts = package.setdefault("data", {}).setdefault("facts", {})
@@ -289,6 +467,8 @@ def enrich_package(package: dict, snapshot: dict, previous_package: dict | None 
         if mid not in CORE_IDS:
             continue
         points, status = _metric_rows(row, snapshot, cutoff)
+        if mid == "IORB":
+            _effective_policy_rate(row, points, cutoff)
         series[mid] = points
         window_facts = _window_facts(mid, row.get("name", mid), points, row.get("unit"), row.get("frequency"),
                                      row.get("source"), [row.get("fact_id", f"metric:{mid}")])
@@ -311,12 +491,15 @@ def enrich_package(package: dict, snapshot: dict, previous_package: dict | None 
     sofr_freshness, sofr_age = _freshness(sofr_row, cutoff)
     iorb_freshness, iorb_age = _freshness(iorb_row, cutoff)
     anchor_stale = sofr_freshness != "ok" or iorb_freshness != "ok"
-    if matched and matched[-1][0] == _day(sofr_row.get("as_of")):
+    if matched:
+        matched_age = (date.fromisoformat(cutoff) - date.fromisoformat(matched[-1][0])).days
+        latest_matched = matched[-1][0] == _day(sofr_row.get("as_of"))
         matched_facts = _window_facts(
             "SOFR_IORB", "同日SOFR减IORB", matched, "bp", "daily matched observations",
             "NY Fed SOFR and canonical IORB; exact date join", ["metric:SOFR", "metric:IORB"], role="funding_price")
         for item in matched_facts:
-            item.update(status="stale" if anchor_stale else "ok", stale_days=sofr_age,
+            item.update(status="stale" if anchor_stale or not latest_matched else "ok", stale_days=matched_age,
+                        matches_latest_sofr=latest_matched, matched_observations=len(matched),
                         sofr_source_status=sofr_row.get("status"), iorb_source_status=iorb_row.get("status"),
                         iorb_stale_days=iorb_age)
         investment["trend_facts"].extend(matched_facts)
@@ -328,13 +511,13 @@ def enrich_package(package: dict, snapshot: dict, previous_package: dict | None 
     if len(matched) <= 60 or not matched or matched[-1][0] != _day(sofr_row.get("as_of")):
         investment["coverage_facts"].append(_coverage(
             "sofr_iorb_matching", "SOFR与IORB仅按共同观测日期匹配，不回填政策锚；未匹配或短窗口保持未知。",
-            as_of=sofr_row.get("as_of"), status="incomplete_date_matched_history", base_ids=["metric:SOFR", "metric:IORB"], observations=len(matched)))
-    investment["calendar_facts"] = _calendar(facts.get("event_facts") or {}, cutoff)
+            as_of=sofr_row.get("as_of"), status="incomplete_date_matched_history", base_ids=["metric:SOFR", "metric:IORB"],
+            observations=len(matched), last_common_date=matched[-1][0] if matched else None))
+    event_facts = facts.setdefault("event_facts", {})
+    calendar_status = _settlement_sources(event_facts, snapshot, previous_package, history_db, generated_at)
+    investment["calendar_facts"] = _calendar(event_facts, cutoff, calendar_status)
     embedded_context = package.get("data", {}).pop("market_context", None)
-    context = snapshot.get("investment_market_context") or embedded_context
-    if context is None:
-        path = LATEST_DIR / "investment_market_context.json"
-        context = json.loads(path.read_text(encoding="utf-8-sig")) if path.exists() else {}
+    context = snapshot.get("investment_market_context") or embedded_context or {}
     for sid, definition in MARKET_SERIES.items():
         info = context.get("series", {}).get(sid, {})
         rows = _points(context.get("price_history", {}).get(sid), cutoff)
@@ -343,7 +526,7 @@ def enrich_package(package: dict, snapshot: dict, previous_package: dict | None 
         if rows:
             latest, previous = rows[-1], rows[-2] if len(rows) >= 2 else (None, None)
             age = (date.fromisoformat(cutoff) - date.fromisoformat(latest[0])).days
-            status = "stale" if age > (2 if sid == "CBBTCUSD" else 5) else "ok" if source_status == "ok" else source_status
+            status = "stale" if source_status == "ok" and age > (2 if sid == "CBBTCUSD" else 5) else source_status
             level_id = f"market:{sid}:level"
             investment["market_facts"].append({
                 "fact_id": level_id, "id": sid, "name": definition["name"], "value": latest[1],
@@ -363,31 +546,9 @@ def enrich_package(package: dict, snapshot: dict, previous_package: dict | None 
         if not rows or source_status != "ok" or age > (2 if sid == "CBBTCUSD" else 5):
             investment["coverage_facts"].append(_coverage(
                 f"market:{sid}", f"{sid}市场确认数据缺失、离线缓存或滞后，不能当作当前价格确认。",
-                as_of=rows[-1][0] if rows else None, status=source_status, observations=len(rows),
+                as_of=rows[-1][0] if rows else None, status=status if rows else source_status, observations=len(rows),
                 source_url=f"https://fred.stlouisfed.org/series/{sid}"))
-    previous = {str(r.get("id", "")).upper(): r for r in (previous_package or {}).get("data", {}).get("facts", {}).get("canonical_metrics", []) if isinstance(r, dict)}
-    for mid, current in canonical.items():
-        old = previous.get(mid)
-        if not old or mid not in CORE_IDS or current.get("source") != old.get("source") or current.get("unit") != old.get("unit"):
-            continue
-        value, before = _number(current.get("value")), _number(old.get("value"))
-        end, start = _day(current.get("as_of")), _day(old.get("as_of"))
-        if value is None or before is None or not end or not start or start > end or end > cutoff:
-            continue
-        current_status, current_age = _freshness(current, cutoff)
-        previous_cutoff = _day((previous_package or {}).get("generated_at_bjt")) or start
-        old_status, old_age = _freshness(old, previous_cutoff)
-        comparison_status = current_status if current_status != "ok" else old_status
-        investment["comparison_facts"].append({
-            "fact_id": f"comparison:{mid}", "id": mid, "name": f"{current.get('name', mid)}较上次成功事实包",
-            "value": value, "previous": before, "change": value - before, "unit": current.get("unit"),
-            "as_of": end, "previous_as_of": start, "frequency": "since previous captured package",
-            "source": current.get("source"), "status": comparison_status, "base_fact_ids": [current.get("fact_id", f"metric:{mid}")],
-            "source_status": current.get("status"), "previous_source_status": old.get("status"),
-            "stale_days": current_age, "previous_stale_days_at_capture": old_age,
-            "role": _role(mid), "previous_package_generated_at_bjt": (previous_package or {}).get("generated_at_bjt"),
-            "comparison_kind": "revision_same_observation_date" if end == start and value != before else "unchanged" if end == start else "new_observation",
-        })
+    investment["comparison_facts"] = _package_comparisons(canonical, investment["market_facts"], previous_package or {}, previous_snapshot, generated_at)
     investment["coverage_facts"].extend([
         _coverage("direct_expectations", "未配置SOFR期货、调查共识或事件预期差；模型分解不能冒充市场直接预期，已计价程度保持未知。", as_of=cutoff),
         _coverage("btc_flows_leverage", "未配置BTC现货资金流及合约杠杆；美元流动性与价格确认不代表BTC全部收益驱动。", as_of=cutoff),
@@ -395,6 +556,6 @@ def enrich_package(package: dict, snapshot: dict, previous_package: dict | None 
         _coverage("historical_vintages", "本次保存可见数据快照；回抓历史不等于当时可见版本，不能据此宣称无前视预测能力。", as_of=cutoff, status="prospective_capture_only"),
     ])
     facts["investment"] = investment
-    package["investment_method_version"] = "3.0"
+    package["investment_method_version"] = "3.1"
     return package
 
