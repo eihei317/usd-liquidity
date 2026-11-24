@@ -12,6 +12,7 @@ class TestNode {
     this.children = [];
     this._text = "";
     this.className = "";
+    this.style = {};
   }
   set textContent(value) { this._text = String(value); this.children = []; }
   get textContent() { return this._text + this.children.map(node => node.textContent).join(" "); }
@@ -19,15 +20,19 @@ class TestNode {
   append(...nodes) { nodes.forEach(node => this.appendChild(node)); }
   replaceChildren(...nodes) { this.children = []; this._text = ""; this.append(...nodes); }
   addEventListener() {}
+  getContext() { return {}; }
 }
 
 function allNodes(node) { return [node, ...node.children.flatMap(allNodes)]; }
 
 function makeContext() {
-  const roots = Object.fromEntries(["investment-assessment", "investment-facts", "research-review", "daily-brief", "key-signals"].map(id => [id, new TestNode()]));
+  const ids = ["investment-assessment", "investment-facts", "research-review", "daily-brief", "key-signals",
+    "options-panel", "options-charts", "charts-core", "charts-background"];
+  const roots = Object.fromEntries(ids.map(id => [id, new TestNode()]));
   const document = {
     body: new TestNode("body"),
     createElement: tag => new TestNode(tag),
+    createTextNode: value => { const node = new TestNode("#text"); node.textContent = value; return node; },
     getElementById: id => roots[id] || null
   };
   const context = {
@@ -49,6 +54,40 @@ async function main() {
   assert.doesNotMatch(roots["investment-assessment"].textContent, /中性/);
 
   const malicious = "<img src=x onerror=alert(1)>";
+  context.renderOptions();
+  assert.match(roots["options-panel"].textContent, /归档未收录期权数据/);
+  const optionFacts = [
+    {fact_id: "option:SPX:gross_gamma_1pct", status: "ok", value: 250000000},
+    {fact_id: "option:SPX:gamma_share_7d", status: "ok", value: 0}
+  ];
+  const options = {
+    model: {status: "ok", value: 5.12, as_of: "2026-11-20", source: malicious, source_url: "javascript:evil()"},
+    positioning: {status: "ok", value: -380, as_of: "2026-11-17", source: "CFTC", source_url: "https://www.cftc.gov"},
+    chain: {status: "ok", as_of: "2026-11-20", observed_at: "2026-11-20T15:00:00-05:00", open_interest_as_of: "2026-11-19",
+      facts: optionFacts, strike_distribution: [{strike: 6550, share_pct: 31.3}]}
+  };
+  context.renderOptions(options, {model: {missing_sp500_dates: ["2025-11-20", "2026-11-19"]}});
+  const panel = roots["options-panel"];
+  assert.match(panel.textContent, /5.12 个百分点.*净空 380 手股指期货.*2.5 亿美元.*7日内到期占比 0%.*当日到期占比 未知.*6,550 点／31.3%/);
+  assert.match(panel.textContent, /行情时刻 2026-11-20.*未平仓量日期 2026-11-19.*2025-11-20，2026-11-19/);
+  assert.deepEqual(allNodes(panel).filter(node => node.tagName === "a").map(node => node.href), ["https://www.cftc.gov"]);
+  for (const status of ["partial", "invalid", "redistribution_unconfirmed", "unavailable_at_cutoff"]) {
+    context.renderOptions({...options, chain: {...options.chain, status}});
+    assert.doesNotMatch(panel.textContent, /2.5 亿美元|6,550 点/);
+    assert.match(panel.textContent, /净 Gamma 未知/);
+  }
+  context.renderOptions({...options, model: {...options.model, status: "partial_latest"},
+    chain: {...options.chain, status: "stale", input_status: ["invalid"]}});
+  assert.match(panel.textContent, /最新一期未配对.*5.12 个百分点.*行情已滞后.*另有输入未通过校验.*2.5 亿美元/);
+  const renderedCharts = [];
+  context.Chart = class { constructor(_canvas, config) { renderedCharts.push(config); } destroy() {} };
+  const points = [{date: "2025-11-21", value: 1}, {date: "2026-11-20", value: 2}];
+  const sourceChart = {id: "options_model", title: "期权趋势", series: [{label: "模型", points}]};
+  context.renderCharts([sourceChart], [{default_open: true, chart_ids: ["options_model"]},
+    {default_open: false, chart_ids: ["options_model"]}], {});
+  assert.deepEqual(Array.from(renderedCharts[0].data.labels), ["2025-11-21", "2026-11-20"]);
+  assert.match(roots["options-charts"].textContent, /期权趋势/);
+  assert.doesNotMatch(roots["charts-core"].textContent + roots["charts-background"].textContent, /期权趋势/);
   const archived = {stance: {one_liner: "银行拆借稳定"}, investment_assessment: {next_checks: ["明天看融资利差"]}};
   context.renderDailyBrief(archived);
   assert.match(roots["daily-brief"].textContent, /银行拆借稳定.*明天看融资利差/);

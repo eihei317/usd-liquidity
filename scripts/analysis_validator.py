@@ -241,6 +241,7 @@ _EXPLICIT_BAD_STATUSES = {
     "failed",
     "missing",
     "not_available",
+    "partial_latest",
     "stale",
     "unavailable",
     "unknown",
@@ -967,6 +968,124 @@ def _validate_uncited_predictions(candidate: Mapping[str, Any], errors: List[str
                     errors.append(f"{path}: 不带 fact_ids 的区域不得包含{label} {match.group(0)!r}")
 
 
+_GAMMA = r"(?:gamma|伽马|伽玛|γ)"
+_DEALER = r"(?:做市商|交易商|dealers?|market\s+makers?)"
+_SIGN = r"(?:正|负|多头|空头|净多|净空|positive|negative|long|short)"
+_OPTION_ASSERTION = re.compile(
+    rf"{_GAMMA}\s*(?:挤压|轧空|逼空|squeeze)"
+    rf"|{_DEALER}.{{0,25}}?(?:{_SIGN}\s*{_GAMMA}|{_GAMMA}\s*(?:敞口|暴露|头寸|仓位|方向|符号)?\s*"
+    rf"(?:已(?:经)?|目前|当前|仍然|仍)?\s*(?:为|是|偏|呈|转为|转向|转|为净|is|are|has turned|turned)?\s*{_SIGN})"
+    rf"|{_DEALER}.{{0,12}}?净\s*{_GAMMA}(?:的)?(?:方向|符号)?(?:已知|已经?确认|已明确|已经?翻转)"
+    rf"|净\s*{_GAMMA}\s*(?:敞口|头寸|仓位|方向|符号)?(?:已(?:经)?|当前|仍)?(?:为|呈|偏|转为|转)[正负]"
+    rf"|(?:市场|标普|SPX).{{0,8}}?(?:处于|转入|进入)\s*(?:净)?[正负]\s*{_GAMMA}"
+    rf"|{_DEALER}.{{0,12}}?(?:被迫|追涨杀跌|对冲(?:盘|买盘|卖盘|买入|卖出)).{{0,10}}?(?:买入|卖出|买盘|卖盘|加仓|减仓|追涨|抛售|推动|推高|放大|压低|加速)"
+    rf"|{_DEALER}.{{0,8}}?(?:已|正在|持续).{{0,8}}?(?:买入对冲|卖出对冲|追涨杀跌)"
+    rf"|{_DEALER}.{{0,8}}?(?:被迫|被动)(?:追涨|杀跌|买入|卖出|买进|抛售)"
+    rf"|{_DEALER}.{{0,8}}?(?:正在|已经?)(?:买入|卖出|抛售).{{0,8}}?对冲"
+    rf"|(?:已突破|已触及|已确认|位于).{{0,8}}?(?:零\s*{_GAMMA}|gamma\s*flip)",
+    re.IGNORECASE,
+)
+_SQUEEZE = re.compile(r"逼空|轧空|空头挤压|期权挤压|short\s+squeeze", re.I)
+_US_EQUITY = re.compile(r"美股|美股期权|标普|纳指|纳斯达克|美国股指|股票期权|SPX|SPY|S&P\s*500|equity options", re.I)
+_OTHER_MARKET = re.compile(r"日元|日股|日债|国债|美债|回购|人民币|比特币|加密|原油|JPY|JGB|Treasur(?:y|ies)|Bitcoin", re.I)
+_OPTION_QUALIFIER = re.compile(
+    r"能否|是否|未知|不明|不清楚|无法|不能(?:确认|推断|证明|判断|判定|断言|认定)|尚无|无从|尚待|有待|未(?:见|获|能|得到|确认|证实|知|发生|出现|形成)"
+    r"|缺少|缺乏|不足以|没有证据|未经证实|难以确认|不代表|不意味着|不等于|未必|不能据此|需要.*(?:证据|验证)"
+    r"|若|如果|假如|假设|一旦|有可能|可能|才(?:能|会|可)|取决于|情景|警惕|防范|留意|观察是否"
+    r"|\b(?:if|unless|could|might|hypothetical|unconfirmed|unknown|cannot|whether|no evidence)\b",
+    re.IGNORECASE,
+)
+_REALIZED = re.compile(r"已经?|正在|当前|目前|证实|确认|确定|现实中|\b(?:underway|already|now|confirmed)\b", re.I)
+_CHAIN_OBSERVATION = re.compile(
+    rf"(?:无符号|全市场|市场总|持仓总|总)\s*{_GAMMA}(?:敞口|规模|暴露|水平)?"
+    rf"|(?:到期|0DTE).{{0,8}}?{_GAMMA}\s*占比", re.I,
+)
+_CHAIN_LEVEL = re.compile(r"为正|为零|上升|升高|下滑|下降|扩大|收窄|集中|高位|低位|增加|减少|偏高|偏低|飙升|升至|降至|持平")
+
+
+def _option_texts(value, path="$", refs=None, scenario=False):
+    if isinstance(value, dict):
+        if isinstance(value.get("fact_ids"), list):
+            refs = {fid for fid in value["fact_ids"] if isinstance(fid, str)}
+        scenario = scenario or value.get("claim_type") == "scenario"
+        for key, item in value.items():
+            if key not in {"fact_ids", "change_fact_ids", "related_indicators", "dedupe_key", "evidence", "evidence_refs"}:
+                yield from _option_texts(item, f"{path}.{key}", refs, scenario or key == "scenarios")
+    elif isinstance(value, list):
+        for i, item in enumerate(value):
+            yield from _option_texts(item, f"{path}[{i}]", refs, scenario)
+    elif isinstance(value, str):
+        yield path, value, refs, scenario
+
+
+def _validate_option_claims(candidate, package, facts, errors):
+    # Old packages retain the contract used to generate them. In the current
+    # contract even a complete unsigned chain contains no signed dealer inventory.
+    if package.get("research_version") != "3.2" and not any(fid.startswith("option:") for fid in facts):
+        return
+    for path, text, refs, scenario in _option_texts(candidate):
+        for sentence in re.split(r"[。；;！!\n]|(?:但是|但(?!凡)|然而|不过|其实|实际上|\bbut\b)", text, flags=re.I):
+            hypothesized = False
+            clauses = re.split(r"[，,]", sentence)
+            for clause in clauses:
+                clause = clause.strip()
+                if not clause:
+                    continue
+                condition = re.match(r"^(?:若|如果|假如|假设|一旦|仅当|只有|if\b)", clause, re.I)
+                # A condition may govern the following clause. An explicit
+                # observation in that clause still needs direct evidence.
+                hypothetical = bool(condition) or (hypothesized and not _REALIZED.search(clause))
+                hypothesized = hypothesized or bool(condition)
+                if hypothetical or clause.endswith(("？", "?")):
+                    continue
+                assertion = _OPTION_ASSERTION.search(clause)
+                # Other markets can experience short squeezes independently of
+                # equity-option gamma. Match a bare squeeze only in its market.
+                squeeze = _SQUEEZE.search(clause) if not assertion else None
+                if squeeze:
+                    subject = clause[:squeeze.start()]
+                    equities = list(_US_EQUITY.finditer(subject))
+                    others = list(_OTHER_MARKET.finditer(subject))
+                    if equities or others:
+                        in_equities = bool(equities and (not others or equities[-1].start() > others[-1].start()))
+                    else:
+                        in_equities = not _OTHER_MARKET.search(clause) and (
+                            _US_EQUITY.search(sentence) or re.search(_GAMMA, sentence, re.I)
+                            or path.startswith("$.investment_assessment.equities.")
+                            or (refs and any(fid.startswith("option:") for fid in refs)))
+                    if in_equities:
+                        assertion = squeeze
+                chain = _CHAIN_OBSERVATION.search(clause)
+                mention = assertion or chain
+                if not mention:
+                    continue
+                # A hedge such as "可能放大波动" after a definitive inventory
+                # statement does not make that inventory statement conditional.
+                tail = clause[mention.end():].strip()
+                qualifier = re.match(r"(?:的(?:方向|风险|证据|符号|存在))?(?:目前|仍然|并|尚|仍|暂时|还)?(.*)", tail)
+                if (_OPTION_QUALIFIER.search(clause[:mention.end()])
+                        or _OPTION_QUALIFIER.match(qualifier.group(1)) or tail.startswith("还是")):
+                    continue
+                if assertion:
+                    if not _REALIZED.search(clause) and (
+                        "风险" in clause or "的条件" in clause or "的证据" in clause
+                        or (scenario and path.endswith((".title", ".trigger", ".condition", ".invalidation")))
+                    ):
+                        continue
+                    errors.append(f"{path}: 当前期权事实无法确认做市商净Gamma、实际对冲流或已经发生的挤压。请陈述可核验观测，或说明情景触发条件。")
+                    break
+                if chain and _CHAIN_LEVEL.search(clause):
+                    key = "gross_gamma_1pct"
+                    if "占比" in clause:
+                        key = "gamma_share_0dte" if re.search("当日|当天|0dte", clause, re.I) else "gamma_share_7d"
+                    fid = "option:SPX:" + key
+                    fact = facts.get(fid, {})
+                    if (fact.get("status") != "ok" or fact.get("value") is None
+                            or (refs is not None and fid not in refs)):
+                        errors.append(f"{path}: 报告已观测的持仓Gamma或到期占比须有对应的有效逐合约事实 {fid}。")
+                        break
+
+
 def validate_analysis(candidate: Any, model_input: Any) -> List[str]:
     """Return validation errors; an empty list means the candidate is publishable."""
     errors: List[str] = []
@@ -990,6 +1109,7 @@ def validate_analysis(candidate: Any, model_input: Any) -> List[str]:
     _validate_p0(candidate, facts, errors, min(cutoffs) if cutoffs else None)
     _validate_required_modules(candidate, model_input, errors)
     _validate_uncited_predictions(candidate, errors)
+    _validate_option_claims(candidate, model_input, facts, errors)
     errors.extend(validate_investment(candidate, model_input, facts, _unfresh_fact_ids(facts)))
     return errors
 

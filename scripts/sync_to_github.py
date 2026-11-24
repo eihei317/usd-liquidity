@@ -28,6 +28,11 @@ def sync(run,phase):
         shutil.copytree(ROOT/folder,REPO/folder,dirs_exist_ok=True,ignore=shutil.ignore_patterns('__pycache__','data.js','*.db'))
     for name in ('local_app.py','requirements.txt','投资辅助升级方案.txt','提速改造说明.txt','github_sync.json','AGENTS.md'):
         if (ROOT/name).exists():shutil.copy2(ROOT/name,REPO/name)
+    options_doc = Path('docs/options_gamma.md')
+    if (ROOT/options_doc).is_file():
+        (REPO/options_doc).parent.mkdir(exist_ok=True)
+        shutil.copy2(ROOT/options_doc, REPO/options_doc)
+        git('add', options_doc.as_posix())
     dest=REPO/'artifacts/runs'/run.name;dest.mkdir(parents=True,exist_ok=True)
     latest=run/'work/output/latest'
     for p in latest.glob('*.json'):shutil.copy2(p,dest/p.name)

@@ -79,11 +79,11 @@ def validate_investment(candidate, package, facts, unfresh=None):
     unfresh = set() if unfresh is None else unfresh
     value = candidate.get("investment_assessment")
     if not isinstance(value, dict):
-        if package.get("research_version") in {"3.0", "3.1"} or "investment_assessment" in package.get("output_contract", {}).get("required_top_level_fields", []):
+        if package.get("research_version") in {"3.0", "3.1", "3.2"} or "investment_assessment" in package.get("output_contract", {}).get("required_top_level_fields", []):
             errors.append("$.investment_assessment: 本版必须包含投资研究")
         return errors
 
-    if package.get("prompt_version") == "3.1":
+    if package.get("prompt_version") in {"3.1", "3.2"}:
         headline = candidate.get("stance", {}).get("one_liner", "") if isinstance(candidate.get("stance"), dict) else ""
         change = value.get("change_summary")
         for path, text, limit in (("stance.one_liner", headline, 110), ("investment_assessment.change_summary", change, 160)):

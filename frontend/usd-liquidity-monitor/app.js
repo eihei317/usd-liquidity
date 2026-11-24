@@ -100,7 +100,9 @@ function investmentFactMap(facts = window.INVESTMENT_FACTS || {}) {
 }
 
 function researchUnit(unit) {
-  const labels = {"percentage points": "个百分点", "percentage point": "个百分点", "USD bn": "十亿美元", "USD mn": "百万美元", index: "指数点", ratio: "倍", bps: "bp"};
+  const labels = {"percentage points": "个百分点", "percentage point": "个百分点", "USD bn": "十亿美元", "USD mn": "百万美元",
+    "USD per 1% SPX move": "美元（指数变动1%）", "Delta百分点/标的变动1%": "个百分点（指数变动1%）", "等值期货手": "手期货等值",
+    index: "指数点", ratio: "倍", bps: "bp"};
   return labels[unit] || unit || "";
 }
 
@@ -153,7 +155,7 @@ function investmentFactText(fact) {
   const values = [];
   if (fact.value !== undefined) values.push(`观测值 ${researchNumber(fact.value, fact.unit)}`);
   if (fact.change !== undefined) values.push(`变化 ${researchNumber(fact.change, investmentChangeUnit(fact), true)}`);
-  if (!values.length) values.push(fact.summary || fact.coverage_note || fact.note || fact.reason || "");
+  if (!values.length) values.push(fact.summary || fact.message || fact.coverage_note || fact.note || fact.reason || "");
   return [fact.name || fact.id || fact.fact_id, range, ...values, investmentFactStatus(fact)].filter(Boolean).join(" · ");
 }
 
@@ -323,6 +325,149 @@ function renderInvestmentFacts(facts = window.INVESTMENT_FACTS || {}) {
     details.appendChild(list);
     root.appendChild(details);
   }
+}
+
+function optionNumber(value) {
+  if (!Number.isFinite(value)) return "";
+  return value.toLocaleString("zh-CN", {maximumFractionDigits: 2});
+}
+
+function appendOptionSource(root, record, dates) {
+  const meta = el("p", "options-meta", dates.filter(Boolean).join(" · "));
+  if (record.source) {
+    if (meta.textContent) meta.appendChild(el("span", "", " · "));
+    const link = /^https?:\/\//i.test(record.source_url || "") ? el("a", "", record.source) : el("span", "", record.source);
+    if (link.tagName.toLowerCase() === "a") link.href = record.source_url;
+    meta.appendChild(link);
+  }
+  if (meta.textContent) root.appendChild(meta);
+}
+
+function appendOptionsCoverage(root, audit) {
+  if (!audit || !Object.keys(audit).length) return;
+  const details = el("details", "investment-refs");
+  details.appendChild(el("summary", "", "查看数据范围与逐日缺口"));
+  const seriesLabels = {model: "30天平值模型", positioning: "交易商方向敞口", chain: "真实期权链"};
+  const fieldLabels = {first: "最早观测", last: "最近观测", observations: "观测数", scope: "覆盖范围",
+    status: "状态", missing_sp500_dates: "缺少标普收盘值的日期", missing_vix_dates: "缺少 VIX 的日期",
+    missing_futures_only_dates: "缺少仅期货报表的日期", missing_combined_dates: "缺少合并报表的日期",
+    missing_dates: "缺失日期", message: "说明", note: "口径", cutoff: "统计截止日期",
+    first_common_as_of: "最早匹配日期", latest_common_as_of: "最近匹配日期", latest_sp500_as_of: "最近标普收盘日期",
+    latest_vix_as_of: "最近 VIX 日期", sp500_gaps: "标普数据质量", vix_gaps: "VIX 数据质量",
+    invalid_dates: "无效值日期", invalid_or_conflicting_dates: "无效或同日冲突的日期",
+    conflicting_dates: "同日数值冲突", model_error_dates: "模型不可计算日期",
+    after_cutoff_dates: "晚于截止日的记录", undated_rows: "缺少日期的记录数", source_gaps: "分来源核对",
+    combined: "合并报表", futures_only: "仅期货报表", excluded_dates: "排除的报告日",
+    missing_both_week_starts: "两张报表均缺少的周（周一日期）", incompatible_unit_dates: "合约单位不一致的日期",
+    unit_change_dates: "合约单位变更日期", coverage: "合约覆盖", input_status: "输入状态",
+    source_histories: "完整源历史", eligible_observations: "有效观测数", eligible_first: "最早有效日期", eligible_last: "最近有效日期",
+    missing_snapshot_dates: "缺少期权链快照的交易日", missing_fact_dates: "按读数核对缺失日期",
+    "option:SPX:gross_gamma_1pct": "指数变动1%的总 Gamma 敞口", "option:SPX:gamma_share_7d": "7日内到期占比",
+    "option:SPX:gamma_share_0dte": "当日到期占比",
+    available_snapshots: "可用快照数", listed_rows: "合约记录", eligible_contracts: "有效合约", expired_contracts: "已到期合约",
+    duplicate_rows: "重复记录", missing_contracts: "缺少 Gamma 或持仓的合约", same_day_timing_missing: "当日到期合约时刻缺失",
+    quote_stale: "报价滞后", oi_stale: "未平仓量滞后", session_open_at_observation: "报价时开市", reason: "核对结果"};
+  const valueLabels = {ok: "有效", stale: "观测滞后", missing: "数据缺失", not_configured: "未接入期权链",
+    invalid: "数据校验失败", redistribution_unconfirmed: "向指定仓库导出的权限待确认", unavailable_at_cutoff: "采集时尚不可用",
+    partial: "部分覆盖", complete: "完整", incomplete_chain: "合约链不完整", true: "是", false: "否"};
+  function addFields(parent, fields) {
+    Object.entries(fields).forEach(([key, value]) => {
+      const label = fieldLabels[key] || key;
+      if (Array.isArray(value)) {
+        const more = el("details", "options-audit");
+        more.appendChild(el("summary", "", label + "（" + value.length + " 项）"));
+        more.appendChild(el("p", "", value.map(item => typeof item === "object" ? JSON.stringify(item) : valueLabels[item] ?? item).join("，") || "无"));
+        parent.appendChild(more);
+      } else if (value && typeof value === "object") {
+        const group = el("details", "options-audit");
+        group.appendChild(el("summary", "", label));
+        addFields(group, value);
+        parent.appendChild(group);
+      } else if (value != null) {
+        parent.appendChild(el("p", "options-meta", label + "：" + (valueLabels[value] ?? String(value))));
+      }
+    });
+  }
+  Object.entries(audit).forEach(([series, fields]) => {
+    if (!fields || typeof fields !== "object") return;
+    details.appendChild(el("h4", "", seriesLabels[series] || series));
+    addFields(details, fields);
+  });
+  root.appendChild(details);
+}
+
+function renderOptions(options = window.INVESTMENT_FACTS?.options, coverage) {
+  const root = document.getElementById("options-panel");
+  if (!root) return;
+  root.replaceChildren();
+  if (!options) {
+    root.appendChild(el("p", "empty", "本期归档未收录期权数据。"));
+    appendOptionsCoverage(root, coverage);
+    return;
+  }
+  root.appendChild(el("p", "", "Delta 表示期权价格对指数涨跌有多敏感，Gamma 表示这种敏感度变得有多快。若做市商整体持有负 Gamma，指数越涨，他们为对冲而追买的需求可能越大。"));
+  const readings = [
+    [options.model, "标普500平值期权 · 30天模型", "指数上涨1%时，模型估算期权 Delta 增加", "个百分点",
+      "取同日 VIX 作为波动率假设，行权价等于指数点位。这项读数会随 VIX 变化。"],
+    [options.positioning, "标普500股指期货期权 · 交易商方向敞口", "交易商期权净敞口折算为", "手股指期货",
+      "取 CFTC 两张持仓报表中交易商净持仓之差。正数代表净多，负数代表净空。"]
+  ];
+  readings.forEach(([fact, title, prefix, unit, note]) => {
+    const section = el("div", "options-row");
+    section.appendChild(el("h3", "", title));
+    if (["ok", "stale", "partial_latest"].includes(fact?.status) && Number.isFinite(fact.value)) {
+      const freshness = {stale: "上次读数（已滞后）· ", partial_latest: "最新一期未配对，最近可比读数 · "};
+      const weekly = fact === options.positioning;
+      const direction = weekly && fact.value !== 0 ? (fact.value < 0 ? "净空 " : "净多 ") : "";
+      const level = weekly ? Math.abs(fact.value) : fact.value;
+      let reading = (freshness[fact.status] || "") + prefix + " " + direction + optionNumber(level) + " " + unit + "。";
+      if (weekly && Number.isFinite(fact.change) && fact.previous_as_of) {
+        reading += fact.change === 0 ? "与上周持平。" : "较上周向" + (fact.change < 0 ? "净空" : "净多") + "方向变动 " + optionNumber(Math.abs(fact.change)) + " 手。";
+      }
+      section.appendChild(el("p", "", reading));
+      section.appendChild(el("p", "options-meta", note));
+    } else {
+      section.appendChild(el("p", "", fact?.message || "本期缺少有效读数。"));
+    }
+    if (fact) appendOptionSource(section, fact, [fact.as_of && "观测日 " + fact.as_of]);
+    root.appendChild(section);
+  });
+  const chain = options.chain || {};
+  const section = el("div", "options-row");
+  section.appendChild(el("h3", "", "SPX 与 SPXW · 真实期权链"));
+  const facts = Array.isArray(chain.facts) ? chain.facts : [];
+  const byId = new Map(facts.filter(fact => ["ok", "stale"].includes(fact.status) && Number.isFinite(fact.value)).map(fact => [fact.fact_id, fact.value]));
+  const gross = byId.get("option:SPX:gross_gamma_1pct");
+  if (["ok", "stale"].includes(chain.status) && Number.isFinite(gross)) {
+    if (chain.status === "stale") section.appendChild(el("p", "", "以下为上次完整观测，行情已滞后。"));
+    if (chain.input_status?.length) section.appendChild(el("p", "", "本次另有输入未通过校验，以下读数取标注日期的最近合格快照。"));
+    section.appendChild(el("p", "", "按各合约未平仓量和 Gamma 计算。缺少做市商持仓方向，以下按绝对值汇总。"));
+    const measures = el("dl", "options-measures");
+    for (const [label, value, unit] of [
+      ["指数变动1%的总 Gamma 敞口", gross >= 1e8 ? gross / 1e8 : gross, gross >= 1e8 ? " 亿美元" : " 美元"],
+      ["7日内到期占比", byId.get("option:SPX:gamma_share_7d"), "%"],
+      ["当日到期占比", byId.get("option:SPX:gamma_share_0dte"), "%"]
+    ]) {
+      const entry = el("div", "");
+      entry.append(el("dt", "", label), el("dd", "", Number.isFinite(value) ? optionNumber(value) + unit : "未知"));
+      measures.appendChild(entry);
+    }
+    section.appendChild(measures);
+    const strikes = (chain.strike_distribution || []).filter(row => Number.isFinite(row.strike) && Number.isFinite(row.share_pct));
+    if (strikes.length) {
+      section.appendChild(el("p", "options-meta", "敞口集中的行权价（指数点／占总量）：" +
+        strikes.slice(0, 5).map(row => optionNumber(row.strike) + " 点／" + optionNumber(row.share_pct) + "%").join("，")));
+    }
+  } else {
+    const limits = {partial: "本期取得的合约不全。", invalid: "本期合约快照未通过校验。",
+      unavailable_at_cutoff: "本期采集时还没有已发布的合约快照。", redistribution_unconfirmed: "本期未确认向指定仓库导出汇总的权限。"};
+    section.appendChild(el("p", "", (limits[chain.status] || "本期没有可展示的完整期权链汇总。") + "做市商净 Gamma 未知。"));
+  }
+  appendOptionSource(section, chain, [chain.observed_at ? "行情时刻 " + chain.observed_at : chain.as_of && "行情日期 " + chain.as_of,
+    chain.open_interest_as_of && "未平仓量日期 " + chain.open_interest_as_of,
+    chain.available_at && "可用时刻 " + chain.available_at]);
+  root.appendChild(section);
+  appendOptionsCoverage(root, coverage);
 }
 
 function renderResearchReview(review = window.RESEARCH_REVIEW || {}) {
@@ -713,7 +858,13 @@ function renderCharts(charts, chartGroups, dashboard) {
   chartInstances.forEach(c => c.destroy());
   chartInstances = [];
   
-  const byId = new Map((charts || []).map(chart => [chart.id, chart]));
+  const optionsContainer = document.getElementById("options-charts");
+  const allCharts = charts || [];
+  if (optionsContainer) {
+    optionsContainer.replaceChildren(...allCharts.filter(chart => chart.id.startsWith("options_")).map(renderChartCard));
+  }
+  const otherCharts = optionsContainer ? allCharts.filter(chart => !chart.id.startsWith("options_")) : allCharts;
+  const byId = new Map(otherCharts.map(chart => [chart.id, chart]));
   
   const defaultCoreChartIds = [
     "anchor_spreads_30d",
@@ -736,7 +887,7 @@ function renderCharts(charts, chartGroups, dashboard) {
   
   const backgroundCharts = backgroundChartIds.length
     ? backgroundChartIds.map(id => byId.get(id)).filter(Boolean)
-    : charts.filter(c => !coreChartIds.includes(c.id));
+    : otherCharts.filter(c => !coreChartIds.includes(c.id));
   backgroundCharts.forEach(chart => bgContainer.appendChild(renderChartCard(chart)));
 }
 
@@ -778,7 +929,7 @@ function formatChartNumber(value, unit) {
   if (unit === "bp") return `${number.toFixed(1)}bp`;
   if (unit === "USD bn") return `${number.toFixed(1)}bn`;
   if (unit === "ratio") return `${number.toFixed(2)}x`;
-  return `${number.toFixed(2)}${unit || ""}`;
+  return `${number.toFixed(2)}${researchUnit(unit)}`;
 }
 
 function renderChartStats(chart) {
@@ -794,7 +945,8 @@ function renderChartStats(chart) {
     const valueRow = el("div", "chart-stat-value");
     valueRow.appendChild(document.createTextNode(formatChartNumber(latest.value, chart.unit)));
     if (delta !== null && !Number.isNaN(delta)) {
-      valueRow.appendChild(el("small", delta > 0 ? "up" : delta < 0 ? "down" : "flat", `${delta > 0 ? "+" : ""}${formatChartNumber(delta, chart.unit)}`));
+      const changeUnit = chart.id.startsWith("options_") && chart.unit === "%" ? "个百分点" : chart.unit;
+      valueRow.appendChild(el("small", delta > 0 ? "up" : delta < 0 ? "down" : "flat", `${delta > 0 ? "+" : ""}${formatChartNumber(delta, changeUnit)}`));
     }
     stat.appendChild(valueRow);
     stat.appendChild(el("span", "chart-stat-date", latest.date || "--"));
@@ -804,7 +956,7 @@ function renderChartStats(chart) {
 }
 
 function renderChartCard(rawChart) {
-  const chart = limitChartToRecentMonth(rawChart);
+  const chart = rawChart.id.startsWith("options_") ? rawChart : limitChartToRecentMonth(rawChart);
   const card = el("article", "card chart-card");
   card.appendChild(el("h3", "", chart.title));
   card.appendChild(renderChartStats(chart));
@@ -866,7 +1018,7 @@ function buildScales(chart, unit) {
 function drawChartJS(chart, canvas) {
   const allDates = chart.series.flatMap(s => s.points || []);
   const labels = Array.from(new Set(allDates.map(p => p.date))).sort();
-  const unit = chart.unit || "";
+  const unit = chart.id.startsWith("options_") ? researchUnit(chart.unit) : chart.unit || "";
 
   const datasets = chart.series.map((s, index) => {
     const pointMap = {};
@@ -993,6 +1145,7 @@ async function init() {
     
     renderMeta(dashboard);
     renderDailyBrief(analysis);
+    renderOptions(window.INVESTMENT_FACTS?.options, dashboard.history_coverage?.option_details);
     renderInvestmentAssessment(analysis);
     renderInvestmentFacts();
     renderResearchReview();

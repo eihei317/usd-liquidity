@@ -94,9 +94,61 @@ def _calendar_evidence(fact):
     return "，".join(parts) + "。"
 
 
+_OPTION_NAMES = {
+    "option:SPX:model_delta_change_1pct": "标普500的30天平值期权模型",
+    "option:SP500_FUTURES:dealer_option_delta": "标普500股指期货期权的交易商方向敞口",
+    "option:SPX:gross_gamma_1pct": "SPX 与 SPXW 全部未平仓合约的 Gamma 敞口",
+    "option:SPX:gamma_share_7d": "7日内到期合约占总 Gamma 敞口的比例",
+    "option:SPX:gamma_share_0dte": "当日到期且仍可交易的合约占总 Gamma 敞口的比例",
+}
+
+
+def _gamma_money(value):
+    if value >= 100_000_000:
+        return _quantity(value / 100_000_000, "亿美元")
+    if value >= 10_000:
+        return _quantity(value / 10_000, "万美元")
+    return _quantity(value, "美元")
+
+
+def _option_evidence(fact, fid):
+    name, value = _OPTION_NAMES[fid], fact.get("value")
+    status = fact.get("status")
+    if status == "redistribution_unconfirmed":
+        return f"{name}向指定仓库导出的权限尚未确认。"
+    if not _number(value) or status in {"missing", "partial", "invalid", "unavailable_at_cutoff", "not_configured"}:
+        return f"{name}本期缺少可用观测。"
+    previous_date, change = fact.get("previous_as_of"), fact.get("change")
+    change_unit = "个百分点"
+    if fid.endswith(":model_delta_change_1pct"):
+        statement = f"{name}估算，指数上涨1%时，期权 Delta 约增加{_quantity(value, '个百分点')}"
+    elif fid.endswith(":dealer_option_delta"):
+        position = "净多" if value > 0 else "净空" if value < 0 else "净额为"
+        statement = f"CFTC 持仓折算显示，{name}{position}{_quantity(abs(value), '手期货等值')}"
+        change_unit = "手期货等值"
+    elif fid.endswith(":gross_gamma_1pct"):
+        statement = f"按指数变动1%估算，{name}按绝对值合计{_gamma_money(value)}"
+    else:
+        statement = f"{name}为{_quantity(value, '%')}"
+    if previous_date and _number(change):
+        magnitude = _gamma_money(abs(change)) if fid.endswith(":gross_gamma_1pct") else _quantity(abs(change), change_unit)
+        if change and fid.endswith(":dealer_option_delta"):
+            direction = "多头" if change > 0 else "空头"
+            statement += f"，净敞口较{previous_date}向{direction}方向变化{magnitude}"
+        else:
+            movement = "持平" if change == 0 else ("增加" if change > 0 else "减少") + magnitude
+            statement += f"，较{previous_date}的读数{movement}"
+    text = (fact.get("as_of") or "观测日期未知") + "，" + statement + "。"
+    if status == "partial_latest":
+        text += "最新一期的来源未能配对，以上为最近一次可比观测。"
+    return text
+
+
 def _describe_fact(fact):
     fid = str(fact.get("fact_id", ""))
     mid = str(fact.get("id") or fid.rsplit(":", 1)[-1])
+    if fid in _OPTION_NAMES:
+        return _option_evidence(fact, fid)
     if fid.startswith("calendar:"):
         return _calendar_evidence(fact)
     if fid.startswith("event:"):

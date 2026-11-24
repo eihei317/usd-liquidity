@@ -6,8 +6,10 @@ OUT=ROOT/'output'
 sys.path.insert(0,str(ROOT))
 
 def require_history_complete(coverage):
-    if coverage.get('missing') or coverage.get('treasury_failures'):
-        raise RuntimeError('历史覆盖未完成，已保留抓取产物但停止发布：'+json.dumps({'missing':coverage.get('missing',[]),'source_failures':coverage.get('treasury_failures',[])},ensure_ascii=False))
+    optional = {r['id'] for r in coverage.get('series', []) if r.get('kind') == 'options' and r.get('optional')}
+    missing = [sid for sid in coverage.get('missing', []) if sid not in optional]
+    if missing or coverage.get('treasury_failures') or coverage.get('option_source_failures'):
+        raise RuntimeError('历史覆盖未完成，已保留抓取产物但停止发布：'+json.dumps({'missing':missing,'source_failures':coverage.get('treasury_failures',[]),'option_source_failures':coverage.get('option_source_failures',[])},ensure_ascii=False))
 
 def verified_json_bytes(path, digest, *, exported=False):
     raw = path.read_bytes()
@@ -103,31 +105,60 @@ def market_context_for_capture(stamp, old_context, fetch):
 def prepare_research(latest, previous_package=None, fetch=False, previous_snapshot=None):
     from scripts.analysis import analysis_output_contract
     from scripts.investment_facts import MARKET_SERIES, enrich_package
+    from scripts.options_research import attach_options, capture_inputs
     package=read(latest/'model_input.json')
     snapshot=read(latest/'snapshot.json')
     old_context=read(latest/'investment_market_context.json') if (latest/'investment_market_context.json').exists() else None
     context = market_context_for_capture(package['generated_at_bjt'], old_context, fetch)
     atomic(latest/'investment_market_context.json',context)
+    snapshot['investment_market_context']=context
+    db = latest.parent/'usd_liquidity.db'
+    package=enrich_package(package,snapshot,previous_package,history_db=db,previous_snapshot=previous_snapshot)
+    option_path = latest/'options_capture.json'
+    capture = capture_inputs(package['generated_at_bjt'], read(option_path) if option_path.exists() else None,
+                             ROOT/'.workbuddy/option_chains', fetch=fetch)
+    atomic(option_path, capture)
+    if fetch:
+        timing_path = latest/'fetch_timings.json'
+        timings = read(timing_path) if timing_path.is_file() else {}
+        sources = capture['positioning'].get('sources', {})
+        timings['cftc'] = {'observed_concurrency': 1 if sources else 0,
+                           'jobs': [{'name': name, 'status': source['status'], 'seconds': source.get('seconds')}
+                                    for name, source in sources.items()]}
+        atomic(timing_path, timings)
+    option_rows, option_details, option_charts = attach_options(package, snapshot, context, capture, db)
+    dashboard = read(latest/'dashboard_data.json')
+    dashboard['charts'] = [c for c in dashboard.get('charts', []) if not c['id'].startswith('options_')] + option_charts
+    charts_path = latest/'charts.json'
+    if charts_path.exists():
+        charts = read(charts_path)
+        charts['charts'] = [c for c in charts.get('charts', []) if not c['id'].startswith('options_')] + option_charts
+        atomic(charts_path, charts)
     coverage_path=latest.parent/'history_coverage.json'
     if coverage_path.exists():
         coverage=read(coverage_path)
-        coverage['series']=[r for r in coverage['series'] if r['kind']!='market']
+        coverage['series']=[r for r in coverage['series'] if r['kind'] not in ('market','options')]
         for sid in MARKET_SERIES:
             rows = context.get('price_history', {}).get(sid, [])
             source_status = context.get('series', {}).get(sid, {}).get('status', 'missing')
             coverage['series'].append({'kind':'market','id':sid,'source':'FRED public source history','source_status':source_status,'observations':len(rows),'first':rows[0]['date'] if rows else None,'last':rows[-1]['date'] if rows else None,'status':'history_available' if len(rows)>1 else 'missing_history'})
+        coverage['series'].extend(option_rows)
+        coverage['option_details'] = option_details
+        options = package['data']['facts']['investment']['options']
+        failures = [f'CFTC {table}: {status}' for table, status in options['positioning']['source_statuses'].items() if status != 'ok']
+        coverage['option_source_failures'] = failures + [f'{sid}: {status}' for sid, status in options['model']['source_statuses'].items()
+                                                         if status not in ('ok', 'stale')]
         coverage['missing']=[r['id'] for r in coverage['series'] if r['status']=='missing_history']
         atomic(coverage_path,coverage)
-        dashboard=read(latest/'dashboard_data.json');dashboard['history_coverage']=coverage;atomic(latest/'dashboard_data.json',dashboard)
-
-    snapshot['investment_market_context']=context
-    package=enrich_package(package,snapshot,previous_package,history_db=latest.parent/'usd_liquidity.db',
-                           previous_snapshot=previous_snapshot)
-    package['research_version']='3.1'
-    package['prompt_version']='3.1'
+        dashboard['history_coverage']=coverage
+    atomic(latest/'dashboard_data.json',dashboard)
+    package['research_version']='3.2'
+    package['prompt_version']='3.2'
+    package['investment_method_version']='3.2'
     package['analysis_prompt']=(ROOT/'prompts/usd_liquidity_prompt.md').read_text(encoding='utf-8')+'\n\n'+(ROOT/'prompts/investment_research_prompt.md').read_text(encoding='utf-8')
     contract=package.setdefault('output_contract',{})
     contract.update(analysis_output_contract())
+    contract['equity_options_rule']='美股期权只用于解释股市反应。VIX 模型不能作为独立确认，CFTC 的期权方向敞口不能识别做市商净 Gamma。'
     fields=contract.setdefault('required_top_level_fields',[])
     if 'investment_assessment' not in fields:fields.append('investment_assessment')
     atomic(latest/'model_input.json',package)
@@ -191,7 +222,8 @@ def run(mode, source_run=None, candidate=None):
             incremental_state=previous.parent/'history_incremental_state.json'
             if incremental_state.exists() and not restored:shutil.copy2(incremental_state,work/'output/history_incremental_state.json')
             if db.exists() and not restored:
-                with sqlite3.connect(str(db)) as source_db,sqlite3.connect(str(work/'output/usd_liquidity.db')) as target:source_db.backup(target)
+                with contextlib.closing(sqlite3.connect(str(db))) as source_db, contextlib.closing(sqlite3.connect(str(work/'output/usd_liquidity.db'))) as target:
+                    source_db.backup(target)
             env=os.environ.copy()
             key=ROOT/'.workbuddy/secrets/fred_api_key'
             if not env.get('FRED_API_KEY') and key.exists():env['FRED_API_KEY']=key.read_text(encoding='utf-8-sig').strip()
