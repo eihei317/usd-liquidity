@@ -1,9 +1,12 @@
 {
   "run_id": "20261124_155409_efffeb2c",
-  "phase": "capture",
+  "phase": "result",
   "files": {
-    "analysis.json": "9b1a2f3a7bb59b43b8b2461ef0a93cc027b174c4cbb446d7b0a52236a97de33c",
+    "analysis.json": "3783f3e74935b2120074246e4d374f8119847901a0491cd30d989313a07d8c18",
+    "brief.md": "f717b77f54dd43935d44440318060e147e1be67fa3e8e17cc88e3e762e1ba8fb",
+    "bundle.json": "51853441276480d45ea2533ac875b396e8c34d888a0378c00e706c9ad267e060",
     "charts.json": "8f9364553ab2279fc0b95a94f24476f8ae11247dd5920b6970d3f42116fc61de",
+    "dashboard.html": "ba679febf57f3a312f924d44c096865996369c00607da4edb5d9e249ff02f04f",
     "dashboard_data.json": "e0f165b7929f2cb4aebaf301b233becfe5e3d757651a522e53032631deb0f19f",
     "fetch_timings.json": "ee1ec8a39eceab684726a4de505aec7a33970b9991477e51f2d180b7539c8719",
     "history.sqlite.gz": "26351030cfa627bbf02c485aecda3ca5d54792684433857cd81462919e3cc111",
@@ -12,8 +15,11 @@
     "jpy_carry_analysis.json": "22c88092a26ff11756ffcd229b469457e63305876849314b76629552784ff528",
     "jpy_carry_history.json": "41e688de8f5da94b3fc9740a35477b3fab576fe242390833be6fd4d6486c6b4b",
     "jpy_carry_model_input.json": "6014e81fba9d318513b4aba6e24545a508db5bb1e303051c0f770e51328bf59c",
+    "manifest.json": "7b36d69e84e2ba1da4d03b8aa90fc7133af6d011b8bbd3d3359bcee18b6042ea",
     "model_input.json": "e36dc2db7eec8e9660a46adbb0049e4a279de1af14ecb29c14d1acc8f4164944",
     "options_capture.json": "7e397111f62e3690d77e3b8a6fef9d19de3f92be7cd3bc16a58aac37cdceb148",
+    "research_record.json": "28494fac2dad9f690ee0f697e6681e706be6f6bf0de391aafffac8f8eea503b5",
+    "research_review.json": "cc33bbda0e6a1a0868e74345d58d47a3b0406b3516c3ca785d3dc1006a4356e7",
     "snapshot.json": "0247f1647fb269c881cd7a03b7f3daccdace3c800bf9f685d5e21ac588ccb9dc"
   },
   "history_database_sha256": "ba502368326dafe2d19109384e7fb0f36ad5a7884991685aaeff2f20b2e3e050"
