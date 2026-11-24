@@ -1,9 +1,12 @@
 {
   "run_id": "20261124_204330_14ec652e",
-  "phase": "capture",
+  "phase": "result",
   "files": {
-    "analysis.json": "59d98d5051fb0e54039319754c5b19eb2a0c1e258d582c57531a762d87d0ada3",
+    "analysis.json": "6c65b0f7f714574b542994809e617426189d1b91d0e9fa972a6ddfe7b99a0199",
+    "brief.md": "660614a3ea4cc998ce95de25a1d91d86a3ae513f8c704ef1a633939aca49abd2",
+    "bundle.json": "0207faef2eec8a406fad9f9c090db66f69ad3a3ec765a56bcbcadc8dd0055418",
     "charts.json": "4696806f97ab3ed8befe4758d0d60a1d50823b967d8676c7421016dd3f72f81d",
+    "dashboard.html": "f8a9ef8abb74eb3bb0ba9306b005068fb4bc7201e5a9ef35dd49684a4de27818",
     "dashboard_data.json": "7d1227279ba2ef81c85da2be2cf73404bb1ce2e9861fcc61a503a96b51e44737",
     "fetch_timings.json": "c2f4bc5e875d75b6a44dd48ebebac584090cf2e264cadc13e176eb12edacd480",
     "history.sqlite.gz": "0b0ed89cb72fd5057e7b5ff8ac3793e57a70a43837c61458ac9b368d0952a7a7",
@@ -12,8 +15,11 @@
     "jpy_carry_analysis.json": "9fd591dcfeb833046ab233f5e5098041d60a2207e8e8bb88dc0ddf64926482f8",
     "jpy_carry_history.json": "9da48e7754a316e6577132ab4786113019d29a5430ce4f10c89e9c123e07acb4",
     "jpy_carry_model_input.json": "72a9addb98bbee25e77918e887562f0d1875d544411737ca85d4a050625b1372",
+    "manifest.json": "27e2e908814c431c92635acf485e016ac1d88fc268aff074bb4816dc547d7b74",
     "model_input.json": "d4fa2f8cda6dbd071a437cab708191c3aa29a1db32e4055bcd5265f56b17d8bd",
     "options_capture.json": "6be71c890745ec7909d99daacd52510a28a0a238a519c2bc1ecd4a6222f89b79",
+    "research_record.json": "3ae71f97f8a3b8660e06f97c8523771dd784c7135140cf87ee01e5da5d76ffba",
+    "research_review.json": "939353279ae2d4fa38141e9eb6be46a6ab62d2a3e92bbf630a811883e40a2538",
     "snapshot.json": "e2656e2f5226d6fe1ec80b4316cacf203008fc82a913ba65b3d890d40a8f794a"
   },
   "history_database_sha256": "baee219c45e3da66a3eac5ad37c45d8bfcae099e3669ba58a6340d688e18ab92"
