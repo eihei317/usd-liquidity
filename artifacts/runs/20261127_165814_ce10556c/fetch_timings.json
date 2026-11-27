@@ -1,0 +1,297 @@
+{
+  "requested_workers": 6,
+  "observed_concurrency": 6,
+  "jobs": [
+    {
+      "name": "SOFR",
+      "index": 0,
+      "status": "ok",
+      "failed_metrics": [],
+      "seconds": 2.48
+    },
+    {
+      "name": "SOFR_VOLUME",
+      "index": 1,
+      "status": "ok",
+      "failed_metrics": [],
+      "seconds": 2.501
+    },
+    {
+      "name": "TGCR",
+      "index": 2,
+      "status": "ok",
+      "failed_metrics": [],
+      "seconds": 2.37
+    },
+    {
+      "name": "BGCR",
+      "index": 3,
+      "status": "ok",
+      "failed_metrics": [],
+      "seconds": 2.375
+    },
+    {
+      "name": "EFFR",
+      "index": 4,
+      "status": "ok",
+      "failed_metrics": [],
+      "seconds": 3.368
+    },
+    {
+      "name": "OBFR",
+      "index": 5,
+      "status": "ok",
+      "failed_metrics": [],
+      "seconds": 2.398
+    },
+    {
+      "name": "TGA",
+      "index": 6,
+      "status": "source_error",
+      "failed_metrics": [
+        "TGA"
+      ],
+      "seconds": 39.562
+    },
+    {
+      "name": "RRP",
+      "index": 7,
+      "status": "ok",
+      "failed_metrics": [],
+      "seconds": 1.806
+    },
+    {
+      "name": "Treasury_auctions",
+      "index": 8,
+      "status": "source_error",
+      "failed_metrics": [
+        "UST_AUCTION_BTC"
+      ],
+      "seconds": 39.5
+    },
+    {
+      "name": "SOMA",
+      "index": 9,
+      "status": "ok",
+      "failed_metrics": [],
+      "seconds": 1.483
+    },
+    {
+      "name": "OFR_repo_fails",
+      "index": 10,
+      "status": "source_error",
+      "failed_metrics": [
+        "REPO_FAILS_UST"
+      ],
+      "seconds": 12.582
+    },
+    {
+      "name": "Tbill_auctions",
+      "index": 11,
+      "status": "source_error",
+      "failed_metrics": [
+        "TBILL_AUCTION_SIZE",
+        "TBILL_AUCTION_BTC"
+      ],
+      "seconds": 11.389
+    },
+    {
+      "name": "FRBSF_term_premium",
+      "index": 12,
+      "status": "ok",
+      "failed_metrics": [],
+      "seconds": 2.948
+    },
+    {
+      "name": "FRED_IORB",
+      "index": 13,
+      "status": "ok",
+      "failed_metrics": [],
+      "seconds": 2.73
+    },
+    {
+      "name": "FRED_WRESBAL",
+      "index": 14,
+      "status": "ok",
+      "failed_metrics": [],
+      "seconds": 1.756
+    },
+    {
+      "name": "FRED_DTWEXBGS",
+      "index": 15,
+      "status": "ok",
+      "failed_metrics": [],
+      "seconds": 1.733
+    },
+    {
+      "name": "FRED_DCPN3M",
+      "index": 16,
+      "status": "ok",
+      "failed_metrics": [],
+      "seconds": 1.711
+    },
+    {
+      "name": "FRED_DFEDTARU",
+      "index": 17,
+      "status": "ok",
+      "failed_metrics": [],
+      "seconds": 1.806
+    },
+    {
+      "name": "FRED_HY_OAS",
+      "index": 18,
+      "status": "ok",
+      "failed_metrics": [],
+      "seconds": 1.534
+    },
+    {
+      "name": "FRED_IG_OAS",
+      "index": 19,
+      "status": "ok",
+      "failed_metrics": [],
+      "seconds": 1.513
+    },
+    {
+      "name": "FRED_DTB3",
+      "index": 20,
+      "status": "ok",
+      "failed_metrics": [],
+      "seconds": 1.666
+    },
+    {
+      "name": "FRED_DGS3MO",
+      "index": 21,
+      "status": "ok",
+      "failed_metrics": [],
+      "seconds": 1.74
+    },
+    {
+      "name": "FRED_DGS1",
+      "index": 22,
+      "status": "ok",
+      "failed_metrics": [],
+      "seconds": 1.593
+    },
+    {
+      "name": "FRED_DGS2",
+      "index": 23,
+      "status": "ok",
+      "failed_metrics": [],
+      "seconds": 1.596
+    },
+    {
+      "name": "FRED_DGS3",
+      "index": 24,
+      "status": "ok",
+      "failed_metrics": [],
+      "seconds": 1.429
+    },
+    {
+      "name": "FRED_DGS5",
+      "index": 25,
+      "status": "ok",
+      "failed_metrics": [],
+      "seconds": 1.718
+    },
+    {
+      "name": "FRED_DGS7",
+      "index": 26,
+      "status": "ok",
+      "failed_metrics": [],
+      "seconds": 1.763
+    },
+    {
+      "name": "FRED_DGS10",
+      "index": 27,
+      "status": "ok",
+      "failed_metrics": [],
+      "seconds": 1.597
+    },
+    {
+      "name": "FRED_DFII5",
+      "index": 28,
+      "status": "ok",
+      "failed_metrics": [],
+      "seconds": 1.514
+    },
+    {
+      "name": "FRED_DFII7",
+      "index": 29,
+      "status": "ok",
+      "failed_metrics": [],
+      "seconds": 1.628
+    },
+    {
+      "name": "FRED_DFII10",
+      "index": 30,
+      "status": "ok",
+      "failed_metrics": [],
+      "seconds": 1.652
+    },
+    {
+      "name": "FRED_T10Y2Y",
+      "index": 31,
+      "status": "ok",
+      "failed_metrics": [],
+      "seconds": 1.632
+    },
+    {
+      "name": "FRED_T10Y3M",
+      "index": 32,
+      "status": "ok",
+      "failed_metrics": [],
+      "seconds": 1.49
+    },
+    {
+      "name": "FRED_VIX",
+      "index": 33,
+      "status": "ok",
+      "failed_metrics": [],
+      "seconds": 1.588
+    },
+    {
+      "name": "FRED_NFCI",
+      "index": 34,
+      "status": "ok",
+      "failed_metrics": [],
+      "seconds": 1.698
+    },
+    {
+      "name": "Treasury_nominal",
+      "index": 35,
+      "status": "source_error",
+      "failed_metrics": [],
+      "seconds": 39.262
+    },
+    {
+      "name": "Treasury_real",
+      "index": 36,
+      "status": "source_error",
+      "failed_metrics": [],
+      "seconds": 38.636
+    },
+    {
+      "name": "Standing_repo",
+      "index": 37,
+      "status": "ok",
+      "failed_metrics": [],
+      "seconds": 1.761
+    }
+  ],
+  "seconds": 57.834,
+  "cftc": {
+    "observed_concurrency": 1,
+    "jobs": [
+      {
+        "name": "combined",
+        "status": "error",
+        "seconds": 25.222
+      },
+      {
+        "name": "futures_only",
+        "status": "error",
+        "seconds": 25.155
+      }
+    ]
+  }
+}
