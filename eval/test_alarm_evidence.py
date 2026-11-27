@@ -27,6 +27,17 @@ def check_alarm(rows, title="回购融资承压", refs=None, claim_type="observe
 
 
 class Alarm(unittest.TestCase):
+    def test_distinct_quality_warnings_preserve_metric_and_observation_date(self):
+        message = "指标已陈旧，只能作为背景或数据风险。"
+        facts = [{"fact_id": "quality:stale_metric:" + mid, "metric_id": mid,
+                  "as_of": day, "message": message, "type": "stale"}
+                 for mid, day in (("DTWEXBGS", "2026-11-20"), ("REPO_FAILS_UST", "2026-11-11"))]
+        rendered = [format_fact_evidence(fact) for fact in facts]
+        self.assertNotEqual(*rendered)
+        for fact, text in zip(facts, rendered):
+            self.assertIn(fact["as_of"], text)
+            self.assertIn(message, text)
+
     def setUp(self):
         self.repo = [observation("metric:SOFR", 5, 4.5), observation("metric:SRP_RATE", 4.9, 4.9),
                      observation("metric:SRP_ACCEPTED", 2, 0, "USD bn")]

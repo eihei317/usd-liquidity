@@ -191,6 +191,10 @@ def _describe_fact(fact):
     value = fact.get("value")
     if not _number(value):
         text = fact.get("message") or fact.get("text") or f"{_label(fact, mid)}缺少可用观测。"
+        if fid.startswith("quality:") and fact.get("metric_id"):
+            label = _label(fact, fact["metric_id"])
+            observed = f"最近观测日为{fact['as_of']}。" if fact.get("as_of") else ""
+            return f"{label}。{observed}{text}"
         if fid == "jpy:CFTC_DECOMPOSITION" and fact.get("as_of"):
             return f"{fact['as_of']} 当周，{text}"
         return text
