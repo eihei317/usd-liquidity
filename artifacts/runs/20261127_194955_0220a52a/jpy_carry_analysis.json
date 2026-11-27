@@ -1,0 +1,57 @@
+{
+  "meta": {
+    "generated_at_bjt": "2026-11-27 19:50:48 UTC+08:00",
+    "model": "rule_summary",
+    "prompt_file": "C:\\Users\\Admin（无密码）\\Desktop\\workspace\\usd liquidity\\output\\runs\\20261127_194955_0220a52a\\work\\prompts\\jpy_usd_carry_liquidity_prompt.md",
+    "note": "模型分析可基于 jpy_carry_model_input.json 覆盖本文件。"
+  },
+  "risk": {
+    "label": "中性",
+    "score": 1.5,
+    "reasons": [
+      "美股期权隐含波动率处于较高水平",
+      "美日10Y利差处于相对较窄区域，收益端安全垫下降"
+    ]
+  },
+  "one_liner": "日元 carry unwind 风险为中性；美股期权隐含波动率处于较高水平；美日10Y利差处于相对较窄区域，收益端安全垫下降",
+  "dashboard_modules": [
+    {
+      "module": "日元融资端",
+      "status": "低位但需观察",
+      "evidence": "1.227%",
+      "explanation": "carry trade 的融资端"
+    },
+    {
+      "module": "美日利差",
+      "status": "同日收益率之差",
+      "as_of": "2026-11-24",
+      "evidence": "220.2bp",
+      "explanation": "美日长端利差越宽，carry收益端越顺风"
+    },
+    {
+      "module": "汇率与波动",
+      "status": "未触发unwind",
+      "evidence": "159.22 / vol 3.72%",
+      "explanation": "快速日元升值和波动率上升才是核心触发。"
+    },
+    {
+      "module": "仓位拥挤度(净)",
+      "status": "中性",
+      "evidence": "29.8%",
+      "explanation": "净多持仓收窄6,796手，至116,317手。本周非商业空头+15,793手，多头+8,997手，空头占比变化+1.86个百分点。"
+    },
+    {
+      "module": "空头真实强度",
+      "status": "空头强化",
+      "evidence": "35.5%",
+      "explanation": "净多持仓收窄6,796手，至116,317手。本周非商业空头+15,793手，多头+8,997手，空头占比变化+1.86个百分点。"
+    }
+  ],
+  "watchlist": [
+    "USD/JPY 20日实现波动率",
+    "CFTC JPY净仓位/OI",
+    "CFTC JPY空头占比(空头/(空头+多头))",
+    "10Y UST-JGB利差",
+    "VIX/HY OAS"
+  ]
+}
